@@ -107,6 +107,19 @@ export async function registerAction(formData: FormData) {
     });
   }
 
+  if (data.session) {
+    redirect(toPath(locale, "/feed"));
+  }
+
+  const {error: signInError} = await supabase.auth.signInWithPassword({
+    email: parsed.data.email,
+    password: parsed.data.password,
+  });
+
+  if (!signInError) {
+    redirect(toPath(locale, "/feed"));
+  }
+
   redirect(toPath(locale, "/login?registered=1"));
 }
 
