@@ -2,18 +2,24 @@
 
 import {useEffect, useMemo, useState} from "react";
 import {motion} from "framer-motion";
-import {Bookmark, Heart, MessageCircle, Share2} from "lucide-react";
+import {Bookmark, Heart, MessageCircle, Send, Share2, Trash2} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
+import {useFormStatus} from "react-dom";
 
 import {CommentCard} from "@/components/feed/comment-card";
 import {UserAvatar} from "@/components/layout/user-avatar";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Input} from "@/components/ui/input";
 import type {PostWithAuthor, CommentWithAuthor} from "@/types/database";
 import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
 import {translateContent} from "@/lib/i18n/translateContent";
-import {cn} from "@/lib/utils/cn";
+import {
+  addCommentAction,
+  deletePostAction,
+  toggleLikeAction,
+} from "@/app/[locale]/server-actions";
 
 function timeAgo(dateStr: string, locale: string): string {
   const now = Date.now();
@@ -44,12 +50,32 @@ function getCategorySlug(
   return post.category.name_en;
 }
 
+function CommentSubmitButton({loading}: {loading: string}) {
+  const {pending} = useFormStatus();
+  return (
+    <Button type="submit" size="icon" className="shrink-0" disabled={pending}>
+      {pending ? <span className="text-xs">{loading}</span> : <Send size={14} />}
+    </Button>
+  );
+}
+
+function DeletePostButton() {
+  const {pending} = useFormStatus();
+  return (
+    <Button type="submit" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" disabled={pending}>
+      <Trash2 size={14} />
+    </Button>
+  );
+}
+
 export function PostCard({
   post,
   comments: postComments,
+  currentUserId,
 }: {
   post: PostWithAuthor;
   comments: CommentWithAuthor[];
+  currentUserId?: string | null;
 }) {
   const t = useTranslations("Feed");
   const common = useTranslations("Common");
@@ -62,13 +88,12 @@ export function PostCard({
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
   const [translationError, setTranslationError] = useState(false);
-  const [liked, setLiked] = useState(false);
+  const [showCommentInput, setShowCommentInput] = useState(false);
 
   const authorName = post.author?.full_name ?? post.author?.username ?? t("unknownAuthor");
-  const authorRole = post.author?.username ?? t("member");
   const postTime = timeAgo(post.created_at, locale);
-  const likeCount = liked ? post.likes_count + 1 : post.likes_count;
   const visibleContent = isTranslated && translatedText ? translatedText : post.content;
+  const isOwnPost = currentUserId != null && post.author_id === currentUserId;
 
   useEffect(() => {
     setIsTranslated(false);
@@ -125,13 +150,24 @@ export function PostCard({
               <div className="space-y-1">
                 <CardTitle className="text-[15px] leading-none sm:text-base">{authorName}</CardTitle>
                 <p className="text-[11px] text-muted-foreground sm:text-xs">
-                  {authorRole} | {postTime} {t("ago")}
+                  {postTime} {t("ago")}
                 </p>
               </div>
             </div>
-            <Badge className="bg-brand-primary-soft px-2 py-1 text-[10px] text-brand-primary sm:text-xs">
-              {getCategorySlug(post, locale)}
-            </Badge>
+            <div className="flex items-center gap-1">
+              {post.category ? (
+                <Badge className="bg-brand-primary-soft px-2 py-1 text-[10px] text-brand-primary sm:text-xs">
+                  {getCategorySlug(post, locale)}
+                </Badge>
+              ) : null}
+              {isOwnPost ? (
+                <form action={deletePostAction}>
+                  <input type="hidden" name="locale" value={locale} />
+                  <input type="hidden" name="postId" value={post.id} />
+                  <DeletePostButton />
+                </form>
+              ) : null}
+            </div>
           </div>
         </CardHeader>
 
@@ -172,18 +208,23 @@ export function PostCard({
           ) : null}
 
           <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
+            <form action={toggleLikeAction} className="contents">
+              <input type="hidden" name="locale" value={locale} />
+              <input type="hidden" name="postId" value={post.id} />
+              <Button
+                type="submit"
+                variant="ghost"
+                className="min-h-11 justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground sm:justify-start sm:gap-2 sm:px-3 sm:text-sm"
+              >
+                <Heart size={16} className="shrink-0" />
+                <span>{t("actionCounts.likes", {count: post.likes_count})}</span>
+              </Button>
+            </form>
             <Button
               variant="ghost"
-              className={cn(
-                "min-h-11 justify-center gap-1.5 rounded-xl px-2 text-xs sm:justify-start sm:gap-2 sm:px-3 sm:text-sm",
-                liked ? "text-primary" : "text-muted-foreground",
-              )}
-              onClick={() => setLiked((value) => !value)}
+              onClick={() => setShowCommentInput(!showCommentInput)}
+              className="min-h-11 justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground sm:justify-start sm:gap-2 sm:px-3 sm:text-sm"
             >
-              <Heart size={16} className={cn("shrink-0", liked ? "fill-primary" : "")} />
-              <span>{t("actionCounts.likes", {count: likeCount})}</span>
-            </Button>
-            <Button variant="ghost" className="min-h-11 justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground sm:justify-start sm:gap-2 sm:px-3 sm:text-sm">
               <MessageCircle size={16} />
               <span>{t("actionCounts.comments", {count: post.comments_count})}</span>
             </Button>
@@ -197,16 +238,37 @@ export function PostCard({
             </Button>
           </div>
 
+          {showCommentInput ? (
+            <form action={addCommentAction} className="flex items-center gap-2">
+              <input type="hidden" name="locale" value={locale} />
+              <input type="hidden" name="postId" value={post.id} />
+              <Input
+                name="content"
+                placeholder={t("commentPlaceholder")}
+                required
+                className="min-h-11"
+              />
+              <CommentSubmitButton loading={t("sending")} />
+            </form>
+          ) : null}
+
           {postComments.length > 0 ? (
             <div className="space-y-2 border-t border-border/60 pt-2">
-              {postComments.slice(0, 2).map((comment) => (
-                <CommentCard
-                  key={comment.id}
-                  author={comment.author?.full_name ?? comment.author?.username ?? t("unknownAuthor")}
-                  content={comment.content}
-                  timeAgo={timeAgo(comment.created_at, locale)}
-                />
-              ))}
+              {postComments.slice(0, 3).map((comment) => {
+                const commentAuthor = comment.author?.full_name ?? comment.author?.username ?? t("unknownAuthor");
+                const isOwnComment = currentUserId != null && comment.author_id === currentUserId;
+                return (
+                  <CommentCard
+                    key={comment.id}
+                    commentId={comment.id}
+                    author={commentAuthor}
+                    content={comment.content}
+                    timeAgo={timeAgo(comment.created_at, locale)}
+                    isOwn={isOwnComment}
+                    locale={locale}
+                  />
+                );
+              })}
             </div>
           ) : null}
         </CardContent>

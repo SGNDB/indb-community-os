@@ -1,5 +1,6 @@
-﻿import type {Metadata} from "next";
+import type {Metadata} from "next";
 import {getTranslations} from "next-intl/server";
+import {redirect} from "next/navigation";
 
 import {AdminStatsCard} from "@/components/admin/admin-stats-card";
 import {ModerationQueue} from "@/components/admin/moderation-queue";
@@ -7,6 +8,7 @@ import {getPostsTodayCount} from "@/lib/data/posts";
 import {getPendingMemoriesCount} from "@/lib/data/memories";
 import {getIdeasCount} from "@/lib/data/ideas";
 import {getReportsCount, getPendingReports} from "@/lib/data/reports";
+import {createClient} from "@/lib/supabase/server";
 
 export async function generateMetadata({
   params,
@@ -29,6 +31,23 @@ export default async function AdminPage({
 }) {
   const {locale} = await params;
   const t = await getTranslations({locale, namespace: "Admin"});
+
+  const supabase = await createClient();
+  const {data: {user}} = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/${locale}/login`);
+  }
+
+  const {data: profile} = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role !== "admin") {
+    redirect(`/${locale}/feed`);
+  }
 
   const [postsToday, pendingMemories, openIdeas, reportsCount, pendingReports] = await Promise.all([
     getPostsTodayCount(),
@@ -58,4 +77,3 @@ export default async function AdminPage({
     </div>
   );
 }
-

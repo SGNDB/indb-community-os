@@ -7,6 +7,7 @@ import {PostCard} from "@/components/feed/post-card";
 import {EmptyState} from "@/components/shared/empty-state";
 import {getCommentsByPost} from "@/lib/data/comments";
 import {getPosts} from "@/lib/data/posts";
+import {createClient} from "@/lib/supabase/server";
 
 export async function generateMetadata({
   params,
@@ -31,6 +32,10 @@ export default async function FeedPage({
   const empty = await getTranslations({locale, namespace: "EmptyStates.posts"});
   const posts = await getPosts();
 
+  const supabase = await createClient();
+  const {data: {user}} = await supabase.auth.getUser();
+  const currentUserId = user?.id ?? null;
+
   return (
     <div className="space-y-3 sm:space-y-4">
       <CreatePostCard />
@@ -40,7 +45,7 @@ export default async function FeedPage({
           {await Promise.all(
             posts.map(async (post) => {
               const comments = await getCommentsByPost(post.id);
-              return <PostCard key={post.id} post={post} comments={comments} />;
+              return <PostCard key={post.id} post={post} comments={comments} currentUserId={currentUserId} />;
             }),
           )}
         </div>

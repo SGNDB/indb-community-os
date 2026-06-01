@@ -1,9 +1,8 @@
-﻿import type {Metadata} from "next";
+import type {Metadata} from "next";
 import {getTranslations} from "next-intl/server";
 
 import {IdeaSubmitForm} from "@/components/ideas/idea-submit-form";
-
-const categoryKeys = ["education", "environment", "youth", "culture"] as const;
+import {getCategories} from "@/lib/data/categories";
 
 export async function generateMetadata({
   params,
@@ -25,17 +24,16 @@ export default async function SubmitIdeaPage({
   params: Promise<{locale: string}>;
 }) {
   const {locale} = await params;
-  const t = await getTranslations({locale, namespace: "Categories"});
 
-  const categories = categoryKeys.map((key, index) => ({
-    id: index + 1,
-    name: t(`idea.${key}`),
+  const dbCategories = await getCategories();
+  const categories = dbCategories.map((cat) => ({
+    id: cat.id,
+    name: locale === "ar" ? cat.name_ar : locale === "fr" ? cat.name_fr : cat.name_en,
   }));
 
   return (
     <div className="mx-auto max-w-3xl">
-      <IdeaSubmitForm categories={categories} />
+      <IdeaSubmitForm categories={categories} locale={locale} />
     </div>
   );
 }
-

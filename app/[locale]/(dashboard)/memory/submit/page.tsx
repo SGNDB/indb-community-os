@@ -1,9 +1,7 @@
-﻿import type {Metadata} from "next";
+import type {Metadata} from "next";
 import {getTranslations} from "next-intl/server";
 
 import {MemoryUploadForm} from "@/components/memory/memory-upload-form";
-
-const categoryKeys = ["history", "railway", "fishing", "culture"] as const;
 
 export async function generateMetadata({
   params,
@@ -25,17 +23,10 @@ export default async function SubmitMemoryPage({
   params: Promise<{locale: string}>;
 }) {
   const {locale} = await params;
-  const t = await getTranslations({locale, namespace: "Categories"});
-
-  const categories = categoryKeys.map((key, index) => ({
-    id: index + 1,
-    name: t(`memory.${key}`),
-  }));
 
   return (
     <div className="mx-auto max-w-3xl">
-      <MemoryUploadForm categories={categories} />
+      <MemoryUploadForm locale={locale} />
     </div>
   );
 }
-

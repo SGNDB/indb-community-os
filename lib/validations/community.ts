@@ -18,9 +18,8 @@ export const registerSchema = z
   });
 
 export const createPostSchema = z.object({
-  title: z.string().min(4).max(120),
-  content: z.string().min(8).max(2800),
-  categoryId: z.coerce.number().int().positive(),
+  content: z.string().min(2).max(2800),
+  categoryId: z.coerce.number().int().positive().optional(),
 });
 
 export const commentSchema = z.object({
@@ -31,21 +30,24 @@ export const profileSchema = z.object({
   username: z.string().min(3).max(24),
   fullName: z.string().min(2).max(100),
   bio: z.string().max(500).optional().or(z.literal("")),
-  avatarUrl: z.url().optional().or(z.literal("")),
+  city: z.string().max(100).optional().or(z.literal("")),
+  languagePreference: z.string().max(10).optional().or(z.literal("")),
+  avatarUrl: z.string().optional().or(z.literal("")),
 });
 
 export const memorySchema = z.object({
   title: z.string().min(4).max(150),
-  story: z.string().min(10).max(5000),
-  categoryId: z.coerce.number().int().positive(),
-  eraLabel: z.string().max(60).optional().or(z.literal("")),
+  description: z.string().min(10).max(5000),
+  decade: z.string().max(60).optional().or(z.literal("")),
+  year: z.coerce.number().int().min(1800).max(2100).optional().or(z.literal("")),
   location: z.string().max(120).optional().or(z.literal("")),
+  tags: z.string().optional().or(z.literal("")),
 });
 
 export const ideaSchema = z.object({
   title: z.string().min(4).max(150),
   description: z.string().min(10).max(5000),
-  categoryId: z.coerce.number().int().positive(),
+  categoryId: z.coerce.number().int().positive().optional(),
 });
 
 

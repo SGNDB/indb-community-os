@@ -5,6 +5,7 @@ import {useFormStatus} from "react-dom";
 
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
+import {Link} from "@/lib/i18n/routing";
 import {registerAction} from "@/app/[locale]/server-actions";
 
 function SubmitButton({label, loading}: {label: string; loading: string}) {
@@ -27,6 +28,9 @@ export function RegisterForm({locale}: {locale: string}) {
       <Input type="password" name="password" placeholder={t("password")} required />
       <Input type="password" name="confirmPassword" placeholder={t("confirmPassword")} required />
       <SubmitButton label={t("submit")} loading={t("submitting")} />
+      <p className="text-center text-xs text-muted-foreground">
+        {t("hasAccount")} <Link href="/login" className="text-primary hover:underline">{t("login")}</Link>
+      </p>
     </form>
   );
 }

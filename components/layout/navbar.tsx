@@ -1,5 +1,6 @@
-﻿import {getTranslations} from "next-intl/server";
+import {getTranslations} from "next-intl/server";
 
+import {AuthNav} from "@/components/layout/auth-nav";
 import {LanguageSwitcher} from "@/components/layout/language-switcher";
 import {Logo} from "@/components/layout/Logo";
 import {NotificationDropdown} from "@/components/layout/notification-dropdown";
@@ -7,9 +8,14 @@ import {SearchBar} from "@/components/layout/search-bar";
 import {ThemeToggle} from "@/components/layout/theme-toggle";
 import {UserAvatar} from "@/components/layout/user-avatar";
 import {Link} from "@/lib/i18n/routing";
+import {createClient} from "@/lib/supabase/server";
 
-export async function Navbar() {
+export async function Navbar({locale}: {locale: string}) {
   const t = await getTranslations("Navbar");
+
+  const supabase = await createClient();
+  const {data} = await supabase.auth.getUser();
+  const isLoggedIn = !!data.user;
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/90 pt-[var(--safe-top)] backdrop-blur-xl">
@@ -44,13 +50,15 @@ export async function Navbar() {
             <NotificationDropdown />
             <LanguageSwitcher />
             <ThemeToggle />
-            <Link href="/profile">
-              <UserAvatar label={t("memberAvatarLabel")} />
-            </Link>
+            <AuthNav locale={locale} isLoggedIn={isLoggedIn} />
+            {isLoggedIn ? null : (
+              <Link href="/login">
+                <UserAvatar label={t("memberAvatarLabel")} />
+              </Link>
+            )}
           </div>
         </div>
       </div>
     </header>
   );
 }
-

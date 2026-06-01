@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import {revalidatePath} from "next/cache";
 import {redirect} from "next/navigation";
@@ -25,15 +25,6 @@ function normalizeLocale(value: FormDataEntryValue | null) {
 
 function toPath(locale: string, pathname: string) {
   return `/${locale}${pathname}`;
-}
-
-function isDuplicate(error: unknown) {
-  if (!(error instanceof Error)) {
-    return false;
-  }
-
-  const message = error.message.toLowerCase();
-  return message.includes("duplicate") || message.includes("unique");
 }
 
 export async function signOutAction(formData: FormData) {
@@ -133,7 +124,6 @@ export async function createPostAction(formData: FormData) {
   }
 
   const parsed = createPostSchema.safeParse({
-    title: formData.get("title"),
     content: formData.get("content"),
     categoryId: formData.get("categoryId"),
   });
@@ -149,10 +139,10 @@ export async function createPostAction(formData: FormData) {
 
   await supabase.from("posts").insert({
     author_id: user.id,
-    title: parsed.data.title,
     content: parsed.data.content,
-    category_id: parsed.data.categoryId,
-    media_url: (formData.get("mediaUrl") as string | null) || null,
+    type: (formData.get("type") as string) || "community",
+    category_id: parsed.data.categoryId || null,
+    image_url: (formData.get("imageUrl") as string | null) || null,
   });
 
   revalidatePath(toPath(locale, "/feed"));
@@ -244,6 +234,8 @@ export async function updateProfileAction(formData: FormData) {
     username: formData.get("username"),
     fullName: formData.get("fullName"),
     bio: formData.get("bio"),
+    city: formData.get("city"),
+    languagePreference: formData.get("languagePreference"),
     avatarUrl: formData.get("avatarUrl"),
   });
 
@@ -263,6 +255,8 @@ export async function updateProfileAction(formData: FormData) {
     username: parsed.data.username,
     full_name: parsed.data.fullName,
     bio: parsed.data.bio || null,
+    city: parsed.data.city || null,
+    language_preference: parsed.data.languagePreference || "auto",
     avatar_url: parsed.data.avatarUrl || null,
   });
 
@@ -289,10 +283,11 @@ export async function submitMemoryAction(formData: FormData) {
 
   const parsed = memorySchema.safeParse({
     title: formData.get("title"),
-    story: formData.get("story"),
-    categoryId: formData.get("categoryId"),
-    eraLabel: formData.get("eraLabel"),
+    description: formData.get("description"),
+    decade: formData.get("decade"),
+    year: formData.get("year"),
     location: formData.get("location"),
+    tags: formData.get("tags"),
   });
 
   if (!parsed.success) {
@@ -309,13 +304,14 @@ export async function submitMemoryAction(formData: FormData) {
   const {data: memory, error} = await supabase
     .from("memories")
     .insert({
-      author_id: user.id,
+      contributor_id: user.id,
       title: parsed.data.title,
-      story: parsed.data.story,
-      category_id: parsed.data.categoryId,
-      era_label: parsed.data.eraLabel || null,
+      description: parsed.data.description,
+      decade: parsed.data.decade || null,
+      year: parsed.data.year ? Number(parsed.data.year) : null,
       location: parsed.data.location || null,
-      status: "pending",
+      verification_status: "approved",
+      tags: parsed.data.tags ? parsed.data.tags.split(",").map((t: string) => t.trim()).filter(Boolean) : [],
     })
     .select("id")
     .single();
@@ -397,6 +393,96 @@ export async function submitIdeaAction(formData: FormData) {
   redirect(toPath(locale, "/ideas"));
 }
 
+export async function deletePostAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(toPath(locale, "/login"));
+  }
+
+  const postId = formData.get("postId");
+
+  if (typeof postId !== "string") {
+    redirect(toPath(locale, "/feed"));
+  }
+
+  const {data: post} = await supabase
+    .from("posts")
+    .select("author_id")
+    .eq("id", postId)
+    .single();
+
+  if (!post || post.author_id !== user.id) {
+    redirect(toPath(locale, "/feed"));
+  }
+
+  await supabase.from("posts").delete().eq("id", postId);
+
+  revalidatePath(toPath(locale, "/feed"));
+  redirect(toPath(locale, "/feed"));
+}
+
+export async function deleteCommentAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(toPath(locale, "/login"));
+  }
+
+  const commentId = formData.get("commentId");
+
+  if (typeof commentId !== "string") {
+    redirect(toPath(locale, "/feed"));
+  }
+
+  const {data: comment} = await supabase
+    .from("comments")
+    .select("author_id, post_id")
+    .eq("id", commentId)
+    .single();
+
+  if (!comment || comment.author_id !== user.id) {
+    redirect(toPath(locale, "/feed"));
+  }
+
+  await supabase.from("comments").delete().eq("id", commentId);
+
+  revalidatePath(toPath(locale, "/feed"));
+  redirect(toPath(locale, "/feed"));
+}
+
+export async function forgotPasswordAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const t = await getTranslations({locale, namespace: "Errors"});
+  const supabase = await createClient();
+
+  const email = formData.get("email");
+
+  if (typeof email !== "string" || !email.includes("@")) {
+    redirect(toPath(locale, `/forgot-password?error=${encodeURIComponent(t("invalidInput"))}`));
+  }
+
+  const {error} = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/${locale}/login`,
+  });
+
+  if (error) {
+    redirect(toPath(locale, `/forgot-password?error=${encodeURIComponent(error.message)}`));
+  }
+
+  redirect(toPath(locale, "/forgot-password?sent=1"));
+}
+
 export async function voteIdeaAction(formData: FormData) {
   const locale = normalizeLocale(formData.get("locale"));
   const ideaId = formData.get("ideaId");
@@ -414,17 +500,22 @@ export async function voteIdeaAction(formData: FormData) {
     redirect(toPath(locale, "/ideas"));
   }
 
-  const {error} = await supabase.from("idea_votes").insert({
-    idea_id: ideaId,
-    user_id: user.id,
-  });
+  const {data: existing} = await supabase
+    .from("idea_votes")
+    .select("id")
+    .eq("idea_id", ideaId)
+    .eq("user_id", user.id)
+    .maybeSingle();
 
-  if (error && !isDuplicate(error)) {
-    redirect(toPath(locale, `/ideas?error=${encodeURIComponent(error.message)}`));
+  if (existing) {
+    await supabase.from("idea_votes").delete().eq("id", existing.id);
+  } else {
+    await supabase.from("idea_votes").insert({
+      idea_id: ideaId,
+      user_id: user.id,
+    });
   }
 
   revalidatePath(toPath(locale, "/ideas"));
   redirect(toPath(locale, "/ideas"));
 }
-
-

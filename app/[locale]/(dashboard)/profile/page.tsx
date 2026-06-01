@@ -12,7 +12,8 @@ import {getUserPosts} from "@/lib/data/posts";
 import {getCurrentProfile} from "@/lib/data/profile";
 import {getUserMemories} from "@/lib/data/memories";
 import {getUserIdeas} from "@/lib/data/ideas";
-import {redirect} from "@/lib/i18n/routing";
+import {Link, redirect} from "@/lib/i18n/routing";
+import {createClient} from "@/lib/supabase/server";
 
 const tabs = ["posts", "memories", "ideas"] as const;
 
@@ -49,6 +50,10 @@ export default async function ProfilePage({
     redirect({href: "/login", locale});
     return;
   }
+
+  const supabase = await createClient();
+  const {data: {user}} = await supabase.auth.getUser();
+  const currentUserId = user?.id ?? null;
 
   const t = await getTranslations({locale, namespace: "Profile"});
   const empty = await getTranslations({locale, namespace: "EmptyStates.profile"});
@@ -95,7 +100,9 @@ export default async function ProfilePage({
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button className="min-h-11">{t("editProfile")}</Button>
+            <Link href="/profile/edit">
+              <Button className="min-h-11">{t("editProfile")}</Button>
+            </Link>
             <Button variant="outline" className="min-h-11">
               {t("shareProfile")}
             </Button>
@@ -122,7 +129,7 @@ export default async function ProfilePage({
             await Promise.all(
               posts.slice(0, 2).map(async (post) => {
                 const comments = await getCommentsByPost(post.id);
-                return <PostCard key={post.id} post={post} comments={comments} />;
+                return <PostCard key={post.id} post={post} comments={comments} currentUserId={currentUserId} />;
               }),
             )
           ) : (

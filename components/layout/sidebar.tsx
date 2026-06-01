@@ -1,19 +1,15 @@
 ﻿"use client";
 
 import {
-  CalendarDays,
-  Compass,
   Home,
   Images,
   Lightbulb,
-  ListChecks,
   Newspaper,
   UserRound,
 } from "lucide-react";
 import {useTranslations} from "next-intl";
 
 import {Logo} from "@/components/layout/Logo";
-import {Badge} from "@/components/ui/badge";
 import {Link, usePathname} from "@/lib/i18n/routing";
 import {cn} from "@/lib/utils/cn";
 
@@ -22,9 +18,6 @@ const navItems = [
   {href: "/feed", key: "feed", icon: Newspaper},
   {href: "/memory", key: "memory", icon: Images},
   {href: "/ideas", key: "ideas", icon: Lightbulb},
-  {href: "/polls", key: "polls", icon: ListChecks},
-  {href: "/events", key: "events", icon: CalendarDays},
-  {href: "/projects", key: "projects", icon: Compass},
   {href: "/profile", key: "profile", icon: UserRound},
 ] as const;
 
@@ -60,11 +53,8 @@ export function Sidebar() {
                 >
                   <span className="inline-flex items-center gap-2">
                     <Icon size={16} />
-                    {t(`items.${item.key}.label`)}
+                  {t(`items.${item.key}.label`)}
                   </span>
-                  {item.href === "/feed" ? (
-                    <Badge className={cn(active ? "bg-primary-foreground/20 text-primary-foreground" : "")}>12</Badge>
-                  ) : null}
                 </Link>
               </li>
             );

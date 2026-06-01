@@ -6,7 +6,7 @@ import {useFormStatus} from "react-dom";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Link} from "@/lib/i18n/routing";
-import {loginAction} from "@/app/[locale]/server-actions";
+import {forgotPasswordAction} from "@/app/[locale]/server-actions";
 
 function SubmitButton({label, loading}: {label: string; loading: string}) {
   const {pending} = useFormStatus();
@@ -17,20 +17,16 @@ function SubmitButton({label, loading}: {label: string; loading: string}) {
   );
 }
 
-export function LoginForm({locale}: {locale: string}) {
-  const t = useTranslations("Auth.login");
+export function ForgotPasswordForm({locale}: {locale: string}) {
+  const t = useTranslations("Auth.forgotPassword");
 
   return (
-    <form action={loginAction} className="space-y-3">
+    <form action={forgotPasswordAction} className="space-y-3">
       <input type="hidden" name="locale" value={locale} />
       <Input type="email" name="email" placeholder={t("email")} required />
-      <Input type="password" name="password" placeholder={t("password")} required />
-      <div className="flex items-center justify-between">
-        <SubmitButton label={t("submit")} loading={t("submitting")} />
-        <Link href="/forgot-password" className="text-xs text-primary hover:underline">{t("forgotPassword")}</Link>
-      </div>
+      <SubmitButton label={t("submit")} loading={t("submitting")} />
       <p className="text-center text-xs text-muted-foreground">
-        {t("noAccount")} <Link href="/register" className="text-primary hover:underline">{t("register")}</Link>
+        <Link href="/login" className="text-primary hover:underline">{t("backToLogin")}</Link>
       </p>
     </form>
   );

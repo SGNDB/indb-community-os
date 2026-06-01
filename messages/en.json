@@ -56,7 +56,9 @@
     "changeTo": "Switch language to {language}"
   },
   "Navbar": {
-    "memberAvatarLabel": "Community member profile"
+    "memberAvatarLabel": "Community member profile",
+    "logout": "Log out",
+    "loggingOut": "Logging out..."
   },
   "Navigation": {
     "items": {
@@ -141,6 +143,10 @@
     "ago": "ago",
     "save": "Save",
     "share": "Share",
+    "deleting": "Deleting...",
+    "sending": "Sending...",
+    "commentPlaceholder": "Write a comment...",
+    "unknownAuthor": "Unknown",
     "all": "All",
     "categories": {
       "community": "Community",
@@ -268,7 +274,19 @@
       "memories": "Memories",
       "ideas": "Ideas"
     },
-    "recentMemories": "Recent Memories"
+    "recentMemories": "Recent Memories",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "updated": "Profile updated successfully.",
+    "cancel": "Cancel",
+    "fields": {
+      "username": "Username",
+      "fullName": "Full name",
+      "bio": "Bio",
+      "city": "City",
+      "languagePreference": "Language (en, fr, ar)",
+      "avatarUrl": "Avatar URL"
+    }
   },
   "ProfileCard": {
     "bio": "Community storyteller documenting memories, ideas, and local projects.",
@@ -325,7 +343,11 @@
       "done": "Frontend demo: login interaction completed.",
       "email": "Email",
       "password": "Password",
-      "submit": "Sign in"
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "register": "Create one"
     },
     "register": {
       "title": "Create your account",
@@ -334,7 +356,18 @@
       "email": "Email",
       "password": "Password",
       "confirmPassword": "Confirm password",
-      "submit": "Create account"
+      "submit": "Create account",
+      "submitting": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "login": "Sign in"
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "email": "Email address",
+      "submit": "Send reset link",
+      "submitting": "Sending...",
+      "sent": "Check your email for a password reset link.",
+      "backToLogin": "Back to login"
     }
   },
   "Errors": {
