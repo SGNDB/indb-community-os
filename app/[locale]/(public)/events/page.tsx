@@ -1,0 +1,43 @@
+﻿import type {Metadata} from "next";
+import {getTranslations} from "next-intl/server";
+
+import {EventCard} from "@/components/events/event-card";
+import {events} from "@/lib/constants/mock-data";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{locale: string}>;
+}): Promise<Metadata> {
+  const {locale} = await params;
+  const t = await getTranslations({locale, namespace: "Meta"});
+
+  return {
+    title: t("events.title"),
+    description: t("events.description"),
+  };
+}
+
+export default async function EventsPage({
+  params,
+}: {
+  params: Promise<{locale: string}>;
+}) {
+  const {locale} = await params;
+  const t = await getTranslations({locale, namespace: "Events"});
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl border border-border/70 bg-card p-4">
+        <h1 className="text-xl font-semibold">{t("title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("description")}</p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        {events.map((event) => (
+          <EventCard key={event.id} event={event} />
+        ))}
+      </div>
+    </div>
+  );
+}
+

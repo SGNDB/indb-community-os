@@ -1,0 +1,344 @@
+{
+  "Meta": {
+    "siteTitle": "I love NDB",
+    "siteDescription": "منصة نواذيبو المجتمعية لحفظ الذاكرة والمشاركة وصناعة الحلول المحلية.",
+    "home": {
+      "title": "الرئيسية",
+      "description": "اكتشف منصة INDB المجتمعية للذاكرة والمشاركة والعمل المحلي."
+    },
+    "feed": {
+      "title": "المجتمع",
+      "description": "تابع تحديثات المجتمع والقصص والنقاشات البنّاءة."
+    },
+    "memory": {
+      "title": "الذاكرة",
+      "description": "استكشف ذكريات المجتمع والقصص والتراث المحلي."
+    },
+    "events": {
+      "title": "الفعاليات",
+      "description": "اكتشف الفعاليات القادمة والمبادرات المحلية."
+    },
+    "projects": {
+      "title": "المشاريع",
+      "description": "تابع المشاريع المجتمعية وجهود المتطوعين ونسب التقدم."
+    },
+    "polls": {
+      "title": "الاستطلاعات",
+      "description": "شارك في استطلاعات المجتمع لدعم قرارات شاملة وبنّاءة."
+    },
+    "ideas": {
+      "title": "الأفكار",
+      "description": "صوّت وساهم في أفكار عملية لخدمة نواذيبو."
+    },
+    "timeline": {
+      "title": "الخط الزمني",
+      "description": "تصفّح المحطات المهمة في ذاكرة نواذيبو المجتمعية."
+    },
+    "profile": {
+      "title": "الملف الشخصي",
+      "description": "اعرض ملفك المجتمعي ومساهماتك ونشاطك."
+    },
+    "admin": {
+      "title": "لوحة الإدارة",
+      "description": "تابع أعمال الإشراف ومؤشرات المنصة."
+    },
+    "memorySubmit": {
+      "title": "إرسال ذكرى",
+      "description": "شارك ذكرى مجتمعية مع السياق والتفاصيل الأرشيفية."
+    },
+    "ideaSubmit": {
+      "title": "إرسال فكرة",
+      "description": "اقترح فكرة مدنية وساهم في تحديد أولويات المجتمع."
+    }
+  },
+  "LanguageSwitcher": {
+    "label": "مبدّل اللغة",
+    "changeTo": "تغيير اللغة إلى {language}"
+  },
+  "Navbar": {
+    "memberAvatarLabel": "ملف عضو المجتمع"
+  },
+  "Navigation": {
+    "items": {
+      "home": {
+        "label": "الرئيسية",
+        "short": "الرئيسية"
+      },
+      "feed": {
+        "label": "المجتمع",
+        "short": "المجتمع"
+      },
+      "memory": {
+        "label": "الذاكرة",
+        "short": "الذاكرة"
+      },
+      "ideas": {
+        "label": "الأفكار",
+        "short": "الأفكار"
+      },
+      "polls": {
+        "label": "الاستطلاعات",
+        "short": "استطلاع"
+      },
+      "events": {
+        "label": "الفعاليات",
+        "short": "فعاليات"
+      },
+      "projects": {
+        "label": "المشاريع",
+        "short": "مشاريع"
+      },
+      "profile": {
+        "label": "الملف الشخصي",
+        "short": "الملف"
+      }
+    }
+  },
+  "Theme": {
+    "toggle": "تبديل السمة"
+  },
+  "Search": {
+    "placeholder": "بحث"
+  },
+  "Notifications": {
+    "button": "الإشعارات",
+    "title": "الإشعارات",
+    "items": {
+      "cleanup": "تنطلق حملة تنظيف الشاطئ يوم السبت عند الساعة 8:00 صباحًا.",
+      "memoryAdded": "تمت إضافة ذكرى جديدة: قصص محطة القطار القديمة.",
+      "ideaVotes": "فكرتك «المكتبة العامة» وصلت إلى 100 تصويت."
+    }
+  },
+  "RightSidebar": {
+    "trendingTopics": "المواضيع الرائجة",
+    "featuredMemories": "ذكريات مميزة",
+    "activePoll": "الاستطلاع النشط",
+    "votes": "{count} تصويت",
+    "upcomingEvents": "فعاليات قادمة",
+    "sampleEventOne": {
+      "title": "يوم تنظيف الشاطئ",
+      "date": "السبت 8 يونيو"
+    },
+    "sampleEventTwo": {
+      "title": "أمسية ذاكرة السكك الحديدية",
+      "date": "الخميس 13 يونيو"
+    }
+  },
+  "Landing": {
+    "tagline": "الذاكرة - المشاركة - المستقبل",
+    "heroTitle": "نحفظ الذاكرة. ونبني المستقبل.",
+    "heroDescription": "منصة رقمية مجتمعية لمدينة داخلت نواذيبو.",
+    "mottoPrimary": "نواذيبو لنا جميعًا.",
+    "mottoSecondary": "الذاكرة المشتركة تصنع تقدمًا مشتركًا.",
+    "joinCommunity": "انضم إلى المجتمع",
+    "exploreMemories": "استكشف الذكريات",
+    "latestPosts": "أحدث المنشورات",
+    "pollPreview": "معاينة الاستطلاع",
+    "featuredMemories": "ذكريات مميزة",
+    "communityIdeas": "أفكار المجتمع"
+  },
+  "Feed": {
+    "ago": "منذ",
+    "save": "حفظ",
+    "share": "مشاركة",
+    "all": "الكل"
+  },
+  "FeedComposer": {
+    "title": "إنشاء منشور",
+    "placeholder": "شارك شيئًا مع المجتمع...",
+    "quickActions": {
+      "text": "نص",
+      "image": "صورة",
+      "event": "فعالية"
+    },
+    "composerTitle": "شارك تحديثًا مع مجتمعك",
+    "form": {
+      "title": "العنوان",
+      "content": "ماذا حدث؟ وما الحل الذي تقترحه؟",
+      "mediaUrl": "رابط وسائط (اختياري)",
+      "selectCategory": "اختر تصنيفًا",
+      "publish": "نشر"
+    }
+  },
+  "Memory": {
+    "title": "الذاكرة",
+    "description": "متحف رقمي لقصص المجتمع وصوره وسياقه التاريخي.",
+    "openTimeline": "فتح الخط الزمني",
+    "contributedBy": "مساهمة من {name}",
+    "relatedMemories": "ذكريات ذات صلة"
+  },
+  "MemoryForm": {
+    "title": "إرسال ذكرى مجتمعية",
+    "ready": "عرض تجريبي: الذكرى جاهزة للإرسال.",
+    "fields": {
+      "title": "عنوان الذكرى",
+      "story": "شارك القصة والسياق",
+      "category": "اختر تصنيفًا",
+      "eraLabel": "الفترة الزمنية (اختياري)",
+      "location": "الموقع (اختياري)"
+    },
+    "errors": {
+      "title": "يرجى إدخال عنوان صحيح.",
+      "story": "يرجى إضافة تفاصيل كافية للقصة.",
+      "category": "يرجى اختيار تصنيف."
+    },
+    "submitting": "جارٍ الإرسال...",
+    "submit": "إرسال الذكرى"
+  },
+  "Ideas": {
+    "title": "أفكار المجتمع",
+    "description": "صوّت للمقترحات العملية وساهم في ترتيب أولويات الحلول لنواذيبو.",
+    "vote": "تصويت ({count})",
+    "status": {
+      "submitted": "مقدمة",
+      "underReview": "قيد المراجعة",
+      "inProgress": "قيد التنفيذ",
+      "completed": "مكتملة"
+    }
+  },
+  "IdeaForm": {
+    "title": "إرسال فكرة مدنية",
+    "ready": "عرض تجريبي: الفكرة جاهزة للإرسال.",
+    "fields": {
+      "title": "عنوان الفكرة",
+      "description": "اشرح الفكرة وفوائدها والخطوات التالية",
+      "category": "اختر تصنيفًا"
+    },
+    "errors": {
+      "title": "يرجى إدخال عنوان صحيح.",
+      "description": "يرجى وصف الفكرة بشكل أوضح.",
+      "category": "يرجى اختيار تصنيف."
+    },
+    "submitting": "جارٍ الإرسال...",
+    "submit": "إرسال الفكرة"
+  },
+  "Events": {
+    "title": "الفعاليات المجتمعية",
+    "description": "اكتشف الفعاليات القادمة وانضم إلى المبادرات المحلية.",
+    "rsvp": "تأكيد الحضور"
+  },
+  "Projects": {
+    "title": "المشاريع المجتمعية",
+    "description": "تابع التقدم والمتطوعين والأثر عبر المشاريع المدنية.",
+    "progress": "التقدم",
+    "volunteers": "{count} متطوع",
+    "status": {
+      "planning": "التخطيط",
+      "inProgress": "قيد التنفيذ",
+      "recruiting": "استقطاب"
+    }
+  },
+  "Polls": {
+    "title": "استطلاعات المجتمع",
+    "description": "استطلاعات بسيطة لدعم قرارات بناءة وشاملة.",
+    "totalVotes": "إجمالي الأصوات: {count}",
+    "voteButton": "تصويت"
+  },
+  "Timeline": {
+    "title": "الخط الزمني لنواذيبو"
+  },
+  "Profile": {
+    "bio": "متطوع مجتمعي وراوٍ للقصص وموجّه للشباب.",
+    "location": "نواذيبو، موريتانيا",
+    "stats": {
+      "posts": "منشورات",
+      "memories": "ذكريات",
+      "ideas": "أفكار"
+    },
+    "editProfile": "تعديل الملف",
+    "shareProfile": "مشاركة الملف",
+    "tabsTitle": "تبويبات الملف",
+    "tabs": {
+      "posts": "منشورات",
+      "memories": "ذكريات",
+      "ideas": "أفكار"
+    },
+    "recentMemories": "ذكريات حديثة"
+  },
+  "ProfileCard": {
+    "bio": "راوٍ مجتمعي يوثق الذكريات والأفكار والمشاريع المحلية.",
+    "location": "داخلت نواذيبو",
+    "stats": {
+      "posts": "منشورات",
+      "memories": "ذكريات",
+      "ideas": "أفكار"
+    },
+    "badges": {
+      "contributor": "مساهم",
+      "historian": "مؤرخ"
+    }
+  },
+  "Admin": {
+    "stats": {
+      "postsToday": "منشورات اليوم",
+      "pendingMemories": "ذكريات معلقة",
+      "openIdeas": "أفكار مفتوحة",
+      "reportsQueue": "طابور البلاغات"
+    },
+    "moderationQueue": "طابور الإشراف",
+    "noPendingReports": "لا توجد بلاغات معلقة.",
+    "targetType": {
+      "memory": "ذكرى",
+      "post": "منشور"
+    },
+    "status": {
+      "pending": "معلّق"
+    },
+    "reasons": {
+      "yearConfirmation": "يتطلب تأكيد سنة النشر",
+      "respectfulTone": "مراجعة الصياغة لضمان أسلوب محترم"
+    }
+  },
+  "Categories": {
+    "memory": {
+      "history": "التاريخ",
+      "railway": "السكك الحديدية",
+      "fishing": "الصيد",
+      "culture": "الثقافة"
+    },
+    "idea": {
+      "education": "التعليم",
+      "environment": "البيئة",
+      "youth": "الشباب",
+      "culture": "الثقافة"
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "تسجيل الدخول",
+      "registered": "اكتمل التسجيل. تحقق من بريد التأكيد إذا كان مفعّلًا.",
+      "done": "عرض تجريبي: اكتملت عملية تسجيل الدخول.",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "submit": "دخول"
+    },
+    "register": {
+      "title": "إنشاء حساب",
+      "done": "عرض تجريبي: اكتملت عملية إنشاء الحساب.",
+      "username": "اسم المستخدم",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "submit": "إنشاء الحساب"
+    }
+  },
+  "Errors": {
+    "invalidInput": "المدخلات غير صحيحة",
+    "invalidPost": "المنشور غير صالح",
+    "invalidProfile": "الملف الشخصي غير صالح",
+    "invalidMemory": "الذكرى غير صالحة",
+    "invalidIdea": "الفكرة غير صالحة",
+    "saveFailed": "فشل الحفظ"
+  },
+  "Brand": {
+    "title": "INDB Community OS",
+    "subtitle": "I love NDB",
+    "alt": "رمز شعار INDB"
+  },
+  "Common": {
+    "seeTranslation": "عرض الترجمة",
+    "seeOriginal": "عرض النص الأصلي",
+    "translating": "جارٍ الترجمة...",
+    "translationUnavailable": "الترجمة غير متاحة"
+  }
+}

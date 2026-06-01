@@ -1,0 +1,344 @@
+{
+  "Meta": {
+    "siteTitle": "I love NDB",
+    "siteDescription": "Plateforme communautaire de Nouadhibou pour la mémoire civique, la participation et les solutions locales.",
+    "home": {
+      "title": "Accueil",
+      "description": "Découvrez la plateforme communautaire INDB pour la mémoire, la participation et l'action locale."
+    },
+    "feed": {
+      "title": "Fil d'actualité",
+      "description": "Suivez les actualités, récits et conversations constructives de la communauté."
+    },
+    "memory": {
+      "title": "Archives",
+      "description": "Explorez les souvenirs communautaires, les récits et le patrimoine local."
+    },
+    "events": {
+      "title": "Événements",
+      "description": "Découvrez les prochains événements communautaires et initiatives locales."
+    },
+    "projects": {
+      "title": "Projets",
+      "description": "Suivez les projets citoyens, les bénévoles et les avancées."
+    },
+    "polls": {
+      "title": "Sondages",
+      "description": "Participez à des sondages communautaires pour des décisions inclusives."
+    },
+    "ideas": {
+      "title": "Idées",
+      "description": "Votez et contribuez à des idées concrètes pour Nouadhibou."
+    },
+    "timeline": {
+      "title": "Chronologie",
+      "description": "Parcourez les moments clés de la mémoire communautaire de Nouadhibou."
+    },
+    "profile": {
+      "title": "Profil",
+      "description": "Consultez votre profil communautaire, vos contributions et votre activité."
+    },
+    "admin": {
+      "title": "Tableau de bord admin",
+      "description": "Supervisez la modération et les indicateurs de la plateforme."
+    },
+    "memorySubmit": {
+      "title": "Soumettre un souvenir",
+      "description": "Partagez un souvenir communautaire avec son contexte et ses détails d'archive."
+    },
+    "ideaSubmit": {
+      "title": "Soumettre une idée",
+      "description": "Proposez une idée civique et participez aux priorités de la communauté."
+    }
+  },
+  "LanguageSwitcher": {
+    "label": "Sélecteur de langue",
+    "changeTo": "Changer la langue vers {language}"
+  },
+  "Navbar": {
+    "memberAvatarLabel": "Profil membre de la communauté"
+  },
+  "Navigation": {
+    "items": {
+      "home": {
+        "label": "Accueil",
+        "short": "Accueil"
+      },
+      "feed": {
+        "label": "Fil d'actualité",
+        "short": "Fil"
+      },
+      "memory": {
+        "label": "Archives",
+        "short": "Archives"
+      },
+      "ideas": {
+        "label": "Idées",
+        "short": "Idées"
+      },
+      "polls": {
+        "label": "Sondages",
+        "short": "Sondages"
+      },
+      "events": {
+        "label": "Événements",
+        "short": "Événements"
+      },
+      "projects": {
+        "label": "Projets",
+        "short": "Projets"
+      },
+      "profile": {
+        "label": "Profil",
+        "short": "Profil"
+      }
+    }
+  },
+  "Theme": {
+    "toggle": "Changer le thème"
+  },
+  "Search": {
+    "placeholder": "Rechercher des souvenirs, des idées, des personnes..."
+  },
+  "Notifications": {
+    "button": "Notifications",
+    "title": "Notifications",
+    "items": {
+      "cleanup": "Le nettoyage de plage commence samedi à 8h00.",
+      "memoryAdded": "Nouveau souvenir ajouté : histoires de l'ancienne gare.",
+      "ideaVotes": "Votre idée « Bibliothèque publique » a atteint 100 votes."
+    }
+  },
+  "RightSidebar": {
+    "trendingTopics": "Sujets tendance",
+    "featuredMemories": "Souvenirs en vedette",
+    "activePoll": "Sondage actif",
+    "votes": "{count} votes",
+    "upcomingEvents": "Événements à venir",
+    "sampleEventOne": {
+      "title": "Journée nettoyage de plage",
+      "date": "Samedi 8 juin"
+    },
+    "sampleEventTwo": {
+      "title": "Soirée mémoire ferroviaire",
+      "date": "Jeudi 13 juin"
+    }
+  },
+  "Landing": {
+    "tagline": "Mémoire - Participation - Avenir",
+    "heroTitle": "Préserver la mémoire. Construire l'avenir.",
+    "heroDescription": "Une plateforme communautaire numérique pour Dakhlet Nouadhibou.",
+    "mottoPrimary": "Nouadhibou appartient à toutes et à tous.",
+    "mottoSecondary": "La mémoire collective alimente le progrès partagé.",
+    "joinCommunity": "Rejoindre la communauté",
+    "exploreMemories": "Explorer les archives",
+    "latestPosts": "Dernières publications",
+    "pollPreview": "Aperçu du sondage",
+    "featuredMemories": "Souvenirs en vedette",
+    "communityIdeas": "Idées de la communauté"
+  },
+  "Feed": {
+    "ago": "plus tôt",
+    "save": "Enregistrer",
+    "share": "Partager",
+    "all": "Tous"
+  },
+  "FeedComposer": {
+    "title": "Créer une publication",
+    "placeholder": "Partagez quelque chose avec la communauté...",
+    "quickActions": {
+      "text": "Texte",
+      "image": "Image",
+      "event": "Événement"
+    },
+    "composerTitle": "Partagez une mise à jour avec votre communauté",
+    "form": {
+      "title": "Titre",
+      "content": "Que s'est-il passé ? Quelle solution proposez-vous ?",
+      "mediaUrl": "URL média facultative",
+      "selectCategory": "Sélectionner une catégorie",
+      "publish": "Publier"
+    }
+  },
+  "Memory": {
+    "title": "Archives",
+    "description": "Un musée numérique des récits communautaires, photos et repères historiques.",
+    "openTimeline": "Ouvrir la chronologie",
+    "contributedBy": "Contribué par {name}",
+    "relatedMemories": "Souvenirs liés"
+  },
+  "MemoryForm": {
+    "title": "Soumettre un souvenir communautaire",
+    "ready": "Démo frontend : votre souvenir est prêt à être soumis.",
+    "fields": {
+      "title": "Titre du souvenir",
+      "story": "Partagez l'histoire et son contexte",
+      "category": "Sélectionner une catégorie",
+      "eraLabel": "Période (optionnel)",
+      "location": "Lieu (optionnel)"
+    },
+    "errors": {
+      "title": "Veuillez saisir un titre valide.",
+      "story": "Veuillez fournir davantage de détails.",
+      "category": "Veuillez choisir une catégorie."
+    },
+    "submitting": "Envoi...",
+    "submit": "Soumettre le souvenir"
+  },
+  "Ideas": {
+    "title": "Idées de la communauté",
+    "description": "Votez pour des propositions pratiques et aidez à prioriser les solutions pour Nouadhibou.",
+    "vote": "Voter ({count})",
+    "status": {
+      "submitted": "Soumise",
+      "underReview": "En révision",
+      "inProgress": "En cours",
+      "completed": "Terminée"
+    }
+  },
+  "IdeaForm": {
+    "title": "Soumettre une idée citoyenne",
+    "ready": "Démo frontend : votre idée est prête à être soumise.",
+    "fields": {
+      "title": "Titre de l'idée",
+      "description": "Décrivez l'idée, ses bénéfices et les prochaines étapes",
+      "category": "Sélectionner une catégorie"
+    },
+    "errors": {
+      "title": "Veuillez saisir un titre valide.",
+      "description": "Veuillez décrire l'idée plus clairement.",
+      "category": "Veuillez choisir une catégorie."
+    },
+    "submitting": "Envoi...",
+    "submit": "Soumettre l'idée"
+  },
+  "Events": {
+    "title": "Événements communautaires",
+    "description": "Découvrez les prochains événements et rejoignez les initiatives locales.",
+    "rsvp": "Je participe"
+  },
+  "Projects": {
+    "title": "Projets communautaires",
+    "description": "Suivez les progrès, les bénévoles et l'impact des projets citoyens.",
+    "progress": "Progression",
+    "volunteers": "{count} bénévoles",
+    "status": {
+      "planning": "Planification",
+      "inProgress": "En cours",
+      "recruiting": "Recrutement"
+    }
+  },
+  "Polls": {
+    "title": "Sondages communautaires",
+    "description": "Des sondages simples pour soutenir des décisions constructives et inclusives.",
+    "totalVotes": "{count} votes au total",
+    "voteButton": "Voter"
+  },
+  "Timeline": {
+    "title": "Chronologie de Nouadhibou"
+  },
+  "Profile": {
+    "bio": "Bénévole communautaire, conteur et mentor engagé auprès de la jeunesse.",
+    "location": "Nouadhibou, Mauritanie",
+    "stats": {
+      "posts": "Publications",
+      "memories": "Souvenirs",
+      "ideas": "Idées"
+    },
+    "editProfile": "Modifier le profil",
+    "shareProfile": "Partager le profil",
+    "tabsTitle": "Onglets du profil",
+    "tabs": {
+      "posts": "Publications",
+      "memories": "Souvenirs",
+      "ideas": "Idées"
+    },
+    "recentMemories": "Souvenirs récents"
+  },
+  "ProfileCard": {
+    "bio": "Conteur communautaire qui documente souvenirs, idées et projets locaux.",
+    "location": "Dakhlet Nouadhibou",
+    "stats": {
+      "posts": "Publications",
+      "memories": "Souvenirs",
+      "ideas": "Idées"
+    },
+    "badges": {
+      "contributor": "Contributeur",
+      "historian": "Historien"
+    }
+  },
+  "Admin": {
+    "stats": {
+      "postsToday": "Publications du jour",
+      "pendingMemories": "Souvenirs en attente",
+      "openIdeas": "Idées ouvertes",
+      "reportsQueue": "File des signalements"
+    },
+    "moderationQueue": "File de modération",
+    "noPendingReports": "Aucun signalement en attente.",
+    "targetType": {
+      "memory": "Souvenir",
+      "post": "Publication"
+    },
+    "status": {
+      "pending": "En attente"
+    },
+    "reasons": {
+      "yearConfirmation": "Année de publication à confirmer",
+      "respectfulTone": "Vérifier la formulation pour un ton respectueux"
+    }
+  },
+  "Categories": {
+    "memory": {
+      "history": "Histoire",
+      "railway": "Chemin de fer",
+      "fishing": "Pêche",
+      "culture": "Culture"
+    },
+    "idea": {
+      "education": "Éducation",
+      "environment": "Environnement",
+      "youth": "Jeunesse",
+      "culture": "Culture"
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "Connexion",
+      "registered": "Inscription terminée. Vérifiez votre e-mail de confirmation si activé.",
+      "done": "Démo frontend : interaction de connexion terminée.",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "submit": "Se connecter"
+    },
+    "register": {
+      "title": "Créer votre compte",
+      "done": "Démo frontend : interaction de création de compte terminée.",
+      "username": "Nom d'utilisateur",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "submit": "Créer le compte"
+    }
+  },
+  "Errors": {
+    "invalidInput": "Saisie invalide",
+    "invalidPost": "Publication invalide",
+    "invalidProfile": "Profil invalide",
+    "invalidMemory": "Souvenir invalide",
+    "invalidIdea": "Idée invalide",
+    "saveFailed": "Échec de l'enregistrement"
+  },
+  "Brand": {
+    "title": "INDB Community OS",
+    "subtitle": "I love NDB",
+    "alt": "Symbole du logo INDB"
+  },
+  "Common": {
+    "seeTranslation": "Voir la traduction",
+    "seeOriginal": "Voir l’original",
+    "translating": "Traduction...",
+    "translationUnavailable": "Traduction indisponible"
+  }
+}

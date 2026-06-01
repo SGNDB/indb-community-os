@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+:root {
+  --font-latin:
+    "Inter",
+    "Segoe UI",
+    "Helvetica Neue",
+    "Arial",
+    sans-serif;
+  --font-arabic:
+    "Noto Sans Arabic",
+    "Cairo",
+    "Tahoma",
+    "Segoe UI",
+    sans-serif;
+
+  --brand-primary: #0f4769;
+  --brand-primary-strong: #093650;
+  --brand-primary-soft: #dbeaf2;
+  --brand-secondary: #28aab3;
+  --brand-secondary-soft: #d9f1f3;
+
+  --background: #f5f8fb;
+  --foreground: #112534;
+  --card: #ffffff;
+  --muted: #e9eff4;
+  --muted-foreground: #4b6373;
+  --border: #d4deea;
+  --primary: var(--brand-primary);
+  --primary-foreground: #f5fbff;
+  --accent: var(--brand-secondary);
+  --accent-foreground: #05242c;
+  --destructive: #c23d48;
+  --radius: 16px;
+}
+
+.dark {
+  --background: #07131f;
+  --foreground: #ebf6ff;
+  --card: #102333;
+  --muted: #173144;
+  --muted-foreground: #9eb4c4;
+  --border: #29465d;
+  --primary: #64b6c6;
+  --primary-foreground: #062634;
+  --accent: #2ba3ad;
+  --accent-foreground: #e9fdff;
+  --destructive: #f2828a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-primary-soft: var(--brand-primary-soft);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-secondary-soft: var(--brand-secondary-soft);
+  --radius-xl: var(--radius);
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-latin);
+  background:
+    radial-gradient(circle at 5% 5%, rgba(15, 71, 105, 0.14), transparent 40%),
+    radial-gradient(circle at 92% 8%, rgba(40, 170, 179, 0.12), transparent 32%),
+    radial-gradient(circle at 50% 100%, rgba(15, 71, 105, 0.09), transparent 34%),
+    var(--background);
+  color: var(--foreground);
+  text-align: start;
+}
+
+html[dir="rtl"] body {
+  font-family: var(--font-arabic);
+}
+
+a {
+  transition: all 0.2s ease;
+}
+

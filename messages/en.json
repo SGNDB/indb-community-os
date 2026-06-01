@@ -1,0 +1,344 @@
+{
+  "Meta": {
+    "siteTitle": "I love NDB",
+    "siteDescription": "Nouadhibou community platform for civic memory, participation, and local solutions.",
+    "home": {
+      "title": "Home",
+      "description": "Discover the INDB community platform for memory, participation, and local action."
+    },
+    "feed": {
+      "title": "Feed",
+      "description": "Follow community updates, stories, and constructive conversations."
+    },
+    "memory": {
+      "title": "Memory Archive",
+      "description": "Explore community memories, stories, and local heritage."
+    },
+    "events": {
+      "title": "Events",
+      "description": "Discover upcoming community events and local initiatives."
+    },
+    "projects": {
+      "title": "Projects",
+      "description": "Track civic projects, volunteer efforts, and progress."
+    },
+    "polls": {
+      "title": "Polls",
+      "description": "Participate in community polls that support inclusive decisions."
+    },
+    "ideas": {
+      "title": "Ideas",
+      "description": "Vote and contribute to practical ideas for Nouadhibou."
+    },
+    "timeline": {
+      "title": "Timeline",
+      "description": "Browse key moments from Nouadhibou's community memory."
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "View your community profile, contributions, and activity."
+    },
+    "admin": {
+      "title": "Admin Dashboard",
+      "description": "Review moderation activity and platform health indicators."
+    },
+    "memorySubmit": {
+      "title": "Submit Memory",
+      "description": "Share a community memory with context and archival details."
+    },
+    "ideaSubmit": {
+      "title": "Submit Idea",
+      "description": "Propose a civic idea and help shape community priorities."
+    }
+  },
+  "LanguageSwitcher": {
+    "label": "Language switcher",
+    "changeTo": "Switch language to {language}"
+  },
+  "Navbar": {
+    "memberAvatarLabel": "Community member profile"
+  },
+  "Navigation": {
+    "items": {
+      "home": {
+        "label": "Home",
+        "short": "Home"
+      },
+      "feed": {
+        "label": "Feed",
+        "short": "Feed"
+      },
+      "memory": {
+        "label": "Memories",
+        "short": "Memory"
+      },
+      "ideas": {
+        "label": "Ideas",
+        "short": "Ideas"
+      },
+      "polls": {
+        "label": "Polls",
+        "short": "Polls"
+      },
+      "events": {
+        "label": "Events",
+        "short": "Events"
+      },
+      "projects": {
+        "label": "Projects",
+        "short": "Projects"
+      },
+      "profile": {
+        "label": "Profile",
+        "short": "Profile"
+      }
+    }
+  },
+  "Theme": {
+    "toggle": "Toggle theme"
+  },
+  "Search": {
+    "placeholder": "Search memories, ideas, people..."
+  },
+  "Notifications": {
+    "button": "Notifications",
+    "title": "Notifications",
+    "items": {
+      "cleanup": "Beach cleanup starts Saturday at 8:00 AM.",
+      "memoryAdded": "New memory added: Old railway station stories.",
+      "ideaVotes": "Your idea 'Public library' reached 100 votes."
+    }
+  },
+  "RightSidebar": {
+    "trendingTopics": "Trending Topics",
+    "featuredMemories": "Featured Memories",
+    "activePoll": "Active Poll",
+    "votes": "{count} votes",
+    "upcomingEvents": "Upcoming Events",
+    "sampleEventOne": {
+      "title": "Beach Cleanup Day",
+      "date": "Saturday, June 8"
+    },
+    "sampleEventTwo": {
+      "title": "Railway Memory Night",
+      "date": "Thursday, June 13"
+    }
+  },
+  "Landing": {
+    "tagline": "Memory - Participation - Future",
+    "heroTitle": "Preserving Memory. Building the Future.",
+    "heroDescription": "A digital community platform for Dakhlet Nouadhibou.",
+    "mottoPrimary": "Nouadhibou belongs to all of us.",
+    "mottoSecondary": "Community memory powers shared progress.",
+    "joinCommunity": "Join Community",
+    "exploreMemories": "Explore Memories",
+    "latestPosts": "Latest Posts",
+    "pollPreview": "Poll Preview",
+    "featuredMemories": "Featured Memories",
+    "communityIdeas": "Community Ideas"
+  },
+  "Feed": {
+    "ago": "ago",
+    "save": "Save",
+    "share": "Share",
+    "all": "All"
+  },
+  "FeedComposer": {
+    "title": "Create post",
+    "placeholder": "Share something with the community...",
+    "quickActions": {
+      "text": "Text",
+      "image": "Image",
+      "event": "Event"
+    },
+    "composerTitle": "Share an update with your community",
+    "form": {
+      "title": "Title",
+      "content": "What happened? What solution do you suggest?",
+      "mediaUrl": "Optional media URL",
+      "selectCategory": "Select a category",
+      "publish": "Publish"
+    }
+  },
+  "Memory": {
+    "title": "Memory Archive",
+    "description": "A digital museum of community stories, photos, and historical context.",
+    "openTimeline": "Open Timeline",
+    "contributedBy": "Contributed by {name}",
+    "relatedMemories": "Related Memories"
+  },
+  "MemoryForm": {
+    "title": "Submit a community memory",
+    "ready": "Frontend demo: your memory is ready to submit.",
+    "fields": {
+      "title": "Memory title",
+      "story": "Share the story and context",
+      "category": "Select a category",
+      "eraLabel": "Era (optional)",
+      "location": "Location (optional)"
+    },
+    "errors": {
+      "title": "Please enter a valid memory title.",
+      "story": "Please provide enough story details.",
+      "category": "Please choose a category."
+    },
+    "submitting": "Submitting...",
+    "submit": "Submit memory"
+  },
+  "Ideas": {
+    "title": "Community Ideas",
+    "description": "Vote for practical proposals and help prioritize solutions for Nouadhibou.",
+    "vote": "Vote ({count})",
+    "status": {
+      "submitted": "Submitted",
+      "underReview": "Under Review",
+      "inProgress": "In Progress",
+      "completed": "Completed"
+    }
+  },
+  "IdeaForm": {
+    "title": "Submit a civic idea",
+    "ready": "Frontend demo: your idea is ready to submit.",
+    "fields": {
+      "title": "Idea title",
+      "description": "Describe the idea, benefits and next steps",
+      "category": "Select a category"
+    },
+    "errors": {
+      "title": "Please enter a valid idea title.",
+      "description": "Please describe the idea clearly.",
+      "category": "Please choose a category."
+    },
+    "submitting": "Submitting...",
+    "submit": "Submit idea"
+  },
+  "Events": {
+    "title": "Community Events",
+    "description": "Discover upcoming events and join local initiatives.",
+    "rsvp": "RSVP"
+  },
+  "Projects": {
+    "title": "Community Projects",
+    "description": "Track progress, volunteers, and impact across civic projects.",
+    "progress": "Progress",
+    "volunteers": "{count} volunteers",
+    "status": {
+      "planning": "Planning",
+      "inProgress": "In Progress",
+      "recruiting": "Recruiting"
+    }
+  },
+  "Polls": {
+    "title": "Community Polls",
+    "description": "Simple community polls to support constructive and inclusive decisions.",
+    "totalVotes": "{count} total votes",
+    "voteButton": "Vote"
+  },
+  "Timeline": {
+    "title": "Nouadhibou Timeline"
+  },
+  "Profile": {
+    "bio": "Community volunteer, storyteller, and youth mentorship advocate.",
+    "location": "Nouadhibou, Mauritania",
+    "stats": {
+      "posts": "Posts",
+      "memories": "Memories",
+      "ideas": "Ideas"
+    },
+    "editProfile": "Edit profile",
+    "shareProfile": "Share profile",
+    "tabsTitle": "Profile Tabs",
+    "tabs": {
+      "posts": "Posts",
+      "memories": "Memories",
+      "ideas": "Ideas"
+    },
+    "recentMemories": "Recent Memories"
+  },
+  "ProfileCard": {
+    "bio": "Community storyteller documenting memories, ideas, and local projects.",
+    "location": "Dakhlet Nouadhibou",
+    "stats": {
+      "posts": "Posts",
+      "memories": "Memories",
+      "ideas": "Ideas"
+    },
+    "badges": {
+      "contributor": "Contributor",
+      "historian": "Historian"
+    }
+  },
+  "Admin": {
+    "stats": {
+      "postsToday": "Posts today",
+      "pendingMemories": "Pending memories",
+      "openIdeas": "Open ideas",
+      "reportsQueue": "Reports queue"
+    },
+    "moderationQueue": "Moderation queue",
+    "noPendingReports": "No pending reports.",
+    "targetType": {
+      "memory": "Memory",
+      "post": "Post"
+    },
+    "status": {
+      "pending": "Pending"
+    },
+    "reasons": {
+      "yearConfirmation": "Needs publication year confirmation",
+      "respectfulTone": "Review wording for respectful tone"
+    }
+  },
+  "Categories": {
+    "memory": {
+      "history": "History",
+      "railway": "Railway",
+      "fishing": "Fishing",
+      "culture": "Culture"
+    },
+    "idea": {
+      "education": "Education",
+      "environment": "Environment",
+      "youth": "Youth",
+      "culture": "Culture"
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "Sign in",
+      "registered": "Registration complete. Check your email confirmation if enabled.",
+      "done": "Frontend demo: login interaction completed.",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in"
+    },
+    "register": {
+      "title": "Create your account",
+      "done": "Frontend demo: account creation interaction completed.",
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "submit": "Create account"
+    }
+  },
+  "Errors": {
+    "invalidInput": "Invalid input",
+    "invalidPost": "Invalid post",
+    "invalidProfile": "Invalid profile",
+    "invalidMemory": "Invalid memory",
+    "invalidIdea": "Invalid idea",
+    "saveFailed": "Save failed"
+  },
+  "Brand": {
+    "title": "INDB Community OS",
+    "subtitle": "I love NDB",
+    "alt": "INDB logo mark"
+  },
+  "Common": {
+    "seeTranslation": "See translation",
+    "seeOriginal": "See original",
+    "translating": "Translating...",
+    "translationUnavailable": "Translation unavailable"
+  }
+}
