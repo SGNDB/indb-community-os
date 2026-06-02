@@ -134,8 +134,11 @@
   "Feed": {
     "ago": "ago",
     "save": "Save",
+    "saved": "Saved",
+    "comments": "Comments",
     "share": "Share",
     "linkCopied": "Post link copied",
+    "shareFailed": "Unable to share",
     "deleting": "Deleting...",
     "sending": "Sending...",
     "commentPlaceholder": "Write a comment...",

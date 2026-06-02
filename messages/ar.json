@@ -134,8 +134,11 @@
   "Feed": {
     "ago": "منذ",
     "save": "حفظ",
+    "saved": "محفوظ",
+    "comments": "تعليقات",
     "share": "مشاركة",
     "linkCopied": "تم نسخ رابط المنشور",
+    "shareFailed": "تعذرت المشاركة",
     "deleting": "جارٍ الحذف...",
     "sending": "جارٍ الإرسال...",
     "commentPlaceholder": "اكتب تعليقًا...",

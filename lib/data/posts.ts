@@ -29,10 +29,24 @@ async function attachUserReactions(
     counts[row.reaction_type] = (counts[row.reaction_type] ?? 0) + 1;
   }
 
+  // Check saved posts for current user
+  const savedSet = new Set<string>();
+  if (currentUserId) {
+    const {data: savedData} = await supabase
+      .from("saved_posts")
+      .select("post_id")
+      .in("post_id", postIds)
+      .eq("user_id", currentUserId);
+    for (const row of savedData ?? []) {
+      savedSet.add(row.post_id);
+    }
+  }
+
   for (const post of posts) {
     (post as PostWithAuthor & {user_reaction: string | null}).user_reaction =
       (userReactionMap.get(post.id) as PostWithAuthor["user_reaction"]) ?? null;
     post.reaction_counts = countsMap.get(post.id) ?? {};
+    post.user_saved = savedSet.has(post.id);
   }
 
   return posts;

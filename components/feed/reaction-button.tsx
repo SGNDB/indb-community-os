@@ -18,6 +18,30 @@ const REACTIONS: {type: ReactionType; emoji: string}[] = [
   {type: "sad", emoji: "\u{1F622}"},
 ];
 
+function ReactionSummary({
+  reactionCounts,
+}: {
+  reactionCounts?: Record<string, number>;
+}) {
+  if (!reactionCounts) return null;
+
+  const active = REACTIONS.filter(
+    (r) => (reactionCounts[r.type] ?? 0) > 0,
+  );
+  if (active.length === 0) return null;
+
+  return (
+    <div className="flex items-center gap-0.5">
+      {active.map((r) => (
+        <span key={r.type} className="flex items-center gap-0.5 text-xs">
+          <span className="text-sm">{r.emoji}</span>
+          <span className="text-muted-foreground">{reactionCounts[r.type]}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export function ReactionButton({
   postId,
   locale,
@@ -99,7 +123,7 @@ export function ReactionButton({
   const currentEmoji = REACTIONS.find((r) => r.type === localReaction)?.emoji;
 
   return (
-    <div className="relative inline-flex">
+    <div className="relative inline-flex flex-col items-start gap-0.5">
       <button
         type="button"
         onClick={() => setOpen((p) => !p)}
@@ -127,19 +151,20 @@ export function ReactionButton({
               key={r.type}
               type="button"
               onClick={() => handleSelect(r.type)}
-              className={`flex flex-col items-center gap-0.5 rounded-xl p-1.5 transition hover:bg-muted ${
-                localReaction === r.type ? "bg-primary/10 ring-1 ring-primary" : ""
+              className={`flex items-center justify-center rounded-full p-2 text-xl transition hover:scale-125 hover:bg-muted ${
+                localReaction === r.type
+                  ? "bg-primary/10 ring-1 ring-primary"
+                  : ""
               }`}
               title={r.type}
             >
-              <span className="text-xl transition hover:scale-125">{r.emoji}</span>
-              <span className="text-[10px] text-muted-foreground">
-                {reactionCounts?.[r.type] ?? 0}
-              </span>
+              {r.emoji}
             </button>
           ))}
         </div>
       ) : null}
+
+      <ReactionSummary reactionCounts={reactionCounts} />
     </div>
   );
 }

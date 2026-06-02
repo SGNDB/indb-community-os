@@ -134,8 +134,11 @@
   "Feed": {
     "ago": "plus tôt",
     "save": "Enregistrer",
+    "saved": "Enregistré",
+    "comments": "Commentaires",
     "share": "Partager",
     "linkCopied": "Lien de la publication copié",
+    "shareFailed": "Impossible de partager",
     "deleting": "Suppression...",
     "sending": "Envoi...",
     "commentPlaceholder": "Écrire un commentaire...",

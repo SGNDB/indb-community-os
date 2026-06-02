@@ -256,7 +256,6 @@ export async function toggleReactionAction(formData: FormData) {
 }
 
 export async function toggleSaveAction(formData: FormData) {
-  const locale = normalizeLocale(formData.get("locale"));
   const postId = formData.get("postId");
   const supabase = await createClient();
 
@@ -265,12 +264,11 @@ export async function toggleSaveAction(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    const next = encodeURIComponent("/feed");
-    redirect(toPath(locale, `/login?next=${next}`));
+    throw new Error("Not authenticated");
   }
 
   if (typeof postId !== "string") {
-    redirect(toPath(locale, "/feed"));
+    throw new Error("Invalid post");
   }
 
   const {data: existing} = await supabase
@@ -289,8 +287,7 @@ export async function toggleSaveAction(formData: FormData) {
     });
   }
 
-  revalidatePath(toPath(locale, "/feed"));
-  redirect(toPath(locale, "/feed?postSaved=1"));
+  revalidatePath("/", "layout");
 }
 
 export async function updateProfileAction(formData: FormData) {

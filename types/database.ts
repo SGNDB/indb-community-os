@@ -211,6 +211,7 @@ export interface PostWithAuthor extends PostRow {
   category: Pick<CategoryRow, "id" | "slug" | "name_en" | "name_fr" | "name_ar"> | null;
   user_reaction?: ReactionType | null;
   reaction_counts?: Record<string, number>;
+  user_saved?: boolean;
 }
 
 export interface MemoryWithContributor extends MemoryRow {

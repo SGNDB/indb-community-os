@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {motion} from "framer-motion";
 import {Bookmark, MessageCircle, Send, Share2, Trash2} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
@@ -14,6 +14,7 @@ import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
+import {createClient} from "@/lib/supabase/client";
 import type {PostWithAuthor, CommentWithAuthor} from "@/types/database";
 import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
 import {translateContent} from "@/lib/i18n/translateContent";
@@ -85,12 +86,15 @@ export function PostCard({
   const uiLanguage: ContentLanguage = locale === "ar" || locale === "fr" ? locale : "en";
   const contentLanguage = useMemo(() => detectContentLanguage(post.content), [post.content]);
   const canTranslate = contentLanguage !== uiLanguage;
+  const commentInputRef = useRef<HTMLInputElement>(null);
 
   const [isTranslated, setIsTranslated] = useState(false);
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
   const [translationError, setTranslationError] = useState(false);
   const [showCommentInput, setShowCommentInput] = useState(false);
+  const [isSaved, setIsSaved] = useState(post.user_saved ?? false);
+  const [savesCount, setSavesCount] = useState(post.saves_count);
 
   const authorName = post.author?.full_name ?? post.author?.username ?? t("unknownAuthor");
   const postTime = timeAgo(post.created_at, locale);
@@ -104,17 +108,68 @@ export function PostCard({
     setTranslationError(false);
   }, [post.content, uiLanguage]);
 
+  useEffect(() => {
+    setIsSaved(post.user_saved ?? false);
+    setSavesCount(post.saves_count);
+  }, [post.user_saved, post.saves_count]);
+
   async function handleShare() {
-    const url = window.location.origin + "/" + locale + "/feed";
+    const url = `${window.location.origin}/${locale}/feed`;
     if (navigator.share) {
       try {
         await navigator.share({title: authorName, text: post.content, url});
-      } catch {}
+      } catch {
+        // User cancelled
+      }
     } else {
       try {
         await navigator.clipboard.writeText(url);
-        toast.success(t("linkCopied") || "Post link copied");
-      } catch {}
+        toast.success(t("linkCopied"));
+      } catch {
+        toast.error(t("shareFailed"));
+      }
+    }
+  }
+
+  async function handleCommentClick() {
+    const supabase = createClient();
+    const {data: {user}} = await supabase.auth.getUser();
+    if (!user) {
+      window.location.href = `/${locale}/login?next=${encodeURIComponent("/feed")}`;
+      return;
+    }
+    setShowCommentInput((p) => !p);
+    if (!showCommentInput) {
+      setTimeout(() => commentInputRef.current?.focus(), 100);
+    }
+  }
+
+  async function handleSave() {
+    const supabase = createClient();
+    const {data: {user}} = await supabase.auth.getUser();
+    if (!user) {
+      window.location.href = `/${locale}/login?next=${encodeURIComponent("/feed")}`;
+      return;
+    }
+
+    const prevSaved = isSaved;
+    const prevCount = savesCount;
+
+    // Optimistic update
+    setIsSaved(!prevSaved);
+    setSavesCount((c) => Math.max(0, c + (prevSaved ? -1 : 1)));
+
+    const formData = new FormData();
+    formData.set("locale", locale);
+    formData.set("postId", post.id);
+
+    try {
+      await toggleSaveAction(formData);
+      toast.success(prevSaved ? t("save") : t("saved"));
+    } catch {
+      setIsSaved(prevSaved);
+      setSavesCount(prevCount);
+      toast.error("Failed to save");
     }
   }
 
@@ -223,43 +278,47 @@ export function PostCard({
             </div>
           ) : null}
 
-          <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-            <ReactionButton
-              postId={post.id}
-              locale={locale}
-              currentReaction={post.user_reaction}
-              likesCount={post.likes_count}
-              reactionCounts={post.reaction_counts}
-            />
-            <Button
-              variant="ghost"
-              onClick={() => setShowCommentInput(!showCommentInput)}
-              className="min-h-11 justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground sm:justify-start sm:gap-2 sm:px-3 sm:text-sm"
-            >
-              <MessageCircle size={16} />
-              <span>{t("actionCounts.comments", {count: post.comments_count})}</span>
-            </Button>
-            <form action={toggleSaveAction} className="contents">
-              <input type="hidden" name="locale" value={locale} />
-              <input type="hidden" name="postId" value={post.id} />
-              <Button
-                type="submit"
-                variant="ghost"
-                className="min-h-11 justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground sm:justify-start sm:gap-2 sm:px-3 sm:text-sm"
-              >
-                <Bookmark size={16} />
-                <span>{t("actionCounts.saves", {count: post.saves_count})}</span>
-              </Button>
-            </form>
-            <Button
+          <div className="flex items-center gap-1 border-t border-border/60 pt-2">
+            <div className="flex-1">
+              <ReactionButton
+                postId={post.id}
+                locale={locale}
+                currentReaction={post.user_reaction}
+                likesCount={post.likes_count}
+                reactionCounts={post.reaction_counts}
+              />
+            </div>
+
+            <button
               type="button"
-              variant="ghost"
-              onClick={handleShare}
-              className="min-h-11 justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground sm:justify-start sm:gap-2 sm:px-3 sm:text-sm"
+              onClick={handleCommentClick}
+              className="flex flex-1 items-center justify-center gap-1.5 min-h-11 rounded-xl px-2 text-xs text-muted-foreground transition hover:bg-muted sm:gap-2 sm:px-3 sm:text-sm"
             >
-              <Share2 size={16} />
-              <span>{t("share")}</span>
-            </Button>
+              <MessageCircle size={16} className="shrink-0" />
+              <span>{post.comments_count > 0 ? post.comments_count : t("comments")}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleSave}
+              className={`flex flex-1 items-center justify-center gap-1.5 min-h-11 rounded-xl px-2 text-xs transition sm:gap-2 sm:px-3 sm:text-sm ${
+                isSaved
+                  ? "bg-primary/10 text-primary hover:bg-primary/15"
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              <Bookmark size={16} className="shrink-0" />
+              <span>{isSaved ? t("saved") : t("save")}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleShare}
+              className="flex flex-1 items-center justify-center gap-1.5 min-h-11 rounded-xl px-2 text-xs text-muted-foreground transition hover:bg-muted sm:gap-2 sm:px-3 sm:text-sm"
+            >
+              <Share2 size={16} className="shrink-0" />
+              <span className="hidden sm:inline">{t("share")}</span>
+            </button>
           </div>
 
           {showCommentInput ? (
@@ -267,6 +326,7 @@ export function PostCard({
               <input type="hidden" name="locale" value={locale} />
               <input type="hidden" name="postId" value={post.id} />
               <Input
+                ref={commentInputRef}
                 name="content"
                 placeholder={t("commentPlaceholder")}
                 required
