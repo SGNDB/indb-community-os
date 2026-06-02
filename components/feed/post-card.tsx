@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {motion} from "framer-motion";
 import {Bookmark, MessageCircle, Send, Share2, Trash2} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
@@ -20,7 +20,6 @@ import {translateContent} from "@/lib/i18n/translateContent";
 import {
   addCommentAction,
   deletePostAction,
-  toggleReactionAction,
   toggleSaveAction,
 } from "@/app/[locale]/server-actions";
 
@@ -92,15 +91,6 @@ export function PostCard({
   const [isTranslating, setIsTranslating] = useState(false);
   const [translationError, setTranslationError] = useState(false);
   const [showCommentInput, setShowCommentInput] = useState(false);
-  const reactionFormRef = useRef<HTMLFormElement>(null);
-
-  function handleReact(reactionType: string) {
-    const form = reactionFormRef.current;
-    if (form) {
-      (form.elements.namedItem("reactionType") as HTMLInputElement).value = reactionType;
-      form.requestSubmit();
-    }
-  }
 
   const authorName = post.author?.full_name ?? post.author?.username ?? t("unknownAuthor");
   const postTime = timeAgo(post.created_at, locale);
@@ -234,17 +224,11 @@ export function PostCard({
           ) : null}
 
           <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-            <form ref={reactionFormRef} action={toggleReactionAction} className="contents" aria-hidden="true">
-              <input type="hidden" name="locale" value={locale} />
-              <input type="hidden" name="postId" value={post.id} />
-              <input type="hidden" name="reactionType" value="" />
-            </form>
             <ReactionButton
               postId={post.id}
               locale={locale}
               currentReaction={post.user_reaction}
               likesCount={post.likes_count}
-              onReact={handleReact}
             />
             <Button
               variant="ghost"
