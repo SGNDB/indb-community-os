@@ -6,6 +6,7 @@ import {getTranslations} from "next-intl/server";
 
 import {routing} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/server";
+import {toggleReaction} from "@/lib/data/reactions";
 import {
   commentSchema,
   createPostSchema,
@@ -15,6 +16,7 @@ import {
   profileSchema,
   registerSchema,
 } from "@/lib/validations/community";
+import type {ReactionType} from "@/types/database";
 
 function normalizeLocale(value: FormDataEntryValue | null) {
   const locale = typeof value === "string" ? value : routing.defaultLocale;
@@ -243,26 +245,12 @@ export async function toggleReactionAction(formData: FormData) {
     redirect(toPath(locale, "/feed"));
   }
 
-  const {data: existing} = await supabase
-    .from("post_likes")
-    .select("id, reaction_type")
-    .eq("post_id", postId)
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (existing) {
-    if (existing.reaction_type === reactionType) {
-      await supabase.from("post_likes").delete().eq("id", existing.id);
-    } else {
-      await supabase.from("post_likes").update({reaction_type: reactionType}).eq("id", existing.id);
-    }
-  } else {
-    await supabase.from("post_likes").insert({
-      post_id: postId,
-      user_id: user.id,
-      reaction_type: reactionType,
-    });
+  const validTypes: readonly string[] = ["like", "love", "support", "celebrate", "insightful", "sad"];
+  if (!validTypes.includes(reactionType)) {
+    redirect(toPath(locale, "/feed"));
   }
+
+  await toggleReaction(postId, user.id, reactionType as ReactionType);
 
   revalidatePath("/", "layout");
 }

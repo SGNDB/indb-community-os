@@ -5,24 +5,34 @@ async function attachUserReactions(
   posts: PostWithAuthor[],
   currentUserId?: string | null,
 ): Promise<PostWithAuthor[]> {
-  if (!currentUserId || posts.length === 0) return posts;
+  if (posts.length === 0) return posts;
 
   const supabase = await createClient();
   const postIds = posts.map((p) => p.id);
 
-  const {data: reactions} = await supabase
-    .from("post_likes")
-    .select("post_id, reaction_type")
-    .in("post_id", postIds)
-    .eq("user_id", currentUserId);
+  const {data: allReactions} = await supabase
+    .from("post_reactions")
+    .select("post_id, user_id, reaction_type")
+    .in("post_id", postIds);
 
-  const reactionMap = new Map(
-    reactions?.map((r) => [r.post_id, r.reaction_type]) ?? [],
-  );
+  const userReactionMap = new Map<string, string>();
+  const countsMap = new Map<string, Record<string, number>>();
+
+  for (const row of allReactions ?? []) {
+    if (currentUserId && row.user_id === currentUserId) {
+      userReactionMap.set(row.post_id, row.reaction_type);
+    }
+    if (!countsMap.has(row.post_id)) {
+      countsMap.set(row.post_id, {});
+    }
+    const counts = countsMap.get(row.post_id)!;
+    counts[row.reaction_type] = (counts[row.reaction_type] ?? 0) + 1;
+  }
 
   for (const post of posts) {
     (post as PostWithAuthor & {user_reaction: string | null}).user_reaction =
-      reactionMap.get(post.id) ?? null;
+      (userReactionMap.get(post.id) as PostWithAuthor["user_reaction"]) ?? null;
+    post.reaction_counts = countsMap.get(post.id) ?? {};
   }
 
   return posts;

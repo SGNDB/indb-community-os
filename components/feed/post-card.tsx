@@ -229,6 +229,7 @@ export function PostCard({
               locale={locale}
               currentReaction={post.user_reaction}
               likesCount={post.likes_count}
+              reactionCounts={post.reaction_counts}
             />
             <Button
               variant="ghost"

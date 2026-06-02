@@ -1,53 +1,110 @@
 "use client";
 
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useRouter} from "next/navigation";
 import {Heart} from "lucide-react";
+import {toast} from "sonner";
 
+import {createClient} from "@/lib/supabase/client";
 import {toggleReactionAction} from "@/app/[locale]/server-actions";
+import type {ReactionType} from "@/types/database";
 
-const REACTIONS = [
-  {type: "like", emoji: "\u{1F44D}", label: "Like"},
-  {type: "love", emoji: "\u2764\uFE0F", label: "Love"},
-  {type: "laugh", emoji: "\u{1F923}", label: "Laugh"},
-  {type: "surprise", emoji: "\u{1F62E}", label: "Surprise"},
-  {type: "sad", emoji: "\u{1F622}", label: "Sad"},
-  {type: "celebrate", emoji: "\u{1F64F}", label: "Celebrate"},
-] as const;
+const REACTIONS: {type: ReactionType; emoji: string}[] = [
+  {type: "like", emoji: "\u{1F44D}"},
+  {type: "love", emoji: "\u2764\uFE0F"},
+  {type: "support", emoji: "\u{1F91D}"},
+  {type: "celebrate", emoji: "\u{1F389}"},
+  {type: "insightful", emoji: "\u{1F4A1}"},
+  {type: "sad", emoji: "\u{1F622}"},
+];
 
 export function ReactionButton({
   postId,
   locale,
   currentReaction,
   likesCount,
+  reactionCounts,
 }: {
   postId: string;
   locale: string;
-  currentReaction?: string | null;
+  currentReaction?: ReactionType | null;
   likesCount: number;
+  reactionCounts?: Record<string, number>;
 }) {
   const [open, setOpen] = useState(false);
+  const [localReaction, setLocalReaction] = useState<ReactionType | null>(
+    currentReaction ?? null,
+  );
+  const [localTotal, setLocalTotal] = useState(likesCount);
   const router = useRouter();
+  const pickerRef = useRef<HTMLDivElement>(null);
 
-  async function handleSelect(type: string) {
+  // Sync from server when props change (after router.refresh)
+  useEffect(() => {
+    setLocalReaction(currentReaction ?? null);
+    setLocalTotal(likesCount);
+  }, [currentReaction, likesCount]);
+
+  // Close picker on outside click
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  async function handleSelect(type: ReactionType) {
     setOpen(false);
+
+    const prevReaction = localReaction;
+    const prevTotal = localTotal;
+    const newReaction = localReaction === type ? null : type;
+    const delta = newReaction ? (localReaction ? 0 : 1) : -1;
+
+    // Optimistic update
+    setLocalReaction(newReaction);
+    setLocalTotal((c) => Math.max(0, c + delta));
+
+    // Auth check before server call
+    const supabase = createClient();
+    const {
+      data: {user},
+    } = await supabase.auth.getUser();
+    if (!user) {
+      setLocalReaction(prevReaction);
+      setLocalTotal(prevTotal);
+      window.location.href = `/${locale}/login?next=${encodeURIComponent("/feed")}`;
+      return;
+    }
+
     const formData = new FormData();
     formData.set("locale", locale);
     formData.set("postId", postId);
     formData.set("reactionType", type);
-    await toggleReactionAction(formData);
-    router.refresh();
+
+    try {
+      await toggleReactionAction(formData);
+      router.refresh();
+    } catch {
+      setLocalReaction(prevReaction);
+      setLocalTotal(prevTotal);
+      toast.error("Failed to update reaction");
+    }
   }
 
-  const currentEmoji = REACTIONS.find((r) => r.type === currentReaction)?.emoji;
+  const currentEmoji = REACTIONS.find((r) => r.type === localReaction)?.emoji;
 
   return (
     <div className="relative inline-flex">
       <button
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={() => setOpen((p) => !p)}
         className={`inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl px-2 text-xs transition sm:gap-2 sm:px-3 sm:text-sm ${
-          currentReaction
+          localReaction
             ? "bg-primary/10 text-primary hover:bg-primary/15"
             : "text-muted-foreground hover:bg-muted"
         }`}
@@ -57,22 +114,28 @@ export function ReactionButton({
         ) : (
           <Heart size={16} className="shrink-0" />
         )}
-        <span>{likesCount}</span>
+        <span>{localTotal}</span>
       </button>
 
       {open ? (
-        <div className="absolute bottom-full left-0 mb-2 z-50 flex gap-1 rounded-2xl border bg-card p-2 shadow-xl">
+        <div
+          ref={pickerRef}
+          className="absolute bottom-full left-0 mb-2 z-50 flex gap-1 rounded-2xl border bg-card p-2 shadow-xl"
+        >
           {REACTIONS.map((r) => (
             <button
               key={r.type}
               type="button"
               onClick={() => handleSelect(r.type)}
-              className={`flex h-10 w-10 items-center justify-center rounded-full text-xl transition hover:scale-125 ${
-                currentReaction === r.type ? "bg-primary/10 ring-1 ring-primary" : "hover:bg-muted"
+              className={`flex flex-col items-center gap-0.5 rounded-xl p-1.5 transition hover:bg-muted ${
+                localReaction === r.type ? "bg-primary/10 ring-1 ring-primary" : ""
               }`}
-              title={r.label}
+              title={r.type}
             >
-              {r.emoji}
+              <span className="text-xl transition hover:scale-125">{r.emoji}</span>
+              <span className="text-[10px] text-muted-foreground">
+                {reactionCounts?.[r.type] ?? 0}
+              </span>
             </button>
           ))}
         </div>
