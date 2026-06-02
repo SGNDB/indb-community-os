@@ -280,13 +280,12 @@ export function PostCard({
 
           <div className="flex items-center gap-1 border-t border-border/60 pt-2">
             <div className="flex-1">
-              <ReactionButton
-                postId={post.id}
-                locale={locale}
-                currentReaction={post.user_reaction}
-                likesCount={post.likes_count}
-                reactionCounts={post.reaction_counts}
-              />
+            <ReactionButton
+              postId={post.id}
+              locale={locale}
+              currentReaction={post.user_reaction}
+              likesCount={post.likes_count}
+            />
             </div>
 
             <button

@@ -18,42 +18,16 @@ const REACTIONS: {type: ReactionType; emoji: string}[] = [
   {type: "sad", emoji: "\u{1F622}"},
 ];
 
-function ReactionSummary({
-  reactionCounts,
-}: {
-  reactionCounts?: Record<string, number>;
-}) {
-  if (!reactionCounts) return null;
-
-  const active = REACTIONS.filter(
-    (r) => (reactionCounts[r.type] ?? 0) > 0,
-  );
-  if (active.length === 0) return null;
-
-  return (
-    <div className="flex items-center gap-0.5">
-      {active.map((r) => (
-        <span key={r.type} className="flex items-center gap-0.5 text-xs">
-          <span className="text-sm">{r.emoji}</span>
-          <span className="text-muted-foreground">{reactionCounts[r.type]}</span>
-        </span>
-      ))}
-    </div>
-  );
-}
-
 export function ReactionButton({
   postId,
   locale,
   currentReaction,
   likesCount,
-  reactionCounts,
 }: {
   postId: string;
   locale: string;
   currentReaction?: ReactionType | null;
   likesCount: number;
-  reactionCounts?: Record<string, number>;
 }) {
   const [open, setOpen] = useState(false);
   const [localReaction, setLocalReaction] = useState<ReactionType | null>(
@@ -123,7 +97,7 @@ export function ReactionButton({
   const currentEmoji = REACTIONS.find((r) => r.type === localReaction)?.emoji;
 
   return (
-    <div className="relative inline-flex flex-col items-start gap-0.5">
+    <div className="relative inline-flex">
       <button
         type="button"
         onClick={() => setOpen((p) => !p)}
@@ -163,8 +137,6 @@ export function ReactionButton({
           ))}
         </div>
       ) : null}
-
-      <ReactionSummary reactionCounts={reactionCounts} />
     </div>
   );
 }
