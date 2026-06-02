@@ -135,6 +135,10 @@
     "ago": "plus tôt",
     "save": "Enregistrer",
     "share": "Partager",
+    "deleting": "Suppression...",
+    "sending": "Envoi...",
+    "commentPlaceholder": "Écrire un commentaire...",
+    "unknownAuthor": "Inconnu",
     "all": "Tous",
     "categories": {
       "community": "Communaut?",
@@ -365,6 +369,15 @@
       "hasAccount": "Vous avez déjà un compte ?",
       "login": "Connexion"
     },
+    "forgotPassword": {
+      "title": "Réinitialiser votre mot de passe",
+      "email": "Adresse e-mail",
+      "submit": "Envoyer le lien de réinitialisation",
+      "submitting": "Envoi...",
+      "sent": "Consultez vos e-mails pour le lien de réinitialisation.",
+      "backToLogin": "Retour à la connexion"
+    }
+  },
   "Errors": {
     "invalidInput": "Saisie invalide",
     "invalidPost": "Publication invalide",
