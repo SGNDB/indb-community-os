@@ -1,7 +1,36 @@
 import {createClient} from "@/lib/supabase/server";
 import type {PostWithAuthor} from "@/types/database";
 
-export async function getPosts(): Promise<PostWithAuthor[]> {
+async function attachUserReactions(
+  posts: PostWithAuthor[],
+  currentUserId?: string | null,
+): Promise<PostWithAuthor[]> {
+  if (!currentUserId || posts.length === 0) return posts;
+
+  const supabase = await createClient();
+  const postIds = posts.map((p) => p.id);
+
+  const {data: reactions} = await supabase
+    .from("post_likes")
+    .select("post_id, reaction_type")
+    .in("post_id", postIds)
+    .eq("user_id", currentUserId);
+
+  const reactionMap = new Map(
+    reactions?.map((r) => [r.post_id, r.reaction_type]) ?? [],
+  );
+
+  for (const post of posts) {
+    (post as PostWithAuthor & {user_reaction: string | null}).user_reaction =
+      reactionMap.get(post.id) ?? null;
+  }
+
+  return posts;
+}
+
+export async function getPosts(
+  currentUserId?: string | null,
+): Promise<PostWithAuthor[]> {
   const supabase = await createClient();
 
   const {data} = await supabase
@@ -14,10 +43,13 @@ export async function getPosts(): Promise<PostWithAuthor[]> {
     .eq("status", "published")
     .order("created_at", {ascending: false});
 
-  return (data ?? []) as unknown as PostWithAuthor[];
+  return attachUserReactions((data ?? []) as unknown as PostWithAuthor[], currentUserId);
 }
 
-export async function getPostById(id: string): Promise<PostWithAuthor | null> {
+export async function getPostById(
+  id: string,
+  currentUserId?: string | null,
+): Promise<PostWithAuthor | null> {
   const supabase = await createClient();
 
   const {data} = await supabase
@@ -30,10 +62,20 @@ export async function getPostById(id: string): Promise<PostWithAuthor | null> {
     .eq("id", id)
     .single();
 
-  return data as unknown as PostWithAuthor | null;
+  const posts = data
+    ? (await attachUserReactions(
+        [data] as unknown as PostWithAuthor[],
+        currentUserId,
+      ))
+    : [];
+
+  return posts[0] ?? null;
 }
 
-export async function getUserPosts(userId: string): Promise<PostWithAuthor[]> {
+export async function getUserPosts(
+  userId: string,
+  currentUserId?: string | null,
+): Promise<PostWithAuthor[]> {
   const supabase = await createClient();
 
   const {data} = await supabase
@@ -46,7 +88,7 @@ export async function getUserPosts(userId: string): Promise<PostWithAuthor[]> {
     .eq("author_id", userId)
     .order("created_at", {ascending: false});
 
-  return (data ?? []) as unknown as PostWithAuthor[];
+  return attachUserReactions((data ?? []) as unknown as PostWithAuthor[], currentUserId);
 }
 
 export async function getPostsCount(): Promise<number> {

@@ -6,6 +6,7 @@ export type PostStatus = "published" | "hidden" | "archived";
 export type CommentStatus = "published" | "hidden";
 export type MemoryVerificationStatus = "pending" | "approved" | "rejected" | "needs_more_info";
 export type IdeaStatus = "submitted" | "under_review" | "accepted" | "in_progress" | "completed" | "rejected";
+export type ReactionType = "like" | "love" | "laugh" | "surprise" | "sad" | "celebrate";
 export type ReportTargetType = "post" | "comment" | "memory" | "idea";
 export type ReportStatus = "pending" | "reviewed" | "resolved" | "dismissed";
 
@@ -66,6 +67,7 @@ export interface PostLikeRow {
   id: string;
   post_id: string;
   user_id: string;
+  reaction_type: ReactionType;
   created_at: string;
 }
 
@@ -198,6 +200,7 @@ export interface PollVoteRow {
 export interface PostWithAuthor extends PostRow {
   author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
   category: Pick<CategoryRow, "id" | "slug" | "name_en" | "name_fr" | "name_ar"> | null;
+  user_reaction?: ReactionType | null;
 }
 
 export interface MemoryWithContributor extends MemoryRow {

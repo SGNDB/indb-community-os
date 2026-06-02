@@ -1,13 +1,14 @@
 "use client";
 
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {motion} from "framer-motion";
-import {Bookmark, Heart, MessageCircle, Send, Share2, Trash2} from "lucide-react";
+import {Bookmark, MessageCircle, Send, Share2, Trash2} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
 import {useFormStatus} from "react-dom";
 import {toast} from "sonner";
 
 import {CommentCard} from "@/components/feed/comment-card";
+import {ReactionButton} from "@/components/feed/reaction-button";
 import {UserAvatar} from "@/components/layout/user-avatar";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
@@ -19,7 +20,7 @@ import {translateContent} from "@/lib/i18n/translateContent";
 import {
   addCommentAction,
   deletePostAction,
-  toggleLikeAction,
+  toggleReactionAction,
   toggleSaveAction,
 } from "@/app/[locale]/server-actions";
 
@@ -91,6 +92,15 @@ export function PostCard({
   const [isTranslating, setIsTranslating] = useState(false);
   const [translationError, setTranslationError] = useState(false);
   const [showCommentInput, setShowCommentInput] = useState(false);
+  const reactionFormRef = useRef<HTMLFormElement>(null);
+
+  function handleReact(reactionType: string) {
+    const form = reactionFormRef.current;
+    if (form) {
+      (form.elements.namedItem("reactionType") as HTMLInputElement).value = reactionType;
+      form.requestSubmit();
+    }
+  }
 
   const authorName = post.author?.full_name ?? post.author?.username ?? t("unknownAuthor");
   const postTime = timeAgo(post.created_at, locale);
@@ -158,7 +168,7 @@ export function PostCard({
       transition={{duration: 0.28, ease: "easeOut"}}
       className="rounded-2xl"
     >
-      <Card className="overflow-hidden border-border/70 shadow-[0_12px_32px_rgba(8,33,56,0.08)]">
+      <Card className="border-border/70 shadow-[0_12px_32px_rgba(8,33,56,0.08)]">
         <CardHeader className="pb-2.5 sm:pb-3">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3">
@@ -224,18 +234,18 @@ export function PostCard({
           ) : null}
 
           <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-            <form action={toggleLikeAction} className="contents">
+            <form ref={reactionFormRef} action={toggleReactionAction} className="contents" aria-hidden="true">
               <input type="hidden" name="locale" value={locale} />
               <input type="hidden" name="postId" value={post.id} />
-              <Button
-                type="submit"
-                variant="ghost"
-                className="min-h-11 justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground sm:justify-start sm:gap-2 sm:px-3 sm:text-sm"
-              >
-                <Heart size={16} className="shrink-0" />
-                <span>{t("actionCounts.likes", {count: post.likes_count})}</span>
-              </Button>
+              <input type="hidden" name="reactionType" value="" />
             </form>
+            <ReactionButton
+              postId={post.id}
+              locale={locale}
+              currentReaction={post.user_reaction}
+              likesCount={post.likes_count}
+              onReact={handleReact}
+            />
             <Button
               variant="ghost"
               onClick={() => setShowCommentInput(!showCommentInput)}

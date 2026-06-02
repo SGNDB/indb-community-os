@@ -40,7 +40,7 @@ export default async function LandingPage({
   const isLoggedIn = !!user;
 
   const [latestPosts, featuredMemories, communityIdeas] = await Promise.all([
-    getPosts(),
+    getPosts(user?.id ?? null),
     getApprovedMemories(),
     getIdeas(),
   ]);

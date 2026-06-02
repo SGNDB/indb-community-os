@@ -65,7 +65,7 @@ export default async function PublicProfilePage({
   const currentUserId = user?.id ?? null;
 
   const [allPosts, memories, ideas] = await Promise.all([
-    getUserPosts(profile.id),
+    getUserPosts(profile.id, currentUserId),
     getUserMemories(profile.id),
     getUserIdeas(profile.id),
   ]);

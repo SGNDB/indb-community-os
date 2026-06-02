@@ -147,6 +147,14 @@
       "memory": "Archives",
       "ideas": "Idées"
     },
+    "reactions": {
+      "like": "J'aime",
+      "love": "J'adore",
+      "laugh": "Rire",
+      "surprise": "Surprise",
+      "sad": "Triste",
+      "celebrate": "C\u00e9l\u00e9brer"
+    },
     "actionCounts": {
       "likes": "{count} J'aime",
       "comments": "{count} Commentaires",

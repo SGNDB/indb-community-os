@@ -30,11 +30,12 @@ export default async function FeedPage({
 }) {
   const {locale} = await params;
   const empty = await getTranslations({locale, namespace: "EmptyStates.posts"});
-  const posts = await getPosts();
 
   const supabase = await createClient();
   const {data: {user}} = await supabase.auth.getUser();
   const currentUserId = user?.id ?? null;
+
+  const posts = await getPosts(currentUserId);
 
   return (
     <div className="space-y-3 sm:space-y-4">

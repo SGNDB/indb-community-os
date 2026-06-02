@@ -224,9 +224,10 @@ export async function addCommentAction(formData: FormData) {
   redirect(toPath(locale, "/feed?commentAdded=1"));
 }
 
-export async function toggleLikeAction(formData: FormData) {
+export async function toggleReactionAction(formData: FormData) {
   const locale = normalizeLocale(formData.get("locale"));
   const postId = formData.get("postId");
+  const reactionType = formData.get("reactionType") as string | null;
   const supabase = await createClient();
 
   const {
@@ -238,28 +239,32 @@ export async function toggleLikeAction(formData: FormData) {
     redirect(toPath(locale, `/login?next=${next}`));
   }
 
-  if (typeof postId !== "string") {
+  if (typeof postId !== "string" || !reactionType) {
     redirect(toPath(locale, "/feed"));
   }
 
   const {data: existing} = await supabase
     .from("post_likes")
-    .select("id")
+    .select("id, reaction_type")
     .eq("post_id", postId)
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (existing?.id) {
-    await supabase.from("post_likes").delete().eq("id", existing.id);
+  if (existing) {
+    if (existing.reaction_type === reactionType) {
+      await supabase.from("post_likes").delete().eq("id", existing.id);
+    } else {
+      await supabase.from("post_likes").update({reaction_type: reactionType}).eq("id", existing.id);
+    }
   } else {
     await supabase.from("post_likes").insert({
       post_id: postId,
       user_id: user.id,
+      reaction_type: reactionType,
     });
   }
 
-  revalidatePath(toPath(locale, "/feed"));
-  redirect(toPath(locale, "/feed"));
+  revalidatePath("/", "layout");
 }
 
 export async function toggleSaveAction(formData: FormData) {

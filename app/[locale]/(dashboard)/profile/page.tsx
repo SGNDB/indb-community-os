@@ -79,7 +79,7 @@ export default async function ProfilePage({
   const emptyIdeas = await getTranslations({locale, namespace: "EmptyStates.ideas"});
 
   const [allPosts, memories, ideas] = await Promise.all([
-    getUserPosts(profile.id),
+    getUserPosts(profile.id, currentUserId),
     getUserMemories(profile.id),
     getUserIdeas(profile.id),
   ]);

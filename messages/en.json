@@ -147,6 +147,14 @@
       "memory": "Memory",
       "ideas": "Ideas"
     },
+    "reactions": {
+      "like": "Like",
+      "love": "Love",
+      "laugh": "Laugh",
+      "surprise": "Surprise",
+      "sad": "Sad",
+      "celebrate": "Celebrate"
+    },
     "actionCounts": {
       "likes": "{count} Likes",
       "comments": "{count} Comments",
