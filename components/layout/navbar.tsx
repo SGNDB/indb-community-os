@@ -49,6 +49,7 @@ export async function Navbar({locale}: {locale: string}) {
           </Link>
 
           <div className="flex items-center justify-self-end gap-1">
+            <ThemeToggle />
             <NotificationDropdown />
             <LanguageSwitcher />
           </div>

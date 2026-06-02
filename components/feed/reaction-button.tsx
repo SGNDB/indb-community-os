@@ -124,14 +124,14 @@ export function ReactionButton({
       {open ? (
         <div
           ref={pickerRef}
-          className="absolute bottom-full left-0 mb-2 z-50 flex gap-1 rounded-2xl border bg-card p-2 shadow-xl"
+          className="absolute bottom-full start-0 z-50 mb-2 flex max-w-[calc(100vw-2rem)] gap-1 overflow-x-auto rounded-2xl border bg-card p-2 shadow-xl"
         >
           {REACTIONS.map((r) => (
             <button
               key={r.type}
               type="button"
               onClick={() => handleSelect(r.type)}
-              className={`flex items-center justify-center rounded-full p-2 text-xl transition hover:scale-125 hover:bg-muted ${
+              className={`flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full p-2 text-xl transition hover:scale-110 hover:bg-muted ${
                 localReaction === r.type
                   ? "bg-primary/10 ring-1 ring-primary"
                   : ""
