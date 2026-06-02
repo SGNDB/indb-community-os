@@ -252,7 +252,8 @@
     "stats": {
       "posts": "Publications",
       "memories": "Souvenirs",
-      "ideas": "Idées"
+      "ideas": "Idées",
+      "comments": "Commentaires"
     },
     "editProfile": "Modifier le profil",
     "shareProfile": "Partager le profil",
@@ -260,9 +261,36 @@
     "tabs": {
       "posts": "Publications",
       "memories": "Souvenirs",
-      "ideas": "Idées"
+      "ideas": "Idées",
+      "about": "À propos"
     },
-    "recentMemories": "Souvenirs récents"
+    "joined": "Membre depuis",
+    "role": {
+      "member": "Membre",
+      "contributor": "Contributeur",
+      "historian": "Historien",
+      "volunteer": "Bénévole",
+      "diaspora": "Diaspora",
+      "organization": "Organisation"
+    },
+    "recentMemories": "Souvenirs récents",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "updated": "Profil mis à jour avec succès.",
+    "cancel": "Annuler",
+    "noBio": "Pas encore de bio.",
+    "noCity": "Aucune ville renseignée.",
+    "fields": {
+      "username": "Nom d'utilisateur",
+      "fullName": "Nom complet",
+      "bio": "Bio",
+      "city": "Ville",
+      "languagePreference": "Langue (en, fr, ar)",
+      "avatarUrl": "Avatar",
+      "coverImage": "Image de couverture",
+      "role": "Rôle",
+      "memberSince": "Membre depuis"
+    }
   },
   "ProfileCard": {
     "bio": "Conteur communautaire qui documente souvenirs, idées et projets locaux.",

@@ -39,11 +39,17 @@ export async function getProfileWithCounts(userId: string): Promise<ProfileWithC
     .select("*", {count: "exact", head: true})
     .eq("author_id", userId);
 
+  const {count: commentsCount} = await supabase
+    .from("comments")
+    .select("*", {count: "exact", head: true})
+    .eq("author_id", userId);
+
   return {
     ...(profile as ProfileRow),
     posts_count: postsCount ?? 0,
     memories_count: memoriesCount ?? 0,
     ideas_count: ideasCount ?? 0,
+    comments_count: commentsCount ?? 0,
   };
 }
 
@@ -60,4 +66,16 @@ export async function getCurrentProfile(): Promise<ProfileRow | null> {
   const {data: {user}} = await supabase.auth.getUser();
   if (!user) return null;
   return getProfile(user.id);
+}
+
+export async function getProfileByUsername(username: string): Promise<ProfileRow | null> {
+  const supabase = await createClient();
+
+  const {data} = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("username", username)
+    .single();
+
+  return data as ProfileRow | null;
 }

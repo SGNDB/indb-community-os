@@ -9,11 +9,11 @@ export default async function RegisterPage({
   searchParams,
 }: {
   params: Promise<{locale: string}>;
-  searchParams: Promise<{error?: string}>;
+  searchParams: Promise<{error?: string; next?: string}>;
 }) {
   const {locale} = await params;
   const t = await getTranslations({locale, namespace: "Auth.register"});
-  const {error} = await searchParams;
+  const {error, next} = await searchParams;
 
   return (
     <div className="mx-auto max-w-md space-y-4">
@@ -26,7 +26,7 @@ export default async function RegisterPage({
         </CardHeader>
         <CardContent className="space-y-3">
           {error ? <p className="rounded-xl bg-destructive/10 p-2 text-xs text-destructive">{error}</p> : null}
-          <RegisterForm locale={locale} />
+          <RegisterForm locale={locale} next={next} />
         </CardContent>
       </Card>
     </div>

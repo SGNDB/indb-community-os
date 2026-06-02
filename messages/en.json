@@ -256,7 +256,8 @@
     "stats": {
       "posts": "Posts",
       "memories": "Memories",
-      "ideas": "Ideas"
+      "ideas": "Ideas",
+      "comments": "Comments"
     },
     "editProfile": "Edit profile",
     "shareProfile": "Share profile",
@@ -264,20 +265,35 @@
     "tabs": {
       "posts": "Posts",
       "memories": "Memories",
-      "ideas": "Ideas"
+      "ideas": "Ideas",
+      "about": "About"
+    },
+    "joined": "Joined",
+    "role": {
+      "member": "Member",
+      "contributor": "Contributor",
+      "historian": "Historian",
+      "volunteer": "Volunteer",
+      "diaspora": "Diaspora",
+      "organization": "Organization"
     },
     "recentMemories": "Recent Memories",
     "save": "Save changes",
     "saving": "Saving...",
     "updated": "Profile updated successfully.",
     "cancel": "Cancel",
+    "noBio": "No bio yet.",
+    "noCity": "No city set.",
     "fields": {
       "username": "Username",
       "fullName": "Full name",
       "bio": "Bio",
       "city": "City",
       "languagePreference": "Language (en, fr, ar)",
-      "avatarUrl": "Avatar URL"
+      "avatarUrl": "Avatar",
+      "coverImage": "Cover image",
+      "role": "Role",
+      "memberSince": "Member since"
     }
   },
   "ProfileCard": {

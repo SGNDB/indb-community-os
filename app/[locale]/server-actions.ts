@@ -39,6 +39,7 @@ export async function signOutAction(formData: FormData) {
 export async function loginAction(formData: FormData) {
   const locale = normalizeLocale(formData.get("locale"));
   const t = await getTranslations({locale, namespace: "Errors"});
+  const next = formData.get("next");
 
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),
@@ -65,12 +66,13 @@ export async function loginAction(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect(toPath(locale, "/feed"));
+  redirect(toPath(locale, typeof next === "string" && next ? next : "/feed"));
 }
 
 export async function registerAction(formData: FormData) {
   const locale = normalizeLocale(formData.get("locale"));
   const t = await getTranslations({locale, namespace: "Errors"});
+  const next = formData.get("next");
 
   const parsed = registerSchema.safeParse({
     username: formData.get("username"),
@@ -147,12 +149,14 @@ export async function registerAction(formData: FormData) {
     }
   }
 
+  const redirectPath = typeof next === "string" && next ? next : "/feed";
+
   if (data.session) {
     revalidatePath("/", "layout");
-    redirect(toPath(locale, "/feed"));
+    redirect(toPath(locale, redirectPath));
   }
 
-  redirect(toPath(locale, "/login?emailConfirmation=1"));
+  redirect(toPath(locale, `/login?emailConfirmation=1&next=${encodeURIComponent(redirectPath)}`));
 }
 
 export async function createPostAction(formData: FormData) {
@@ -262,6 +266,25 @@ export async function toggleLikeAction(formData: FormData) {
   redirect(toPath(locale, "/feed"));
 }
 
+async function uploadProfileFile(
+  file: File,
+  folder: string,
+  userId: string,
+): Promise<string | null> {
+  const supabase = await createClient();
+  const sanitizedName = file.name.replace(/\s+/g, "-").toLowerCase();
+  const filePath = `${userId}/${folder}/${Date.now()}-${sanitizedName}`;
+
+  const {error: uploadError} = await supabase.storage
+    .from("profile-covers")
+    .upload(filePath, file, {cacheControl: "3600", upsert: false});
+
+  if (uploadError) return null;
+
+  const {data: publicUrlData} = supabase.storage.from("profile-covers").getPublicUrl(filePath);
+  return publicUrlData.publicUrl;
+}
+
 export async function updateProfileAction(formData: FormData) {
   const locale = normalizeLocale(formData.get("locale"));
   const t = await getTranslations({locale, namespace: "Errors"});
@@ -282,6 +305,7 @@ export async function updateProfileAction(formData: FormData) {
     city: formData.get("city"),
     languagePreference: formData.get("languagePreference"),
     avatarUrl: formData.get("avatarUrl"),
+    coverImageUrl: formData.get("coverImageUrl"),
   });
 
   if (!parsed.success) {
@@ -295,6 +319,21 @@ export async function updateProfileAction(formData: FormData) {
     );
   }
 
+  let avatarUrl = parsed.data.avatarUrl || null;
+  let coverImageUrl = parsed.data.coverImageUrl || null;
+
+  const avatarFile = formData.get("avatarFile");
+  if (avatarFile instanceof File && avatarFile.size > 0) {
+    const uploaded = await uploadProfileFile(avatarFile, "avatars", user.id);
+    if (uploaded) avatarUrl = uploaded;
+  }
+
+  const coverFile = formData.get("coverFile");
+  if (coverFile instanceof File && coverFile.size > 0) {
+    const uploaded = await uploadProfileFile(coverFile, "covers", user.id);
+    if (uploaded) coverImageUrl = uploaded;
+  }
+
   const {error} = await supabase.from("profiles").upsert({
     id: user.id,
     username: parsed.data.username,
@@ -302,7 +341,8 @@ export async function updateProfileAction(formData: FormData) {
     bio: parsed.data.bio || null,
     city: parsed.data.city || null,
     language_preference: parsed.data.languagePreference || "auto",
-    avatar_url: parsed.data.avatarUrl || null,
+    avatar_url: avatarUrl,
+    cover_image_url: coverImageUrl,
   });
 
   if (error) {

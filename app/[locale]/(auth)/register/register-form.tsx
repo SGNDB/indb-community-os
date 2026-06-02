@@ -17,19 +17,20 @@ function SubmitButton({label, loading}: {label: string; loading: string}) {
   );
 }
 
-export function RegisterForm({locale}: {locale: string}) {
+export function RegisterForm({locale, next}: {locale: string; next?: string}) {
   const t = useTranslations("Auth.register");
 
   return (
     <form action={registerAction} className="space-y-3">
       <input type="hidden" name="locale" value={locale} />
+      {next ? <input type="hidden" name="next" value={next} /> : null}
       <Input name="username" placeholder={t("username")} required />
       <Input type="email" name="email" placeholder={t("email")} required />
       <Input type="password" name="password" placeholder={t("password")} required />
       <Input type="password" name="confirmPassword" placeholder={t("confirmPassword")} required />
       <SubmitButton label={t("submit")} loading={t("submitting")} />
       <p className="text-center text-xs text-muted-foreground">
-        {t("hasAccount")} <Link href="/login" className="text-primary hover:underline">{t("login")}</Link>
+        {t("hasAccount")} <Link href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"} className="text-primary hover:underline">{t("login")}</Link>
       </p>
     </form>
   );

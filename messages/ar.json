@@ -252,7 +252,8 @@
     "stats": {
       "posts": "منشورات",
       "memories": "ذكريات",
-      "ideas": "أفكار"
+      "ideas": "أفكار",
+      "comments": "تعليقات"
     },
     "editProfile": "تعديل الملف",
     "shareProfile": "مشاركة الملف",
@@ -260,9 +261,36 @@
     "tabs": {
       "posts": "منشورات",
       "memories": "ذكريات",
-      "ideas": "أفكار"
+      "ideas": "أفكار",
+      "about": "حول"
     },
-    "recentMemories": "ذكريات حديثة"
+    "joined": "انضم في",
+    "role": {
+      "member": "عضو",
+      "contributor": "مساهم",
+      "historian": "مؤرخ",
+      "volunteer": "متطوع",
+      "diaspora": "شتات",
+      "organization": "منظمة"
+    },
+    "recentMemories": "ذكريات حديثة",
+    "save": "حفظ التغييرات",
+    "saving": "جارٍ الحفظ...",
+    "updated": "تم تحديث الملف بنجاح.",
+    "cancel": "إلغاء",
+    "noBio": "لا توجد سيرة ذاتية بعد.",
+    "noCity": "لم يتم تعيين المدينة.",
+    "fields": {
+      "username": "اسم المستخدم",
+      "fullName": "الاسم الكامل",
+      "bio": "السيرة الذاتية",
+      "city": "المدينة",
+      "languagePreference": "اللغة (en, fr, ar)",
+      "avatarUrl": "الصورة الرمزية",
+      "coverImage": "صورة الغلاف",
+      "role": "الدور",
+      "memberSince": "عضو منذ"
+    }
   },
   "ProfileCard": {
     "bio": "راوٍ مجتمعي يوثق الذكريات والأفكار والمشاريع المحلية.",

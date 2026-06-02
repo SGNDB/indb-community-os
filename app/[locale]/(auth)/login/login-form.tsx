@@ -17,12 +17,13 @@ function SubmitButton({label, loading}: {label: string; loading: string}) {
   );
 }
 
-export function LoginForm({locale}: {locale: string}) {
+export function LoginForm({locale, next}: {locale: string; next?: string}) {
   const t = useTranslations("Auth.login");
 
   return (
     <form action={loginAction} className="space-y-3">
       <input type="hidden" name="locale" value={locale} />
+      {next ? <input type="hidden" name="next" value={next} /> : null}
       <Input type="email" name="email" placeholder={t("email")} required />
       <Input type="password" name="password" placeholder={t("password")} required />
       <div className="flex items-center justify-between">
@@ -30,7 +31,7 @@ export function LoginForm({locale}: {locale: string}) {
         <Link href="/forgot-password" className="text-xs text-primary hover:underline">{t("forgotPassword")}</Link>
       </div>
       <p className="text-center text-xs text-muted-foreground">
-        {t("noAccount")} <Link href="/register" className="text-primary hover:underline">{t("register")}</Link>
+        {t("noAccount")} <Link href={next ? `/register?next=${encodeURIComponent(next)}` : "/register"} className="text-primary hover:underline">{t("register")}</Link>
       </p>
     </form>
   );

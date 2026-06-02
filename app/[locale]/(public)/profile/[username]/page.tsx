@@ -1,5 +1,6 @@
-import {CalendarDays, MapPin, Pencil, UserRound} from "lucide-react";
+import {CalendarDays, MapPin, UserRound} from "lucide-react";
 import type {Metadata} from "next";
+import {notFound} from "next/navigation";
 import {getTranslations} from "next-intl/server";
 
 import {PostCard} from "@/components/feed/post-card";
@@ -7,27 +8,27 @@ import {MemoryCard} from "@/components/memory/memory-card";
 import {IdeaCard} from "@/components/ideas/idea-card";
 import {EmptyState} from "@/components/shared/empty-state";
 import {Badge} from "@/components/ui/badge";
-import {Button} from "@/components/ui/button";
 import {Card, CardContent} from "@/components/ui/card";
 import {getCommentsByPost} from "@/lib/data/comments";
 import {getUserPosts} from "@/lib/data/posts";
-import {getProfileWithCounts} from "@/lib/data/profile";
+import {getProfileByUsername} from "@/lib/data/profile";
 import {getUserMemories} from "@/lib/data/memories";
 import {getUserIdeas} from "@/lib/data/ideas";
-import {Link, redirect} from "@/lib/i18n/routing";
+import {Link} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/server";
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{locale: string}>;
+  params: Promise<{locale: string; username: string}>;
 }): Promise<Metadata> {
-  const {locale} = await params;
-  const t = await getTranslations({locale, namespace: "Meta"});
+  const {username} = await params;
+  const profile = await getProfileByUsername(username);
+  if (!profile) return {title: "Not Found"};
 
   return {
-    title: t("profile.title"),
-    description: t("profile.description"),
+    title: profile.full_name ?? profile.username ?? "Profile",
+    description: profile.bio ?? `Community profile of ${profile.username}`,
   };
 }
 
@@ -46,37 +47,22 @@ function formatJoinDate(dateStr: string, locale: string): string {
   });
 }
 
-export default async function ProfilePage({
+export default async function PublicProfilePage({
   params,
   searchParams,
 }: {
-  params: Promise<{locale: string}>;
-  searchParams: Promise<{tab?: string; error?: string; updated?: string}>;
+  params: Promise<{locale: string; username: string}>;
+  searchParams: Promise<{tab?: string}>;
 }) {
-  const {locale} = await params;
-  const {tab: activeTab, error, updated} = await searchParams;
+  const {locale, username} = await params;
+  const {tab: activeTab} = await searchParams;
+
+  const profile = await getProfileByUsername(username);
+  if (!profile) notFound();
 
   const supabase = await createClient();
   const {data: {user}} = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect({href: "/login", locale});
-    return;
-  }
-
-  const profile = await getProfileWithCounts(user.id);
-
-  if (!profile) {
-    redirect({href: "/login", locale});
-    return;
-  }
-
-  const currentUserId = user.id;
-
-  const t = await getTranslations({locale, namespace: "Profile"});
-  const emptyPosts = await getTranslations({locale, namespace: "EmptyStates.posts"});
-  const emptyMemories = await getTranslations({locale, namespace: "EmptyStates.memories"});
-  const emptyIdeas = await getTranslations({locale, namespace: "EmptyStates.ideas"});
+  const currentUserId = user?.id ?? null;
 
   const [allPosts, memories, ideas] = await Promise.all([
     getUserPosts(profile.id),
@@ -89,6 +75,11 @@ export default async function ProfilePage({
   const joinDate = formatJoinDate(profile.created_at, locale);
   const currentTab = activeTab === "memories" ? "memories" : activeTab === "ideas" ? "ideas" : activeTab === "about" ? "about" : "posts";
 
+  const t = await getTranslations({locale, namespace: "Profile"});
+  const emptyPosts = await getTranslations({locale, namespace: "EmptyStates.posts"});
+  const emptyMemories = await getTranslations({locale, namespace: "EmptyStates.memories"});
+  const emptyIdeas = await getTranslations({locale, namespace: "EmptyStates.ideas"});
+
   const tabs = [
     {key: "posts", label: t("tabs.posts"), count: allPosts.length},
     {key: "memories", label: t("tabs.memories"), count: memories.length},
@@ -98,26 +89,8 @@ export default async function ProfilePage({
 
   return (
     <div className="space-y-4">
-      {updated ? (
-        <p className="rounded-xl bg-primary/10 p-3 text-sm text-primary">{t("updated")}</p>
-      ) : null}
-      {error ? (
-        <p className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>
-      ) : null}
-
       <Card className="overflow-hidden border-border/70 shadow-[0_12px_32px_rgba(8,33,56,0.08)]">
-        <div
-          className="relative h-40 sm:h-56"
-          style={
-            profile.cover_image_url
-              ? {backgroundImage: `url(${profile.cover_image_url})`, backgroundSize: "cover", backgroundPosition: "center"}
-              : {}
-          }
-        >
-          {!profile.cover_image_url ? (
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-accent/75 to-primary/70" />
-          ) : null}
-        </div>
+        <div className="relative h-40 sm:h-56 bg-gradient-to-r from-primary/95 via-accent/75 to-primary/70" />
 
         <CardContent className="relative px-4 pb-4 sm:px-6 sm:pb-6">
           <div className="flex flex-col sm:flex-row sm:items-end sm:gap-5">
@@ -169,12 +142,13 @@ export default async function ProfilePage({
             </div>
 
             <div className="mt-3 flex justify-center sm:mt-0 sm:self-center">
-              <Link href="/profile/edit">
-                <Button variant="outline" size="sm" className="gap-1.5 rounded-full">
-                  <Pencil size={14} />
-                  {t("editProfile")}
-                </Button>
-              </Link>
+              {currentUserId === profile.id ? (
+                <Link href="/profile">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-4 py-2 text-xs font-medium text-primary hover:bg-primary/20">
+                    {t("editProfile")}
+                  </span>
+                </Link>
+              ) : null}
             </div>
           </div>
 
@@ -192,7 +166,7 @@ export default async function ProfilePage({
               <p className="text-xs text-muted-foreground">{t("stats.ideas")}</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold sm:text-xl">{profile.comments_count ?? 0}</p>
+              <p className="text-lg font-bold sm:text-xl">{allPosts.reduce((sum, p) => sum + (p.comments_count ?? 0), 0)}</p>
               <p className="text-xs text-muted-foreground">{t("stats.comments")}</p>
             </div>
           </div>
@@ -203,7 +177,7 @@ export default async function ProfilePage({
         {tabs.map((tab) => (
           <Link
             key={tab.key}
-            href={`/profile?tab=${tab.key}`}
+            href={`/profile/${username}?tab=${tab.key}`}
             className={`inline-flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-medium transition ${
               currentTab === tab.key || (currentTab === "posts" && tab.key === "posts" && !activeTab)
                 ? "bg-primary text-primary-foreground shadow-sm"
@@ -300,10 +274,6 @@ export default async function ProfilePage({
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("fields.city")}</p>
                 <p className="mt-1 text-sm">{profile.city ?? t("noCity")}</p>
-              </div>
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("fields.languagePreference")}</p>
-                <p className="mt-1 text-sm">{profile.language_preference ?? "—"}</p>
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("fields.role")}</p>

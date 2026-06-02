@@ -45,9 +45,9 @@ export default async function middleware(request: NextRequest) {
     const user = data.user;
 
     if (needsAuth && !user) {
-      const loginUrl = new URL(`/${locale}/login`, request.url);
-      loginUrl.searchParams.set("redirect", pathWithoutLocale);
-      return NextResponse.redirect(loginUrl);
+      const authUrl = new URL(`/${locale}/register`, request.url);
+      authUrl.searchParams.set("next", pathWithoutLocale);
+      return NextResponse.redirect(authUrl);
     }
 
     if (isAuthPage && user) {

@@ -13,6 +13,7 @@ export interface ProfileRow {
   full_name: string | null;
   username: string | null;
   avatar_url: string | null;
+  cover_image_url: string | null;
   bio: string | null;
   city: string | null;
   role: CommunityRole;
@@ -165,4 +166,5 @@ export interface ProfileWithCounts extends ProfileRow {
   posts_count: number;
   memories_count: number;
   ideas_count: number;
+  comments_count: number;
 }

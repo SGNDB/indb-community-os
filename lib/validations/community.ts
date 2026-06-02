@@ -33,6 +33,7 @@ export const profileSchema = z.object({
   city: z.string().max(100).optional().or(z.literal("")),
   languagePreference: z.string().max(10).optional().or(z.literal("")),
   avatarUrl: z.string().optional().or(z.literal("")),
+  coverImageUrl: z.string().optional().or(z.literal("")),
 });
 
 export const memorySchema = z.object({
