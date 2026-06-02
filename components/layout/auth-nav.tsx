@@ -22,7 +22,20 @@ export function AuthNav({locale, isLoggedIn}: {locale: string; isLoggedIn: boole
   const t = useTranslations("Navbar");
 
   if (!isLoggedIn) {
-    return null;
+    return (
+      <div className="flex items-center gap-1">
+        <Link href="/register">
+          <Button variant="ghost" size="sm" className="gap-1.5">
+            {t("createAccount")}
+          </Button>
+        </Link>
+        <Link href="/login">
+          <Button variant="ghost" size="sm" className="gap-1.5">
+            {t("login")}
+          </Button>
+        </Link>
+      </div>
+    );
   }
 
   return (

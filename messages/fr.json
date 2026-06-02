@@ -56,7 +56,11 @@
     "changeTo": "Changer la langue vers {language}"
   },
   "Navbar": {
-    "memberAvatarLabel": "Profil membre de la communauté"
+    "memberAvatarLabel": "Profil membre de la communauté",
+    "createAccount": "Créer un compte",
+    "login": "Connexion",
+    "logout": "Se déconnecter",
+    "loggingOut": "Déconnexion..."
   },
   "Navigation": {
     "items": {
@@ -103,26 +107,14 @@
   "Notifications": {
     "button": "Notifications",
     "title": "Notifications",
-    "items": {
-      "cleanup": "Le nettoyage de plage commence samedi à 8h00.",
-      "memoryAdded": "Nouveau souvenir ajouté : histoires de l'ancienne gare.",
-      "ideaVotes": "Votre idée « Bibliothèque publique » a atteint 100 votes."
-    }
+    "empty": "Aucune notification pour le moment."
   },
   "RightSidebar": {
     "trendingTopics": "Sujets tendance",
     "featuredMemories": "Souvenirs en vedette",
     "activePoll": "Sondage actif",
     "votes": "{count} votes",
-    "upcomingEvents": "Événements à venir",
-    "sampleEventOne": {
-      "title": "Journée nettoyage de plage",
-      "date": "Samedi 8 juin"
-    },
-    "sampleEventTwo": {
-      "title": "Soirée mémoire ferroviaire",
-      "date": "Jeudi 13 juin"
-    }
+    "upcomingEvents": "Événements à venir"
   },
   "Landing": {
     "tagline": "Mémoire - Participation - Avenir",
@@ -135,7 +127,9 @@
     "latestPosts": "Dernières publications",
     "pollPreview": "Aperçu du sondage",
     "featuredMemories": "Souvenirs en vedette",
-    "communityIdeas": "Idées de la communauté"
+    "communityIdeas": "Idées de la communauté",
+    "createAccount": "Créer un compte",
+    "login": "Connexion"
   },
   "Feed": {
     "ago": "plus tôt",
@@ -184,7 +178,7 @@
   },
   "MemoryForm": {
     "title": "Soumettre un souvenir communautaire",
-    "ready": "Démo frontend : votre souvenir est prêt à être soumis.",
+    "ready": "Votre souvenir est prêt à être soumis.",
     "fields": {
       "title": "Titre du souvenir",
       "story": "Partagez l'histoire et son contexte",
@@ -213,7 +207,7 @@
   },
   "IdeaForm": {
     "title": "Soumettre une idée citoyenne",
-    "ready": "Démo frontend : votre idée est prête à être soumise.",
+    "ready": "Votre idée est prête à être soumise.",
     "fields": {
       "title": "Titre de l'idée",
       "description": "Décrivez l'idée, ses bénéfices et les prochaines étapes",
@@ -321,22 +315,28 @@
   "Auth": {
     "login": {
       "title": "Connexion",
-      "registered": "Inscription terminée. Vérifiez votre e-mail de confirmation si activé.",
-      "done": "Démo frontend : interaction de connexion terminée.",
+      "emailConfirmation": "Inscription terminée. Veuillez vérifier votre e-mail pour confirmer votre compte avant de vous connecter.",
+      "done": "Interaction de connexion terminée.",
       "email": "E-mail",
       "password": "Mot de passe",
-      "submit": "Se connecter"
+      "submit": "Se connecter",
+      "submitting": "Connexion...",
+      "forgotPassword": "Mot de passe oublié ?",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "register": "Créer un compte"
     },
     "register": {
       "title": "Créer votre compte",
-      "done": "Démo frontend : interaction de création de compte terminée.",
+      "done": "Interaction de création de compte terminée.",
       "username": "Nom d'utilisateur",
       "email": "E-mail",
       "password": "Mot de passe",
       "confirmPassword": "Confirmer le mot de passe",
-      "submit": "Créer le compte"
-    }
-  },
+      "submit": "Créer le compte",
+      "submitting": "Création du compte...",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "login": "Connexion"
+    },
   "Errors": {
     "invalidInput": "Saisie invalide",
     "invalidPost": "Publication invalide",
@@ -381,6 +381,11 @@
       "title": "Aucune publication sur ce profil",
       "description": "Partagez une première mise à jour pour développer votre présence communautaire.",
       "cta": "Partager une mise ? jour"
+    },
+    "polls": {
+      "title": "Aucun sondage pour le moment",
+      "description": "Créez le premier sondage pour recueillir l'avis de la communauté.",
+      "cta": "Explorer le fil"
     }
   }
 }

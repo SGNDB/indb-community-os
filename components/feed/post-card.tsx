@@ -230,7 +230,7 @@ export function PostCard({
             </Button>
             <Button variant="ghost" className="min-h-11 justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground sm:justify-start sm:gap-2 sm:px-3 sm:text-sm">
               <Bookmark size={16} />
-              <span>{t("actionCounts.saves", {count: Math.max(1, post.saves_count)})}</span>
+              <span>{t("actionCounts.saves", {count: post.saves_count})}</span>
             </Button>
             <Button variant="ghost" className="min-h-11 justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground sm:justify-start sm:gap-2 sm:px-3 sm:text-sm">
               <Share2 size={16} />

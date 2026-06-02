@@ -32,6 +32,7 @@ export async function signOutAction(formData: FormData) {
   const supabase = await createClient();
 
   await supabase.auth.signOut();
+  revalidatePath("/", "layout");
   redirect(toPath(locale, "/"));
 }
 
@@ -54,12 +55,16 @@ export async function loginAction(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const {error} = await supabase.auth.signInWithPassword(parsed.data);
+  const {error} = await supabase.auth.signInWithPassword({
+    email: parsed.data.email.trim().toLowerCase(),
+    password: parsed.data.password,
+  });
 
   if (error) {
     redirect(toPath(locale, `/login?error=${encodeURIComponent(error.message)}`));
   }
 
+  revalidatePath("/", "layout");
   redirect(toPath(locale, "/feed"));
 }
 
@@ -83,44 +88,71 @@ export async function registerAction(formData: FormData) {
     );
   }
 
+  const email = parsed.data.email.trim().toLowerCase();
+  const password = parsed.data.password;
+  const username = parsed.data.username;
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("[register] signUp email:", email);
+  }
+
   const supabase = await createClient();
   const {data, error} = await supabase.auth.signUp({
-    email: parsed.data.email,
-    password: parsed.data.password,
+    email,
+    password,
     options: {
       data: {
-        username: parsed.data.username,
+        full_name: username,
+        username,
       },
     },
   });
 
+  if (process.env.NODE_ENV === "development") {
+    console.log("[register] signUp response:", {
+      hasUser: !!data?.user,
+      hasSession: !!data?.session,
+      error: error?.message ?? null,
+    });
+  }
+
   if (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.log("[register] signUp error:", error.message);
+    }
     redirect(toPath(locale, `/register?error=${encodeURIComponent(error.message)}`));
   }
 
   if (data.user?.id) {
-    await supabase.from("profiles").upsert({
-      id: data.user.id,
-      username: parsed.data.username,
-      full_name: parsed.data.username,
-      role: "member",
-    });
+    try {
+      const {error: upsertError} = await supabase.from("profiles").upsert({
+        id: data.user.id,
+        username,
+        full_name: username,
+        role: "member",
+      });
+
+      if (upsertError) {
+        if (process.env.NODE_ENV === "development") {
+          console.log("[register] profile upsert error:", upsertError.message);
+        }
+        redirect(toPath(locale, `/register?error=${encodeURIComponent(upsertError.message)}`));
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Profile creation failed";
+      if (process.env.NODE_ENV === "development") {
+        console.log("[register] profile upsert exception:", msg);
+      }
+      redirect(toPath(locale, `/register?error=${encodeURIComponent(msg)}`));
+    }
   }
 
   if (data.session) {
+    revalidatePath("/", "layout");
     redirect(toPath(locale, "/feed"));
   }
 
-  const {error: signInError} = await supabase.auth.signInWithPassword({
-    email: parsed.data.email,
-    password: parsed.data.password,
-  });
-
-  if (!signInError) {
-    redirect(toPath(locale, "/feed"));
-  }
-
-  redirect(toPath(locale, "/login?registered=1"));
+  redirect(toPath(locale, "/login?emailConfirmation=1"));
 }
 
 export async function createPostAction(formData: FormData) {

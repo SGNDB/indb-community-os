@@ -57,6 +57,8 @@
   },
   "Navbar": {
     "memberAvatarLabel": "Community member profile",
+    "createAccount": "Create account",
+    "login": "Login",
     "logout": "Log out",
     "loggingOut": "Logging out..."
   },
@@ -105,26 +107,14 @@
   "Notifications": {
     "button": "Notifications",
     "title": "Notifications",
-    "items": {
-      "cleanup": "Beach cleanup starts Saturday at 8:00 AM.",
-      "memoryAdded": "New memory added: Old railway station stories.",
-      "ideaVotes": "Your idea 'Public library' reached 100 votes."
-    }
+    "empty": "No notifications yet."
   },
   "RightSidebar": {
     "trendingTopics": "Trending Topics",
     "featuredMemories": "Featured Memories",
     "activePoll": "Active Poll",
     "votes": "{count} votes",
-    "upcomingEvents": "Upcoming Events",
-    "sampleEventOne": {
-      "title": "Beach Cleanup Day",
-      "date": "Saturday, June 8"
-    },
-    "sampleEventTwo": {
-      "title": "Railway Memory Night",
-      "date": "Thursday, June 13"
-    }
+    "upcomingEvents": "Upcoming Events"
   },
   "Landing": {
     "tagline": "Memory - Participation - Future",
@@ -137,7 +127,9 @@
     "latestPosts": "Latest Posts",
     "pollPreview": "Poll Preview",
     "featuredMemories": "Featured Memories",
-    "communityIdeas": "Community Ideas"
+    "communityIdeas": "Community Ideas",
+    "createAccount": "Create account",
+    "login": "Login"
   },
   "Feed": {
     "ago": "ago",
@@ -190,7 +182,7 @@
   },
   "MemoryForm": {
     "title": "Submit a community memory",
-    "ready": "Frontend demo: your memory is ready to submit.",
+    "ready": "Your memory is ready to submit.",
     "fields": {
       "title": "Memory title",
       "story": "Share the story and context",
@@ -219,7 +211,7 @@
   },
   "IdeaForm": {
     "title": "Submit a civic idea",
-    "ready": "Frontend demo: your idea is ready to submit.",
+    "ready": "Your idea is ready to submit.",
     "fields": {
       "title": "Idea title",
       "description": "Describe the idea, benefits and next steps",
@@ -339,8 +331,8 @@
   "Auth": {
     "login": {
       "title": "Sign in",
-      "registered": "Registration complete. Check your email confirmation if enabled.",
-      "done": "Frontend demo: login interaction completed.",
+      "emailConfirmation": "Registration complete. Please check your email to confirm your account before logging in.",
+      "done": "Login interaction completed.",
       "email": "Email",
       "password": "Password",
       "submit": "Sign in",
@@ -351,7 +343,7 @@
     },
     "register": {
       "title": "Create your account",
-      "done": "Frontend demo: account creation interaction completed.",
+      "done": "Account creation interaction completed.",
       "username": "Username",
       "email": "Email",
       "password": "Password",
@@ -414,6 +406,11 @@
       "title": "No posts on this profile",
       "description": "Share a first update to start building your community presence.",
       "cta": "Share update"
+    },
+    "polls": {
+      "title": "No polls yet",
+      "description": "Create the first poll to gather community input.",
+      "cta": "Explore feed"
     }
   }
 }

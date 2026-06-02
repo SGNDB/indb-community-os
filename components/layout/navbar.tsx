@@ -5,6 +5,7 @@ import {LanguageSwitcher} from "@/components/layout/language-switcher";
 import {Logo} from "@/components/layout/Logo";
 import {NotificationDropdown} from "@/components/layout/notification-dropdown";
 import {SearchBar} from "@/components/layout/search-bar";
+import {Button} from "@/components/ui/button";
 import {ThemeToggle} from "@/components/layout/theme-toggle";
 import {UserAvatar} from "@/components/layout/user-avatar";
 import {Link} from "@/lib/i18n/routing";
@@ -21,9 +22,24 @@ export async function Navbar({locale}: {locale: string}) {
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/90 pt-[var(--safe-top)] backdrop-blur-xl">
       <div className="mx-auto w-full max-w-7xl ps-[max(0.75rem,var(--safe-left))] pe-[max(0.75rem,var(--safe-right))] sm:px-4">
         <div className="grid h-14 grid-cols-[auto_1fr_auto] items-center gap-2 md:hidden">
-          <Link href="/profile" className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full">
-            <UserAvatar label={t("memberAvatarLabel")} className="h-10 w-10" />
-          </Link>
+          {isLoggedIn ? (
+            <Link href="/profile" className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full">
+              <UserAvatar label={t("memberAvatarLabel")} className="h-10 w-10" />
+            </Link>
+          ) : (
+            <div className="flex items-center gap-1">
+              <Link href="/register">
+                <Button variant="ghost" size="sm" className="h-9 px-2 text-xs">
+                  {t("createAccount")}
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button variant="ghost" size="sm" className="h-9 px-2 text-xs">
+                  {t("login")}
+                </Button>
+              </Link>
+            </div>
+          )}
 
           <Link href="/" className="inline-flex items-center justify-self-center">
             <Logo variant="full" size="sm" priority className="w-20" />
@@ -51,11 +67,6 @@ export async function Navbar({locale}: {locale: string}) {
             <LanguageSwitcher />
             <ThemeToggle />
             <AuthNav locale={locale} isLoggedIn={isLoggedIn} />
-            {isLoggedIn ? null : (
-              <Link href="/login">
-                <UserAvatar label={t("memberAvatarLabel")} />
-              </Link>
-            )}
           </div>
         </div>
       </div>

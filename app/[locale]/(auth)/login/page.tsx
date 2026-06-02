@@ -9,11 +9,11 @@ export default async function LoginPage({
   searchParams,
 }: {
   params: Promise<{locale: string}>;
-  searchParams: Promise<{error?: string; registered?: string}>;
+  searchParams: Promise<{error?: string; emailConfirmation?: string}>;
 }) {
   const {locale} = await params;
   const t = await getTranslations({locale, namespace: "Auth.login"});
-  const {error, registered} = await searchParams;
+  const {error, emailConfirmation} = await searchParams;
 
   return (
     <div className="mx-auto max-w-md space-y-4">
@@ -25,7 +25,7 @@ export default async function LoginPage({
           <CardTitle>{t("title")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {registered ? <p className="rounded-xl bg-primary/10 p-2 text-xs text-primary">{t("registered")}</p> : null}
+          {emailConfirmation ? <p className="rounded-xl bg-primary/10 p-2 text-xs text-primary">{t("emailConfirmation")}</p> : null}
           {error ? <p className="rounded-xl bg-destructive/10 p-2 text-xs text-destructive">{error}</p> : null}
           <LoginForm locale={locale} />
         </CardContent>

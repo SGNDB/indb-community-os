@@ -8,8 +8,6 @@ import {useTranslations} from "next-intl";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 
-const notificationKeys = ["cleanup", "memoryAdded", "ideaVotes"] as const;
-
 export function NotificationDropdown() {
   const t = useTranslations("Notifications");
   const [open, setOpen] = useState(false);
@@ -39,12 +37,10 @@ export function NotificationDropdown() {
               <CardHeader>
                 <CardTitle className="text-sm">{t("title")}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
-                {notificationKeys.map((key) => (
-                  <p key={key} className="rounded-xl bg-muted/60 p-2 text-xs text-muted-foreground">
-                    {t(`items.${key}`)}
-                  </p>
-                ))}
+              <CardContent>
+                <p className="rounded-xl bg-muted/60 p-2 text-xs text-muted-foreground">
+                  {t("empty")}
+                </p>
               </CardContent>
             </Card>
           </motion.div>

@@ -11,6 +11,7 @@ import {getApprovedMemories} from "@/lib/data/memories";
 import {getIdeas} from "@/lib/data/ideas";
 import {getPosts} from "@/lib/data/posts";
 import {Link} from "@/lib/i18n/routing";
+import {createClient} from "@/lib/supabase/server";
 
 export async function generateMetadata({
   params,
@@ -34,6 +35,10 @@ export default async function LandingPage({
   const {locale} = await params;
   const t = await getTranslations({locale, namespace: "Landing"});
 
+  const supabase = await createClient();
+  const {data: {user}} = await supabase.auth.getUser();
+  const isLoggedIn = !!user;
+
   const [latestPosts, featuredMemories, communityIdeas] = await Promise.all([
     getPosts(),
     getApprovedMemories(),
@@ -56,50 +61,72 @@ export default async function LandingPage({
           <p className="text-xs text-muted-foreground">{t("mottoSecondary")}</p>
 
           <div className="flex flex-wrap items-center gap-3">
-            <Link href="/feed">
-              <Button className="gap-2">
-                {t("joinCommunity")}
-                <ArrowRight size={14} />
-              </Button>
-            </Link>
-            <Link href="/memory">
-              <Button variant="outline">{t("exploreMemories")}</Button>
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <Link href="/feed">
+                  <Button className="gap-2">
+                    {t("joinCommunity")}
+                    <ArrowRight size={14} />
+                  </Button>
+                </Link>
+                <Link href="/memory">
+                  <Button variant="outline">{t("exploreMemories")}</Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/register">
+                  <Button className="gap-2">
+                    {t("createAccount")}
+                    <ArrowRight size={14} />
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button variant="outline">{t("login")}</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("latestPosts")}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {latestPosts.slice(0, 3).map((post) => (
-            <div key={post.id} className="rounded-xl bg-muted/50 p-3">
-              <p className="text-sm font-semibold">{post.author?.full_name ?? post.author?.username ?? "Community"}</p>
-              <p className="text-sm text-muted-foreground">{post.content}</p>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+      {latestPosts.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("latestPosts")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {latestPosts.slice(0, 3).map((post) => (
+              <div key={post.id} className="rounded-xl bg-muted/50 p-3">
+                <p className="text-sm font-semibold">{post.author?.full_name ?? post.author?.username ?? "Community"}</p>
+                <p className="text-sm text-muted-foreground">{post.content}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
 
-      <section>
-        <h2 className="mb-3 text-xl font-semibold">{t("featuredMemories")}</h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          {featuredMemories.slice(0, 2).map((memory) => (
-            <MemoryCard key={memory.id} memory={memory} />
-          ))}
-        </div>
-      </section>
+      {featuredMemories.length > 0 ? (
+        <section>
+          <h2 className="mb-3 text-xl font-semibold">{t("featuredMemories")}</h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            {featuredMemories.slice(0, 2).map((memory) => (
+              <MemoryCard key={memory.id} memory={memory} />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
-      <section>
-        <h2 className="mb-3 text-xl font-semibold">{t("communityIdeas")}</h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          {communityIdeas.slice(0, 2).map((idea) => (
-            <IdeaCard key={idea.id} idea={idea} />
-          ))}
-        </div>
-      </section>
+      {communityIdeas.length > 0 ? (
+        <section>
+          <h2 className="mb-3 text-xl font-semibold">{t("communityIdeas")}</h2>
+          <div className="grid gap-4 md:grid-cols-2">
+            {communityIdeas.slice(0, 2).map((idea) => (
+              <IdeaCard key={idea.id} idea={idea} />
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }
