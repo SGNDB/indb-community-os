@@ -48,19 +48,16 @@ export function ReactionButton({
   const currentEmoji = REACTIONS.find((r) => r.type === currentReaction)?.emoji;
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative inline-flex">
       <Button
         type="button"
-        variant="ghost"
-        onMouseEnter={() => setOpen(true)}
-        onClick={() => {
-          if (currentReaction) {
-            handleSelect(currentReaction);
-          } else {
-            setOpen((prev) => !prev);
-          }
-        }}
-        className="min-h-11 justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground sm:justify-start sm:gap-2 sm:px-3 sm:text-sm"
+        variant={currentReaction ? "default" : "ghost"}
+        onClick={() => setOpen((prev) => !prev)}
+        className={`min-h-11 justify-center gap-1.5 rounded-xl px-2 text-xs sm:justify-start sm:gap-2 sm:px-3 sm:text-sm ${
+          currentReaction
+            ? "bg-primary/10 text-primary hover:bg-primary/15"
+            : "text-muted-foreground"
+        }`}
       >
         {currentEmoji ? (
           <span className="text-lg">{currentEmoji}</span>
@@ -71,16 +68,15 @@ export function ReactionButton({
       </Button>
 
       {open ? (
-        <div
-          className="absolute bottom-full left-0 mb-2 z-50 flex gap-1 rounded-2xl border bg-card p-2 shadow-xl"
-          onMouseLeave={() => setOpen(false)}
-        >
+        <div className="absolute bottom-full left-0 mb-2 z-50 flex gap-1 rounded-2xl border bg-card p-2 shadow-xl">
           {REACTIONS.map((r) => (
             <button
               key={r.type}
               type="button"
               onClick={() => handleSelect(r.type)}
-              className="flex h-10 w-10 items-center justify-center rounded-full text-xl transition hover:scale-125 hover:bg-muted"
+              className={`flex h-10 w-10 items-center justify-center rounded-full text-xl transition hover:scale-125 ${
+                currentReaction === r.type ? "bg-primary/10 ring-1 ring-primary" : "hover:bg-muted"
+              }`}
               title={r.label}
             >
               {r.emoji}
