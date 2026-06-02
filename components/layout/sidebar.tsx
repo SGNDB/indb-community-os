@@ -7,10 +7,11 @@ import {
   Newspaper,
   UserRound,
 } from "lucide-react";
-import {useTranslations} from "next-intl";
+import {useLocale, useTranslations} from "next-intl";
 
 import {Logo} from "@/components/layout/Logo";
 import {Link, usePathname} from "@/lib/i18n/routing";
+import {withLocale} from "@/lib/i18n/paths";
 import {cn} from "@/lib/utils/cn";
 
 const navItems = [
@@ -22,6 +23,7 @@ const navItems = [
 ] as const;
 
 export function Sidebar() {
+  const locale = useLocale();
   const t = useTranslations("Navigation");
   const pathname = usePathname();
 
@@ -43,7 +45,7 @@ export function Sidebar() {
             return (
               <li key={item.href}>
                 <Link
-                  href={item.href as never}
+                  href={withLocale(locale, item.href)}
                   className={cn(
                     "flex items-center justify-between rounded-xl px-3 py-2.5 text-sm transition",
                     active

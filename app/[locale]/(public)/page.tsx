@@ -63,25 +63,25 @@ export default async function LandingPage({
           <div className="flex flex-wrap items-center gap-3">
             {isLoggedIn ? (
               <>
-                <Link href="/feed">
+                <Link href={`/${locale}/feed`}>
                   <Button className="gap-2">
                     {t("joinCommunity")}
                     <ArrowRight size={14} />
                   </Button>
                 </Link>
-                <Link href="/memory">
+                <Link href={`/${locale}/memory`}>
                   <Button variant="outline">{t("exploreMemories")}</Button>
                 </Link>
               </>
             ) : (
               <>
-                <Link href="/register">
+                <Link href={`/${locale}/register`}>
                   <Button className="gap-2">
                     {t("createAccount")}
                     <ArrowRight size={14} />
                   </Button>
                 </Link>
-                <Link href="/login">
+                <Link href={`/${locale}/login`}>
                   <Button variant="outline">{t("login")}</Button>
                 </Link>
               </>

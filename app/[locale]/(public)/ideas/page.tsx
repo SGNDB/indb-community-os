@@ -49,7 +49,7 @@ export default async function IdeasPage({
           title={empty("title")}
           description={empty("description")}
           ctaLabel={empty("cta")}
-          ctaHref="/ideas/submit"
+          ctaHref={`/${locale}/ideas/submit`}
         />
       )}
     </div>

@@ -154,7 +154,7 @@ export default async function PublicProfilePage({
 
             <div className="mt-3 flex justify-center sm:mt-0 sm:self-center">
               {currentUserId === profile.id ? (
-                <Link href="/profile">
+                <Link href={`/${locale}/profile`}>
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-4 py-2 text-xs font-medium text-primary hover:bg-primary/20">
                     {t("editProfile")}
                   </span>
@@ -188,7 +188,7 @@ export default async function PublicProfilePage({
         {tabs.map((tab) => (
           <Link
             key={tab.key}
-            href={`/profile/${username}?tab=${tab.key}`}
+            href={`/${locale}/profile/${username}?tab=${tab.key}`}
             className={`inline-flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-medium transition ${
               currentTab === tab.key || (currentTab === "posts" && tab.key === "posts" && !activeTab)
                 ? "bg-primary text-primary-foreground shadow-sm"
@@ -225,7 +225,7 @@ export default async function PublicProfilePage({
             title={emptyPosts("title")}
             description={emptyPosts("description")}
             ctaLabel={emptyPosts("cta")}
-            ctaHref="/feed"
+            ctaHref={`/${locale}/feed`}
           />
         )
       ) : null}
@@ -243,7 +243,7 @@ export default async function PublicProfilePage({
             title={emptyMemories("title")}
             description={emptyMemories("description")}
             ctaLabel={emptyMemories("cta")}
-            ctaHref="/memory/submit"
+            ctaHref={`/${locale}/memory/submit`}
           />
         )
       ) : null}
@@ -261,7 +261,7 @@ export default async function PublicProfilePage({
             title={emptyIdeas("title")}
             description={emptyIdeas("description")}
             ctaLabel={emptyIdeas("cta")}
-            ctaHref="/ideas/submit"
+            ctaHref={`/${locale}/ideas/submit`}
           />
         )
       ) : null}

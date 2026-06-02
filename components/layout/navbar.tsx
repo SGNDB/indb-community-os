@@ -26,17 +26,17 @@ export async function Navbar({locale}: {locale: string}) {
       <div className="mx-auto w-full max-w-7xl ps-[max(0.75rem,var(--safe-left))] pe-[max(0.75rem,var(--safe-right))] sm:px-4">
         <div className="grid h-14 grid-cols-[auto_1fr_auto] items-center gap-2 md:hidden">
           {isLoggedIn ? (
-            <Link href="/profile" className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full">
+            <Link href={`/${locale}/profile`} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full">
               <UserAvatar label={t("memberAvatarLabel")} avatarUrl={avatarUrl} className="h-10 w-10" />
             </Link>
           ) : (
             <div className="flex items-center gap-1">
-              <Link href="/register">
+              <Link href={`/${locale}/register`}>
                 <Button variant="ghost" size="sm" className="h-9 px-2 text-xs">
                   {t("createAccount")}
                 </Button>
               </Link>
-              <Link href="/login">
+              <Link href={`/${locale}/login`}>
                 <Button variant="ghost" size="sm" className="h-9 px-2 text-xs">
                   {t("login")}
                 </Button>
@@ -44,7 +44,7 @@ export async function Navbar({locale}: {locale: string}) {
             </div>
           )}
 
-          <Link href="/" className="inline-flex items-center justify-self-center">
+          <Link href={`/${locale}`} className="inline-flex items-center justify-self-center">
             <Logo variant="full" size="sm" priority className="w-20" />
           </Link>
 
@@ -56,7 +56,7 @@ export async function Navbar({locale}: {locale: string}) {
 
         <div className="hidden h-16 items-center justify-between gap-3 md:flex">
           <div className="flex items-center gap-3">
-            <Link href="/" className="inline-flex items-center">
+            <Link href={`/${locale}`} className="inline-flex items-center">
               <Logo variant="full" size="sm" priority className="w-24 sm:w-28" />
             </Link>
           </div>

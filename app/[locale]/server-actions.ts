@@ -26,7 +26,14 @@ function normalizeLocale(value: FormDataEntryValue | null) {
 }
 
 function toPath(locale: string, pathname: string) {
-  return `/${locale}${pathname}`;
+  const prefix = `/${locale}`;
+  if (pathname.startsWith(prefix)) return pathname;
+  for (const l of routing.locales) {
+    const lp = `/${l}`;
+    if (pathname === lp) return prefix;
+    if (pathname.startsWith(`${lp}/`)) return `${prefix}${pathname.slice(lp.length)}`;
+  }
+  return `${prefix}${pathname}`;
 }
 
 export async function signOutAction(formData: FormData) {

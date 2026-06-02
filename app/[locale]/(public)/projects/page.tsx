@@ -49,7 +49,7 @@ export default async function ProjectsPage({
           title={empty("title")}
           description={empty("description")}
           ctaLabel={empty("cta")}
-          ctaHref="/feed"
+          ctaHref={`/${locale}/feed`}
         />
       )}
     </div>
