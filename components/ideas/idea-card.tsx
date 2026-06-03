@@ -25,18 +25,19 @@ export function IdeaCard({idea}: {idea: IdeaWithAuthor}) {
     : null;
 
   async function handleShare() {
-    try {
-      const url = `${window.location.origin}/${window.location.pathname.split("/")[1]}/ideas?id=${idea.id}`;
+    const url = `${window.location.origin}/${window.location.pathname.split("/")[1]}/ideas?id=${idea.id}`;
+
+    if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
-        await navigator.clipboard.writeText(url);
+        await (navigator as Navigator).share({url});
+        return;
       } catch {
-        const textarea = document.createElement("textarea");
-        textarea.value = url;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textarea);
+        // user cancelled, do nothing
       }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
       toast.success(t("linkCopied") ?? "Link copied");
     } catch {
       toast.error(t("shareFailed") ?? "Unable to share");

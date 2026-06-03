@@ -671,7 +671,7 @@ export async function submitIdeaAction(formData: FormData) {
   const parsed = ideaSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description"),
-    categoryId: rawCategoryId === "" ? undefined : rawCategoryId,
+    categoryId: rawCategoryId === "" || rawCategoryId === "other" ? undefined : rawCategoryId,
   });
 
   if (!parsed.success) {

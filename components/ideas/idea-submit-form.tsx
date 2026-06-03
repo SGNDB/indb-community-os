@@ -81,6 +81,7 @@ export function IdeaSubmitForm({
             name="categoryId"
             className="h-10 w-full rounded-xl border border-border bg-card px-3 text-sm"
             defaultValue=""
+            required
           >
             <option value="">{t("fields.category")}</option>
             {categories.map((category) => (
@@ -88,6 +89,7 @@ export function IdeaSubmitForm({
                 {category.name}
               </option>
             ))}
+            <option value="other">{t("fields.others")}</option>
           </select>
           <label className="flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-border bg-card px-3 text-sm text-muted-foreground hover:text-foreground">
             <ImagePlus size={16} />

@@ -265,7 +265,8 @@
     "fields": {
       "title": "Idea title",
       "description": "Describe the idea, benefits and next steps",
-      "category": "Select a category"
+      "category": "Select a category",
+      "others": "Others"
     },
     "errors": {
       "title": "Please enter a valid idea title.",
