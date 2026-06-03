@@ -68,6 +68,26 @@ export function NotificationDropdown({locale}: {locale: string}) {
   openRef.current = open;
 
   useEffect(() => {
+    let cancelled = false;
+
+    async function fetchInitialCount() {
+      const {data: {user}} = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+
+      const {count} = await supabase
+        .from("notifications")
+        .select("*", {count: "exact", head: true})
+        .eq("user_id", user.id)
+        .eq("read", false);
+
+      if (!cancelled) setUnreadCount(count ?? 0);
+    }
+
+    fetchInitialCount();
+    return () => { cancelled = true; };
+  }, [supabase]);
+
+  useEffect(() => {
     if (!open) return;
     let cancelled = false;
 
