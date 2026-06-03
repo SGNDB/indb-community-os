@@ -1,7 +1,9 @@
 import {createClient} from "@/lib/supabase/server";
-import type {IdeaCommentWithAuthor, IdeaWithAuthor} from "@/types/database";
+import {calculateIdeaSupport} from "@/lib/ideas/support";
+import {getTotalActiveUsers} from "@/lib/data/stats";
+import type {IdeaCommentWithAuthor, IdeaWithAuthor, IdeaWithSupport} from "@/types/database";
 
-export async function getIdeas(): Promise<IdeaWithAuthor[]> {
+export async function getIdeas(): Promise<{ideas: IdeaWithSupport[]; totalUsers: number}> {
   const supabase = await createClient();
 
   const {data} = await supabase
@@ -13,7 +15,21 @@ export async function getIdeas(): Promise<IdeaWithAuthor[]> {
     `)
     .order("created_at", {ascending: false});
 
-  return (data ?? []) as unknown as IdeaWithAuthor[];
+  const ideas = (data ?? []) as unknown as IdeaWithAuthor[];
+  const totalUsers = await getTotalActiveUsers();
+
+  const withSupport: IdeaWithSupport[] = ideas.map((idea) => {
+    const {supportPercentage, badge} = calculateIdeaSupport(idea.votes_count, totalUsers);
+    return {...idea, supportPercentage, badge, rank: null};
+  });
+
+  withSupport.sort((a, b) => b.votes_count - a.votes_count);
+
+  for (let i = 0; i < withSupport.length && i < 3; i++) {
+    withSupport[i].rank = i + 1;
+  }
+
+  return {ideas: withSupport, totalUsers};
 }
 
 export async function getUserIdeas(userId: string): Promise<IdeaWithAuthor[]> {

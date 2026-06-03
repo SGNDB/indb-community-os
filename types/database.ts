@@ -6,6 +6,7 @@ export type PostStatus = "published" | "hidden" | "archived";
 export type CommentStatus = "published" | "hidden";
 export type MemoryVerificationStatus = "pending" | "approved" | "rejected" | "needs_more_info";
 export type IdeaStatus = "submitted" | "under_review" | "accepted" | "in_progress" | "completed" | "rejected";
+export type IdeaBadge = "new_idea" | "growing_support" | "popular" | "community_priority" | "top_priority";
 export type ReactionType = "like" | "love" | "support" | "celebrate" | "insightful" | "sad";
 export type ReportTargetType = "post" | "comment" | "memory" | "idea";
 export type ReportStatus = "pending" | "reviewed" | "resolved" | "dismissed";
@@ -244,6 +245,12 @@ export interface MemoryWithContributor extends MemoryRow {
 export interface IdeaWithAuthor extends IdeaRow {
   author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
   category: Pick<CategoryRow, "id" | "slug" | "name_en" | "name_fr" | "name_ar"> | null;
+}
+
+export interface IdeaWithSupport extends IdeaWithAuthor {
+  supportPercentage: number;
+  badge: IdeaBadge;
+  rank: number | null;
 }
 
 export interface IdeaCommentWithAuthor extends IdeaCommentRow {

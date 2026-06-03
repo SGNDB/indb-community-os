@@ -39,7 +39,7 @@ export default async function LandingPage({
   const {data: {user}} = await supabase.auth.getUser();
   const isLoggedIn = !!user;
 
-  const [latestPosts, featuredMemories, communityIdeas] = await Promise.all([
+  const [latestPosts, featuredMemories, {ideas: communityIdeas}] = await Promise.all([
     getPosts(user?.id ?? null),
     getApprovedMemories(),
     getIdeas(),

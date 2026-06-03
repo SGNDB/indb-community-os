@@ -1,21 +1,47 @@
 "use client";
 
 import {motion, AnimatePresence} from "framer-motion";
-import {Check, ChevronUp, Flame, Loader2, Star} from "lucide-react";
+import {Check, ChevronUp, Flame, Loader2, Sparkles, Star, TrendingUp, Trophy} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
 import {useState, useTransition} from "react";
 import {toast} from "sonner";
 
 import {voteIdeaAction} from "@/app/[locale]/server-actions";
+import {calculateIdeaSupport} from "@/lib/ideas/support";
 import {cn} from "@/lib/utils/cn";
+import type {IdeaBadge} from "@/types/database";
 
-export function VoteButton({ideaId, votes: initialVotes}: {ideaId: string; votes: number}) {
+interface VoteButtonProps {
+  ideaId: string;
+  votes: number;
+  supportPercentage: number;
+  badge: IdeaBadge;
+  totalUsers: number;
+}
+
+const badgeConfig: Record<IdeaBadge, {icon: typeof Flame; bg: string; text: string; iconClass: string; translationKey: string}> = {
+  new_idea: {icon: Sparkles, bg: "bg-sky-50 dark:bg-sky-900/20", text: "text-sky-700 dark:text-sky-400", iconClass: "text-sky-500", translationKey: "badgeNewIdea"},
+  growing_support: {icon: TrendingUp, bg: "bg-teal-50 dark:bg-teal-900/20", text: "text-teal-700 dark:text-teal-400", iconClass: "text-teal-500", translationKey: "badgeGrowingSupport"},
+  popular: {icon: Flame, bg: "bg-orange-50 dark:bg-orange-900/20", text: "text-orange-700 dark:text-orange-400", iconClass: "text-orange-500", translationKey: "badgePopular"},
+  community_priority: {icon: Star, bg: "bg-amber-50 dark:bg-amber-900/20", text: "text-amber-700 dark:text-amber-400", iconClass: "text-amber-500", translationKey: "badgeCommunityPriority"},
+  top_priority: {icon: Trophy, bg: "bg-purple-50 dark:bg-purple-900/20", text: "text-purple-700 dark:text-purple-400", iconClass: "text-purple-500", translationKey: "badgeTopPriority"},
+};
+
+export function VoteButton({ideaId, votes: initialVotes, supportPercentage: initialSupport, badge: initialBadge, totalUsers}: VoteButtonProps) {
   const t = useTranslations("Ideas");
   const locale = useLocale();
   const [pending, startTransition] = useTransition();
   const [votes, setVotes] = useState(initialVotes);
+  const [supportPercentage, setSupportPercentage] = useState(initialSupport);
+  const [currentBadge, setCurrentBadge] = useState(initialBadge);
   const [voted, setVoted] = useState(false);
   const [pulse, setPulse] = useState(false);
+
+  function recomputeSupport(newVotes: number) {
+    const {supportPercentage: pct, badge} = calculateIdeaSupport(newVotes, totalUsers);
+    setSupportPercentage(pct);
+    setCurrentBadge(badge);
+  }
 
   async function handleVote() {
     if (pending) return;
@@ -27,16 +53,22 @@ export function VoteButton({ideaId, votes: initialVotes}: {ideaId: string; votes
     startTransition(async () => {
       const prevVoted = voted;
       const prevVotes = votes;
+      const prevSupport = supportPercentage;
+      const prevBadge = currentBadge;
 
+      const newVotes = prevVoted ? prevVotes - 1 : prevVotes + 1;
       setVoted(!prevVoted);
-      setVotes(prevVoted ? prevVotes - 1 : prevVotes + 1);
+      setVotes(newVotes);
       setPulse(true);
+      recomputeSupport(newVotes);
 
       const result = await voteIdeaAction(formData);
 
       if (!result.success) {
         setVoted(prevVoted);
         setVotes(prevVotes);
+        setSupportPercentage(prevSupport);
+        setCurrentBadge(prevBadge);
         if (result.error === "unauthorized") {
           window.location.href = `/${locale}/login?next=/ideas`;
           return;
@@ -46,15 +78,15 @@ export function VoteButton({ideaId, votes: initialVotes}: {ideaId: string; votes
       }
 
       setVotes(result.votes ?? votes);
+      recomputeSupport(result.votes ?? votes);
       setVoted(result.voted ?? false);
     });
   }
 
-  const isPopular = votes > 20;
-  const isFavorite = votes > 50;
+  const BadgeIcon = badgeConfig[currentBadge].icon;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <motion.button
         type="button"
         onClick={handleVote}
@@ -100,25 +132,32 @@ export function VoteButton({ideaId, votes: initialVotes}: {ideaId: string; votes
         </AnimatePresence>
       </motion.button>
 
-      {isFavorite ? (
+      <AnimatePresence mode="wait">
         <motion.span
-          initial={{opacity: 0, scale: 0.8}}
-          animate={{opacity: 1, scale: 1}}
-          className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
+          key={`pct-${supportPercentage}`}
+          initial={{opacity: 0, x: -4}}
+          animate={{opacity: 1, x: 0}}
+          transition={{duration: 0.2}}
+          className="text-xs text-muted-foreground tabular-nums"
         >
-          <Star size={12} className="fill-amber-500 text-amber-500" />
-          {t("communityFavorite")}
+          {t("supportPercent", {percent: supportPercentage})}
         </motion.span>
-      ) : isPopular ? (
-        <motion.span
-          initial={{opacity: 0, scale: 0.8}}
-          animate={{opacity: 1, scale: 1}}
-          className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 text-[11px] font-medium text-orange-700 dark:bg-orange-900/20 dark:text-orange-400"
-        >
-          <Flame size={12} className="text-orange-500" />
-          {t("popularIdea")}
-        </motion.span>
-      ) : null}
+      </AnimatePresence>
+
+      <motion.span
+        key={currentBadge}
+        initial={{opacity: 0, scale: 0.85}}
+        animate={{opacity: 1, scale: 1}}
+        transition={{duration: 0.2}}
+        className={cn(
+          "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium",
+          badgeConfig[currentBadge].bg,
+          badgeConfig[currentBadge].text,
+        )}
+      >
+        <BadgeIcon size={12} className={badgeConfig[currentBadge].iconClass} />
+        {t(badgeConfig[currentBadge].translationKey)}
+      </motion.span>
     </div>
   );
 }

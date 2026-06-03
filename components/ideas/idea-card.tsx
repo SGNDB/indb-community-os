@@ -10,12 +10,23 @@ import {IdeaComments} from "@/components/ideas/idea-comments";
 import {IdeaStatusBadge} from "@/components/ideas/idea-status-badge";
 import {VoteButton} from "@/components/ideas/vote-button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import type {IdeaWithAuthor} from "@/types/database";
+import type {IdeaBadge, IdeaWithAuthor} from "@/types/database";
 
-export function IdeaCard({idea}: {idea: IdeaWithAuthor}) {
+interface IdeaCardProps {
+  idea: IdeaWithAuthor;
+  totalUsers?: number;
+}
+
+export function IdeaCard({idea, totalUsers}: IdeaCardProps) {
   const t = useTranslations("Ideas");
   const locale = useLocale();
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
+
+  const ideaExtra = idea as IdeaWithAuthor & {supportPercentage?: number; badge?: IdeaBadge; rank?: number | null};
+  const supportPercentage = ideaExtra.supportPercentage ?? 0;
+  const badge = ideaExtra.badge ?? "new_idea";
+  const rank = ideaExtra.rank ?? null;
+
   const categoryName = idea.category
     ? locale === "ar"
       ? idea.category.name_ar
@@ -68,6 +79,11 @@ export function IdeaCard({idea}: {idea: IdeaWithAuthor}) {
         <CardHeader className="pb-2.5">
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="inline-flex items-center gap-2 text-[15px] sm:text-base">
+              {rank ? (
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#0F4C75] to-[#27C5D8] text-[10px] font-bold text-white">
+                  {rank}
+                </span>
+              ) : null}
               <Lightbulb size={16} className="shrink-0" />
               <span>{idea.title}</span>
             </CardTitle>
@@ -95,7 +111,13 @@ export function IdeaCard({idea}: {idea: IdeaWithAuthor}) {
           </div>
 
           <div className="flex flex-wrap items-center gap-2 pt-1">
-            <VoteButton ideaId={idea.id} votes={idea.votes_count} />
+            <VoteButton
+              ideaId={idea.id}
+              votes={idea.votes_count}
+              supportPercentage={supportPercentage}
+              badge={badge}
+              totalUsers={totalUsers ?? 0}
+            />
             <IdeaComments ideaId={idea.id} />
             <button
               type="button"
