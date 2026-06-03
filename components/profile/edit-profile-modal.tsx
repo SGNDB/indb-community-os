@@ -14,6 +14,7 @@ import {Textarea} from "@/components/ui/textarea";
 import {updateProfileAction} from "@/app/[locale]/server-actions";
 import {prepareImageForUpload, ImageUploadError} from "@/lib/images/client-compression";
 import {ACCEPTED_IMAGE_EXTENSIONS} from "@/lib/images/upload-config";
+import {useRouter} from "@/lib/i18n/routing";
 import type {ProfileRow} from "@/types/database";
 
 const formSchema = z.object({
@@ -35,7 +36,9 @@ interface EditProfileModalProps {
 
 export function EditProfileModal({open, onClose, profile, locale}: EditProfileModalProps) {
   const t = useTranslations("Profile");
+  const errorsT = useTranslations("Errors");
   const imageT = useTranslations("ImageUpload");
+  const router = useRouter();
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatar_url);
   const [coverPreview, setCoverPreview] = useState<string | null>(profile.cover_image_url);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -102,20 +105,34 @@ export function EditProfileModal({open, onClose, profile, locale}: EditProfileMo
 
   async function onSubmit(values: FormValues) {
     setSubmitting(true);
-    const formData = new FormData();
-    formData.set("locale", locale);
-    formData.set("username", values.username);
-    formData.set("fullName", values.fullName);
-    formData.set("bio", values.bio ?? "");
-    formData.set("city", values.city ?? "");
-    formData.set("languagePreference", values.languagePreference ?? "");
-    formData.set("avatarUrl", profile.avatar_url ?? "");
-    formData.set("coverImageUrl", profile.cover_image_url ?? "");
+    try {
+      const formData = new FormData();
+      formData.set("locale", locale);
+      formData.set("username", values.username);
+      formData.set("fullName", values.fullName);
+      formData.set("bio", values.bio ?? "");
+      formData.set("city", values.city ?? "");
+      formData.set("languagePreference", values.languagePreference ?? "");
+      formData.set("avatarUrl", profile.avatar_url ?? "");
+      formData.set("coverImageUrl", profile.cover_image_url ?? "");
 
-    if (avatarFile) formData.set("avatarFile", avatarFile);
-    if (coverFile) formData.set("coverFile", coverFile);
+      if (avatarFile) formData.set("avatarFile", avatarFile);
+      if (coverFile) formData.set("coverFile", coverFile);
 
-    await updateProfileAction(formData);
+      const result = await updateProfileAction(formData);
+      if (!result.success) {
+        toast.error(result.error ?? errorsT("saveFailed"));
+        return;
+      }
+
+      toast.success(t("updated"));
+      onClose();
+      router.refresh();
+    } catch {
+      toast.error(errorsT("saveFailed"));
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (!open) return null;

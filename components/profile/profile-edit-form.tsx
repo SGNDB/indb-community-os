@@ -13,7 +13,7 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
 import type {ProfileRow} from "@/types/database";
-import {Link} from "@/lib/i18n/routing";
+import {Link, useRouter} from "@/lib/i18n/routing";
 import {updateProfileAction} from "@/app/[locale]/server-actions";
 import {prepareImageForUpload, ImageUploadError} from "@/lib/images/client-compression";
 import {ACCEPTED_IMAGE_EXTENSIONS} from "@/lib/images/upload-config";
@@ -36,7 +36,9 @@ type ProfileFormValues = {
 
 export function ProfileEditForm({profile, locale}: {profile: ProfileRow; locale: string}) {
   const t = useTranslations("Profile");
+  const errorsT = useTranslations("Errors");
   const imageT = useTranslations("ImageUpload");
+  const router = useRouter();
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatar_url);
   const [coverPreview, setCoverPreview] = useState<string | null>(profile.cover_image_url);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -96,21 +98,35 @@ export function ProfileEditForm({profile, locale}: {profile: ProfileRow; locale:
 
   async function onSubmit(values: ProfileFormValues) {
     setSubmitting(true);
-    const formData = new FormData();
-    formData.set("locale", locale);
-    formData.set("username", values.username);
-    formData.set("fullName", values.fullName);
-    formData.set("bio", values.bio ?? "");
-    formData.set("city", values.city ?? "");
-    formData.set("languagePreference", values.languagePreference ?? "");
-    formData.set("avatarUrl", profile.avatar_url ?? "");
-    formData.set("coverImageUrl", profile.cover_image_url ?? "");
+    try {
+      const formData = new FormData();
+      formData.set("locale", locale);
+      formData.set("username", values.username);
+      formData.set("fullName", values.fullName);
+      formData.set("bio", values.bio ?? "");
+      formData.set("city", values.city ?? "");
+      formData.set("languagePreference", values.languagePreference ?? "");
+      formData.set("avatarUrl", profile.avatar_url ?? "");
+      formData.set("coverImageUrl", profile.cover_image_url ?? "");
 
-    if (avatarFile) formData.set("avatarFile", avatarFile);
+      if (avatarFile) formData.set("avatarFile", avatarFile);
 
-    if (coverFile) formData.set("coverFile", coverFile);
+      if (coverFile) formData.set("coverFile", coverFile);
 
-    await updateProfileAction(formData);
+      const result = await updateProfileAction(formData);
+      if (!result.success) {
+        toast.error(result.error ?? errorsT("saveFailed"));
+        return;
+      }
+
+      toast.success(t("updated"));
+      router.refresh();
+      router.push("/profile");
+    } catch {
+      toast.error(errorsT("saveFailed"));
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (

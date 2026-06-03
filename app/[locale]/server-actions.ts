@@ -386,7 +386,7 @@ export async function uploadCoverAction(formData: FormData): Promise<{url?: stri
   return {url: uploaded.url};
 }
 
-export async function updateProfileAction(formData: FormData) {
+export async function updateProfileAction(formData: FormData): Promise<{success: boolean; error?: string}> {
   const locale = normalizeLocale(formData.get("locale"));
   const errorsT = await getTranslations({locale, namespace: "Errors"});
   const imageT = await getTranslations({locale, namespace: "ImageUpload"});
@@ -396,9 +396,7 @@ export async function updateProfileAction(formData: FormData) {
     data: {user},
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect(toPath(locale, "/login"));
-  }
+  if (!user) return {success: false, error: imageT("notAuthenticated")};
 
   const parsed = profileSchema.safeParse({
     username: formData.get("username"),
@@ -411,12 +409,7 @@ export async function updateProfileAction(formData: FormData) {
   });
 
   if (!parsed.success) {
-    redirect(
-      toPath(
-        locale,
-        `/profile?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? errorsT("invalidProfile"))}`,
-      ),
-    );
+    return {success: false, error: errorsT("invalidProfile")};
   }
 
   let avatarUrl = parsed.data.avatarUrl || null;
@@ -426,7 +419,7 @@ export async function updateProfileAction(formData: FormData) {
   if (avatarFile instanceof File && avatarFile.size > 0) {
     const uploaded = await uploadImageFile(avatarFile, "avatars", user.id, "avatar", imageT);
     if (uploaded.error) {
-      redirect(toPath(locale, appendParam("/profile", "error", uploaded.error)));
+      return {success: false, error: uploaded.error};
     }
     avatarUrl = uploaded.url ?? avatarUrl;
   }
@@ -435,7 +428,7 @@ export async function updateProfileAction(formData: FormData) {
   if (coverFile instanceof File && coverFile.size > 0) {
     const uploaded = await uploadImageFile(coverFile, "profile-covers", user.id, "cover", imageT);
     if (uploaded.error) {
-      redirect(toPath(locale, appendParam("/profile", "error", uploaded.error)));
+      return {success: false, error: uploaded.error};
     }
     coverImageUrl = uploaded.url ?? coverImageUrl;
   }
@@ -452,11 +445,12 @@ export async function updateProfileAction(formData: FormData) {
   });
 
   if (error) {
-    redirect(toPath(locale, `/profile?error=${encodeURIComponent(error.message)}`));
+    return {success: false, error: errorsT("saveFailed")};
   }
 
   revalidatePath(toPath(locale, "/profile"));
-  redirect(toPath(locale, "/profile?updated=1"));
+  revalidatePath("/", "layout");
+  return {success: true};
 }
 
 export async function submitMemoryAction(formData: FormData) {
