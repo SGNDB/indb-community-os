@@ -259,7 +259,7 @@ export function NotificationDropdown({locale}: {locale: string}) {
         key={n.id}
         type="button"
         onClick={() => handleNotificationClick(n)}
-        className={`flex w-full items-start gap-3 px-4 py-3 text-start text-sm transition hover:bg-muted/60 ${
+        className={`flex w-full items-start gap-3 px-4 py-3 text-start text-sm transition active:bg-muted/80 hover:bg-muted/60 ${
           !n.read ? "bg-primary/5" : ""
         }`}
       >
@@ -296,6 +296,7 @@ export function NotificationDropdown({locale}: {locale: string}) {
         aria-label={t("button")}
         onClick={() => setOpen((prev) => !prev)}
         className="relative min-h-11 min-w-11 rounded-full p-0"
+        style={{touchAction: "manipulation"}}
       >
         <Bell size={18} />
         {unreadCount > 0 ? (
@@ -326,8 +327,7 @@ export function NotificationDropdown({locale}: {locale: string}) {
               animate={{y: 0}}
               exit={{y: "100%"}}
               transition={{type: "spring", damping: 32, stiffness: 350}}
-              className="fixed inset-x-0 bottom-0 z-50 flex max-h-[90dvh] flex-col rounded-t-2xl bg-card shadow-2xl sm:hidden"
-              style={{maxHeight: "90dvh"}}
+              className="fixed inset-x-0 bottom-0 z-50 flex max-h-[95dvh] flex-col rounded-t-2xl bg-card shadow-2xl sm:hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border/60 bg-card px-1 py-2">
