@@ -23,41 +23,37 @@ export default async function middleware(request: NextRequest) {
   const needsAuth = matchPath(pathWithoutLocale, protectedPaths);
   const isAuthPage = matchPath(pathWithoutLocale, authPaths);
 
-  if (needsAuth || isAuthPage) {
-    const env = getSupabaseEnv();
-    const response = handleI18nRouting(request);
+  const env = getSupabaseEnv();
+  const response = handleI18nRouting(request);
 
-    const supabase = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({name, value}) => request.cookies.set(name, value));
-          cookiesToSet.forEach(({name, value, options}) => {
-            response.cookies.set(name, value, options);
-          });
-        },
+  const supabase = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
       },
-    });
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({name, value}) => request.cookies.set(name, value));
+        cookiesToSet.forEach(({name, value, options}) => {
+          response.cookies.set(name, value, options);
+        });
+      },
+    },
+  });
 
-    const {data} = await supabase.auth.getUser();
-    const user = data.user;
+  const {data} = await supabase.auth.getUser();
+  const user = data.user;
 
-    if (needsAuth && !user) {
-      const authUrl = new URL(`/${locale}/register`, request.url);
-      authUrl.searchParams.set("next", pathWithoutLocale);
-      return NextResponse.redirect(authUrl);
-    }
-
-    if (isAuthPage && user) {
-      return NextResponse.redirect(new URL(`/${locale}/feed`, request.url));
-    }
-
-    return response;
+  if (needsAuth && !user) {
+    const authUrl = new URL(`/${locale}/register`, request.url);
+    authUrl.searchParams.set("next", pathWithoutLocale);
+    return NextResponse.redirect(authUrl);
   }
 
-  return handleI18nRouting(request);
+  if (isAuthPage && user) {
+    return NextResponse.redirect(new URL(`/${locale}/feed`, request.url));
+  }
+
+  return response;
 }
 
 export const config = {
