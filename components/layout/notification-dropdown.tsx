@@ -9,14 +9,13 @@ import {
   UserPlus,
   CheckCheck,
 } from "lucide-react";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useTranslations} from "next-intl";
-import {useRouter} from "next/navigation";
 
 import {UserAvatar} from "@/components/layout/user-avatar";
 import {Button} from "@/components/ui/button";
 import {createClient} from "@/lib/supabase/client";
-import {withLocale} from "@/lib/i18n/paths";
+import {useRouter} from "@/lib/i18n/routing";
 import type {NotificationWithActor} from "@/types/database";
 
 function timeAgo(dateStr: string, locale: string): string {
@@ -56,64 +55,61 @@ function getNotificationIcon(type: string) {
   }
 }
 
-function getNotificationNav(type: string, entityType: string | null, entityId: string | null, locale: string): string {
-  if (type === "follow") {
-    return withLocale(`/profile/${entityId ?? ""}`, locale);
-  }
-  return withLocale(`/feed`, locale);
-}
-
 export function NotificationDropdown({locale}: {locale: string}) {
   const t = useTranslations("Notifications");
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useRef(createClient()).current;
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationWithActor[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const fetchNotifications = useCallback(async () => {
-    setLoading(true);
-    const {data: {user}} = await supabase.auth.getUser();
-    if (!user) {
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+
+    async function fetch() {
+      setLoading(true);
+      const {data: {user}} = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const {data, error} = await supabase
+        .from("notifications")
+        .select("*, actor:profiles!actor_id(id, username, full_name, avatar_url)")
+        .eq("user_id", user.id)
+        .order("created_at", {ascending: false})
+        .limit(20);
+
+      const {count} = await supabase
+        .from("notifications")
+        .select("*", {count: "exact", head: true})
+        .eq("user_id", user.id)
+        .eq("read", false);
+
+      if (cancelled) return;
+      if (!error) {
+        setNotifications((data as unknown as NotificationWithActor[]) ?? []);
+      }
+      setUnreadCount(count ?? 0);
       setLoading(false);
-      return;
     }
 
-    const {data} = await supabase
-      .from("notifications")
-      .select("*, actor:profiles!actor_id(id, username, full_name, avatar_url)")
-      .eq("user_id", user.id)
-      .order("created_at", {ascending: false})
-      .limit(20);
-
-    const {count} = await supabase
-      .from("notifications")
-      .select("*", {count: "exact", head: true})
-      .eq("user_id", user.id)
-      .eq("read", false);
-
-    setNotifications((data as unknown as NotificationWithActor[]) ?? []);
-    setUnreadCount(count ?? 0);
-    setLoading(false);
-  }, [supabase]);
+    fetch();
+    return () => { cancelled = true; };
+  }, [open, supabase]);
 
   useEffect(() => {
-    if (open) {
-      fetchNotifications();
-    }
-  }, [open, fetchNotifications]);
-
-  useEffect(() => {
+    if (!open) return;
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     }
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
+    document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
@@ -126,9 +122,14 @@ export function NotificationDropdown({locale}: {locale: string}) {
       );
     }
 
-    const path = getNotificationNav(n.type, n.entity_type, n.entity_id, locale);
     setOpen(false);
-    router.push(path);
+
+    if (n.type === "follow") {
+      const username = n.actor?.username;
+      router.push(username ? `/profile/${username}` : `/profile/${n.actor_id ?? ""}`);
+    } else {
+      router.push("/feed");
+    }
   }
 
   async function handleMarkAllRead() {
@@ -221,6 +222,7 @@ export function NotificationDropdown({locale}: {locale: string}) {
           <>
             {/* Overlay for mobile */}
             <motion.div
+              key="overlay"
               initial={{opacity: 0}}
               animate={{opacity: 1}}
               exit={{opacity: 0}}
@@ -230,6 +232,7 @@ export function NotificationDropdown({locale}: {locale: string}) {
 
             {/* Mobile: bottom sheet */}
             <motion.div
+              key="mobile-sheet"
               initial={{y: "100%"}}
               animate={{y: 0}}
               exit={{y: "100%"}}
@@ -272,6 +275,7 @@ export function NotificationDropdown({locale}: {locale: string}) {
 
             {/* Desktop: dropdown */}
             <motion.div
+              key="desktop-dropdown"
               initial={{opacity: 0, y: 8}}
               animate={{opacity: 1, y: 0}}
               exit={{opacity: 0, y: 8}}
