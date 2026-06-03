@@ -2,10 +2,12 @@ import {ChevronUp, Lightbulb, Plus, Trophy} from "lucide-react";
 import type {Metadata} from "next";
 import {getTranslations} from "next-intl/server";
 
+import {IdeasToastHandler} from "@/components/ideas/ideas-toast-handler";
 import {IdeaCard} from "@/components/ideas/idea-card";
 import {EmptyState} from "@/components/shared/empty-state";
 import {Link} from "@/lib/i18n/routing";
 import {getIdeas} from "@/lib/data/ideas";
+import {createClient} from "@/lib/supabase/server";
 import type {IdeaBadge, IdeaWithSupport} from "@/types/database";
 
 export async function generateMetadata({
@@ -91,18 +93,30 @@ function TopIdeaRow({idea, t}: {idea: IdeaWithSupport; t: (key: string, opts?: R
 
 export default async function IdeasPage({
   params,
+  searchParams,
 }: {
   params: Promise<{locale: string}>;
+  searchParams: Promise<{ideaUpdated?: string; ideaDeleted?: string}>;
 }) {
   const {locale} = await params;
+  const sp = await searchParams;
   const t = await getTranslations({locale, namespace: "Ideas"});
   const empty = await getTranslations({locale, namespace: "EmptyStates.ideas"});
   const {ideas, totalUsers} = await getIdeas();
 
+  const supabase = await createClient();
+  const {data: {user}} = await supabase.auth.getUser();
+  const currentUserId = user?.id ?? null;
+
   const topIdeas = ideas.filter((i) => i.rank !== null).slice(0, 10);
+
+  const topIds = new Set(topIdeas.map((i) => i.id));
+  const mainIdeas = ideas.filter((i) => !topIds.has(i.id));
 
   return (
     <div className="space-y-3 sm:space-y-4">
+      <IdeasToastHandler ideaUpdated={!!sp.ideaUpdated} ideaDeleted={!!sp.ideaDeleted} />
+
       <div className="rounded-2xl border border-border/70 bg-card p-3.5 sm:p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -133,13 +147,14 @@ export default async function IdeasPage({
         </section>
       ) : null}
 
-      {ideas.length > 0 ? (
+      {mainIdeas.length > 0 || (!topIdeas.length && ideas.length > 0) ? (
         <div className="space-y-3 sm:space-y-4">
-          {ideas.map((idea) => (
-            <IdeaCard key={idea.id} idea={idea} totalUsers={totalUsers} />
+          <h2 className="text-base font-semibold px-0.5">{t("allIdeas")}</h2>
+          {(mainIdeas.length > 0 ? mainIdeas : ideas).map((idea) => (
+            <IdeaCard key={idea.id} idea={idea} totalUsers={totalUsers} currentUserId={currentUserId} />
           ))}
         </div>
-      ) : (
+      ) : ideas.length === 0 ? (
         <EmptyState
           icon={Lightbulb}
           title={empty("title")}
@@ -147,7 +162,7 @@ export default async function IdeasPage({
           ctaLabel={empty("cta")}
           ctaHref="/ideas/submit"
         />
-      )}
+      ) : null}
     </div>
   );
 }

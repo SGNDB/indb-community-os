@@ -264,6 +264,12 @@
     "shareAnother": "مشاركة فكرة أخرى",
     "edit": "تعديل",
     "deleteConfirm": "هل أنت متأكد من حذف هذه الفكرة؟",
+    "confirmDelete": "حذف",
+    "confirmDeleteTitle": "حذف الفكرة",
+    "cancel": "إلغاء",
+    "ideaUpdated": "تم تحديث الفكرة بنجاح",
+    "ideaDeleted": "تم حذف الفكرة بنجاح",
+    "allIdeas": "كل الأفكار",
     "status": {
       "submitted": "مقدمة",
       "underReview": "قيد المراجعة",

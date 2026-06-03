@@ -264,6 +264,12 @@
     "shareAnother": "Share another idea",
     "edit": "Edit",
     "deleteConfirm": "Are you sure you want to delete this idea?",
+    "confirmDelete": "Delete",
+    "confirmDeleteTitle": "Delete idea",
+    "cancel": "Cancel",
+    "ideaUpdated": "Idea updated successfully",
+    "ideaDeleted": "Idea deleted successfully",
+    "allIdeas": "All Ideas",
     "status": {
       "submitted": "Submitted",
       "underReview": "Under Review",

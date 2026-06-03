@@ -1,8 +1,9 @@
 "use client";
 
 import {motion} from "framer-motion";
-import {CalendarDays, Edit3, Lightbulb, Share2, Trash2} from "lucide-react";
+import {CalendarDays, Edit3, Lightbulb, Loader2, Share2, Trash2, X} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
+import {useState} from "react";
 import {useFormStatus} from "react-dom";
 import {toast} from "sonner";
 
@@ -17,6 +18,7 @@ import type {IdeaBadge, IdeaWithAuthor} from "@/types/database";
 interface IdeaCardProps {
   idea: IdeaWithAuthor;
   totalUsers?: number;
+  currentUserId?: string | null;
 }
 
 function AuthorAvatar({author}: {author: IdeaWithAuthor["author"]}) {
@@ -44,16 +46,19 @@ function DeleteIdeaButton() {
   const {pending} = useFormStatus();
   return (
     <Button type="submit" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" disabled={pending}>
-      <Trash2 size={14} />
+      {pending ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
     </Button>
   );
 }
 
-export function IdeaCard({idea, totalUsers}: IdeaCardProps) {
+export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
   const t = useTranslations("Ideas");
   const locale = useLocale();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
   const authorUsername = idea.author?.username;
+
+  const isOwner = !!currentUserId && !!idea.author_id && currentUserId === idea.author_id;
 
   const ideaExtra = idea as IdeaWithAuthor & {supportPercentage?: number; badge?: IdeaBadge};
   const supportPercentage = ideaExtra.supportPercentage ?? 0;
@@ -75,7 +80,6 @@ export function IdeaCard({idea, totalUsers}: IdeaCardProps) {
         await (navigator as Navigator).share({url});
         return;
       } catch {
-        // user cancelled, do nothing
       }
     }
 
@@ -110,7 +114,6 @@ export function IdeaCard({idea, totalUsers}: IdeaCardProps) {
       transition={{duration: 0.28, ease: "easeOut"}}
     >
       <Card className="overflow-hidden border-border/70 shadow-[0_14px_34px_rgba(8,33,56,0.08)]">
-        <div className="bg-red-500 text-white text-center text-xs font-bold py-1">DEBUG IDEA CARD - {idea.id.slice(0,8)}</div>
         {idea.image_url ? (
           <div className="relative h-48 w-full overflow-hidden">
             <img src={idea.image_url} alt={idea.title} className="h-full w-full object-cover" />
@@ -122,22 +125,18 @@ export function IdeaCard({idea, totalUsers}: IdeaCardProps) {
               <Lightbulb size={16} className="shrink-0" />
               <span className="truncate">{idea.title}</span>
             </CardTitle>
-            <div className="flex items-center gap-0.5 shrink-0">
-              <Link href={`/ideas/submit?id=${idea.id}`}>
-                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                  <Edit3 size={14} />
+            {isOwner ? (
+              <div className="flex items-center gap-0.5 shrink-0">
+                <Link href={`/ideas/submit?id=${idea.id}`}>
+                  <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                    <Edit3 size={14} />
+                  </Button>
+                </Link>
+                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => setShowDeleteConfirm(true)}>
+                  <Trash2 size={14} />
                 </Button>
-              </Link>
-              <form
-                action={deleteIdeaAction}
-                onSubmit={(e) => { if (!window.confirm(t("deleteConfirm"))) e.preventDefault(); }}
-              >
-                <input type="hidden" name="locale" value={locale} />
-                <input type="hidden" name="ideaId" value={idea.id} />
-                <input type="hidden" name="returnTo" value="/ideas" />
-                <DeleteIdeaButton />
-              </form>
-            </div>
+              </div>
+            ) : null}
           </div>
         </CardHeader>
         <CardContent className="space-y-3 pt-0 sm:space-y-3">
@@ -183,6 +182,34 @@ export function IdeaCard({idea, totalUsers}: IdeaCardProps) {
           </div>
         </CardContent>
       </Card>
+
+      {showDeleteConfirm ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="w-full max-w-sm rounded-2xl bg-card p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold">{t("confirmDeleteTitle")}</h3>
+              <button type="button" onClick={() => setShowDeleteConfirm(false)} className="text-muted-foreground hover:text-foreground">
+                <X size={18} />
+              </button>
+            </div>
+            <p className="text-sm text-muted-foreground mb-6">{t("deleteConfirm")}</p>
+            <div className="flex items-center justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+                {t("cancel")}
+              </Button>
+              <form
+                action={deleteIdeaAction}
+                onSubmit={() => setShowDeleteConfirm(false)}
+              >
+                <input type="hidden" name="locale" value={locale} />
+                <input type="hidden" name="ideaId" value={idea.id} />
+                <input type="hidden" name="returnTo" value="/ideas" />
+                <DeleteIdeaButton />
+              </form>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </motion.article>
   );
 }
