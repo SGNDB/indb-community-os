@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState, useTransition} from "react";
 import {motion} from "framer-motion";
 import {Bookmark, MessageCircle, Send, Share2, Trash2} from "lucide-react";
 import {useRouter} from "next/navigation";
@@ -22,8 +22,8 @@ import type {PostWithAuthor, CommentWithAuthor} from "@/types/database";
 import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
 import {translateContent} from "@/lib/i18n/translateContent";
 import {
-  addCommentAction,
   deletePostAction,
+  submitCommentAction,
   toggleSaveAction,
 } from "@/app/[locale]/server-actions";
 
@@ -93,6 +93,7 @@ export function PostCard({
   const contentLanguage = useMemo(() => detectContentLanguage(post.content), [post.content]);
   const canTranslate = contentLanguage !== uiLanguage;
   const commentInputRef = useRef<HTMLInputElement>(null);
+  const [commentPending, startCommentTransition] = useTransition();
 
   const [isTranslated, setIsTranslated] = useState(false);
   const [translatedText, setTranslatedText] = useState<string | null>(null);
@@ -120,6 +121,22 @@ export function PostCard({
     setIsSaved(post.user_saved ?? false);
     setSavesCount(post.saves_count);
   }, [post.user_saved, post.saves_count]);
+
+  async function handleCommentSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    startCommentTransition(async () => {
+      const result = await submitCommentAction(formData);
+      if (result.success) {
+        form.reset();
+        router.refresh();
+      } else {
+        toast.error(errors("commentFailed"));
+      }
+    });
+  }
 
   async function handleShare() {
     const currentUrl = `${window.location.pathname}${window.location.search}`;
@@ -350,7 +367,7 @@ export function PostCard({
           </div>
 
           {showCommentInput ? (
-            <form action={addCommentAction} className="flex items-center gap-2">
+            <form onSubmit={handleCommentSubmit} className="flex items-center gap-2">
               <input type="hidden" name="locale" value={locale} />
               <input type="hidden" name="returnTo" value={returnPath} />
               <input type="hidden" name="postId" value={post.id} />
@@ -361,7 +378,9 @@ export function PostCard({
                 required
                 className="min-h-11"
               />
-              <CommentSubmitButton loading={t("sending")} />
+              <Button type="submit" size="icon" className="shrink-0" disabled={commentPending}>
+                {commentPending ? <span className="text-xs">{t("sending")}</span> : <Send size={14} />}
+              </Button>
             </form>
           ) : null}
 

@@ -282,11 +282,15 @@ export async function addCommentAction(formData: FormData) {
     redirect(toPath(locale, appendParam(returnPath, "error", "post_not_found")));
   }
 
-  await supabase.from("comments").insert({
+  const {error: insertError} = await supabase.from("comments").insert({
     post_id: postId,
     author_id: user.id,
     content: parsed.data.content,
   });
+
+  if (insertError) {
+    redirect(toPath(locale, appendParam(returnPath, "error", "comment_failed")));
+  }
 
   if (postForNotify.author_id !== user.id) {
     await createCommentNotification(postForNotify.author_id, user.id, postId);
@@ -294,6 +298,47 @@ export async function addCommentAction(formData: FormData) {
 
   revalidatePath(toPath(locale, returnPath));
   redirect(toPath(locale, appendParam(returnPath, "commentAdded", "1")));
+}
+
+export async function submitCommentAction(
+  formData: FormData,
+): Promise<{success: boolean; error?: string}> {
+  const locale = normalizeLocale(formData.get("locale"));
+  const returnPath = getReturnPath(formData, "/feed");
+  const postId = formData.get("postId");
+  const supabase = await createClient();
+
+  const {data: {user}} = await supabase.auth.getUser();
+  if (!user) return {success: false, error: "unauthorized"};
+
+  const parsed = commentSchema.safeParse({content: formData.get("content")});
+  if (!parsed.success || typeof postId !== "string") {
+    return {success: false, error: "invalid"};
+  }
+
+  const {data: postForNotify, error: postError} = await supabase
+    .from("posts")
+    .select("author_id")
+    .eq("id", postId)
+    .single();
+
+  if (postError || !postForNotify) {
+    return {success: false, error: "post_not_found"};
+  }
+
+  const {error: insertError} = await supabase.from("comments").insert({
+    post_id: postId,
+    author_id: user.id,
+    content: parsed.data.content,
+  });
+
+  if (insertError) return {success: false, error: "insert_failed"};
+
+  if (postForNotify.author_id !== user.id) {
+    await createCommentNotification(postForNotify.author_id, user.id, postId);
+  }
+
+  return {success: true};
 }
 
 export async function toggleReactionAction(formData: FormData) {

@@ -127,6 +127,20 @@ export function NotificationDropdown({locale}: {locale: string}) {
   useEffect(() => {
     let channel: ReturnType<typeof supabase.channel>;
     let cancelled = false;
+    let interval: ReturnType<typeof setInterval>;
+
+    async function pollCount() {
+      const {data: {user}} = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+
+      const {count} = await supabase
+        .from("notifications")
+        .select("*", {count: "exact", head: true})
+        .eq("user_id", user.id)
+        .eq("read", false);
+
+      if (!cancelled) setUnreadCount(count ?? 0);
+    }
 
     async function setupRealtime() {
       const {data: {user}} = await supabase.auth.getUser();
@@ -161,6 +175,8 @@ export function NotificationDropdown({locale}: {locale: string}) {
           },
         )
         .subscribe();
+
+      interval = setInterval(pollCount, 30000);
     }
 
     setupRealtime();
@@ -168,6 +184,7 @@ export function NotificationDropdown({locale}: {locale: string}) {
     return () => {
       cancelled = true;
       if (channel) supabase.removeChannel(channel);
+      if (interval) clearInterval(interval);
     };
   }, [supabase]);
 
