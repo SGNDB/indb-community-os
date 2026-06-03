@@ -25,7 +25,7 @@ export async function getIdeas(): Promise<{ideas: IdeaWithSupport[]; totalUsers:
 
   withSupport.sort((a, b) => b.votes_count - a.votes_count);
 
-  for (let i = 0; i < withSupport.length && i < 3; i++) {
+  for (let i = 0; i < withSupport.length && i < 10; i++) {
     withSupport[i].rank = i + 1;
   }
 

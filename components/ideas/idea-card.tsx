@@ -1,7 +1,7 @@
 "use client";
 
 import {motion} from "framer-motion";
-import {CalendarDays, Lightbulb, Share2, UserRound} from "lucide-react";
+import {CalendarDays, Lightbulb, Share2} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
 import {toast} from "sonner";
 
@@ -9,6 +9,7 @@ import {shareIdeaAction} from "@/app/[locale]/server-actions";
 import {IdeaComments} from "@/components/ideas/idea-comments";
 import {VoteButton} from "@/components/ideas/vote-button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Link} from "@/lib/i18n/routing";
 import type {IdeaBadge, IdeaWithAuthor} from "@/types/database";
 
 interface IdeaCardProps {
@@ -16,15 +17,36 @@ interface IdeaCardProps {
   totalUsers?: number;
 }
 
+function AuthorAvatar({author}: {author: IdeaWithAuthor["author"]}) {
+  if (!author) return null;
+
+  if (author.avatar_url) {
+    return (
+      <img
+        src={author.avatar_url}
+        alt=""
+        className="size-5 rounded-full object-cover shrink-0"
+      />
+    );
+  }
+
+  const initial = (author.full_name ?? author.username ?? "?").charAt(0).toUpperCase();
+  return (
+    <span className="flex size-5 items-center justify-center rounded-full bg-gradient-to-br from-[#0F4C75] to-[#27C5D8] text-[10px] font-bold text-white shrink-0">
+      {initial}
+    </span>
+  );
+}
+
 export function IdeaCard({idea, totalUsers}: IdeaCardProps) {
   const t = useTranslations("Ideas");
   const locale = useLocale();
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
+  const authorUsername = idea.author?.username;
 
-  const ideaExtra = idea as IdeaWithAuthor & {supportPercentage?: number; badge?: IdeaBadge; rank?: number | null};
+  const ideaExtra = idea as IdeaWithAuthor & {supportPercentage?: number; badge?: IdeaBadge};
   const supportPercentage = ideaExtra.supportPercentage ?? 0;
   const badge = ideaExtra.badge ?? "new_idea";
-  const rank = ideaExtra.rank ?? null;
 
   const categoryName = idea.category
     ? locale === "ar"
@@ -63,6 +85,13 @@ export function IdeaCard({idea, totalUsers}: IdeaCardProps) {
     }
   }
 
+  const authorContent = (
+    <span className="inline-flex items-center gap-1.5">
+      <AuthorAvatar author={idea.author} />
+      <span className="truncate max-w-[120px] sm:max-w-[180px]">{authorName}</span>
+    </span>
+  );
+
   return (
     <motion.article
       initial={{opacity: 0, y: 14}}
@@ -76,26 +105,22 @@ export function IdeaCard({idea, totalUsers}: IdeaCardProps) {
           </div>
         ) : null}
         <CardHeader className="pb-2.5">
-          <div className="flex items-start gap-2">
-            <CardTitle className="inline-flex items-center gap-2 text-[15px] sm:text-base">
-              {rank ? (
-                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#0F4C75] to-[#27C5D8] text-[10px] font-bold text-white">
-                  {rank}
-                </span>
-              ) : null}
-              <Lightbulb size={16} className="shrink-0" />
-              <span>{idea.title}</span>
-            </CardTitle>
-          </div>
+          <CardTitle className="inline-flex items-center gap-2 text-[15px] sm:text-base">
+            <Lightbulb size={16} className="shrink-0" />
+            <span>{idea.title}</span>
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 pt-0 sm:space-y-3">
           <p className="text-sm text-muted-foreground leading-relaxed">{idea.description}</p>
 
-          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <UserRound size={13} />
-              {authorName}
-            </span>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground">
+            {authorUsername ? (
+              <Link href={`/profile/${authorUsername}`} className="hover:text-foreground transition-colors">
+                {authorContent}
+              </Link>
+            ) : (
+              authorContent
+            )}
             {categoryName ? (
               <span className="inline-flex items-center gap-1.5">
                 <Lightbulb size={13} />
