@@ -445,8 +445,8 @@
     "commentDeleted": "Comment deleted",
     "postDeleted": "Post deleted",
     "postSaved": "Post saved",
-    "memorySubmitted": "Memory submitted",
-    "ideaSubmitted": "Idea submitted",
+    "memorySubmitted": "Memory submitted successfully and is pending review",
+    "ideaSubmitted": "Idea submitted successfully",
     "voteAdded": "Vote added",
     "updated": "Profile updated",
     "linkCopied": "Post link copied",
@@ -460,7 +460,12 @@
     "invalidMemory": "Invalid memory",
     "invalidIdea": "Invalid idea",
     "saveFailed": "Save failed",
-    "reactionFailed": "Reaction update failed"
+    "reactionFailed": "Reaction update failed",
+    "titleRequired": "Title is required",
+    "descriptionRequired": "Description is required",
+    "titleTooShort": "Title must be at least 4 characters",
+    "descriptionTooShort": "Description must be at least 10 characters",
+    "submitFailed": "Something went wrong while submitting"
   },
   "ImageUpload": {
     "tooLarge": "Image is too large. Please choose a smaller image.",

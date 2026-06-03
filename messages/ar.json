@@ -445,8 +445,8 @@
     "commentDeleted": "تم حذف التعليق",
     "postDeleted": "تم حذف المنشور",
     "postSaved": "تم حفظ المنشور",
-    "memorySubmitted": "تم إرسال الذكرى",
-    "ideaSubmitted": "تم إرسال الفكرة",
+    "memorySubmitted": "تم إرسال الذكرى بنجاح وهي قيد المراجعة",
+    "ideaSubmitted": "تم إرسال الفكرة بنجاح",
     "voteAdded": "تم إضافة التصويت",
     "updated": "تم تحديث الملف الشخصي",
     "linkCopied": "تم نسخ رابط المنشور",
@@ -460,7 +460,12 @@
     "invalidMemory": "الذكرى غير صالحة",
     "invalidIdea": "الفكرة غير صالحة",
     "saveFailed": "فشل الحفظ",
-    "reactionFailed": "فشل تحديث التفاعل"
+    "reactionFailed": "فشل تحديث التفاعل",
+    "titleRequired": "العنوان مطلوب",
+    "descriptionRequired": "الوصف مطلوب",
+    "titleTooShort": "يجب أن يكون العنوان 4 أحرف على الأقل",
+    "descriptionTooShort": "يجب أن يكون الوصف 10 أحرف على الأقل",
+    "submitFailed": "حدث خطأ أثناء الإرسال"
   },
   "ImageUpload": {
     "tooLarge": "الصورة كبيرة جدًا. يرجى اختيار صورة أصغر.",

@@ -557,6 +557,30 @@ export async function updateProfileAction(formData: FormData): Promise<{success:
   return {success: true};
 }
 
+function getValidationError(
+  result: {success: boolean; error?: unknown},
+  t: (key: string) => string,
+  fallback: string,
+): string {
+  if (result.success) return "";
+
+  const zodError = result.error as {issues?: Array<{path: Array<string | number>; message: string; code: string}>} | undefined;
+  const issue = zodError?.issues?.[0];
+  if (!issue) return t(fallback);
+
+  const field = issue.path[0];
+  if (issue.code === "too_small") {
+    if (field === "title") return t("titleTooShort");
+    if (field === "description") return t("descriptionTooShort");
+  }
+  if (issue.code === "invalid_type" && issue.message.includes("Required")) {
+    if (field === "title") return t("titleRequired");
+    if (field === "description") return t("descriptionRequired");
+  }
+
+  return issue.message || t(fallback);
+}
+
 export async function submitMemoryAction(formData: FormData) {
   const locale = normalizeLocale(formData.get("locale"));
   const errorsT = await getTranslations({locale, namespace: "Errors"});
@@ -581,23 +605,25 @@ export async function submitMemoryAction(formData: FormData) {
   });
 
   if (!parsed.success) {
-    redirect(
-      toPath(
-        locale,
-        `/memory/submit?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? errorsT("invalidMemory"))}`,
-      ),
-    );
+    const errorMsg = getValidationError(parsed, errorsT, "invalidMemory");
+    redirect(toPath(locale, `/memory/submit?error=${encodeURIComponent(errorMsg)}`));
   }
 
-  let media_url: string | null = null;
   const mediaFile = formData.get("media");
-  if (mediaFile instanceof File && mediaFile.size > 0) {
+  const hasMedia = mediaFile instanceof File && mediaFile.size > 0;
+  let media_url: string | null = null;
+
+  if (hasMedia) {
     const uploaded = await uploadImageFile(mediaFile, "memory-archive", user.id, "memory", imageT);
     if (uploaded.error) {
       redirect(toPath(locale, appendParam("/memory/submit", "error", uploaded.error)));
     }
     media_url = uploaded.url ?? null;
   }
+
+  const tags = parsed.data.tags
+    ? parsed.data.tags.split(",").map((t: string) => t.trim()).filter(Boolean)
+    : [];
 
   const {data: memory, error} = await supabase
     .from("memories")
@@ -609,16 +635,16 @@ export async function submitMemoryAction(formData: FormData) {
       year: parsed.data.year ? Number(parsed.data.year) : null,
       location: parsed.data.location || null,
       media_url,
-      media_type: mediaFile instanceof File && mediaFile.size > 0 ? "image" : "text",
+      media_type: hasMedia ? "image" : "text",
       verification_status: "pending",
-      tags: parsed.data.tags ? parsed.data.tags.split(",").map((t: string) => t.trim()).filter(Boolean) : [],
+      tags: tags.length > 0 ? tags : null,
     })
     .select("id")
     .single();
 
   if (error || !memory) {
     redirect(
-      toPath(locale, `/memory/submit?error=${encodeURIComponent(error?.message ?? "Save failed")}`),
+      toPath(locale, `/memory/submit?error=${encodeURIComponent(error?.message ?? errorsT("submitFailed"))}`),
     );
   }
 
@@ -648,17 +674,15 @@ export async function submitIdeaAction(formData: FormData) {
   });
 
   if (!parsed.success) {
-    redirect(
-      toPath(
-        locale,
-        `/ideas/submit?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? errorsT("invalidIdea"))}`,
-      ),
-    );
+    const errorMsg = getValidationError(parsed, errorsT, "invalidIdea");
+    redirect(toPath(locale, `/ideas/submit?error=${encodeURIComponent(errorMsg)}`));
   }
 
-  let image_url: string | null = null;
   const imageFile = formData.get("imageFile");
-  if (imageFile instanceof File && imageFile.size > 0) {
+  const hasImage = imageFile instanceof File && imageFile.size > 0;
+  let image_url: string | null = null;
+
+  if (hasImage) {
     const uploaded = await uploadImageFile(imageFile, "idea-media", user.id, "post", imageT);
     if (uploaded.error) {
       redirect(toPath(locale, appendParam("/ideas/submit", "error", uploaded.error)));

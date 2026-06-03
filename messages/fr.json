@@ -445,8 +445,8 @@
     "commentDeleted": "Commentaire supprimé",
     "postDeleted": "Publication supprimée",
     "postSaved": "Publication enregistrée",
-    "memorySubmitted": "Souvenir soumis",
-    "ideaSubmitted": "Idée soumise",
+    "memorySubmitted": "Souvenir soumis avec succès et en attente de révision",
+    "ideaSubmitted": "Idée soumise avec succès",
     "voteAdded": "Vote ajouté",
     "updated": "Profil mis à jour",
     "linkCopied": "Lien de la publication copié",
@@ -460,7 +460,12 @@
     "invalidMemory": "Souvenir invalide",
     "invalidIdea": "Idée invalide",
     "saveFailed": "Échec de l'enregistrement",
-    "reactionFailed": "Échec de la réaction"
+    "reactionFailed": "Échec de la réaction",
+    "titleRequired": "Le titre est requis",
+    "descriptionRequired": "La description est requise",
+    "titleTooShort": "Le titre doit comporter au moins 4 caractères",
+    "descriptionTooShort": "La description doit comporter au moins 10 caractères",
+    "submitFailed": "Une erreur est survenue lors de l'envoi"
   },
   "ImageUpload": {
     "tooLarge": "L’image est trop volumineuse. Veuillez choisir une image plus petite.",
