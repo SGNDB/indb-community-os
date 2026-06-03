@@ -6,7 +6,6 @@ import {IdeaCard} from "@/components/ideas/idea-card";
 import {EmptyState} from "@/components/shared/empty-state";
 import {Link} from "@/lib/i18n/routing";
 import {getIdeas} from "@/lib/data/ideas";
-import {createClient} from "@/lib/supabase/server";
 import type {IdeaBadge, IdeaWithSupport} from "@/types/database";
 
 export async function generateMetadata({
@@ -100,10 +99,6 @@ export default async function IdeasPage({
   const empty = await getTranslations({locale, namespace: "EmptyStates.ideas"});
   const {ideas, totalUsers} = await getIdeas();
 
-  const supabase = await createClient();
-  const {data: {user}} = await supabase.auth.getUser();
-  const currentUserId = user?.id ?? null;
-
   const topIdeas = ideas.filter((i) => i.rank !== null).slice(0, 10);
 
   return (
@@ -141,7 +136,7 @@ export default async function IdeasPage({
       {ideas.length > 0 ? (
         <div className="space-y-3 sm:space-y-4">
           {ideas.map((idea) => (
-            <IdeaCard key={idea.id} idea={idea} totalUsers={totalUsers} currentUserId={currentUserId} />
+            <IdeaCard key={idea.id} idea={idea} totalUsers={totalUsers} />
           ))}
         </div>
       ) : (

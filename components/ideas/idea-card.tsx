@@ -3,6 +3,7 @@
 import {motion} from "framer-motion";
 import {CalendarDays, Edit3, Lightbulb, Share2, Trash2} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
+import {useEffect, useState} from "react";
 import {useFormStatus} from "react-dom";
 import {toast} from "sonner";
 
@@ -12,12 +13,12 @@ import {VoteButton} from "@/components/ideas/vote-button";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Link} from "@/lib/i18n/routing";
+import {createClient} from "@/lib/supabase/client";
 import type {IdeaBadge, IdeaWithAuthor} from "@/types/database";
 
 interface IdeaCardProps {
   idea: IdeaWithAuthor;
   totalUsers?: number;
-  currentUserId?: string | null;
 }
 
 function AuthorAvatar({author}: {author: IdeaWithAuthor["author"]}) {
@@ -50,9 +51,18 @@ function DeleteIdeaButton() {
   );
 }
 
-export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
+export function IdeaCard({idea, totalUsers}: IdeaCardProps) {
   const t = useTranslations("Ideas");
   const locale = useLocale();
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({data}) => {
+      setCurrentUserId(data.user?.id ?? null);
+    });
+  }, []);
+
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
   const authorUsername = idea.author?.username;
   const isOwner = currentUserId != null && idea.author_id === currentUserId;
