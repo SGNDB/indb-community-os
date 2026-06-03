@@ -16,6 +16,7 @@ import {
   createFollowNotification,
   upsertReactionNotification,
   createCommentNotification,
+  createShareNotification,
 } from "@/lib/data/notifications";
 import {toggleReaction} from "@/lib/data/reactions";
 import {
@@ -375,8 +376,6 @@ export async function toggleReactionAction(formData: FormData) {
   if (result.action !== "deleted" && postForNotify && postForNotify.author_id !== user.id) {
     await upsertReactionNotification(postForNotify.author_id, user.id, postId);
   }
-
-  revalidatePath("/", "layout");
 }
 
 export async function toggleSaveAction(formData: FormData) {
@@ -410,8 +409,6 @@ export async function toggleSaveAction(formData: FormData) {
       user_id: user.id,
     });
   }
-
-  revalidatePath("/", "layout");
 }
 
 export async function toggleFollowAction(formData: FormData): Promise<{success: boolean; following?: boolean; error?: string}> {
@@ -643,10 +640,11 @@ export async function submitIdeaAction(formData: FormData) {
     redirect(toPath(locale, "/login"));
   }
 
+  const rawCategoryId = formData.get("categoryId");
   const parsed = ideaSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description"),
-    categoryId: formData.get("categoryId"),
+    categoryId: rawCategoryId === "" ? undefined : rawCategoryId,
   });
 
   if (!parsed.success) {
@@ -661,20 +659,24 @@ export async function submitIdeaAction(formData: FormData) {
   let image_url: string | null = null;
   const imageFile = formData.get("imageFile");
   if (imageFile instanceof File && imageFile.size > 0) {
-    const uploaded = await uploadImageFile(imageFile, "post-media", user.id, "post", imageT);
+    const uploaded = await uploadImageFile(imageFile, "idea-media", user.id, "post", imageT);
     if (uploaded.error) {
       redirect(toPath(locale, appendParam("/ideas/submit", "error", uploaded.error)));
     }
     image_url = uploaded.url ?? null;
   }
 
-  await supabase.from("ideas").insert({
+  const {error: insertError} = await supabase.from("ideas").insert({
     author_id: user.id,
     title: parsed.data.title,
     description: parsed.data.description,
-    category_id: parsed.data.categoryId,
+    category_id: parsed.data.categoryId ?? null,
     image_url,
   });
+
+  if (insertError) {
+    redirect(toPath(locale, appendParam("/ideas/submit", "error", insertError.message)));
+  }
 
   revalidatePath(toPath(locale, "/ideas"));
   redirect(toPath(locale, "/ideas?ideaSubmitted=1"));
@@ -771,7 +773,9 @@ export async function forgotPasswordAction(formData: FormData) {
   redirect(toPath(locale, "/forgot-password?emailSent=1"));
 }
 
-export async function voteIdeaAction(formData: FormData) {
+export async function shareIdeaAction(
+  formData: FormData,
+): Promise<{success: boolean; error?: string}> {
   const locale = normalizeLocale(formData.get("locale"));
   const ideaId = formData.get("ideaId");
   const supabase = await createClient();
@@ -781,12 +785,45 @@ export async function voteIdeaAction(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    const next = encodeURIComponent("/ideas");
-    redirect(toPath(locale, `/login?next=${next}`));
+    return {success: false, error: "unauthorized"};
   }
 
   if (typeof ideaId !== "string") {
-    redirect(toPath(locale, "/ideas"));
+    return {success: false, error: "invalid"};
+  }
+
+  const {data: idea} = await supabase
+    .from("ideas")
+    .select("author_id")
+    .eq("id", ideaId)
+    .single();
+
+  if (!idea) {
+    return {success: false, error: "not_found"};
+  }
+
+  await createShareNotification(idea.author_id, user.id, ideaId);
+
+  return {success: true};
+}
+
+export async function voteIdeaAction(
+  formData: FormData,
+): Promise<{success: boolean; voted?: boolean; votes?: number; error?: string}> {
+  const locale = normalizeLocale(formData.get("locale"));
+  const ideaId = formData.get("ideaId");
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: "unauthorized"};
+  }
+
+  if (typeof ideaId !== "string") {
+    return {success: false, error: "invalid"};
   }
 
   const {data: existing} = await supabase
@@ -805,6 +842,21 @@ export async function voteIdeaAction(formData: FormData) {
     });
   }
 
+  const {count} = await supabase
+    .from("idea_votes")
+    .select("*", {count: "exact", head: true})
+    .eq("idea_id", ideaId);
+
+  await supabase
+    .from("ideas")
+    .update({votes_count: count ?? 0})
+    .eq("id", ideaId);
+
   revalidatePath(toPath(locale, "/ideas"));
-  redirect(toPath(locale, "/ideas?voteAdded=1"));
+
+  return {
+    success: true,
+    voted: !existing,
+    votes: count ?? 0,
+  };
 }

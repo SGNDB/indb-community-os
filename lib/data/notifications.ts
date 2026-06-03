@@ -138,6 +138,28 @@ export async function upsertReactionNotification(
   }
 }
 
+export async function createShareNotification(
+  ideaAuthorId: string,
+  actorId: string,
+  ideaId: string,
+): Promise<void> {
+  if (ideaAuthorId === actorId) return;
+
+  const supabase = await createClient();
+
+  const {error} = await supabase.from("notifications").insert({
+    user_id: ideaAuthorId,
+    actor_id: actorId,
+    type: "share",
+    entity_type: "idea",
+    entity_id: ideaId,
+    title: "Shared your idea",
+    message: null,
+  });
+
+  if (error) console.error("createShareNotification error:", error);
+}
+
 export async function createCommentNotification(
   postAuthorId: string,
   actorId: string,

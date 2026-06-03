@@ -26,7 +26,6 @@ export async function getMemoryById(id: string): Promise<MemoryWithContributor |
       contributor:profiles!memories_contributor_id_fkey(id, username, full_name, avatar_url)
     `)
     .eq("id", id)
-    .eq("verification_status", "approved")
     .single();
 
   return data as unknown as MemoryWithContributor | null;

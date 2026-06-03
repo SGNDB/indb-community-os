@@ -114,6 +114,7 @@
     "startedFollowing": "{actorName} a commencé à vous suivre",
     "reactedToPost": "{actorName} a réagi à votre publication",
     "commentedOnPost": "{actorName} a commenté votre publication",
+    "sharedYourIdea": "{actorName} a partagé votre idée",
     "someone": "Quelqu'un"
   },
   "RightSidebar": {
@@ -200,7 +201,18 @@
     "description": "Un musée numérique des récits communautaires, photos et repères historiques.",
     "openTimeline": "Ouvrir la chronologie",
     "contributedBy": "Contribué par {name}",
-    "relatedMemories": "Souvenirs liés"
+    "relatedMemories": "Souvenirs liés",
+    "noImage": "Aucune image disponible",
+    "unknownContributor": "Contributeur inconnu",
+    "share": "Partager",
+    "linkCopied": "Lien du souvenir copié",
+    "shareFailed": "Impossible de partager",
+    "verification": {
+      "pending": "En attente",
+      "approved": "Approuvé",
+      "rejected": "Rejeté",
+      "needsMoreInfo": "Plus d'infos nécessaires"
+    }
   },
   "MemoryForm": {
     "title": "Soumettre un souvenir communautaire",
@@ -224,6 +236,11 @@
     "title": "Idées de la communauté",
     "description": "Votez pour des propositions pratiques et aidez à prioriser les solutions pour Nouadhibou.",
     "vote": "Voter ({count})",
+    "share": "Partager",
+    "linkCopied": "Lien de l'idée copié",
+    "unknownAuthor": "Inconnu",
+    "voteFailed": "Échec du vote",
+    "commentsComingSoon": "Commentaires bientôt disponibles",
     "status": {
       "submitted": "Soumise",
       "underReview": "En révision",

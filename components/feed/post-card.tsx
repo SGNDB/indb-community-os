@@ -91,6 +91,8 @@ export function PostCard({
   const [isTranslating, setIsTranslating] = useState(false);
   const [translationError, setTranslationError] = useState(false);
   const [showCommentInput, setShowCommentInput] = useState(false);
+  const [localComments, setLocalComments] = useState<CommentWithAuthor[]>(postComments);
+  const [commentsCount, setCommentsCount] = useState(post.comments_count);
   const [isSaved, setIsSaved] = useState(post.user_saved ?? false);
   const [savesCount, setSavesCount] = useState(post.saves_count);
 
@@ -117,12 +119,33 @@ export function PostCard({
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
+    const content = formData.get("content") as string;
 
     startCommentTransition(async () => {
       const result = await submitCommentAction(formData);
       if (result.success) {
         form.reset();
-        router.refresh();
+        const supabase = createClient();
+        const {data: {user}} = await supabase.auth.getUser();
+        const {data: profile} = user ? await supabase
+          .from("profiles")
+          .select("id, username, full_name, avatar_url")
+          .eq("id", user.id)
+          .single() : {data: null};
+
+        const newComment: CommentWithAuthor = {
+          id: `temp-${Date.now()}`,
+          post_id: post.id,
+          author_id: currentUserId ?? null,
+          parent_id: null,
+          content,
+          status: "published",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          author: profile ? {id: profile.id, username: profile.username, full_name: profile.full_name, avatar_url: profile.avatar_url} : null,
+        };
+        setLocalComments((prev) => [newComment, ...prev]);
+        setCommentsCount((c) => c + 1);
       } else {
         toast.error(errors("commentFailed"));
       }
@@ -228,11 +251,12 @@ export function PostCard({
 
   return (
     <motion.article
+      id={`post-${post.id}`}
       initial={{opacity: 0, y: 16}}
       animate={{opacity: 1, y: 0}}
       whileHover={{y: -2}}
       transition={{duration: 0.28, ease: "easeOut"}}
-      className="rounded-2xl"
+      className="rounded-2xl scroll-mt-24"
     >
       <Card className="border-border/70 shadow-[0_12px_32px_rgba(8,33,56,0.08)]">
         <CardHeader className="pb-2.5 sm:pb-3">
@@ -331,7 +355,7 @@ export function PostCard({
               className="flex flex-1 items-center justify-center gap-1.5 min-h-11 rounded-xl px-2 text-xs text-muted-foreground transition hover:bg-muted sm:gap-2 sm:px-3 sm:text-sm"
             >
               <MessageCircle size={16} className="shrink-0" />
-              <span>{post.comments_count > 0 ? post.comments_count : t("comments")}</span>
+              <span>{commentsCount > 0 ? commentsCount : t("comments")}</span>
             </button>
 
             <button
@@ -375,9 +399,9 @@ export function PostCard({
             </form>
           ) : null}
 
-          {postComments.length > 0 ? (
+          {localComments.length > 0 ? (
             <div className="space-y-2 border-t border-border/60 pt-2">
-              {postComments.slice(0, 3).map((comment) => {
+              {localComments.slice(0, 3).map((comment) => {
                 const commentAuthor = comment.author?.full_name ?? comment.author?.username ?? t("unknownAuthor");
                 const isOwnComment = currentUserId != null && comment.author_id === currentUserId;
                 return (

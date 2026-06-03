@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import {useEffect, useRef, useState} from "react";
+import {createPortal} from "react-dom";
 import {useTranslations} from "next-intl";
 
 import {UserAvatar} from "@/components/layout/user-avatar";
@@ -65,9 +66,15 @@ export function NotificationDropdown({locale}: {locale: string}) {
   const [notifications, setNotifications] = useState<NotificationWithActor[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobilePanelRef = useRef<HTMLDivElement>(null);
   const openRef = useRef(open);
   openRef.current = open;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -193,12 +200,25 @@ export function NotificationDropdown({locale}: {locale: string}) {
   useEffect(() => {
     if (!open) return;
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        !(mobilePanelRef.current && mobilePanelRef.current.contains(event.target as Node))
+      ) {
         setOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
   }, [open]);
 
   async function handleNotificationClick(n: NotificationWithActor) {
@@ -211,6 +231,29 @@ export function NotificationDropdown({locale}: {locale: string}) {
     }
 
     setOpen(false);
+
+    if (n.entity_type && n.entity_id) {
+      switch (n.entity_type) {
+        case "memory":
+          router.push(`/memory/${n.entity_id}`);
+          return;
+        case "post":
+          router.push(`/feed#post-${n.entity_id}`);
+          return;
+        case "idea":
+          router.push("/ideas");
+          return;
+        case "project":
+          router.push("/projects");
+          return;
+        case "event":
+          router.push("/events");
+          return;
+        case "poll":
+          router.push("/polls");
+          return;
+      }
+    }
 
     if (n.type === "follow") {
       const username = n.actor?.username;
@@ -259,8 +302,8 @@ export function NotificationDropdown({locale}: {locale: string}) {
         key={n.id}
         type="button"
         onClick={() => handleNotificationClick(n)}
-        className={`flex w-full items-start gap-3 px-4 py-3 text-start text-sm transition active:bg-muted/80 hover:bg-muted/60 ${
-          !n.read ? "bg-primary/5" : ""
+        className={`flex w-full items-start gap-3 px-4 py-3.5 text-start text-sm transition active:bg-muted/80 hover:bg-muted/60 ${
+          !n.read ? "bg-primary/[0.06]" : ""
         }`}
       >
         <div className="relative shrink-0">
@@ -306,112 +349,94 @@ export function NotificationDropdown({locale}: {locale: string}) {
         ) : null}
       </Button>
 
+      {/* Mobile: full-screen panel */}
+      {open && mounted ? createPortal(
+        <div ref={mobilePanelRef} className="fixed inset-0 z-[9999] flex flex-col bg-background md:hidden">
+          <div
+            className="flex items-center justify-between border-b border-border/60 bg-background px-4 pb-3 pt-[calc(env(safe-area-inset-top)+0.75rem)]"
+          >
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            >
+              <X size={20} />
+            </button>
+            <h2 className="text-base font-semibold">{t("title")}</h2>
+            {hasUnread ? (
+              <button
+                type="button"
+                onClick={handleMarkAllRead}
+                className="flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-primary transition hover:bg-primary/10"
+              >
+                <CheckCheck size={16} />
+                {t("markAllRead")}
+              </button>
+            ) : (
+              <div className="w-20" />
+            )}
+          </div>
+          <div className="flex-1 overflow-y-auto pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
+            {loading && notifications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
+                <BellRing size={36} className="mb-4 animate-pulse text-muted-foreground/30" />
+                <p className="text-sm">{t("loading")}</p>
+              </div>
+            ) : notifications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
+                <BellRing size={48} className="mb-5 text-muted-foreground/25" />
+                <p className="text-sm">{t("empty")}</p>
+              </div>
+            ) : (
+              notifications.map(renderNotificationItem)
+            )}
+          </div>
+        </div>,
+        document.body,
+      ) : null}
+
+      {/* Desktop: dropdown */}
       <AnimatePresence>
         {open ? (
-          <>
-            {/* Overlay */}
-            <motion.div
-              key="overlay"
-              initial={{opacity: 0}}
-              animate={{opacity: 1}}
-              exit={{opacity: 0}}
-              transition={{duration: 0.2}}
-              className="fixed inset-0 z-50 bg-black/50 sm:bg-black/20 sm:backdrop-blur-sm"
-              onClick={() => setOpen(false)}
-            />
-
-            {/* Mobile: full-screen modal */}
-            <motion.div
-              key="mobile-modal"
-              initial={{y: "100%"}}
-              animate={{y: 0}}
-              exit={{y: "100%"}}
-              transition={{type: "spring", damping: 32, stiffness: 350}}
-              className="fixed inset-x-0 bottom-0 z-50 flex max-h-[95dvh] flex-col rounded-t-2xl bg-card shadow-2xl sm:hidden"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border/60 bg-card px-1 py-2">
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                >
-                  <X size={18} />
-                </button>
-                <h2 className="text-base font-semibold">{t("title")}</h2>
+          <motion.div
+            key="desktop-dropdown"
+            initial={{opacity: 0, y: 8}}
+            animate={{opacity: 1, y: 0}}
+            exit={{opacity: 0, y: 8}}
+            transition={{duration: 0.2}}
+            className="absolute end-0 top-12 z-50 hidden w-[360px] md:block"
+          >
+            <div className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-2xl">
+              <div className="flex items-center justify-between border-b border-border/60 px-4 py-3">
+                <h3 className="text-sm font-semibold">{t("title")}</h3>
                 {hasUnread ? (
                   <button
                     type="button"
                     onClick={handleMarkAllRead}
-                    className="flex h-9 items-center gap-1 rounded-full px-3 text-xs font-medium text-primary transition hover:bg-primary/10"
+                    className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                   >
                     <CheckCheck size={14} />
                     {t("markAllRead")}
                   </button>
-                ) : (
-                  <div className="w-20" />
-                )}
+                ) : null}
               </div>
-              <div
-                className="flex-1 overflow-y-auto pb-[calc(env(safe-area-inset-bottom)+0.75rem)]"
-              >
+              <div className="overflow-y-auto" style={{maxHeight: "400px"}}>
                 {loading && notifications.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-                    <BellRing size={32} className="mb-3 animate-pulse text-muted-foreground/40" />
-                    <p className="text-sm">{t("loading")}</p>
+                  <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                    <BellRing size={24} className="mb-2 animate-pulse text-muted-foreground/40" />
+                    <p className="text-xs">{t("loading")}</p>
                   </div>
                 ) : notifications.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-                    <BellRing size={40} className="mb-4 text-muted-foreground/30" />
-                    <p className="text-sm">{t("empty")}</p>
+                  <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                    <BellRing size={28} className="mb-2 text-muted-foreground/30" />
+                    <p className="text-xs">{t("empty")}</p>
                   </div>
                 ) : (
                   notifications.map(renderNotificationItem)
                 )}
               </div>
-            </motion.div>
-
-            {/* Desktop: dropdown */}
-            <motion.div
-              key="desktop-dropdown"
-              initial={{opacity: 0, y: 8}}
-              animate={{opacity: 1, y: 0}}
-              exit={{opacity: 0, y: 8}}
-              transition={{duration: 0.2}}
-              className="absolute end-0 top-12 z-50 hidden w-[360px] sm:block"
-            >
-              <div className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-2xl">
-                <div className="flex items-center justify-between border-b border-border/60 px-4 py-3">
-                  <h3 className="text-sm font-semibold">{t("title")}</h3>
-                  {hasUnread ? (
-                    <button
-                      type="button"
-                      onClick={handleMarkAllRead}
-                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                    >
-                      <CheckCheck size={14} />
-                      {t("markAllRead")}
-                    </button>
-                  ) : null}
-                </div>
-                <div className="overflow-y-auto" style={{maxHeight: "400px"}}>
-                  {loading && notifications.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                      <BellRing size={24} className="mb-2 animate-pulse text-muted-foreground/40" />
-                      <p className="text-xs">{t("loading")}</p>
-                    </div>
-                  ) : notifications.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                      <BellRing size={28} className="mb-2 text-muted-foreground/30" />
-                      <p className="text-xs">{t("empty")}</p>
-                    </div>
-                  ) : (
-                    notifications.map(renderNotificationItem)
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </>
+            </div>
+          </motion.div>
         ) : null}
       </AnimatePresence>
     </div>

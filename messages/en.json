@@ -114,6 +114,7 @@
     "startedFollowing": "{actorName} started following you",
     "reactedToPost": "{actorName} reacted to your post",
     "commentedOnPost": "{actorName} commented on your post",
+    "sharedYourIdea": "{actorName} shared your idea",
     "someone": "Someone"
   },
   "RightSidebar": {
@@ -200,7 +201,18 @@
     "description": "A digital museum of community stories, photos, and historical context.",
     "openTimeline": "Open Timeline",
     "contributedBy": "Contributed by {name}",
-    "relatedMemories": "Related Memories"
+    "relatedMemories": "Related Memories",
+    "noImage": "No image available",
+    "unknownContributor": "Unknown contributor",
+    "share": "Share",
+    "linkCopied": "Memory link copied",
+    "shareFailed": "Unable to share",
+    "verification": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "needsMoreInfo": "Needs more info"
+    }
   },
   "MemoryForm": {
     "title": "Submit a community memory",
@@ -224,6 +236,11 @@
     "title": "Community Ideas",
     "description": "Vote for practical proposals and help prioritize solutions for Nouadhibou.",
     "vote": "Vote ({count})",
+    "share": "Share",
+    "linkCopied": "Idea link copied",
+    "unknownAuthor": "Unknown",
+    "voteFailed": "Vote failed",
+    "commentsComingSoon": "Comments coming soon",
     "status": {
       "submitted": "Submitted",
       "underReview": "Under Review",

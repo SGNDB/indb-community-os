@@ -92,7 +92,6 @@ export function ReactionButton({
 
     try {
       await toggleReactionAction(formData);
-      router.refresh();
     } catch {
       setLocalReaction(prevReaction);
       setLocalTotal(prevTotal);

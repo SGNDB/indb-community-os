@@ -114,6 +114,7 @@
     "startedFollowing": "بدأ {actorName} بمتابعتك",
     "reactedToPost": "تفاعل {actorName} مع منشورك",
     "commentedOnPost": "علّق {actorName} على منشورك",
+    "sharedYourIdea": "شارك {actorName} فكرتك",
     "someone": "شخص ما"
   },
   "RightSidebar": {
@@ -200,7 +201,18 @@
     "description": "متحف رقمي لقصص المجتمع وصوره وسياقه التاريخي.",
     "openTimeline": "فتح الخط الزمني",
     "contributedBy": "مساهمة من {name}",
-    "relatedMemories": "ذكريات ذات صلة"
+    "relatedMemories": "ذكريات ذات صلة",
+    "noImage": "لا توجد صورة",
+    "unknownContributor": "مساهم غير معروف",
+    "share": "مشاركة",
+    "linkCopied": "تم نسخ رابط الذكرى",
+    "shareFailed": "تعذرت المشاركة",
+    "verification": {
+      "pending": "معلّق",
+      "approved": "معتمدة",
+      "rejected": "مرفوضة",
+      "needsMoreInfo": "تتطلب معلومات إضافية"
+    }
   },
   "MemoryForm": {
     "title": "إرسال ذكرى مجتمعية",
@@ -224,6 +236,11 @@
     "title": "أفكار المجتمع",
     "description": "صوّت للمقترحات العملية وساهم في ترتيب أولويات الحلول لنواذيبو.",
     "vote": "تصويت ({count})",
+    "share": "مشاركة",
+    "linkCopied": "تم نسخ رابط الفكرة",
+    "unknownAuthor": "غير معروف",
+    "voteFailed": "فشل التصويت",
+    "commentsComingSoon": "التعليقات قريبًا",
     "status": {
       "submitted": "مقدمة",
       "underReview": "قيد المراجعة",

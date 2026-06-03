@@ -1,7 +1,7 @@
 "use client";
 
 import {ImagePlus, X} from "lucide-react";
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useTranslations} from "next-intl";
 import {toast} from "sonner";
 
@@ -13,14 +13,6 @@ import {submitIdeaAction} from "@/app/[locale]/server-actions";
 import {prepareImageForUpload, ImageUploadError} from "@/lib/images/client-compression";
 import {ACCEPTED_IMAGE_EXTENSIONS} from "@/lib/images/upload-config";
 
-function SubmitButton({label, loading, pending}: {label: string; loading: string; pending: boolean}) {
-  return (
-    <Button type="submit" className="min-h-11 w-full" disabled={pending}>
-      {pending ? loading : label}
-    </Button>
-  );
-}
-
 export function IdeaSubmitForm({
   categories,
   locale,
@@ -30,10 +22,25 @@ export function IdeaSubmitForm({
 }) {
   const t = useTranslations("IdeaForm");
   const imageT = useTranslations("ImageUpload");
+  const formRef = useRef<HTMLFormElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form) return;
+
+    function handleFormData(e: Event) {
+      const event = e as unknown as {formData: FormData};
+      if (imageFile) {
+        event.formData.set("imageFile", imageFile);
+      }
+    }
+
+    form.addEventListener("formdata" as keyof HTMLElementEventMap, handleFormData as EventListener);
+    return () => form.removeEventListener("formdata" as keyof HTMLElementEventMap, handleFormData as EventListener);
+  }, [imageFile]);
 
   function getUploadErrorMessage(error: unknown) {
     if (error instanceof ImageUploadError) {
@@ -60,29 +67,13 @@ export function IdeaSubmitForm({
     }
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setSubmitting(true);
-
-    const formData = new FormData(e.currentTarget);
-    if (imageFile) {
-      formData.set("imageFile", imageFile);
-    }
-
-    try {
-      await submitIdeaAction(formData);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
   return (
     <Card>
       <CardHeader>
         <CardTitle>{t("title")}</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-3" encType="multipart/form-data">
+        <form ref={formRef} action={submitIdeaAction} className="space-y-3" encType="multipart/form-data">
           <input type="hidden" name="locale" value={locale} />
           <Input name="title" placeholder={t("fields.title")} required />
           <Textarea name="description" placeholder={t("fields.description")} required />
@@ -126,7 +117,9 @@ export function IdeaSubmitForm({
               </button>
             </div>
           ) : null}
-          <SubmitButton label={t("submit")} loading={imageUploading ? imageT("uploading") : t("submitting")} pending={submitting || imageUploading} />
+          <Button type="submit" className="min-h-11 w-full" disabled={imageUploading}>
+            {imageUploading ? imageT("uploading") : t("submit")}
+          </Button>
         </form>
       </CardContent>
     </Card>
