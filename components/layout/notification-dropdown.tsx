@@ -150,7 +150,7 @@ export function NotificationDropdown({locale}: {locale: string}) {
 
   function renderNotificationItem(n: NotificationWithActor) {
     const Icon = getNotificationIcon(n.type);
-    const displayName = n.actor?.full_name ?? n.actor?.username ?? "Someone";
+    const displayName = n.actor?.full_name ?? n.actor?.username ?? t("someone");
 
     function getMessage() {
       const actorName = displayName;

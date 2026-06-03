@@ -272,11 +272,15 @@ export async function addCommentAction(formData: FormData) {
     redirect(toPath(locale, returnPath));
   }
 
-  const {data: postForNotify} = await supabase
+  const {data: postForNotify, error: postError} = await supabase
     .from("posts")
     .select("author_id")
     .eq("id", postId)
     .single();
+
+  if (postError || !postForNotify) {
+    redirect(toPath(locale, appendParam(returnPath, "error", "post_not_found")));
+  }
 
   await supabase.from("comments").insert({
     post_id: postId,
@@ -284,7 +288,7 @@ export async function addCommentAction(formData: FormData) {
     content: parsed.data.content,
   });
 
-  if (postForNotify && postForNotify.author_id !== user.id) {
+  if (postForNotify.author_id !== user.id) {
     await createCommentNotification(postForNotify.author_id, user.id, postId);
   }
 

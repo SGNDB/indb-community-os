@@ -65,7 +65,7 @@ export async function createNotification(
 
   const supabase = await createClient();
 
-  await supabase.from("notifications").insert({
+  const {error} = await supabase.from("notifications").insert({
     user_id: params.userId,
     actor_id: params.actorId,
     type: params.type,
@@ -74,6 +74,8 @@ export async function createNotification(
     title: params.title,
     message: params.message ?? null,
   });
+
+  if (error) console.error("createNotification error:", error);
 }
 
 export async function createFollowNotification(
@@ -84,7 +86,7 @@ export async function createFollowNotification(
 
   const supabase = await createClient();
 
-  await supabase.from("notifications").insert({
+  const {error} = await supabase.from("notifications").insert({
     user_id: followedUserId,
     actor_id: followerId,
     type: "follow",
@@ -93,6 +95,8 @@ export async function createFollowNotification(
     title: "New follower",
     message: null,
   });
+
+  if (error) console.error("createFollowNotification error:", error);
 }
 
 export async function upsertReactionNotification(
@@ -115,12 +119,13 @@ export async function upsertReactionNotification(
     .maybeSingle();
 
   if (existing) {
-    await supabase
+    const {error} = await supabase
       .from("notifications")
       .update({created_at: new Date().toISOString(), read: false})
       .eq("id", existing.id);
+    if (error) console.error("upsertReactionNotification update error:", error);
   } else {
-    await supabase.from("notifications").insert({
+    const {error} = await supabase.from("notifications").insert({
       user_id: postAuthorId,
       actor_id: actorId,
       type: "reaction",
@@ -129,6 +134,7 @@ export async function upsertReactionNotification(
       title: "New reaction",
       message: null,
     });
+    if (error) console.error("upsertReactionNotification insert error:", error);
   }
 }
 
@@ -141,7 +147,7 @@ export async function createCommentNotification(
 
   const supabase = await createClient();
 
-  await supabase.from("notifications").insert({
+  const {error} = await supabase.from("notifications").insert({
     user_id: postAuthorId,
     actor_id: actorId,
     type: "comment",
@@ -150,4 +156,6 @@ export async function createCommentNotification(
     title: "New comment",
     message: null,
   });
+
+  if (error) console.error("createCommentNotification error:", error);
 }

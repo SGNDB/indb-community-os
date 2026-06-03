@@ -113,7 +113,8 @@
     "close": "إغلاق",
     "startedFollowing": "بدأ {actorName} بمتابعتك",
     "reactedToPost": "تفاعل {actorName} مع منشورك",
-    "commentedOnPost": "علّق {actorName} على منشورك"
+    "commentedOnPost": "علّق {actorName} على منشورك",
+    "someone": "شخص ما"
   },
   "RightSidebar": {
     "trendingTopics": "المواضيع الرائجة",

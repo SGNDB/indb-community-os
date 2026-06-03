@@ -113,7 +113,8 @@
     "close": "Fermer",
     "startedFollowing": "{actorName} a commencé à vous suivre",
     "reactedToPost": "{actorName} a réagi à votre publication",
-    "commentedOnPost": "{actorName} a commenté votre publication"
+    "commentedOnPost": "{actorName} a commenté votre publication",
+    "someone": "Quelqu'un"
   },
   "RightSidebar": {
     "trendingTopics": "Sujets tendance",
