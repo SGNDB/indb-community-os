@@ -12,11 +12,9 @@ import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
 import {updateProfileAction} from "@/app/[locale]/server-actions";
+import {prepareImageForUpload, ImageUploadError} from "@/lib/images/client-compression";
+import {ACCEPTED_IMAGE_EXTENSIONS} from "@/lib/images/upload-config";
 import type {ProfileRow} from "@/types/database";
-
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
-const MAX_COVER_SIZE = 5 * 1024 * 1024;
 
 const formSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters").max(24),
@@ -37,8 +35,12 @@ interface EditProfileModalProps {
 
 export function EditProfileModal({open, onClose, profile, locale}: EditProfileModalProps) {
   const t = useTranslations("Profile");
+  const imageT = useTranslations("ImageUpload");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatar_url);
   const [coverPreview, setCoverPreview] = useState<string | null>(profile.cover_image_url);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -58,38 +60,44 @@ export function EditProfileModal({open, onClose, profile, locale}: EditProfileMo
     },
   });
 
-  function validateFile(file: File, maxSize: number): string | null {
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return "Invalid file type. Use JPG, PNG, or WebP.";
+  function getUploadErrorMessage(error: unknown) {
+    if (error instanceof ImageUploadError) {
+      return imageT(error.code);
     }
-    if (file.size > maxSize) {
-      return `File too large. Max ${maxSize / 1024 / 1024}MB.`;
-    }
-    return null;
+
+    return imageT("failed");
   }
 
-  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const error = validateFile(file, MAX_AVATAR_SIZE);
-    if (error) {
-      toast.error(error);
+    setImageUploading(true);
+    try {
+      const preparedFile = await prepareImageForUpload(file, "avatar");
+      setAvatarFile(preparedFile);
+      setAvatarPreview(URL.createObjectURL(preparedFile));
+    } catch (error) {
+      toast.error(getUploadErrorMessage(error));
       e.target.value = "";
-      return;
+    } finally {
+      setImageUploading(false);
     }
-    setAvatarPreview(URL.createObjectURL(file));
   }
 
-  function handleCoverChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleCoverChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const error = validateFile(file, MAX_COVER_SIZE);
-    if (error) {
-      toast.error(error);
+    setImageUploading(true);
+    try {
+      const preparedFile = await prepareImageForUpload(file, "cover");
+      setCoverFile(preparedFile);
+      setCoverPreview(URL.createObjectURL(preparedFile));
+    } catch (error) {
+      toast.error(getUploadErrorMessage(error));
       e.target.value = "";
-      return;
+    } finally {
+      setImageUploading(false);
     }
-    setCoverPreview(URL.createObjectURL(file));
   }
 
   async function onSubmit(values: FormValues) {
@@ -104,10 +112,7 @@ export function EditProfileModal({open, onClose, profile, locale}: EditProfileMo
     formData.set("avatarUrl", profile.avatar_url ?? "");
     formData.set("coverImageUrl", profile.cover_image_url ?? "");
 
-    const avatarFile = avatarInputRef.current?.files?.[0];
     if (avatarFile) formData.set("avatarFile", avatarFile);
-
-    const coverFile = coverInputRef.current?.files?.[0];
     if (coverFile) formData.set("coverFile", coverFile);
 
     await updateProfileAction(formData);
@@ -156,7 +161,7 @@ export function EditProfileModal({open, onClose, profile, locale}: EditProfileMo
             <input
               ref={coverInputRef}
               type="file"
-              accept=".jpg,.jpeg,.png,.webp"
+              accept={ACCEPTED_IMAGE_EXTENSIONS}
               className="hidden"
               onChange={handleCoverChange}
             />
@@ -189,7 +194,7 @@ export function EditProfileModal({open, onClose, profile, locale}: EditProfileMo
             <input
               ref={avatarInputRef}
               type="file"
-              accept=".jpg,.jpeg,.png,.webp"
+              accept={ACCEPTED_IMAGE_EXTENSIONS}
               className="hidden"
               onChange={handleAvatarChange}
             />
@@ -237,14 +242,14 @@ export function EditProfileModal({open, onClose, profile, locale}: EditProfileMo
 
           {/* Actions */}
           <div className="flex gap-3 pt-2">
-            <Button type="button" variant="ghost" onClick={onClose} className="flex-1">
+            <Button type="button" variant="ghost" onClick={onClose} className="flex-1" disabled={submitting || imageUploading}>
               {t("cancel")}
             </Button>
-            <Button type="submit" className="flex-1" disabled={submitting}>
-              {submitting ? (
+            <Button type="submit" className="flex-1" disabled={submitting || imageUploading}>
+              {submitting || imageUploading ? (
                 <span className="inline-flex items-center gap-2">
                   <Loader2 size={16} className="animate-spin" />
-                  {t("saving")}
+                  {imageUploading ? imageT("uploading") : t("saving")}
                 </span>
               ) : (
                 t("save")

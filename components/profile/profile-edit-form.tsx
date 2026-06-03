@@ -4,8 +4,9 @@ import {useRef, useState} from "react";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useTranslations} from "next-intl";
-import {Camera, Upload, X} from "lucide-react";
+import {Camera, Loader2, Upload, X} from "lucide-react";
 import {z} from "zod";
+import {toast} from "sonner";
 
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
@@ -14,6 +15,8 @@ import {Textarea} from "@/components/ui/textarea";
 import type {ProfileRow} from "@/types/database";
 import {Link} from "@/lib/i18n/routing";
 import {updateProfileAction} from "@/app/[locale]/server-actions";
+import {prepareImageForUpload, ImageUploadError} from "@/lib/images/client-compression";
+import {ACCEPTED_IMAGE_EXTENSIONS} from "@/lib/images/upload-config";
 
 const formSchema = z.object({
   username: z.string().min(3).max(24),
@@ -33,8 +36,12 @@ type ProfileFormValues = {
 
 export function ProfileEditForm({profile, locale}: {profile: ProfileRow; locale: string}) {
   const t = useTranslations("Profile");
+  const imageT = useTranslations("ImageUpload");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatar_url);
   const [coverPreview, setCoverPreview] = useState<string | null>(profile.cover_image_url);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -54,6 +61,39 @@ export function ProfileEditForm({profile, locale}: {profile: ProfileRow; locale:
     },
   });
 
+  function getUploadErrorMessage(error: unknown) {
+    if (error instanceof ImageUploadError) {
+      return imageT(error.code);
+    }
+
+    return imageT("failed");
+  }
+
+  async function handleImageChange(
+    e: React.ChangeEvent<HTMLInputElement>,
+    kind: "avatar" | "cover",
+  ) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageUploading(true);
+    try {
+      const preparedFile = await prepareImageForUpload(file, kind);
+      if (kind === "avatar") {
+        setAvatarFile(preparedFile);
+        setAvatarPreview(URL.createObjectURL(preparedFile));
+      } else {
+        setCoverFile(preparedFile);
+        setCoverPreview(URL.createObjectURL(preparedFile));
+      }
+    } catch (error) {
+      toast.error(getUploadErrorMessage(error));
+      e.target.value = "";
+    } finally {
+      setImageUploading(false);
+    }
+  }
+
   async function onSubmit(values: ProfileFormValues) {
     setSubmitting(true);
     const formData = new FormData();
@@ -66,10 +106,8 @@ export function ProfileEditForm({profile, locale}: {profile: ProfileRow; locale:
     formData.set("avatarUrl", profile.avatar_url ?? "");
     formData.set("coverImageUrl", profile.cover_image_url ?? "");
 
-    const avatarFile = avatarInputRef.current?.files?.[0];
     if (avatarFile) formData.set("avatarFile", avatarFile);
 
-    const coverFile = coverInputRef.current?.files?.[0];
     if (coverFile) formData.set("coverFile", coverFile);
 
     await updateProfileAction(formData);
@@ -135,14 +173,11 @@ export function ProfileEditForm({profile, locale}: {profile: ProfileRow; locale:
               <input
                 ref={avatarInputRef}
                 type="file"
-                accept="image/*"
+                accept={ACCEPTED_IMAGE_EXTENSIONS}
                 className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) setAvatarPreview(URL.createObjectURL(file));
-                }}
+                onChange={(e) => void handleImageChange(e, "avatar")}
               />
-              <Button type="button" variant="outline" size="sm" onClick={() => avatarInputRef.current?.click()} className="text-xs">
+              <Button type="button" variant="outline" size="sm" onClick={() => avatarInputRef.current?.click()} className="text-xs" disabled={imageUploading || submitting}>
                 {t("changeAvatar")}
               </Button>
               {avatarPreview && avatarPreview !== profile.avatar_url ? (
@@ -150,6 +185,7 @@ export function ProfileEditForm({profile, locale}: {profile: ProfileRow; locale:
                   type="button"
                   onClick={() => {
                     setAvatarPreview(profile.avatar_url);
+                    setAvatarFile(null);
                     if (avatarInputRef.current) avatarInputRef.current.value = "";
                   }}
                   className="text-muted-foreground hover:text-foreground"
@@ -169,6 +205,7 @@ export function ProfileEditForm({profile, locale}: {profile: ProfileRow; locale:
                   type="button"
                   onClick={() => {
                     setCoverPreview(null);
+                    setCoverFile(null);
                     if (coverInputRef.current) coverInputRef.current.value = "";
                   }}
                   className="absolute right-2 top-2 rounded-full bg-background/80 p-1 text-foreground hover:bg-background"
@@ -179,24 +216,28 @@ export function ProfileEditForm({profile, locale}: {profile: ProfileRow; locale:
             ) : null}
             <div className="flex items-center gap-2">
               <Upload size={16} className="shrink-0 text-muted-foreground" />
-              <Button type="button" variant="outline" size="sm" onClick={() => coverInputRef.current?.click()} className="text-xs">
+              <Button type="button" variant="outline" size="sm" onClick={() => coverInputRef.current?.click()} className="text-xs" disabled={imageUploading || submitting}>
                 {t("changeCover")}
               </Button>
               <input
                 ref={coverInputRef}
                 type="file"
-                accept="image/*"
+                accept={ACCEPTED_IMAGE_EXTENSIONS}
                 className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) setCoverPreview(URL.createObjectURL(file));
-                }}
+                onChange={(e) => void handleImageChange(e, "cover")}
               />
             </div>
           </div>
 
-          <Button type="submit" className="min-h-11 w-full" disabled={submitting}>
-            {submitting ? t("saving") : t("save")}
+          <Button type="submit" className="min-h-11 w-full" disabled={submitting || imageUploading}>
+            {submitting || imageUploading ? (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 size={16} className="animate-spin" />
+                {imageUploading ? imageT("uploading") : t("saving")}
+              </span>
+            ) : (
+              t("save")
+            )}
           </Button>
           <p className="text-center text-xs text-muted-foreground">
             <Link href="/profile" className="text-primary hover:underline">{t("cancel")}</Link>

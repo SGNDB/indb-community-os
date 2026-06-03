@@ -427,6 +427,17 @@
     "saveFailed": "Échec de l'enregistrement",
     "reactionFailed": "Échec de la réaction"
   },
+  "ImageUpload": {
+    "tooLarge": "L’image est trop volumineuse. Veuillez choisir une image plus petite.",
+    "invalidType": "Veuillez choisir une image JPG, PNG ou WebP.",
+    "uploading": "Téléversement de l’image...",
+    "success": "Image téléversée avec succès.",
+    "chooseImage": "Ajouter une image",
+    "failed": "Échec du téléversement de l’image.",
+    "compressionFailed": "Échec de la préparation de l’image.",
+    "notAuthenticated": "Veuillez vous connecter avant de téléverser une image.",
+    "noFile": "Veuillez choisir une image à téléverser."
+  },
   "Brand": {
     "title": "INDB Community OS",
     "subtitle": "I love NDB",

@@ -6,6 +6,10 @@ import {getTranslations} from "next-intl/server";
 
 import {routing} from "@/lib/i18n/routing";
 import {withLocale} from "@/lib/i18n/paths";
+import {
+  type ImageUploadKind,
+  validateCompressedImageFile,
+} from "@/lib/images/upload-config";
 import {createClient} from "@/lib/supabase/server";
 import {toggleReaction} from "@/lib/data/reactions";
 import {
@@ -169,9 +173,30 @@ async function uploadFile(
   return publicUrlData.publicUrl;
 }
 
+async function uploadImageFile(
+  file: File,
+  bucket: string,
+  userId: string,
+  kind: ImageUploadKind,
+  t: (key: "invalidType" | "tooLarge" | "failed") => string,
+): Promise<{url?: string; error?: string}> {
+  const validationError = validateCompressedImageFile(file, kind);
+  if (validationError) {
+    return {error: t(validationError)};
+  }
+
+  const url = await uploadFile(file, bucket, userId);
+  if (!url) {
+    return {error: t("failed")};
+  }
+
+  return {url};
+}
+
 export async function createPostAction(formData: FormData) {
   const locale = normalizeLocale(formData.get("locale"));
   const returnPath = getReturnPath(formData, "/feed");
+  const imageT = await getTranslations({locale, namespace: "ImageUpload"});
   const supabase = await createClient();
 
   const {
@@ -196,7 +221,11 @@ export async function createPostAction(formData: FormData) {
   let image_url: string | null = null;
   const imageFile = formData.get("imageFile");
   if (imageFile instanceof File && imageFile.size > 0) {
-    image_url = await uploadFile(imageFile, "post-media", user.id);
+    const uploaded = await uploadImageFile(imageFile, "post-media", user.id, "post", imageT);
+    if (uploaded.error) {
+      redirect(toPath(locale, appendParam(returnPath, "error", uploaded.error)));
+    }
+    image_url = uploaded.url ?? null;
   }
   if (!image_url) {
     image_url = (formData.get("imageUrl") as string | null) || null;
@@ -312,69 +341,55 @@ export async function toggleSaveAction(formData: FormData) {
   revalidatePath("/", "layout");
 }
 
-const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_AVATAR_SIZE = 2 * 1024 * 1024;
-const MAX_COVER_SIZE = 5 * 1024 * 1024;
-
 export async function uploadAvatarAction(formData: FormData): Promise<{url?: string; error?: string}> {
   const locale = normalizeLocale(formData.get("locale"));
+  const imageT = await getTranslations({locale, namespace: "ImageUpload"});
   const supabase = await createClient();
 
   const {data: {user}} = await supabase.auth.getUser();
-  if (!user) return {error: "Not authenticated"};
+  if (!user) return {error: imageT("notAuthenticated")};
 
   const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0) return {error: "No file provided"};
+  if (!(file instanceof File) || file.size === 0) return {error: imageT("noFile")};
 
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-    return {error: "Invalid format. Use JPG, PNG, or WebP."};
-  }
-  if (file.size > MAX_AVATAR_SIZE) {
-    return {error: "Image must be under 2MB."};
-  }
+  const uploaded = await uploadImageFile(file, "avatars", user.id, "avatar", imageT);
+  if (uploaded.error || !uploaded.url) return {error: uploaded.error ?? imageT("failed")};
 
-  const url = await uploadFile(file, "avatars", user.id);
-  if (!url) return {error: "Upload failed"};
-
-  const {error: dbError} = await supabase.from("profiles").update({avatar_url: url}).eq("id", user.id);
+  const {error: dbError} = await supabase.from("profiles").update({avatar_url: uploaded.url}).eq("id", user.id);
   if (dbError) return {error: dbError.message};
 
   revalidatePath(toPath(locale, "/profile"));
   revalidatePath(toPath(locale, "/feed"));
 
-  return {url};
+  return {url: uploaded.url};
 }
 
 export async function uploadCoverAction(formData: FormData): Promise<{url?: string; error?: string}> {
   const locale = normalizeLocale(formData.get("locale"));
+  const imageT = await getTranslations({locale, namespace: "ImageUpload"});
   const supabase = await createClient();
 
   const {data: {user}} = await supabase.auth.getUser();
-  if (!user) return {error: "Not authenticated"};
+  if (!user) return {error: imageT("notAuthenticated")};
 
   const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0) return {error: "No file provided"};
+  if (!(file instanceof File) || file.size === 0) return {error: imageT("noFile")};
 
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-    return {error: "Invalid format. Use JPG, PNG, or WebP."};
-  }
-  if (file.size > MAX_COVER_SIZE) {
-    return {error: "Image must be under 5MB."};
-  }
+  const uploaded = await uploadImageFile(file, "profile-covers", user.id, "cover", imageT);
+  if (uploaded.error || !uploaded.url) return {error: uploaded.error ?? imageT("failed")};
 
-  const url = await uploadFile(file, "profile-covers", user.id);
-  if (!url) return {error: "Upload failed"};
-
-  const {error: dbError} = await supabase.from("profiles").update({cover_image_url: url}).eq("id", user.id);
+  const {error: dbError} = await supabase.from("profiles").update({cover_image_url: uploaded.url}).eq("id", user.id);
   if (dbError) return {error: dbError.message};
 
   revalidatePath(toPath(locale, "/profile"));
 
-  return {url};
+  return {url: uploaded.url};
 }
 
 export async function updateProfileAction(formData: FormData) {
   const locale = normalizeLocale(formData.get("locale"));
+  const errorsT = await getTranslations({locale, namespace: "Errors"});
+  const imageT = await getTranslations({locale, namespace: "ImageUpload"});
   const supabase = await createClient();
 
   const {
@@ -399,7 +414,7 @@ export async function updateProfileAction(formData: FormData) {
     redirect(
       toPath(
         locale,
-        `/profile?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "Invalid profile")}`,
+        `/profile?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? errorsT("invalidProfile"))}`,
       ),
     );
   }
@@ -409,26 +424,20 @@ export async function updateProfileAction(formData: FormData) {
 
   const avatarFile = formData.get("avatarFile");
   if (avatarFile instanceof File && avatarFile.size > 0) {
-    if (!ALLOWED_IMAGE_TYPES.includes(avatarFile.type)) {
-      redirect(toPath(locale, "/profile?error=Invalid avatar format. Use JPG, PNG, or WebP."));
+    const uploaded = await uploadImageFile(avatarFile, "avatars", user.id, "avatar", imageT);
+    if (uploaded.error) {
+      redirect(toPath(locale, appendParam("/profile", "error", uploaded.error)));
     }
-    if (avatarFile.size > MAX_AVATAR_SIZE) {
-      redirect(toPath(locale, "/profile?error=Avatar must be under 2MB."));
-    }
-    const uploaded = await uploadFile(avatarFile, "avatars", user.id);
-    if (uploaded) avatarUrl = uploaded;
+    avatarUrl = uploaded.url ?? avatarUrl;
   }
 
   const coverFile = formData.get("coverFile");
   if (coverFile instanceof File && coverFile.size > 0) {
-    if (!ALLOWED_IMAGE_TYPES.includes(coverFile.type)) {
-      redirect(toPath(locale, "/profile?error=Invalid cover format. Use JPG, PNG, or WebP."));
+    const uploaded = await uploadImageFile(coverFile, "profile-covers", user.id, "cover", imageT);
+    if (uploaded.error) {
+      redirect(toPath(locale, appendParam("/profile", "error", uploaded.error)));
     }
-    if (coverFile.size > MAX_COVER_SIZE) {
-      redirect(toPath(locale, "/profile?error=Cover image must be under 5MB."));
-    }
-    const uploaded = await uploadFile(coverFile, "profile-covers", user.id);
-    if (uploaded) coverImageUrl = uploaded;
+    coverImageUrl = uploaded.url ?? coverImageUrl;
   }
 
   const {error} = await supabase.from("profiles").upsert({
@@ -452,6 +461,8 @@ export async function updateProfileAction(formData: FormData) {
 
 export async function submitMemoryAction(formData: FormData) {
   const locale = normalizeLocale(formData.get("locale"));
+  const errorsT = await getTranslations({locale, namespace: "Errors"});
+  const imageT = await getTranslations({locale, namespace: "ImageUpload"});
   const supabase = await createClient();
 
   const {
@@ -475,7 +486,7 @@ export async function submitMemoryAction(formData: FormData) {
     redirect(
       toPath(
         locale,
-        `/memory/submit?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "Invalid memory")}`,
+        `/memory/submit?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? errorsT("invalidMemory"))}`,
       ),
     );
   }
@@ -483,7 +494,11 @@ export async function submitMemoryAction(formData: FormData) {
   let media_url: string | null = null;
   const mediaFile = formData.get("media");
   if (mediaFile instanceof File && mediaFile.size > 0) {
-    media_url = await uploadFile(mediaFile, "memory-archive", user.id);
+    const uploaded = await uploadImageFile(mediaFile, "memory-archive", user.id, "memory", imageT);
+    if (uploaded.error) {
+      redirect(toPath(locale, appendParam("/memory/submit", "error", uploaded.error)));
+    }
+    media_url = uploaded.url ?? null;
   }
 
   const {data: memory, error} = await supabase
@@ -515,6 +530,8 @@ export async function submitMemoryAction(formData: FormData) {
 
 export async function submitIdeaAction(formData: FormData) {
   const locale = normalizeLocale(formData.get("locale"));
+  const errorsT = await getTranslations({locale, namespace: "Errors"});
+  const imageT = await getTranslations({locale, namespace: "ImageUpload"});
   const supabase = await createClient();
 
   const {
@@ -535,7 +552,7 @@ export async function submitIdeaAction(formData: FormData) {
     redirect(
       toPath(
         locale,
-        `/ideas/submit?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? "Invalid idea")}`,
+        `/ideas/submit?error=${encodeURIComponent(parsed.error.issues[0]?.message ?? errorsT("invalidIdea"))}`,
       ),
     );
   }
@@ -543,7 +560,11 @@ export async function submitIdeaAction(formData: FormData) {
   let image_url: string | null = null;
   const imageFile = formData.get("imageFile");
   if (imageFile instanceof File && imageFile.size > 0) {
-    image_url = await uploadFile(imageFile, "post-media", user.id);
+    const uploaded = await uploadImageFile(imageFile, "post-media", user.id, "post", imageT);
+    if (uploaded.error) {
+      redirect(toPath(locale, appendParam("/ideas/submit", "error", uploaded.error)));
+    }
+    image_url = uploaded.url ?? null;
   }
 
   await supabase.from("ideas").insert({

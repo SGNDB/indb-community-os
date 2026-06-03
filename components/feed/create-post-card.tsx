@@ -4,7 +4,7 @@ import {useState} from "react";
 import {motion} from "framer-motion";
 import {CalendarDays, ImagePlus, Images, Lightbulb, X} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
-import {useFormStatus} from "react-dom";
+import {toast} from "sonner";
 
 import {UserAvatar} from "@/components/layout/user-avatar";
 import {Button} from "@/components/ui/button";
@@ -12,9 +12,10 @@ import {Card, CardContent} from "@/components/ui/card";
 import {Textarea} from "@/components/ui/textarea";
 import {usePathname} from "@/lib/i18n/routing";
 import {createPostAction} from "@/app/[locale]/server-actions";
+import {prepareImageForUpload, ImageUploadError} from "@/lib/images/client-compression";
+import {ACCEPTED_IMAGE_EXTENSIONS} from "@/lib/images/upload-config";
 
-function SubmitButton({label, loading}: {label: string; loading: string}) {
-  const {pending} = useFormStatus();
+function SubmitButton({label, loading, pending}: {label: string; loading: string; pending: boolean}) {
   return (
     <Button type="submit" className="min-h-11" disabled={pending}>
       {pending ? loading : label}
@@ -24,11 +25,56 @@ function SubmitButton({label, loading}: {label: string; loading: string}) {
 
 export function CreatePostCard({avatarUrl}: {avatarUrl?: string | null}) {
   const t = useTranslations("FeedComposer");
+  const imageT = useTranslations("ImageUpload");
   const locale = useLocale();
   const pathname = usePathname();
   const [showForm, setShowForm] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const returnPath = pathname || "/feed";
+
+  function getUploadErrorMessage(error: unknown) {
+    if (error instanceof ImageUploadError) {
+      return imageT(error.code);
+    }
+
+    return imageT("failed");
+  }
+
+  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageUploading(true);
+    try {
+      const preparedFile = await prepareImageForUpload(file, "post");
+      setImageFile(preparedFile);
+      setImagePreview(URL.createObjectURL(preparedFile));
+    } catch (error) {
+      toast.error(getUploadErrorMessage(error));
+      e.target.value = "";
+    } finally {
+      setImageUploading(false);
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSubmitting(true);
+
+    const formData = new FormData(e.currentTarget);
+    if (imageFile) {
+      formData.set("imageFile", imageFile);
+    }
+
+    try {
+      await createPostAction(formData);
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   if (!showForm) {
     return (
@@ -82,7 +128,7 @@ export function CreatePostCard({avatarUrl}: {avatarUrl?: string | null}) {
             <X size={18} />
           </button>
         </div>
-        <form action={createPostAction} className="space-y-3" encType="multipart/form-data">
+        <form onSubmit={(e) => void handleSubmit(e)} className="space-y-3" encType="multipart/form-data">
           <input type="hidden" name="locale" value={locale} />
           <input type="hidden" name="returnTo" value={returnPath} />
           <Textarea name="content" placeholder={t("socialPrompt")} required />
@@ -105,12 +151,9 @@ export function CreatePostCard({avatarUrl}: {avatarUrl?: string | null}) {
               <input
                 name="imageFile"
                 type="file"
-                accept="image/*"
+                accept={ACCEPTED_IMAGE_EXTENSIONS}
                 className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) setImagePreview(URL.createObjectURL(file));
-                }}
+                onChange={(e) => void handleImageChange(e)}
               />
             </label>
           </div>
@@ -121,6 +164,7 @@ export function CreatePostCard({avatarUrl}: {avatarUrl?: string | null}) {
                 type="button"
                 onClick={() => {
                   setImagePreview(null);
+                  setImageFile(null);
                   const input = document.querySelector<HTMLInputElement>('input[name="imageFile"]');
                   if (input) input.value = "";
                 }}
@@ -131,10 +175,10 @@ export function CreatePostCard({avatarUrl}: {avatarUrl?: string | null}) {
             </div>
           ) : null}
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => setShowForm(false)} className="min-h-11">
+            <Button type="button" variant="outline" onClick={() => setShowForm(false)} className="min-h-11" disabled={submitting || imageUploading}>
               {t("cancel")}
             </Button>
-            <SubmitButton label={t("post")} loading={t("posting")} />
+            <SubmitButton label={t("post")} loading={imageUploading ? imageT("uploading") : t("posting")} pending={submitting || imageUploading} />
           </div>
         </form>
       </CardContent>

@@ -427,6 +427,17 @@
     "saveFailed": "فشل الحفظ",
     "reactionFailed": "فشل تحديث التفاعل"
   },
+  "ImageUpload": {
+    "tooLarge": "الصورة كبيرة جدًا. يرجى اختيار صورة أصغر.",
+    "invalidType": "يرجى اختيار صورة JPG أو PNG أو WebP.",
+    "uploading": "جارٍ رفع الصورة...",
+    "success": "تم رفع الصورة بنجاح.",
+    "chooseImage": "إضافة صورة",
+    "failed": "فشل رفع الصورة.",
+    "compressionFailed": "فشل تجهيز الصورة للرفع.",
+    "notAuthenticated": "يرجى تسجيل الدخول قبل رفع الصورة.",
+    "noFile": "يرجى اختيار صورة لرفعها."
+  },
   "Brand": {
     "title": "INDB Community OS",
     "subtitle": "I love NDB",
