@@ -7,7 +7,6 @@ import {toast} from "sonner";
 
 import {shareIdeaAction} from "@/app/[locale]/server-actions";
 import {IdeaComments} from "@/components/ideas/idea-comments";
-import {IdeaStatusBadge} from "@/components/ideas/idea-status-badge";
 import {VoteButton} from "@/components/ideas/vote-button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import type {IdeaBadge, IdeaWithAuthor} from "@/types/database";
@@ -77,7 +76,7 @@ export function IdeaCard({idea, totalUsers}: IdeaCardProps) {
           </div>
         ) : null}
         <CardHeader className="pb-2.5">
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex items-start gap-2">
             <CardTitle className="inline-flex items-center gap-2 text-[15px] sm:text-base">
               {rank ? (
                 <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#0F4C75] to-[#27C5D8] text-[10px] font-bold text-white">
@@ -87,7 +86,6 @@ export function IdeaCard({idea, totalUsers}: IdeaCardProps) {
               <Lightbulb size={16} className="shrink-0" />
               <span>{idea.title}</span>
             </CardTitle>
-            <IdeaStatusBadge status={idea.status} />
           </div>
         </CardHeader>
         <CardContent className="space-y-3 pt-0 sm:space-y-3">
