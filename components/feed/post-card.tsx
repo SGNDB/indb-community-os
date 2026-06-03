@@ -56,15 +56,6 @@ function getCategorySlug(
   return post.category.name_en;
 }
 
-function CommentSubmitButton({loading}: {loading: string}) {
-  const {pending} = useFormStatus();
-  return (
-    <Button type="submit" size="icon" className="shrink-0" disabled={pending}>
-      {pending ? <span className="text-xs">{loading}</span> : <Send size={14} />}
-    </Button>
-  );
-}
-
 function DeletePostButton() {
   const {pending} = useFormStatus();
   return (

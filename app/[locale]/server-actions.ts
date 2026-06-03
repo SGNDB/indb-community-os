@@ -303,8 +303,6 @@ export async function addCommentAction(formData: FormData) {
 export async function submitCommentAction(
   formData: FormData,
 ): Promise<{success: boolean; error?: string}> {
-  const locale = normalizeLocale(formData.get("locale"));
-  const returnPath = getReturnPath(formData, "/feed");
   const postId = formData.get("postId");
   const supabase = await createClient();
 
