@@ -65,7 +65,8 @@ export function IdeaCard({idea, totalUsers}: IdeaCardProps) {
 
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
   const authorUsername = idea.author?.username;
-  const isOwner = currentUserId != null && idea.author_id === currentUserId;
+  const authorId = idea.author?.id ?? idea.author_id;
+  const isOwner = currentUserId != null && authorId === currentUserId;
 
   const ideaExtra = idea as IdeaWithAuthor & {supportPercentage?: number; badge?: IdeaBadge};
   const supportPercentage = ideaExtra.supportPercentage ?? 0;
@@ -133,6 +134,10 @@ export function IdeaCard({idea, totalUsers}: IdeaCardProps) {
               <Lightbulb size={16} className="shrink-0" />
               <span className="truncate">{idea.title}</span>
             </CardTitle>
+
+            <span className="text-[9px] text-muted-foreground/40 shrink-0">
+              uid:{currentUserId?.slice(0,6) ?? "null"} aid:{authorId?.slice(0,6) ?? "null"}
+            </span>
             {isOwner ? (
               <div className="flex items-center gap-0.5 shrink-0">
                 <Link href={`/ideas/submit?id=${idea.id}`}>
