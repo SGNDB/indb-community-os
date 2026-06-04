@@ -74,8 +74,10 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const descRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -86,6 +88,24 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const el = descRef.current;
+    if (!el) return;
+
+    function check() {
+      setIsOverflowing(el!.scrollHeight > el!.clientHeight);
+    }
+
+    if (!expanded) check();
+
+    const ro = new ResizeObserver(() => {
+      if (!expanded) check();
+    });
+    ro.observe(el);
+
+    return () => ro.disconnect();
+  }, [idea.description, expanded]);
 
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
   const authorUsername = idea.author?.username;
@@ -197,20 +217,25 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
         </CardHeader>
         <CardContent className="space-y-3 pt-0 sm:space-y-3">
           <div>
-            <p className={"text-sm text-muted-foreground leading-relaxed break-words [overflow-wrap:anywhere] " + (expanded ? "" : "line-clamp-3")}>
+            <p
+              ref={descRef}
+              className={"text-sm text-muted-foreground leading-relaxed break-words [overflow-wrap:anywhere] " + (expanded ? "" : "line-clamp-3")}
+            >
               {idea.description}
             </p>
-            <button
-              type="button"
-              onClick={() => setExpanded((p) => !p)}
-              className="mt-0.5 inline-flex items-center gap-1 text-xs text-primary hover:underline"
-            >
-              {expanded ? (
-                <><ChevronUp size={12} />{t("showLess")}</>
-              ) : (
-                <><ChevronDown size={12} />{t("showMore")}</>
-              )}
-            </button>
+            {isOverflowing ? (
+              <button
+                type="button"
+                onClick={() => setExpanded((p) => !p)}
+                className="mt-0.5 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+              >
+                {expanded ? (
+                  <><ChevronUp size={12} />{t("showLess")}</>
+                ) : (
+                  <><ChevronDown size={12} />{t("showMore")}</>
+                )}
+              </button>
+            ) : null}
           </div>
 
           <div className="flex flex-col gap-1 text-xs text-muted-foreground">
