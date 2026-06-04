@@ -278,7 +278,7 @@ export function ProfileClient({
               ideas.length > 0 ? (
                 <div className="space-y-3 sm:space-y-4">
                   {ideas.map((idea) => (
-                    <IdeaCard key={idea.id} idea={idea} />
+                    <IdeaCard key={idea.id} idea={idea} currentUserId={currentUserId} />
                   ))}
                 </div>
               ) : (

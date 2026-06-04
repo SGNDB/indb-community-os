@@ -9,6 +9,7 @@ import {TopIdeaRow} from "@/components/ideas/top-idea-row";
 import {EmptyState} from "@/components/shared/empty-state";
 import {Link} from "@/lib/i18n/routing";
 import {getIdeas} from "@/lib/data/ideas";
+import {createClient} from "@/lib/supabase/server";
 import type {IdeaBadge} from "@/types/database";
 
 const badgeStyles: Record<IdeaBadge, string> = {
@@ -53,6 +54,12 @@ export default async function IdeasPage({
   const t = await getTranslations({locale, namespace: "Ideas"});
   const empty = await getTranslations({locale, namespace: "EmptyStates.ideas"});
   const {ideas, totalUsers} = await getIdeas();
+
+  const supabase = await createClient();
+  const {
+    data: {user: currentUser},
+  } = await supabase.auth.getUser();
+  const serverCurrentUserId = currentUser?.id ?? null;
 
   const topIdeas = ideas.filter((i) => i.rank !== null).slice(0, 10);
 
@@ -108,7 +115,7 @@ export default async function IdeasPage({
         <div className="space-y-3 sm:space-y-4">
           <h2 className="text-base font-semibold px-0.5">{t("allIdeas")}</h2>
           {ideas.map((idea) => (
-            <IdeaCard key={idea.id} idea={idea} totalUsers={totalUsers} />
+            <IdeaCard key={idea.id} idea={idea} totalUsers={totalUsers} currentUserId={serverCurrentUserId} />
           ))}
         </div>
       ) : (

@@ -243,7 +243,9 @@
       "category": "Please choose a category."
     },
     "submitting": "Submitting...",
-    "submit": "Submit memory"
+    "submit": "Submit memory",
+    "cancel": "Cancel",
+    "successMessage": "Memory submitted successfully"
   },
   "Ideas": {
     "title": "Community Ideas",
@@ -304,7 +306,9 @@
       "category": "Please choose a category."
     },
     "submitting": "Submitting...",
-    "submit": "Submit idea"
+    "submit": "Submit idea",
+    "cancel": "Cancel",
+    "successMessage": "Idea submitted successfully"
   },
   "Events": {
     "title": "Community Events",
@@ -565,5 +569,11 @@
       "description": "Start a citizen project and bring the community together around local action.",
       "cta": "Explore feed"
     }
+  },
+  "ConfirmDialog": {
+    "title": "Discard changes?",
+    "message": "Your changes will not be saved.",
+    "keepEditing": "Keep editing",
+    "discard": "Discard"
   }
 }

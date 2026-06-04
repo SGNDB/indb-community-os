@@ -4,7 +4,6 @@ import {motion} from "framer-motion";
 import {CalendarDays, Edit3, Lightbulb, Loader2, Share2, Trash2, X} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
 import {useState} from "react";
-import {useFormStatus} from "react-dom";
 import {toast} from "sonner";
 
 import {deleteIdeaAction, shareIdeaAction} from "@/app/[locale]/server-actions";
@@ -13,7 +12,7 @@ import {VoteButton} from "@/components/ideas/vote-button";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {useCurrentUser} from "@/hooks/use-current-user";
-import {Link} from "@/lib/i18n/routing";
+import {Link, useRouter} from "@/lib/i18n/routing";
 import type {IdeaBadge, IdeaWithAuthor} from "@/types/database";
 
 interface IdeaCardProps {
@@ -43,11 +42,10 @@ function AuthorAvatar({author}: {author: IdeaWithAuthor["author"]}) {
   );
 }
 
-function DeleteIdeaButton() {
-  const {pending} = useFormStatus();
+function DeleteIdeaButton({deleting}: {deleting: boolean}) {
   return (
-    <Button type="submit" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" disabled={pending}>
-      {pending ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+    <Button type="submit" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" disabled={deleting}>
+      {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
     </Button>
   );
 }
@@ -55,14 +53,28 @@ function DeleteIdeaButton() {
 export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
   const t = useTranslations("Ideas");
   const locale = useLocale();
+  const router = useRouter();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
   const authorUsername = idea.author?.username;
 
   const {userId: clientUserId, loading} = useCurrentUser();
-  const resolvedUserId = currentUserId !== undefined ? currentUserId : clientUserId;
-  const isOwner = !!resolvedUserId && !!idea.author_id && resolvedUserId === idea.author_id;
-  const canShowActions = isOwner && !(currentUserId === undefined && loading);
+  const effectiveCurrentUserId = currentUserId ?? clientUserId ?? null;
+  const isOwner = !!effectiveCurrentUserId && !!idea.author_id && effectiveCurrentUserId === idea.author_id;
+  const canShowActions = isOwner && !loading;
+
+  if (process.env.NODE_ENV === "development") {
+    console.log({
+      currentUserId,
+      clientUserId,
+      effectiveCurrentUserId,
+      ideaAuthorId: idea.author_id,
+      isOwner,
+      ideaId: idea.id,
+      loading,
+    });
+  }
 
   const ideaExtra = idea as IdeaWithAuthor & {supportPercentage?: number; badge?: IdeaBadge};
   const supportPercentage = ideaExtra.supportPercentage ?? 0;
@@ -205,13 +217,24 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
                 {t("cancel")}
               </Button>
               <form
-                action={deleteIdeaAction}
-                onSubmit={() => setShowDeleteConfirm(false)}
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setShowDeleteConfirm(false);
+                  setDeleting(true);
+                  const formData = new FormData();
+                  formData.set("locale", locale);
+                  formData.set("ideaId", idea.id);
+                  const result = await deleteIdeaAction(formData);
+                  setDeleting(false);
+                  if (result.success) {
+                    toast.success(t("ideaDeleted") ?? "Idea deleted");
+                    router.refresh();
+                  } else {
+                    toast.error(t("deleteFailed") ?? result.error ?? "Failed to delete");
+                  }
+                }}
               >
-                <input type="hidden" name="locale" value={locale} />
-                <input type="hidden" name="ideaId" value={idea.id} />
-                <input type="hidden" name="returnTo" value="/ideas" />
-                <DeleteIdeaButton />
+                <DeleteIdeaButton deleting={deleting} />
               </form>
             </div>
           </div>

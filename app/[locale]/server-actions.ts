@@ -842,24 +842,20 @@ export async function updateIdeaAction(formData: FormData) {
   redirect(toPath(locale, "/ideas?ideaUpdated=1"));
 }
 
-export async function deleteIdeaAction(formData: FormData) {
-  const locale = normalizeLocale(formData.get("locale"));
-  const returnPath = getReturnPath(formData, "/ideas");
+export async function deleteIdeaAction(
+  formData: FormData,
+): Promise<{success: boolean; error?: string}> {
   const supabase = await createClient();
 
   const {
     data: {user},
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect(toPath(locale, `/login?next=${encodeURIComponent(returnPath)}`));
-  }
+  if (!user) return {success: false, error: "unauthorized"};
 
   const ideaId = formData.get("ideaId");
 
-  if (typeof ideaId !== "string") {
-    redirect(toPath(locale, returnPath));
-  }
+  if (typeof ideaId !== "string") return {success: false, error: "invalid_id"};
 
   const {data: idea} = await supabase
     .from("ideas")
@@ -867,14 +863,20 @@ export async function deleteIdeaAction(formData: FormData) {
     .eq("id", ideaId)
     .single();
 
-  if (!idea || idea.author_id !== user.id) {
-    redirect(toPath(locale, returnPath));
-  }
+  if (!idea) return {success: false, error: "not_found"};
+  if (idea.author_id !== user.id) return {success: false, error: "forbidden"};
+
+  await supabase
+    .from("notifications")
+    .delete()
+    .eq("entity_type", "idea")
+    .eq("entity_id", ideaId);
 
   await supabase.from("ideas").delete().eq("id", ideaId);
 
-  revalidatePath(toPath(locale, returnPath));
-  redirect(toPath(locale, "/ideas?ideaDeleted=1"));
+  revalidatePath("/", "layout");
+
+  return {success: true};
 }
 
 export async function deletePostAction(formData: FormData) {

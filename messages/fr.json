@@ -243,7 +243,9 @@
       "category": "Veuillez choisir une catégorie."
     },
     "submitting": "Envoi...",
-    "submit": "Soumettre le souvenir"
+    "submit": "Soumettre le souvenir",
+    "cancel": "Annuler",
+    "successMessage": "Souvenir soumis avec succès"
   },
   "Ideas": {
     "title": "Idées de la communauté",
@@ -304,7 +306,9 @@
       "category": "Veuillez choisir une catégorie."
     },
     "submitting": "Envoi...",
-    "submit": "Soumettre l'idée"
+    "submit": "Soumettre l'idée",
+    "cancel": "Annuler",
+    "successMessage": "Idée soumise avec succès"
   },
   "Events": {
     "title": "Événements communautaires",
@@ -565,5 +569,11 @@
       "description": "Lancez un projet citoyen et rassemblez la communauté autour d'une action locale.",
       "cta": "Explorer le fil"
     }
+  },
+  "ConfirmDialog": {
+    "title": "Annuler les modifications ?",
+    "message": "Vos modifications ne seront pas enregistrées.",
+    "keepEditing": "Continuer la modification",
+    "discard": "Ignorer"
   }
 }

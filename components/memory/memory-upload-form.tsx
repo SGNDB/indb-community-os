@@ -1,8 +1,9 @@
 "use client";
 
 import {useTranslations} from "next-intl";
-import {ImagePlus, X} from "lucide-react";
-import {useEffect, useRef, useState} from "react";
+import {ImagePlus, Loader2, X} from "lucide-react";
+import {useRef, useState} from "react";
+import {useRouter} from "@/lib/i18n/routing";
 import {toast} from "sonner";
 
 import {Button} from "@/components/ui/button";
@@ -20,31 +21,28 @@ export function MemoryUploadForm({
 }) {
   const t = useTranslations("MemoryForm");
   const imageT = useTranslations("ImageUpload");
+  const confirmT = useTranslations("ConfirmDialog");
+  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
+
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [dirty, setDirty] = useState(false);
 
-  useEffect(() => {
-    const form = formRef.current;
-    if (!form) return;
+  const [titleError, setTitleError] = useState<string | null>(null);
+  const [descError, setDescError] = useState<string | null>(null);
 
-    function handleFormData(e: Event) {
-      const event = e as unknown as {formData: FormData};
-      if (mediaFile) {
-        event.formData.set("media", mediaFile);
-      }
-    }
-
-    form.addEventListener("formdata" as keyof HTMLElementEventMap, handleFormData as EventListener);
-    return () => form.removeEventListener("formdata" as keyof HTMLElementEventMap, handleFormData as EventListener);
-  }, [mediaFile]);
+  const markDirty = () => {
+    if (!dirty) setDirty(true);
+  };
 
   function getUploadErrorMessage(error: unknown) {
     if (error instanceof ImageUploadError) {
       return imageT(error.code);
     }
-
     return imageT("failed");
   }
 
@@ -53,6 +51,7 @@ export function MemoryUploadForm({
     if (!file) return;
 
     setImageUploading(true);
+    markDirty();
     try {
       const preparedFile = await prepareImageForUpload(file, "memory");
       setMediaFile(preparedFile);
@@ -65,53 +64,195 @@ export function MemoryUploadForm({
     }
   }
 
+  function handleRemoveImage() {
+    setImagePreview(null);
+    setMediaFile(null);
+    const input = document.querySelector<HTMLInputElement>('input[name="media"]');
+    if (input) input.value = "";
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (submitting || imageUploading) return;
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    if (mediaFile) {
+      formData.set("media", mediaFile);
+    }
+    formData.set("locale", locale);
+
+    const title = (formData.get("title") as string)?.trim();
+    const description = (formData.get("description") as string)?.trim();
+
+    let hasError = false;
+    setTitleError(null);
+    setDescError(null);
+
+    if (!title || title.length < 4) {
+      setTitleError(t("errors.title"));
+      hasError = true;
+    }
+    if (!description || description.length < 10) {
+      setDescError(t("errors.story"));
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    setSubmitting(true);
+
+    await submitMemoryAction(formData);
+  }
+
+  function handleCancel() {
+    if (dirty) {
+      setShowConfirm(true);
+    } else {
+      router.push(`/${locale}/memory`);
+    }
+  }
+
+  function handleDiscard() {
+    setShowConfirm(false);
+    setDirty(false);
+    router.push(`/${locale}/memory`);
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("title")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form ref={formRef} action={submitMemoryAction} className="space-y-3" encType="multipart/form-data">
-          <input type="hidden" name="locale" value={locale} />
-          <Input name="title" placeholder={t("fields.title")} required />
-          <Textarea name="description" placeholder={t("fields.story")} required />
-          <Input name="decade" placeholder={t("fields.eraLabel")} />
-          <Input name="year" type="number" placeholder="Year (e.g. 1984)" />
-          <Input name="location" placeholder={t("fields.location")} />
-          <Input name="tags" placeholder="Tags (comma separated)" />
-          <label className="flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-border bg-card px-3 text-sm text-muted-foreground hover:text-foreground">
-            <ImagePlus size={16} />
-            {imageUploading ? imageT("uploading") : imageT("chooseImage")}
-            <input
-              name="media"
-              type="file"
-              accept={ACCEPTED_IMAGE_EXTENSIONS}
-              className="hidden"
-              onChange={(e) => void handleImageChange(e)}
-            />
-          </label>
-          {imagePreview ? (
-            <div className="relative overflow-hidden rounded-xl bg-muted">
-              <img src={imagePreview} alt="" className="max-h-56 w-full object-contain" />
-              <button
-                type="button"
-                onClick={() => {
-                  setImagePreview(null);
-                  setMediaFile(null);
-                  const input = document.querySelector<HTMLInputElement>('input[name="media"]');
-                  if (input) input.value = "";
-                }}
-                className="absolute right-2 top-2 rounded-full bg-background/80 p-1 text-foreground hover:bg-background"
-              >
-                <X size={14} />
-              </button>
+    <>
+      {showConfirm ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setShowConfirm(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-card p-6 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold">{confirmT("title")}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">{confirmT("message")}</p>
+            <div className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+              <Button variant="outline" onClick={() => setShowConfirm(false)}>
+                {confirmT("keepEditing")}
+              </Button>
+              <Button variant="destructive" onClick={handleDiscard}>
+                {confirmT("discard")}
+              </Button>
             </div>
-          ) : null}
-          <Button type="submit" className="min-h-11 w-full" disabled={imageUploading}>
-            {imageUploading ? imageT("uploading") : t("submit")}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+          </div>
+        </div>
+      ) : null}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("title")}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
+            <input type="hidden" name="locale" value={locale} />
+
+            <div>
+              <Input
+                name="title"
+                placeholder={t("fields.title")}
+                onChange={markDirty}
+              />
+              {titleError ? (
+                <p className="mt-1 text-xs text-destructive">{titleError}</p>
+              ) : null}
+            </div>
+
+            <div>
+              <Textarea
+                name="description"
+                placeholder={t("fields.story")}
+                onChange={markDirty}
+              />
+              {descError ? (
+                <p className="mt-1 text-xs text-destructive">{descError}</p>
+              ) : null}
+            </div>
+
+            <Input
+              name="decade"
+              placeholder={t("fields.eraLabel")}
+              onChange={markDirty}
+            />
+
+            <Input
+              name="year"
+              type="number"
+              placeholder="Year (e.g. 1984)"
+              onChange={markDirty}
+            />
+
+            <Input
+              name="location"
+              placeholder={t("fields.location")}
+              onChange={markDirty}
+            />
+
+            <Input
+              name="tags"
+              placeholder="Tags (comma separated)"
+              onChange={markDirty}
+            />
+
+            <label className="flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-border bg-card px-3 text-sm text-muted-foreground hover:text-foreground">
+              <ImagePlus size={16} />
+              {imageUploading ? imageT("uploading") : imageT("chooseImage")}
+              <input
+                name="media"
+                type="file"
+                accept={ACCEPTED_IMAGE_EXTENSIONS}
+                className="hidden"
+                onChange={(e) => void handleImageChange(e)}
+              />
+            </label>
+
+            {imagePreview ? (
+              <div className="relative overflow-hidden rounded-xl bg-muted">
+                <img src={imagePreview} alt="" className="max-h-56 w-full object-contain" />
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute right-2 top-2 rounded-full bg-background/80 p-1 text-foreground hover:bg-background"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : null}
+
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancel}
+                disabled={submitting}
+                className="w-full sm:w-auto"
+              >
+                {t("cancel")}
+              </Button>
+              <Button
+                type="submit"
+                disabled={submitting || imageUploading}
+                className="w-full sm:w-auto"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    {t("submitting")}
+                  </>
+                ) : (
+                  t("submit")
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </>
   );
 }
