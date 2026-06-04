@@ -1,6 +1,7 @@
 import {Lightbulb, Plus, Trophy} from "lucide-react";
 import type {Metadata} from "next";
 import {getTranslations} from "next-intl/server";
+import type {ReactNode} from "react";
 
 import {IdeasToastHandler} from "@/components/ideas/ideas-toast-handler";
 import {IdeaCard} from "@/components/ideas/idea-card";
@@ -8,6 +9,23 @@ import {TopIdeaRow} from "@/components/ideas/top-idea-row";
 import {EmptyState} from "@/components/shared/empty-state";
 import {Link} from "@/lib/i18n/routing";
 import {getIdeas} from "@/lib/data/ideas";
+import type {IdeaBadge} from "@/types/database";
+
+const badgeStyles: Record<IdeaBadge, string> = {
+  new_idea: "bg-sky-50 text-sky-700 dark:bg-sky-900/20 dark:text-sky-400",
+  growing_support: "bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400",
+  popular: "bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400",
+  community_priority: "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400",
+  top_priority: "bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400",
+};
+
+const badgeTranslationKeys: Record<IdeaBadge, string> = {
+  new_idea: "badgeNewIdea",
+  growing_support: "badgeGrowingSupport",
+  popular: "badgePopular",
+  community_priority: "badgeCommunityPriority",
+  top_priority: "badgeTopPriority",
+};
 
 export async function generateMetadata({
   params,
@@ -41,6 +59,17 @@ export default async function IdeasPage({
   const topIds = new Set(topIdeas.map((i) => i.id));
   const mainIdeas = ideas.filter((i) => !topIds.has(i.id));
 
+  function renderBadge(idea: (typeof ideas)[number]): ReactNode {
+    if (!idea.badge) return null;
+    const badgeKey = badgeTranslationKeys[idea.badge as IdeaBadge];
+    if (!badgeKey) return null;
+    return (
+      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium hidden sm:inline ${badgeStyles[idea.badge as IdeaBadge]}`}>
+        {t(badgeKey)}
+      </span>
+    );
+  }
+
   return (
     <div className="space-y-3 sm:space-y-4">
       <IdeasToastHandler ideaUpdated={!!sp.ideaUpdated} ideaDeleted={!!sp.ideaDeleted} />
@@ -68,9 +97,12 @@ export default async function IdeasPage({
             <h2 className="text-base font-semibold">{t("top10PopularIdeas")}</h2>
           </div>
           <div className="flex gap-2.5 overflow-x-auto pb-1 sm:flex-col snap-x snap-mandatory scrollbar-none">
-            {topIdeas.map((idea) => (
-              <TopIdeaRow key={idea.id} idea={idea} />
-            ))}
+            {topIdeas.map((idea) => {
+              const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
+              return (
+                <TopIdeaRow key={idea.id} idea={idea} authorName={authorName} badgeEl={renderBadge(idea)} />
+              );
+            })}
           </div>
         </section>
       ) : null}
