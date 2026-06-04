@@ -110,14 +110,14 @@ export function MemoryUploadForm({
     if (dirty) {
       setShowConfirm(true);
     } else {
-      router.push(`/${locale}/memory`);
+      router.push("/memory");
     }
   }
 
   function handleDiscard() {
     setShowConfirm(false);
     setDirty(false);
-    router.push(`/${locale}/memory`);
+    router.push("/memory");
   }
 
   return (

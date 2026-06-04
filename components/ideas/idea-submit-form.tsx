@@ -129,14 +129,14 @@ export function IdeaSubmitForm({
     if (dirty) {
       setShowConfirm(true);
     } else {
-      router.push(`/${locale}/ideas`);
+      router.push("/ideas");
     }
   }
 
   function handleDiscard() {
     setShowConfirm(false);
     setDirty(false);
-    router.push(`/${locale}/ideas`);
+    router.push("/ideas");
   }
 
   return (
