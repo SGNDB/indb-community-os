@@ -107,6 +107,7 @@ export default async function IdeasPage({
   const supabase = await createClient();
   const {data: {user}} = await supabase.auth.getUser();
   const currentUserId = user?.id ?? null;
+  const currentUserEmail = user?.email ?? null;
 
   const topIdeas = ideas.filter((i) => i.rank !== null).slice(0, 10);
 
@@ -116,6 +117,10 @@ export default async function IdeasPage({
   return (
     <div className="space-y-3 sm:space-y-4">
       <IdeasToastHandler ideaUpdated={!!sp.ideaUpdated} ideaDeleted={!!sp.ideaDeleted} />
+
+      <div className="rounded-2xl border border-destructive/50 bg-destructive/10 p-3 text-xs font-mono">
+        DEBUG: currentUserId={currentUserId ?? "null"} currentUserEmail={currentUserEmail ?? "null"} firstIdeaAuthorId={ideas[0]?.author_id ?? "no ideas"}
+      </div>
 
       <div className="rounded-2xl border border-border/70 bg-card p-3.5 sm:p-4">
         <div className="flex items-start justify-between gap-3">
