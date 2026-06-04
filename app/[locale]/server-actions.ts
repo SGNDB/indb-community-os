@@ -251,6 +251,70 @@ export async function createPostAction(formData: FormData) {
   redirect(toPath(locale, appendParam(returnPath, "postCreated", "1")));
 }
 
+export async function updatePostAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const imageT = await getTranslations({locale, namespace: "ImageUpload"});
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(toPath(locale, "/login"));
+  }
+
+  const postId = formData.get("postId");
+  if (typeof postId !== "string") {
+    redirect(toPath(locale, "/feed"));
+  }
+
+  const {data: existing} = await supabase
+    .from("posts")
+    .select("author_id, image_url")
+    .eq("id", postId)
+    .single();
+
+  if (!existing || existing.author_id !== user.id) {
+    redirect(toPath(locale, "/feed"));
+  }
+
+  const categoryIdRaw = formData.get("categoryId");
+  const parsed = createPostSchema.safeParse({
+    content: formData.get("content"),
+    categoryId: categoryIdRaw || undefined,
+  });
+
+  if (!parsed.success) {
+    redirect(toPath(locale, `/post/edit?id=${encodeURIComponent(postId)}&error=invalid`));
+  }
+
+  const imageFile = formData.get("imageFile");
+  const hasImage = imageFile instanceof File && imageFile.size > 0;
+  let image_url = existing.image_url;
+
+  if (hasImage) {
+    const uploaded = await uploadImageFile(imageFile, "post-media", user.id, "post", imageT);
+    if (uploaded.error) {
+      redirect(toPath(locale, `/post/edit?id=${encodeURIComponent(postId)}&error=${encodeURIComponent(uploaded.error)}`));
+    }
+    image_url = uploaded.url ?? image_url;
+  }
+
+  await supabase
+    .from("posts")
+    .update({
+      content: parsed.data.content,
+      type: (formData.get("type") as string) || "community",
+      category_id: parsed.data.categoryId || null,
+      image_url,
+    })
+    .eq("id", postId);
+
+  revalidatePath(toPath(locale, "/feed"));
+  redirect(toPath(locale, "/feed?postUpdated=1"));
+}
+
 export async function addCommentAction(formData: FormData) {
   const locale = normalizeLocale(formData.get("locale"));
   const returnPath = getReturnPath(formData, "/feed");

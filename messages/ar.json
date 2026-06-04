@@ -52,7 +52,11 @@
     },
     "ideaEdit": {
       "title": "تعديل الفكرة",
-      "description": "حدّث اقتراح فكرتك المدنية."
+      "description": "تحديث اقتراح فكرتك المدنية."
+    },
+    "postEdit": {
+      "title": "تعديل المنشور",
+      "description": "تحديث منشورك."
     }
   },
   "LanguageSwitcher": {
@@ -198,8 +202,12 @@
     },
     "cancel": "إلغاء",
     "post": "نشر",
-    "posting": "جارٍ النشر...",
-    "socialPrompt": "ماذا يحدث في نواذيبو؟"
+    "posting": "جاري النشر...",
+    "socialPrompt": "ما الجديد في نواذيبو؟",
+    "editTitle": "تعديل المنشور",
+    "save": "حفظ",
+    "notFound": "المنشور غير موجود",
+    "notFoundDescription": "المنشور الذي تحاول تعديله غير موجود."
   },
   "Memory": {
     "title": "الذاكرة",

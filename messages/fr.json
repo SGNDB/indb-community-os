@@ -52,7 +52,11 @@
     },
     "ideaEdit": {
       "title": "Modifier l'idée",
-      "description": "Mettre à jour votre proposition d'idée citoyenne."
+      "description": "Mettez à jour votre proposition d'idée civique."
+    },
+    "postEdit": {
+      "title": "Modifier la publication",
+      "description": "Mettez à jour votre publication."
     }
   },
   "LanguageSwitcher": {
@@ -199,7 +203,11 @@
     "cancel": "Annuler",
     "post": "Publier",
     "posting": "Publication...",
-    "socialPrompt": "Que se passe-t-il à Nouadhibou ?"
+    "socialPrompt": "Quoi de neuf à Nouadhibou ?",
+    "editTitle": "Modifier la publication",
+    "save": "Enregistrer",
+    "notFound": "Publication introuvable",
+    "notFoundDescription": "La publication que vous essayez de modifier n'existe pas."
   },
   "Memory": {
     "title": "Archives",

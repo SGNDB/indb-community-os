@@ -53,6 +53,10 @@
     "ideaEdit": {
       "title": "Edit Idea",
       "description": "Update your civic idea proposal."
+    },
+    "postEdit": {
+      "title": "Edit Post",
+      "description": "Update your post."
     }
   },
   "LanguageSwitcher": {
@@ -199,7 +203,11 @@
     "cancel": "Cancel",
     "post": "Post",
     "posting": "Posting...",
-    "socialPrompt": "What's happening in Nouadhibou?"
+    "socialPrompt": "What's happening in Nouadhibou?",
+    "editTitle": "Edit post",
+    "save": "Save",
+    "notFound": "Post not found",
+    "notFoundDescription": "The post you are trying to edit does not exist."
   },
   "Memory": {
     "title": "Memory Archive",

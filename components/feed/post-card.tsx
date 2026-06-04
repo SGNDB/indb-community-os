@@ -2,7 +2,7 @@
 
 import {useEffect, useMemo, useRef, useState, useTransition} from "react";
 import {motion} from "framer-motion";
-import {Bookmark, MessageCircle, Send, Share2, Trash2} from "lucide-react";
+import {Bookmark, Edit3, MessageCircle, Send, Share2, Trash2} from "lucide-react";
 import {useRouter} from "next/navigation";
 import {useLocale, useTranslations} from "next-intl";
 import {useFormStatus} from "react-dom";
@@ -291,12 +291,19 @@ export function PostCard({
                 </Badge>
               ) : null}
               {isOwnPost ? (
-                <form action={deletePostAction}>
-                  <input type="hidden" name="locale" value={locale} />
-                  <input type="hidden" name="returnTo" value={returnPath} />
-                  <input type="hidden" name="postId" value={post.id} />
-                  <DeletePostButton />
-                </form>
+                <div className="flex items-center gap-0.5">
+                  <Link href={`/post/edit?id=${post.id}`}>
+                    <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                      <Edit3 size={14} />
+                    </Button>
+                  </Link>
+                  <form action={deletePostAction}>
+                    <input type="hidden" name="locale" value={locale} />
+                    <input type="hidden" name="returnTo" value={returnPath} />
+                    <input type="hidden" name="postId" value={post.id} />
+                    <DeletePostButton />
+                  </form>
+                </div>
               ) : null}
             </div>
           </div>
