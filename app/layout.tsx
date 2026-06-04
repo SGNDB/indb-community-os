@@ -1,4 +1,4 @@
-import type {Metadata} from "next";
+import type {Metadata, Viewport} from "next";
 import {cookies, headers} from "next/headers";
 import {hasLocale} from "next-intl";
 
@@ -9,6 +9,13 @@ export const metadata: Metadata = {
   title: "I love NDB | INDB Community OS",
   description:
     "Nouadhibou community platform for civic memory, participation, and solutions.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({
@@ -25,7 +32,16 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        {process.env.NODE_ENV === "development" ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `document.addEventListener("DOMContentLoaded",()=>{const w=document.documentElement.clientWidth;document.querySelectorAll("*").forEach(el=>{if(el.scrollWidth>w&&el!==document.documentElement&&el!==document.body){console.warn("[OVFL]",el.tagName,el.className,el.scrollWidth+">"+w)}})})`,
+            }}
+          />
+        ) : null}
+      </body>
     </html>
   );
 }

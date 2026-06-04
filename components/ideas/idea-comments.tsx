@@ -219,7 +219,7 @@ export function IdeaComments({
                     onKeyDown={handleKeyDown}
                     placeholder={t("commentPlaceholder")}
                     rows={1}
-                    className="min-h-0 flex-1 resize-none rounded-xl border border-border/60 bg-card px-3 py-2 text-sm outline-none ring-primary/30 placeholder:text-muted-foreground focus:ring"
+                    className="min-h-0 flex-1 resize-none rounded-xl border border-border/60 bg-card px-3 py-2 text-sm max-sm:text-base outline-none ring-primary/30 placeholder:text-muted-foreground focus:ring"
                   />
                   <button
                     type="button"

@@ -183,7 +183,7 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
       animate={{opacity: 1, y: 0}}
       transition={{duration: 0.28, ease: "easeOut"}}
     >
-      <Card className="overflow-hidden border-border/70 shadow-[0_14px_34px_rgba(8,33,56,0.08)]">
+      <Card className="w-full overflow-hidden border-border/70 shadow-[0_14px_34px_rgba(8,33,56,0.08)]">
         {idea.image_url ? (
           <div className="relative h-48 w-full overflow-hidden">
             <img src={idea.image_url} alt={idea.title} className="h-full w-full object-cover" />
@@ -272,8 +272,8 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
             ) : null}
           </div>
 
-          <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:items-center">
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:items-center min-w-0">
+            <div className="flex flex-wrap items-center gap-2 min-w-0">
               <VoteButton
                 ideaId={idea.id}
                 votes={idea.votes_count}

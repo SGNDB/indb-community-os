@@ -135,7 +135,7 @@ export function CreatePostCard({avatarUrl}: {avatarUrl?: string | null}) {
           <div className="flex items-center gap-2">
             <select
               name="type"
-              className="h-10 rounded-xl border border-border bg-card px-3 text-sm"
+              className="h-10 rounded-xl border border-border bg-card px-3 text-sm max-sm:text-base"
               defaultValue="community"
             >
               <option value="community">{t("quickActions.text")}</option>
@@ -168,7 +168,7 @@ export function CreatePostCard({avatarUrl}: {avatarUrl?: string | null}) {
                   const input = document.querySelector<HTMLInputElement>('input[name="imageFile"]');
                   if (input) input.value = "";
                 }}
-                className="absolute right-2 top-2 rounded-full bg-background/80 p-1 text-foreground hover:bg-background"
+                className="absolute end-2 top-2 rounded-full bg-background/80 p-1 text-foreground hover:bg-background"
               >
                 <X size={14} />
               </button>

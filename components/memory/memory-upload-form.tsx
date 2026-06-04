@@ -218,7 +218,7 @@ export function MemoryUploadForm({
                 <button
                   type="button"
                   onClick={handleRemoveImage}
-                  className="absolute right-2 top-2 rounded-full bg-background/80 p-1 text-foreground hover:bg-background"
+                  className="absolute end-2 top-2 rounded-full bg-background/80 p-1 text-foreground hover:bg-background"
                 >
                   <X size={14} />
                 </button>

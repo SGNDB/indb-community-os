@@ -112,7 +112,7 @@ export default async function IdeasPage({
       ) : null}
 
       {ideas.length > 0 ? (
-        <div className="space-y-3 sm:space-y-4">
+    <div className="min-w-0 space-y-3 sm:space-y-4">
           <h2 className="text-base font-semibold px-0.5">{t("allIdeas")}</h2>
           {ideas.map((idea) => (
             <IdeaCard key={idea.id} idea={idea} totalUsers={totalUsers} currentUserId={serverCurrentUserId} />

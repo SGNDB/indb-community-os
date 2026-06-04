@@ -199,7 +199,7 @@ export function IdeaSubmitForm({
 
             <select
               name="categoryId"
-              className="h-10 w-full rounded-xl border border-border bg-card px-3 text-sm"
+              className="h-10 w-full rounded-xl border border-border bg-card px-3 text-sm max-sm:text-base"
               defaultValue={initialData?.category_id ?? ""}
               onChange={markDirty}
             >
@@ -230,7 +230,7 @@ export function IdeaSubmitForm({
                 <button
                   type="button"
                   onClick={handleRemoveImage}
-                  className="absolute right-2 top-2 rounded-full bg-background/80 p-1 text-foreground hover:bg-background"
+                  className="absolute end-2 top-2 rounded-full bg-background/80 p-1 text-foreground hover:bg-background"
                 >
                   <X size={14} />
                 </button>
