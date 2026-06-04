@@ -17,6 +17,7 @@ interface VoteButtonProps {
   supportPercentage: number;
   badge: IdeaBadge;
   totalUsers: number;
+  hideDetails?: boolean;
 }
 
 const badgeConfig: Record<IdeaBadge, {icon: typeof Flame; bg: string; text: string; iconClass: string; translationKey: string}> = {
@@ -27,7 +28,7 @@ const badgeConfig: Record<IdeaBadge, {icon: typeof Flame; bg: string; text: stri
   top_priority: {icon: Trophy, bg: "bg-purple-50 dark:bg-purple-900/20", text: "text-purple-700 dark:text-purple-400", iconClass: "text-purple-500", translationKey: "badgeTopPriority"},
 };
 
-export function VoteButton({ideaId, votes: initialVotes, supportPercentage: initialSupport, badge: initialBadge, totalUsers}: VoteButtonProps) {
+export function VoteButton({ideaId, votes: initialVotes, supportPercentage: initialSupport, badge: initialBadge, totalUsers, hideDetails}: VoteButtonProps) {
   const t = useTranslations("Ideas");
   const locale = useLocale();
   const [pending, startTransition] = useTransition();
@@ -97,6 +98,7 @@ export function VoteButton({ideaId, votes: initialVotes, supportPercentage: init
         className={cn(
           "relative inline-flex items-center gap-1.5 rounded-2xl border-2 px-4 py-2 text-sm font-semibold shadow-sm transition-shadow select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
           "min-h-[44px] min-w-[44px]",
+          "max-sm:px-2.5 max-sm:py-1.5 max-sm:text-xs",
           voted
             ? "border-transparent bg-gradient-to-br from-[#0F4C75] to-[#27C5D8] text-white shadow-md"
             : "border-[#0F4C75]/25 bg-white text-[#0F4C75] hover:border-[#0F4C75]/50 hover:shadow-md",
@@ -132,32 +134,36 @@ export function VoteButton({ideaId, votes: initialVotes, supportPercentage: init
         </AnimatePresence>
       </motion.button>
 
-      <AnimatePresence mode="wait">
-        <motion.span
-          key={`pct-${supportPercentage}`}
-          initial={{opacity: 0, x: -4}}
-          animate={{opacity: 1, x: 0}}
-          transition={{duration: 0.2}}
-          className="text-xs text-muted-foreground tabular-nums"
-        >
-          {t("supportPercent", {percent: supportPercentage})}
-        </motion.span>
-      </AnimatePresence>
+      {!hideDetails ? (
+        <>
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={`pct-${supportPercentage}`}
+              initial={{opacity: 0, x: -4}}
+              animate={{opacity: 1, x: 0}}
+              transition={{duration: 0.2}}
+              className="text-xs text-muted-foreground tabular-nums"
+            >
+              {t("supportPercent", {percent: supportPercentage})}
+            </motion.span>
+          </AnimatePresence>
 
-      <motion.span
-        key={currentBadge}
-        initial={{opacity: 0, scale: 0.85}}
-        animate={{opacity: 1, scale: 1}}
-        transition={{duration: 0.2}}
-        className={cn(
-          "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium",
-          badgeConfig[currentBadge].bg,
-          badgeConfig[currentBadge].text,
-        )}
-      >
-        <BadgeIcon size={12} className={badgeConfig[currentBadge].iconClass} />
-        {t(badgeConfig[currentBadge].translationKey)}
-      </motion.span>
+          <motion.span
+            key={currentBadge}
+            initial={{opacity: 0, scale: 0.85}}
+            animate={{opacity: 1, scale: 1}}
+            transition={{duration: 0.2}}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium",
+              badgeConfig[currentBadge].bg,
+              badgeConfig[currentBadge].text,
+            )}
+          >
+            <BadgeIcon size={12} className={badgeConfig[currentBadge].iconClass} />
+            {t(badgeConfig[currentBadge].translationKey)}
+          </motion.span>
+        </>
+      ) : null}
     </div>
   );
 }

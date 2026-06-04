@@ -1,9 +1,9 @@
 "use client";
 
 import {motion} from "framer-motion";
-import {CalendarDays, Edit3, Lightbulb, Loader2, Share2, Trash2, X} from "lucide-react";
+import {CalendarDays, ChevronDown, ChevronUp, Lightbulb, Loader2, MoreHorizontal, Share2, Trash2, X} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {toast} from "sonner";
 
 import {deleteIdeaAction, shareIdeaAction} from "@/app/[locale]/server-actions";
@@ -13,7 +13,24 @@ import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {useCurrentUser} from "@/hooks/use-current-user";
 import {Link, useRouter} from "@/lib/i18n/routing";
+import {cn} from "@/lib/utils/cn";
 import type {IdeaBadge, IdeaWithAuthor} from "@/types/database";
+
+const badgeTranslationKeys: Record<IdeaBadge, string> = {
+  new_idea: "badgeNewIdea",
+  growing_support: "badgeGrowingSupport",
+  popular: "badgePopular",
+  community_priority: "badgeCommunityPriority",
+  top_priority: "badgeTopPriority",
+};
+
+const badgeStyles: Record<IdeaBadge, string> = {
+  new_idea: "bg-sky-50 text-sky-700 dark:bg-sky-900/20 dark:text-sky-400",
+  growing_support: "bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400",
+  popular: "bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400",
+  community_priority: "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400",
+  top_priority: "bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400",
+};
 
 interface IdeaCardProps {
   idea: IdeaWithAuthor;
@@ -56,6 +73,20 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
   const router = useRouter();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
   const authorUsername = idea.author?.username;
 
@@ -142,58 +173,96 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="inline-flex items-center gap-2 text-[15px] sm:text-base min-w-0">
               <Lightbulb size={16} className="shrink-0" />
-              <span className="truncate">{idea.title}</span>
+              <span className="line-clamp-2 overflow-hidden text-ellipsis">{idea.title}</span>
             </CardTitle>
             {canShowActions ? (
-              <div className="flex items-center gap-0.5 shrink-0">
-                <Link href={`/ideas/submit?id=${idea.id}`}>
-                  <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                    <Edit3 size={14} />
-                  </Button>
-                </Link>
-                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => setShowDeleteConfirm(true)}>
-                  <Trash2 size={14} />
+              <div className="relative shrink-0" ref={menuRef}>
+                <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => setMenuOpen((p) => !p)}>
+                  <MoreHorizontal size={16} />
                 </Button>
+                {menuOpen ? (
+                  <div className="absolute end-0 top-full z-10 mt-1 min-w-[140px] rounded-xl border border-border/60 bg-card py-1 shadow-lg">
+                    <Link href={`/ideas/submit?id=${idea.id}`} className="flex w-full items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted transition-colors" onClick={() => setMenuOpen(false)}>
+                      {t("editIdea")}
+                    </Link>
+                    <button type="button" className="flex w-full items-center gap-2 px-3 py-2 text-xs text-destructive hover:bg-muted transition-colors" onClick={() => { setMenuOpen(false); setShowDeleteConfirm(true); }}>
+                      <Trash2 size={12} />
+                      {t("deleteIdea")}
+                    </button>
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </div>
         </CardHeader>
         <CardContent className="space-y-3 pt-0 sm:space-y-3">
-          <p className="text-sm text-muted-foreground leading-relaxed">{idea.description}</p>
-
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground">
-            {authorUsername ? (
-              <Link href={`/profile/${authorUsername}`} className="hover:text-foreground transition-colors">
-                {authorContent}
-              </Link>
-            ) : (
-              authorContent
-            )}
-            {categoryName ? (
-              <span className="inline-flex items-center gap-1.5">
-                <Lightbulb size={13} />
-                {categoryName}
-              </span>
-            ) : null}
-            <span className="inline-flex items-center gap-1.5">
-              <CalendarDays size={13} />
-              {new Date(idea.created_at).toLocaleDateString(locale)}
-            </span>
+          <div>
+            <p className={"text-sm text-muted-foreground leading-relaxed break-words [overflow-wrap:anywhere] " + (expanded ? "" : "line-clamp-3")}>
+              {idea.description}
+            </p>
+            <button
+              type="button"
+              onClick={() => setExpanded((p) => !p)}
+              className="mt-0.5 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+            >
+              {expanded ? (
+                <><ChevronUp size={12} />{t("showLess")}</>
+              ) : (
+                <><ChevronDown size={12} />{t("showMore")}</>
+              )}
+            </button>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 pt-1">
-            <VoteButton
-              ideaId={idea.id}
-              votes={idea.votes_count}
-              supportPercentage={supportPercentage}
-              badge={badge}
-              totalUsers={totalUsers ?? 0}
-            />
-            <IdeaComments ideaId={idea.id} />
+          <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              {authorUsername ? (
+                <Link href={`/profile/${authorUsername}`} className="hover:text-foreground transition-colors">
+                  {authorContent}
+                </Link>
+              ) : (
+                authorContent
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+              {categoryName ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <Lightbulb size={13} />
+                  {categoryName}
+                </span>
+              ) : null}
+              {categoryName ? <span className="text-muted-foreground/50" aria-hidden="true">•</span> : null}
+              <span className="inline-flex items-center gap-1.5">
+                <CalendarDays size={13} />
+                {new Date(idea.created_at).toLocaleDateString(locale)}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+            <span className="text-muted-foreground tabular-nums">{t("supportPercent", {percent: supportPercentage})}</span>
+            {badge ? (
+              <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-medium", badgeStyles[badge])}>
+                {t(badgeTranslationKeys[badge])}
+              </span>
+            ) : null}
+          </div>
+
+          <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:items-center">
+            <div className="flex flex-wrap items-center gap-2">
+              <VoteButton
+                ideaId={idea.id}
+                votes={idea.votes_count}
+                supportPercentage={supportPercentage}
+                badge={badge}
+                totalUsers={totalUsers ?? 0}
+                hideDetails
+              />
+              <IdeaComments ideaId={idea.id} />
+            </div>
             <button
               type="button"
               onClick={handleShare}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-border/60 px-3 py-2 text-xs text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-xl border border-border/60 px-3 py-2 text-xs text-muted-foreground transition hover:bg-muted hover:text-foreground"
             >
               <Share2 size={14} />
               {t("share")}

@@ -100,7 +100,7 @@ export default async function IdeasPage({
             <Trophy size={18} className="text-amber-500 shrink-0" />
             <h2 className="text-base font-semibold">{t("top10PopularIdeas")}</h2>
           </div>
-          <div className="flex gap-2.5 pb-1 sm:flex-col max-sm:overflow-x-auto max-sm:snap-x max-sm:snap-mandatory max-sm:scrollbar-none">
+          <div className="flex gap-3 pb-2 sm:flex-col sm:gap-2 sm:pb-0 max-sm:overflow-x-auto max-sm:snap-x max-sm:snap-mandatory max-sm:scrollbar-none max-sm:px-4">
             {topIdeas.map((idea) => {
               const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
               return (

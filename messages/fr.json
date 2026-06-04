@@ -279,6 +279,10 @@
     "cancel": "Annuler",
     "ideaUpdated": "Idée mise à jour avec succès",
     "ideaDeleted": "Idée supprimée avec succès",
+    "showMore": "Voir plus",
+    "showLess": "Voir moins",
+    "editIdea": "Modifier l'idée",
+    "deleteIdea": "Supprimer l'idée",
     "allIdeas": "Toutes les idées",
     "status": {
       "submitted": "Soumise",

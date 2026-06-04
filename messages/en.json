@@ -279,6 +279,10 @@
     "cancel": "Cancel",
     "ideaUpdated": "Idea updated successfully",
     "ideaDeleted": "Idea deleted successfully",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "editIdea": "Edit idea",
+    "deleteIdea": "Delete idea",
     "allIdeas": "All Ideas",
     "status": {
       "submitted": "Submitted",

@@ -279,6 +279,10 @@
     "cancel": "إلغاء",
     "ideaUpdated": "تم تحديث الفكرة بنجاح",
     "ideaDeleted": "تم حذف الفكرة بنجاح",
+    "showMore": "عرض المزيد",
+    "showLess": "عرض أقل",
+    "editIdea": "تعديل الفكرة",
+    "deleteIdea": "حذف الفكرة",
     "allIdeas": "كل الأفكار",
     "status": {
       "submitted": "مقدمة",
