@@ -65,7 +65,7 @@ export default async function SubmitIdeaPage({
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-3xl px-4 pb-4 sm:px-0">
       <IdeaSubmitForm categories={categories} locale={locale} initialData={initialData} />
     </div>
   );

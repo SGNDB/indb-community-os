@@ -25,7 +25,7 @@ export default async function SubmitMemoryPage({
   const {locale} = await params;
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-3xl px-4 pb-4 sm:px-0">
       <MemoryUploadForm locale={locale} />
     </div>
   );
