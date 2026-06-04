@@ -60,7 +60,7 @@ function TopIdeaRow({idea, t}: {idea: IdeaWithSupport; t: (key: string, opts?: R
   return (
     <Link
       key={idea.id}
-      href={`/ideas?id=${idea.id}`}
+      href={`/ideas#idea-${idea.id}`}
       className="flex items-center gap-2.5 rounded-xl border border-border/50 bg-card/50 px-3 py-2.5 transition hover:bg-muted/50 sm:px-4"
     >
       <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#0F4C75] to-[#27C5D8] text-[11px] font-bold text-white">
