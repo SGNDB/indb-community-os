@@ -12,6 +12,7 @@ import {IdeaComments} from "@/components/ideas/idea-comments";
 import {VoteButton} from "@/components/ideas/vote-button";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {useCurrentUser} from "@/hooks/use-current-user";
 import {Link} from "@/lib/i18n/routing";
 import type {IdeaBadge, IdeaWithAuthor} from "@/types/database";
 
@@ -58,7 +59,10 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
   const authorUsername = idea.author?.username;
 
-  const isOwner = !!currentUserId && !!idea.author_id && currentUserId === idea.author_id;
+  const {userId: clientUserId, loading} = useCurrentUser();
+  const resolvedUserId = currentUserId !== undefined ? currentUserId : clientUserId;
+  const isOwner = !!resolvedUserId && !!idea.author_id && resolvedUserId === idea.author_id;
+  const canShowActions = isOwner && !(currentUserId === undefined && loading);
 
   const ideaExtra = idea as IdeaWithAuthor & {supportPercentage?: number; badge?: IdeaBadge};
   const supportPercentage = ideaExtra.supportPercentage ?? 0;
@@ -125,7 +129,7 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
               <Lightbulb size={16} className="shrink-0" />
               <span className="truncate">{idea.title}</span>
             </CardTitle>
-            {isOwner ? (
+            {canShowActions ? (
               <div className="flex items-center gap-0.5 shrink-0">
                 <Link href={`/ideas/submit?id=${idea.id}`}>
                   <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
