@@ -56,9 +56,6 @@ export default async function IdeasPage({
 
   const topIdeas = ideas.filter((i) => i.rank !== null).slice(0, 10);
 
-  const topIds = new Set(topIdeas.map((i) => i.id));
-  const mainIdeas = ideas.filter((i) => !topIds.has(i.id));
-
   function renderBadge(idea: (typeof ideas)[number]): ReactNode {
     if (!idea.badge) return null;
     const badgeKey = badgeTranslationKeys[idea.badge as IdeaBadge];
@@ -110,7 +107,7 @@ export default async function IdeasPage({
       {ideas.length > 0 ? (
         <div className="space-y-3 sm:space-y-4">
           <h2 className="text-base font-semibold px-0.5">{t("allIdeas")}</h2>
-          {(mainIdeas.length > 0 ? mainIdeas : ideas).map((idea) => (
+          {ideas.map((idea) => (
             <IdeaCard key={idea.id} idea={idea} totalUsers={totalUsers} />
           ))}
         </div>
