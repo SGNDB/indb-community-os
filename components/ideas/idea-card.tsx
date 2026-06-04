@@ -114,6 +114,8 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
   return (
     <motion.article
       id={`idea-${idea.id}`}
+      data-idea-id={idea.id}
+      className="scroll-mt-28 md:scroll-mt-24"
       initial={{opacity: 0, y: 14}}
       animate={{opacity: 1, y: 0}}
       transition={{duration: 0.28, ease: "easeOut"}}
