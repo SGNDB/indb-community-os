@@ -702,8 +702,8 @@ export async function submitMemoryAction(formData: FormData) {
       year: parsed.data.year ? Number(parsed.data.year) : null,
       location: parsed.data.location || null,
       media_url,
-      media_type: hasMedia ? "image" : "text",
-      verification_status: "pending",
+      media_type: hasMedia ? "image" : null,
+      verification_status: "approved",
       tags: tags.length > 0 ? tags : null,
     })
     .select("id")

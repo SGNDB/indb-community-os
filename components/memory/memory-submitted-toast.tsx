@@ -18,7 +18,7 @@ export function MemorySubmittedToast({
 
   useEffect(() => {
     if (submitted === "1") {
-      toast.success(t("memorySubmitted") ?? "Memory submitted for review");
+      toast.success(t("memoryShared") ?? "Memory shared successfully");
       router.replace("/memory");
     } else if (updated === "1") {
       toast.success(t("memoryUpdated") ?? "Memory updated");

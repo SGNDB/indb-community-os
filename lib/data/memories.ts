@@ -2,49 +2,7 @@ import {createClient} from "@/lib/supabase/server";
 import type {MemoryCommentWithAuthor, MemoryWithContributor} from "@/types/database";
 
 export async function getVisibleMemories(): Promise<MemoryWithContributor[]> {
-  const supabase = await createClient();
-
-  const approvedQuery = supabase
-    .from("memories")
-    .select(`
-      *,
-      contributor:profiles!memories_contributor_id_fkey(id, username, full_name, avatar_url)
-    `)
-    .eq("verification_status", "approved")
-    .order("year", {ascending: false});
-
-  const {data: {user}} = await supabase.auth.getUser();
-
-  if (!user) {
-    const {data} = await approvedQuery;
-    return (data ?? []) as unknown as MemoryWithContributor[];
-  }
-
-  const [approvedRes, ownRes] = await Promise.all([
-    approvedQuery,
-    supabase
-      .from("memories")
-      .select(`
-        *,
-        contributor:profiles!memories_contributor_id_fkey(id, username, full_name, avatar_url)
-      `)
-      .eq("contributor_id", user.id)
-      .neq("verification_status", "approved")
-      .order("year", {ascending: false}),
-  ]);
-
-  const approved = (approvedRes.data ?? []) as unknown as MemoryWithContributor[];
-  const own = (ownRes.data ?? []) as unknown as MemoryWithContributor[];
-
-  const seen = new Set(approved.map((m) => m.id));
-  for (const memory of own) {
-    if (!seen.has(memory.id)) {
-      approved.push(memory);
-    }
-  }
-
-  approved.sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
-  return approved;
+  return getApprovedMemories();
 }
 
 export async function getApprovedMemories(): Promise<MemoryWithContributor[]> {

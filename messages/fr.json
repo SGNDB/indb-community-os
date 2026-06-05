@@ -230,13 +230,14 @@
     "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce souvenir ?",
     "memoryDeleted": "Souvenir supprimé",
     "cancel": "Annuler",
+    "storyMemory": "Souvenir récit",
     "verification": {
       "pending": "En attente de révision",
       "approved": "Approuvé",
       "rejected": "Rejeté",
       "needsMoreInfo": "Plus d'infos nécessaires"
     },
-    "memorySubmitted": "Souvenir soumis pour révision",
+    "memoryShared": "Souvenir partagé avec succès",
     "memoryUpdated": "Souvenir mis à jour"
   },
   "MemoryReactions": {
@@ -256,7 +257,8 @@
       "story": "Partagez l'histoire et son contexte",
       "category": "Sélectionner une catégorie",
       "eraLabel": "Période (optionnel)",
-      "location": "Lieu (optionnel)"
+      "location": "Lieu (optionnel)",
+      "imageHelper": "Ajoutez une photo pour renforcer le récit (optionnel, pas de photo nécessaire pour les souvenirs sensibles)"
     },
     "errors": {
       "title": "Veuillez saisir un titre valide.",

@@ -230,13 +230,14 @@
     "deleteConfirm": "هل أنت متأكد من حذف هذه الذكرى؟",
     "memoryDeleted": "تم حذف الذكرى",
     "cancel": "إلغاء",
+    "storyMemory": "ذكرى مكتوبة",
     "verification": {
       "pending": "قيد المراجعة",
       "approved": "معتمدة",
       "rejected": "مرفوضة",
       "needsMoreInfo": "تتطلب معلومات إضافية"
     },
-    "memorySubmitted": "تم إرسال الذكرى للمراجعة",
+    "memoryShared": "تمت مشاركة الذكرى بنجاح",
     "memoryUpdated": "تم تحديث الذكرى"
   },
   "MemoryReactions": {
@@ -256,7 +257,8 @@
       "story": "شارك القصة والسياق",
       "category": "اختر تصنيفًا",
       "eraLabel": "الفترة الزمنية (اختياري)",
-      "location": "الموقع (اختياري)"
+      "location": "الموقع (اختياري)",
+      "imageHelper": "أضف صورة لتعزيز القصة (اختياري، لا حاجة لصورة للذكريات الحساسة)"
     },
     "errors": {
       "title": "يرجى إدخال عنوان صحيح.",

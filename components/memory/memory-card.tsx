@@ -1,7 +1,7 @@
 "use client";
 
 import {motion} from "framer-motion";
-import {Loader2, MapPin, MoreHorizontal, Pencil, Share2, Tag, Trash2, UserRound, X} from "lucide-react";
+import {Archive, Loader2, MapPin, MoreHorizontal, Pencil, Share2, Tag, Trash2, UserRound, X} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
 import {useEffect, useRef, useState} from "react";
 import {toast} from "sonner";
@@ -9,7 +9,6 @@ import {toast} from "sonner";
 import {MemoryComments} from "@/components/memory/memory-comments";
 import {MemoryReactions} from "@/components/memory/memory-reactions";
 import {MemorySaveButton} from "@/components/memory/memory-save-button";
-import {MemoryVerificationBadge} from "@/components/memory/memory-verification-badge";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {deleteMemoryAction, shareMemoryAction} from "@/app/[locale]/server-actions";
@@ -118,8 +117,11 @@ export function MemoryCard({
               className="h-52 w-full object-cover transition duration-300 group-hover:scale-[1.03] sm:h-56"
             />
           ) : (
-            <div className="flex h-52 w-full items-center justify-center bg-gradient-to-br from-muted to-muted/60 sm:h-56">
-              <span className="text-sm text-muted-foreground">No image</span>
+            <div className="flex h-52 w-full items-center justify-center bg-gradient-to-br from-brand-primary/10 via-brand-primary/5 to-muted sm:h-56">
+              <div className="flex flex-col items-center gap-2 text-muted-foreground/60">
+                <Archive size={32} strokeWidth={1.5} />
+                <span className="text-xs font-medium">{t("storyMemory")}</span>
+              </div>
             </div>
           )}
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-3 pt-8">
@@ -127,7 +129,6 @@ export function MemoryCard({
               <Badge className="border-0 bg-white/20 text-white backdrop-blur-sm">
                 {memory.decade ?? memory.year ?? "?"}
               </Badge>
-              <MemoryVerificationBadge status={memory.verification_status} />
             </div>
           </div>
         </div>

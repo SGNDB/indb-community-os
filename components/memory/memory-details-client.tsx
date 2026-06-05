@@ -1,6 +1,6 @@
 "use client";
 
-import {CalendarDays, Loader2, MapPin, Pencil, Share2, Tag, Trash2, UserRound, X} from "lucide-react";
+import {Archive, CalendarDays, Loader2, MapPin, Pencil, Share2, Tag, Trash2, UserRound, X} from "lucide-react";
 import {useTranslations} from "next-intl";
 import {useEffect, useRef, useState} from "react";
 import {toast} from "sonner";
@@ -8,7 +8,6 @@ import {toast} from "sonner";
 import {MemoryComments} from "@/components/memory/memory-comments";
 import {MemoryReactions} from "@/components/memory/memory-reactions";
 import {MemorySaveButton} from "@/components/memory/memory-save-button";
-import {MemoryVerificationBadge} from "@/components/memory/memory-verification-badge";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
@@ -99,8 +98,11 @@ export function MemoryDetailsClient({
             <img src={memory.media_url} alt={memory.title} className="h-full w-full object-cover" />
           </div>
         ) : (
-          <div className="flex h-72 w-full items-center justify-center bg-muted sm:h-80">
-            <span className="text-muted-foreground">{t("noImage")}</span>
+          <div className="flex h-72 w-full items-center justify-center bg-gradient-to-br from-brand-primary/10 via-brand-primary/5 to-muted sm:h-80">
+            <div className="flex flex-col items-center gap-3 text-muted-foreground/60">
+              <Archive size={40} strokeWidth={1.5} />
+              <span className="text-sm font-medium">{t("storyMemory")}</span>
+            </div>
           </div>
         )}
 
@@ -110,7 +112,6 @@ export function MemoryDetailsClient({
               <Badge className="bg-brand-primary-soft text-brand-primary">
                 {memory.decade ?? memory.year ?? "?"}
               </Badge>
-              <MemoryVerificationBadge status={memory.verification_status} />
               {memory.location ? (
                 <Badge className="rounded-lg border-primary/15 bg-primary/8 text-primary">
                   <MapPin size={12} className="me-1" />

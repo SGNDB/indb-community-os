@@ -229,6 +229,7 @@ export function MemoryUploadForm({
                 onChange={(e) => void handleImageChange(e)}
               />
             </label>
+            <p className="text-xs text-muted-foreground/70">{t("imageHelper")}</p>
 
             {imagePreview ? (
               <div className="relative overflow-hidden rounded-xl bg-muted">
