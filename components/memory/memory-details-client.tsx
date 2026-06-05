@@ -1,16 +1,15 @@
 "use client";
 
-import {Archive, Bookmark, CalendarDays, Loader2, MapPin, MessageCircle, Pencil, Share2, Tag, Trash2, UserRound, X} from "lucide-react";
+import {Archive, CalendarDays, Loader2, MapPin, Pencil, Tag, Trash2, UserRound, X} from "lucide-react";
 import {useTranslations} from "next-intl";
 import {useEffect, useRef, useState} from "react";
 import {toast} from "sonner";
 
-import {MemoryComments} from "@/components/memory/memory-comments";
-import {MemoryReactions} from "@/components/memory/memory-reactions";
+import {MemoryActions} from "@/components/memory/memory-actions";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {deleteMemoryAction, saveMemoryAction, shareMemoryAction, unsaveMemoryAction} from "@/app/[locale]/server-actions";
+import {deleteMemoryAction} from "@/app/[locale]/server-actions";
 import {useCurrentUser} from "@/hooks/use-current-user";
 import {Link, useRouter} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/client";
@@ -24,7 +23,6 @@ export function MemoryDetailsClient({
   locale: string;
 }) {
   const t = useTranslations("Memory");
-  const feed = useTranslations("Feed");
   const router = useRouter();
   const {userId: clientUserId, loading: userLoading} = useCurrentUser();
   const supabase = useRef(createClient()).current;
@@ -32,10 +30,6 @@ export function MemoryDetailsClient({
   const [userReaction, setUserReaction] = useState<MemoryReactionType | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [savePending, setSavePending] = useState(false);
-  const [commentsOpen, setCommentsOpen] = useState(false);
-  const [commentCount, setCommentCount] = useState(0);
 
   useEffect(() => {
     async function load() {
@@ -50,13 +44,6 @@ export function MemoryDetailsClient({
         if (myReaction) {
           setUserReaction(myReaction.reaction_type as MemoryReactionType);
         }
-        const {data: savedData} = await supabase
-          .from("saved_memories")
-          .select("id")
-          .eq("memory_id", memory.id)
-          .eq("user_id", user.id)
-          .maybeSingle();
-        setSaved(!!savedData);
       }
       const {data: allReactions} = await supabase
         .from("memory_reactions")
@@ -67,12 +54,6 @@ export function MemoryDetailsClient({
         counts[row.reaction_type] = (counts[row.reaction_type] ?? 0) + 1;
       }
       setReactionCounts(counts);
-
-      const {count: cCount} = await supabase
-        .from("memory_comments")
-        .select("*", {count: "exact", head: true})
-        .eq("memory_id", memory.id);
-      setCommentCount(cCount ?? 0);
     }
     load();
   }, [memory.id, supabase]);
@@ -80,53 +61,6 @@ export function MemoryDetailsClient({
   const contributorName = memory.contributor?.full_name ?? memory.contributor?.username ?? t("unknownContributor");
   const authorUsername = memory.contributor?.username;
   const isOwner = !!clientUserId && !!memory.contributor_id && clientUserId === memory.contributor_id;
-
-  async function handleShare() {
-    const url = `${window.location.origin}/${locale}/memory/${memory.id}`;
-
-    if (typeof navigator !== "undefined" && "share" in navigator) {
-      try {
-        await (navigator as Navigator).share({url});
-        return;
-      } catch {}
-    }
-
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.success(t("linkCopied"));
-    } catch {
-      toast.error(t("shareFailed"));
-      return;
-    }
-
-    const formData = new FormData();
-    formData.set("memoryId", memory.id);
-    const result = await shareMemoryAction(formData);
-    if (!result.success && result.error === "unauthorized") {
-      window.location.href = `/${locale}/login?next=/memory/${memory.id}`;
-    }
-  }
-
-  async function handleSave() {
-    if (savePending) return;
-    setSavePending(true);
-
-    const formData = new FormData();
-    formData.set("memoryId", memory.id);
-
-    const result = saved ? await unsaveMemoryAction(formData) : await saveMemoryAction(formData);
-    if (result.success) {
-      setSaved(!saved);
-      toast.success(saved ? t("memoryUnsaved") : t("memorySaved"));
-    } else if (result.error === "unauthorized") {
-      window.location.href = `/${locale}/login?next=/memory/${memory.id}`;
-      setSavePending(false);
-      return;
-    } else {
-      toast.error(feed("shareFailed") ?? "Failed");
-    }
-    setSavePending(false);
-  }
 
   return (
     <div className="space-y-5">
@@ -216,50 +150,13 @@ export function MemoryDetailsClient({
           ) : null}
 
           <div className="border-t border-border/60 pt-3">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
-              <MemoryReactions
-                memoryId={memory.id}
-                initialCounts={reactionCounts}
-                initialUserReaction={userReaction}
-              />
-              <button
-                type="button"
-                onClick={() => setCommentsOpen((p) => !p)}
-                className={`flex items-center justify-center gap-1.5 min-h-12 rounded-xl px-2 text-sm transition ${
-                  commentsOpen
-                    ? "bg-primary/10 text-primary hover:bg-primary/15"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                <MessageCircle size={18} className="shrink-0" />
-                <span>{commentCount > 0 ? commentCount : feed("comments")}</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleSave}
-                className={`flex items-center justify-center gap-1.5 min-h-12 rounded-xl px-2 text-sm transition ${
-                  saved
-                    ? "bg-primary/10 text-primary hover:bg-primary/15"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                <Bookmark size={18} className="shrink-0" />
-                <span className="hidden sm:inline">{saved ? feed("saved") : feed("save")}</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleShare}
-                className="flex items-center justify-center gap-1.5 min-h-12 rounded-xl px-2 text-sm text-muted-foreground transition hover:bg-muted"
-              >
-                <Share2 size={18} className="shrink-0" />
-                <span className="hidden sm:inline">{t("share")}</span>
-              </button>
-            </div>
-            <MemoryComments
+            <MemoryActions
               memoryId={memory.id}
-              onCommentCountChange={setCommentCount}
-              open={commentsOpen}
-              onToggle={() => setCommentsOpen((p) => !p)}
+              locale={locale}
+              reactionCounts={reactionCounts}
+              userReaction={userReaction}
+              onReactionCountsChange={setReactionCounts}
+              onUserReactionChange={setUserReaction}
             />
           </div>
         </CardContent>

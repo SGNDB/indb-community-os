@@ -22,11 +22,15 @@ export function MemoryReactions({
   initialCounts,
   initialUserReaction,
   showLabels,
+  onCountsChange,
+  onUserReactionChange,
 }: {
   memoryId: string;
   initialCounts?: Record<string, number>;
   initialUserReaction?: MemoryReactionType | null;
   showLabels?: boolean;
+  onCountsChange?: (counts: Record<string, number>) => void;
+  onUserReactionChange?: (reaction: MemoryReactionType | null) => void;
 }) {
   const t = useTranslations("Feed");
   const errors = useTranslations("Errors");
@@ -95,8 +99,10 @@ export function MemoryReactions({
     } else {
       if (result.reaction_counts) {
         setCounts(result.reaction_counts);
+        onCountsChange?.(result.reaction_counts);
       }
       setUserReaction(result.reaction ?? null);
+      onUserReactionChange?.(result.reaction ?? null);
     }
 
     setPending(false);
