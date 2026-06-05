@@ -182,6 +182,67 @@ export async function createIdeaCommentNotification(
   if (error) console.error("createIdeaCommentNotification error:", error);
 }
 
+export async function upsertMemoryReactionNotification(
+  memoryContributorId: string,
+  actorId: string,
+  memoryId: string,
+): Promise<void> {
+  if (memoryContributorId === actorId) return;
+
+  const supabase = await createClient();
+
+  const {data: existing} = await supabase
+    .from("notifications")
+    .select("id")
+    .eq("user_id", memoryContributorId)
+    .eq("actor_id", actorId)
+    .eq("type", "reaction")
+    .eq("entity_type", "memory")
+    .eq("entity_id", memoryId)
+    .maybeSingle();
+
+  if (existing) {
+    const {error} = await supabase
+      .from("notifications")
+      .update({created_at: new Date().toISOString(), read: false})
+      .eq("id", existing.id);
+    if (error) console.error("upsertMemoryReactionNotification update error:", error);
+  } else {
+    const {error} = await supabase.from("notifications").insert({
+      user_id: memoryContributorId,
+      actor_id: actorId,
+      type: "reaction",
+      entity_type: "memory",
+      entity_id: memoryId,
+      title: "New reaction to your memory",
+      message: null,
+    });
+    if (error) console.error("upsertMemoryReactionNotification insert error:", error);
+  }
+}
+
+export async function createMemoryCommentNotification(
+  memoryContributorId: string,
+  actorId: string,
+  memoryId: string,
+): Promise<void> {
+  if (memoryContributorId === actorId) return;
+
+  const supabase = await createClient();
+
+  const {error} = await supabase.from("notifications").insert({
+    user_id: memoryContributorId,
+    actor_id: actorId,
+    type: "memory_comment",
+    entity_type: "memory",
+    entity_id: memoryId,
+    title: "New comment on your memory",
+    message: null,
+  });
+
+  if (error) console.error("createMemoryCommentNotification error:", error);
+}
+
 export async function createCommentNotification(
   postAuthorId: string,
   actorId: string,

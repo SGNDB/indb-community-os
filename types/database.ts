@@ -8,6 +8,7 @@ export type MemoryVerificationStatus = "pending" | "approved" | "rejected" | "ne
 export type IdeaStatus = "submitted" | "under_review" | "accepted" | "in_progress" | "completed" | "rejected";
 export type IdeaBadge = "new_idea" | "growing_support" | "popular" | "community_priority" | "top_priority";
 export type ReactionType = "like" | "love" | "support" | "celebrate" | "insightful" | "sad";
+export type MemoryReactionType = "love" | "respect" | "nostalgia" | "important";
 export type ReportTargetType = "post" | "comment" | "memory" | "idea";
 export type ReportStatus = "pending" | "reviewed" | "resolved" | "dismissed";
 
@@ -238,8 +239,37 @@ export interface PostWithAuthor extends PostRow {
   user_saved?: boolean;
 }
 
+export interface MemoryReactionRow {
+  id: string;
+  memory_id: string;
+  user_id: string;
+  reaction_type: MemoryReactionType;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MemoryCommentRow {
+  id: string;
+  memory_id: string;
+  author_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SavedMemoryRow {
+  id: string;
+  memory_id: string;
+  user_id: string;
+  created_at: string;
+}
+
 export interface MemoryWithContributor extends MemoryRow {
   contributor: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+}
+
+export interface MemoryCommentWithAuthor extends MemoryCommentRow {
+  author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
 }
 
 export interface IdeaWithAuthor extends IdeaRow {

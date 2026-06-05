@@ -10,22 +10,26 @@ import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
-import {submitMemoryAction} from "@/app/[locale]/server-actions";
+import {submitMemoryAction, updateMemoryAction} from "@/app/[locale]/server-actions";
 import {prepareImageForUpload, ImageUploadError} from "@/lib/images/client-compression";
 import {ACCEPTED_IMAGE_EXTENSIONS} from "@/lib/images/upload-config";
+import type {MemoryWithContributor} from "@/types/database";
 
 export function MemoryUploadForm({
   locale,
+  existingMemory,
 }: {
   locale: string;
+  existingMemory?: MemoryWithContributor | null;
 }) {
   const t = useTranslations("MemoryForm");
   const imageT = useTranslations("ImageUpload");
   const confirmT = useTranslations("ConfirmDialog");
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
+  const isEditing = !!existingMemory;
 
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(existingMemory?.media_url ?? null);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -103,7 +107,12 @@ export function MemoryUploadForm({
 
     setSubmitting(true);
 
-    await submitMemoryAction(formData);
+    if (isEditing && existingMemory) {
+      formData.set("memoryId", existingMemory.id);
+      await updateMemoryAction(formData);
+    } else {
+      await submitMemoryAction(formData);
+    }
   }
 
   function handleCancel() {
@@ -147,16 +156,20 @@ export function MemoryUploadForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>{t("title")}</CardTitle>
+          <CardTitle>{isEditing ? t("editTitle") : t("title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
             <input type="hidden" name="locale" value={locale} />
+            {isEditing && existingMemory ? (
+              <input type="hidden" name="memoryId" value={existingMemory.id} />
+            ) : null}
 
             <div>
               <Input
                 name="title"
                 placeholder={t("fields.title")}
+                defaultValue={existingMemory?.title ?? ""}
                 onChange={markDirty}
               />
               {titleError ? (
@@ -168,6 +181,7 @@ export function MemoryUploadForm({
               <Textarea
                 name="description"
                 placeholder={t("fields.story")}
+                defaultValue={existingMemory?.description ?? ""}
                 onChange={markDirty}
               />
               {descError ? (
@@ -178,6 +192,7 @@ export function MemoryUploadForm({
             <Input
               name="decade"
               placeholder={t("fields.eraLabel")}
+              defaultValue={existingMemory?.decade ?? ""}
               onChange={markDirty}
             />
 
@@ -185,18 +200,21 @@ export function MemoryUploadForm({
               name="year"
               type="number"
               placeholder="Year (e.g. 1984)"
+              defaultValue={existingMemory?.year?.toString() ?? ""}
               onChange={markDirty}
             />
 
             <Input
               name="location"
               placeholder={t("fields.location")}
+              defaultValue={existingMemory?.location ?? ""}
               onChange={markDirty}
             />
 
             <Input
               name="tags"
               placeholder="Tags (comma separated)"
+              defaultValue={existingMemory?.tags?.join(", ") ?? ""}
               onChange={markDirty}
             />
 
@@ -246,7 +264,7 @@ export function MemoryUploadForm({
                     {t("submitting")}
                   </>
                 ) : (
-                  t("submit")
+                  isEditing ? t("update") : t("submit")
                 )}
               </Button>
             </div>

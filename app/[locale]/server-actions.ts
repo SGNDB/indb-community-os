@@ -18,6 +18,8 @@ import {
   createCommentNotification,
   createShareNotification,
   createIdeaCommentNotification,
+  upsertMemoryReactionNotification,
+  createMemoryCommentNotification,
 } from "@/lib/data/notifications";
 import {toggleReaction} from "@/lib/data/reactions";
 import {
@@ -29,7 +31,7 @@ import {
   profileSchema,
   registerSchema,
 } from "@/lib/validations/community";
-import type {IdeaCommentWithAuthor, ReactionType} from "@/types/database";
+import type {IdeaCommentWithAuthor, MemoryCommentWithAuthor, MemoryReactionType, ReactionType} from "@/types/database";
 
 function normalizeLocale(value: FormDataEntryValue | null) {
   const locale = typeof value === "string" ? value : routing.defaultLocale;
@@ -1148,4 +1150,403 @@ export async function voteIdeaAction(
     voted: !existing,
     votes: count ?? 0,
   };
+}
+
+export async function reactToMemoryAction(
+  formData: FormData,
+): Promise<{
+  success: boolean;
+  error?: string;
+  reaction?: MemoryReactionType | null;
+  reaction_counts?: Record<string, number>;
+}> {
+  const memoryId = formData.get("memoryId");
+  const reactionType = formData.get("reactionType") as MemoryReactionType | null;
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: "unauthorized"};
+  }
+
+  if (typeof memoryId !== "string") {
+    return {success: false, error: "invalid"};
+  }
+
+  const {data: existing} = await supabase
+    .from("memory_reactions")
+    .select("id, reaction_type")
+    .eq("memory_id", memoryId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (existing) {
+    if (!reactionType || existing.reaction_type === reactionType) {
+      await supabase.from("memory_reactions").delete().eq("id", existing.id);
+    } else {
+      await supabase
+        .from("memory_reactions")
+        .update({reaction_type: reactionType, updated_at: new Date().toISOString()})
+        .eq("id", existing.id);
+    }
+  } else if (reactionType) {
+    await supabase.from("memory_reactions").insert({
+      memory_id: memoryId,
+      user_id: user.id,
+      reaction_type: reactionType,
+    });
+  }
+
+  const {data: allReactions} = await supabase
+    .from("memory_reactions")
+    .select("reaction_type")
+    .eq("memory_id", memoryId);
+
+  const counts: Record<string, number> = {};
+  for (const row of allReactions ?? []) {
+    counts[row.reaction_type] = (counts[row.reaction_type] ?? 0) + 1;
+  }
+
+  let userReaction: MemoryReactionType | null = null;
+  if (existing) {
+    if (reactionType && existing.reaction_type !== reactionType) {
+      userReaction = reactionType;
+    }
+  } else if (reactionType) {
+    userReaction = reactionType;
+  }
+
+  const {data: memory} = await supabase
+    .from("memories")
+    .select("contributor_id")
+    .eq("id", memoryId)
+    .single();
+
+  if (memory && userReaction) {
+    await upsertMemoryReactionNotification(memory.contributor_id ?? "", user.id, memoryId);
+  }
+
+  return {
+    success: true,
+    reaction: userReaction,
+    reaction_counts: counts,
+  };
+}
+
+export async function addMemoryCommentAction(
+  formData: FormData,
+): Promise<{success: boolean; error?: string; comment?: MemoryCommentWithAuthor}> {
+  const memoryId = formData.get("memoryId");
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: "unauthorized"};
+  }
+
+  const parsed = commentSchema.safeParse({
+    content: formData.get("content"),
+  });
+
+  if (!parsed.success || typeof memoryId !== "string") {
+    return {success: false, error: "invalid"};
+  }
+
+  const {data: memory, error: memoryError} = await supabase
+    .from("memories")
+    .select("contributor_id")
+    .eq("id", memoryId)
+    .single();
+
+  if (memoryError || !memory) {
+    return {success: false, error: "not_found"};
+  }
+
+  const {data: newComment, error: insertError} = await supabase
+    .from("memory_comments")
+    .insert({
+      memory_id: memoryId,
+      author_id: user.id,
+      content: parsed.data.content,
+    })
+    .select("*, author:profiles!memory_comments_author_id_fkey(id, username, full_name, avatar_url)")
+    .single();
+
+  if (insertError || !newComment) {
+    return {success: false, error: "insert_failed"};
+  }
+
+  if (memory.contributor_id !== user.id) {
+    await createMemoryCommentNotification(memory.contributor_id ?? "", user.id, memoryId);
+  }
+
+  return {success: true, comment: newComment as unknown as MemoryCommentWithAuthor};
+}
+
+export async function deleteMemoryCommentAction(
+  formData: FormData,
+): Promise<{success: boolean; error?: string}> {
+  const commentId = formData.get("commentId");
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: "unauthorized"};
+  }
+
+  if (typeof commentId !== "string") {
+    return {success: false, error: "invalid"};
+  }
+
+  const {data: comment} = await supabase
+    .from("memory_comments")
+    .select("author_id")
+    .eq("id", commentId)
+    .single();
+
+  if (!comment || comment.author_id !== user.id) {
+    return {success: false, error: "forbidden"};
+  }
+
+  const {error: deleteError} = await supabase
+    .from("memory_comments")
+    .delete()
+    .eq("id", commentId);
+
+  if (deleteError) {
+    return {success: false, error: "delete_failed"};
+  }
+
+  return {success: true};
+}
+
+export async function saveMemoryAction(
+  formData: FormData,
+): Promise<{success: boolean; error?: string}> {
+  const memoryId = formData.get("memoryId");
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: "unauthorized"};
+  }
+
+  if (typeof memoryId !== "string") {
+    return {success: false, error: "invalid"};
+  }
+
+  const {error} = await supabase.from("saved_memories").insert({
+    memory_id: memoryId,
+    user_id: user.id,
+  });
+
+  if (error) {
+    return {success: false, error: "save_failed"};
+  }
+
+  return {success: true};
+}
+
+export async function unsaveMemoryAction(
+  formData: FormData,
+): Promise<{success: boolean; error?: string}> {
+  const memoryId = formData.get("memoryId");
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: "unauthorized"};
+  }
+
+  if (typeof memoryId !== "string") {
+    return {success: false, error: "invalid"};
+  }
+
+  const {error} = await supabase
+    .from("saved_memories")
+    .delete()
+    .eq("memory_id", memoryId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return {success: false, error: "unsave_failed"};
+  }
+
+  return {success: true};
+}
+
+export async function deleteMemoryAction(
+  formData: FormData,
+): Promise<{success: boolean; error?: string}> {
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) return {success: false, error: "unauthorized"};
+
+  const memoryId = formData.get("memoryId");
+
+  if (typeof memoryId !== "string") return {success: false, error: "invalid_id"};
+
+  const {data: memory} = await supabase
+    .from("memories")
+    .select("contributor_id")
+    .eq("id", memoryId)
+    .single();
+
+  if (!memory) return {success: false, error: "not_found"};
+  if (memory.contributor_id !== user.id) return {success: false, error: "forbidden"};
+
+  await supabase
+    .from("notifications")
+    .delete()
+    .eq("entity_type", "memory")
+    .eq("entity_id", memoryId);
+
+  await supabase.from("memories").delete().eq("id", memoryId);
+
+  revalidatePath("/", "layout");
+
+  return {success: true};
+}
+
+export async function updateMemoryAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const errorsT = await getTranslations({locale, namespace: "Errors"});
+  const imageT = await getTranslations({locale, namespace: "ImageUpload"});
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(toPath(locale, "/login"));
+  }
+
+  const memoryId = formData.get("memoryId");
+  if (typeof memoryId !== "string") {
+    redirect(toPath(locale, "/memory"));
+  }
+
+  const {data: existing} = await supabase
+    .from("memories")
+    .select("contributor_id, media_url")
+    .eq("id", memoryId)
+    .single();
+
+  if (!existing || existing.contributor_id !== user.id) {
+    redirect(toPath(locale, "/memory"));
+  }
+
+  const parsed = memorySchema.safeParse({
+    title: formData.get("title"),
+    description: formData.get("description"),
+    decade: formData.get("decade"),
+    year: formData.get("year"),
+    location: formData.get("location"),
+    tags: formData.get("tags"),
+  });
+
+  if (!parsed.success) {
+    const errorMsg = getValidationError(parsed, errorsT, "invalidMemory");
+    redirect(toPath(locale, `/memory/submit?id=${encodeURIComponent(memoryId)}&error=${encodeURIComponent(errorMsg)}`));
+  }
+
+  const mediaFile = formData.get("media");
+  const hasMedia = mediaFile instanceof File && mediaFile.size > 0;
+  let media_url = existing.media_url;
+
+  if (hasMedia) {
+    const uploaded = await uploadImageFile(mediaFile, "memory-archive", user.id, "memory", imageT);
+    if (uploaded.error) {
+      redirect(toPath(locale, `/memory/submit?id=${encodeURIComponent(memoryId)}&error=${encodeURIComponent(uploaded.error)}`));
+    }
+    media_url = uploaded.url ?? media_url;
+  }
+
+  const tags = parsed.data.tags
+    ? parsed.data.tags.split(",").map((t: string) => t.trim()).filter(Boolean)
+    : [];
+
+  const {error: updateError} = await supabase
+    .from("memories")
+    .update({
+      title: parsed.data.title,
+      description: parsed.data.description,
+      decade: parsed.data.decade || null,
+      year: parsed.data.year ? Number(parsed.data.year) : null,
+      location: parsed.data.location || null,
+      media_url,
+      tags: tags.length > 0 ? tags : null,
+    })
+    .eq("id", memoryId);
+
+  if (updateError) {
+    redirect(toPath(locale, `/memory/submit?id=${encodeURIComponent(memoryId)}&error=${encodeURIComponent(updateError.message)}`));
+  }
+
+  revalidatePath(toPath(locale, "/memory"));
+  redirect(toPath(locale, "/memory?memoryUpdated=1"));
+}
+
+export async function shareMemoryAction(
+  formData: FormData,
+): Promise<{success: boolean; error?: string}> {
+  const memoryId = formData.get("memoryId");
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: "unauthorized"};
+  }
+
+  if (typeof memoryId !== "string") {
+    return {success: false, error: "invalid"};
+  }
+
+  const {data: memory} = await supabase
+    .from("memories")
+    .select("contributor_id")
+    .eq("id", memoryId)
+    .single();
+
+  if (!memory) {
+    return {success: false, error: "not_found"};
+  }
+
+  if (memory.contributor_id && memory.contributor_id !== user.id) {
+    const supabaseNotify = await createClient();
+    await supabaseNotify.from("notifications").insert({
+      user_id: memory.contributor_id,
+      actor_id: user.id,
+      type: "share",
+      entity_type: "memory",
+      entity_id: memoryId,
+      title: "Shared your memory",
+      message: null,
+    });
+  }
+
+  return {success: true};
 }

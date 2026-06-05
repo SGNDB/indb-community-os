@@ -124,6 +124,9 @@
     "commentedOnPost": "{actorName} commented on your post",
     "commentedOnYourIdea": "{actorName} commented on your idea",
     "sharedYourIdea": "{actorName} shared your idea",
+    "reactedToMemory": "{actorName} reacted to your memory",
+    "commentedOnYourMemory": "{actorName} commented on your memory",
+    "sharedYourMemory": "{actorName} shared your memory",
     "someone": "Someone"
   },
   "RightSidebar": {
@@ -220,15 +223,33 @@
     "share": "Share",
     "linkCopied": "Memory link copied",
     "shareFailed": "Unable to share",
+    "edit": "Edit memory",
+    "delete": "Delete memory",
+    "confirmDelete": "Delete",
+    "confirmDeleteTitle": "Delete memory",
+    "deleteConfirm": "Are you sure you want to delete this memory?",
+    "memoryDeleted": "Memory deleted",
+    "cancel": "Cancel",
     "verification": {
-      "pending": "Pending",
+      "pending": "Pending review",
       "approved": "Approved",
       "rejected": "Rejected",
       "needsMoreInfo": "Needs more info"
-    }
+    },
+    "memorySubmitted": "Memory submitted for review",
+    "memoryUpdated": "Memory updated"
+  },
+  "MemoryReactions": {
+    "love": "Love",
+    "respect": "Respect",
+    "nostalgia": "Nostalgia",
+    "important": "Important",
+    "failed": "Reaction failed"
   },
   "MemoryForm": {
     "title": "Submit a community memory",
+    "editTitle": "Edit memory",
+    "update": "Update memory",
     "ready": "Your memory is ready to submit.",
     "fields": {
       "title": "Memory title",

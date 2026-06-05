@@ -2,6 +2,7 @@ import type {Metadata} from "next";
 import {getTranslations} from "next-intl/server";
 
 import {MemoryUploadForm} from "@/components/memory/memory-upload-form";
+import {getMemoryById} from "@/lib/data/memories";
 
 export async function generateMetadata({
   params,
@@ -19,14 +20,22 @@ export async function generateMetadata({
 
 export default async function SubmitMemoryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{locale: string}>;
+  searchParams: Promise<{id?: string}>;
 }) {
   const {locale} = await params;
+  const {id} = await searchParams;
+
+  let existingMemory = null;
+  if (id) {
+    existingMemory = await getMemoryById(id);
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-4 sm:px-0">
-      <MemoryUploadForm locale={locale} />
+      <MemoryUploadForm locale={locale} existingMemory={existingMemory} />
     </div>
   );
 }

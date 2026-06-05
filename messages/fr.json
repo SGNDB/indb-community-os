@@ -124,6 +124,9 @@
     "commentedOnPost": "{actorName} a commenté votre publication",
     "commentedOnYourIdea": "{actorName} a commenté votre idée",
     "sharedYourIdea": "{actorName} a partagé votre idée",
+    "reactedToMemory": "{actorName} a réagi à votre souvenir",
+    "commentedOnYourMemory": "{actorName} a commenté votre souvenir",
+    "sharedYourMemory": "{actorName} a partagé votre souvenir",
     "someone": "Quelqu'un"
   },
   "RightSidebar": {
@@ -220,15 +223,33 @@
     "share": "Partager",
     "linkCopied": "Lien du souvenir copié",
     "shareFailed": "Impossible de partager",
+    "edit": "Modifier le souvenir",
+    "delete": "Supprimer le souvenir",
+    "confirmDelete": "Supprimer",
+    "confirmDeleteTitle": "Supprimer le souvenir",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce souvenir ?",
+    "memoryDeleted": "Souvenir supprimé",
+    "cancel": "Annuler",
     "verification": {
-      "pending": "En attente",
+      "pending": "En attente de révision",
       "approved": "Approuvé",
       "rejected": "Rejeté",
       "needsMoreInfo": "Plus d'infos nécessaires"
-    }
+    },
+    "memorySubmitted": "Souvenir soumis pour révision",
+    "memoryUpdated": "Souvenir mis à jour"
+  },
+  "MemoryReactions": {
+    "love": "J'adore",
+    "respect": "Respect",
+    "nostalgia": "Nostalgie",
+    "important": "Important",
+    "failed": "Échec de la réaction"
   },
   "MemoryForm": {
     "title": "Soumettre un souvenir communautaire",
+    "editTitle": "Modifier le souvenir",
+    "update": "Mettre à jour le souvenir",
     "ready": "Votre souvenir est prêt à être soumis.",
     "fields": {
       "title": "Titre du souvenir",

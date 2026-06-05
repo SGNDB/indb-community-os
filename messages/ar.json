@@ -124,6 +124,9 @@
     "commentedOnPost": "علّق {actorName} على منشورك",
     "commentedOnYourIdea": "علّق {actorName} على فكرتك",
     "sharedYourIdea": "شارك {actorName} فكرتك",
+    "reactedToMemory": "تفاعل {actorName} مع ذاكرتك",
+    "commentedOnYourMemory": "علّق {actorName} على ذاكرتك",
+    "sharedYourMemory": "شارك {actorName} ذاكرتك",
     "someone": "شخص ما"
   },
   "RightSidebar": {
@@ -220,15 +223,33 @@
     "share": "مشاركة",
     "linkCopied": "تم نسخ رابط الذكرى",
     "shareFailed": "تعذرت المشاركة",
+    "edit": "تعديل الذكرى",
+    "delete": "حذف الذكرى",
+    "confirmDelete": "حذف",
+    "confirmDeleteTitle": "حذف الذكرى",
+    "deleteConfirm": "هل أنت متأكد من حذف هذه الذكرى؟",
+    "memoryDeleted": "تم حذف الذكرى",
+    "cancel": "إلغاء",
     "verification": {
-      "pending": "معلّق",
+      "pending": "قيد المراجعة",
       "approved": "معتمدة",
       "rejected": "مرفوضة",
       "needsMoreInfo": "تتطلب معلومات إضافية"
-    }
+    },
+    "memorySubmitted": "تم إرسال الذكرى للمراجعة",
+    "memoryUpdated": "تم تحديث الذكرى"
+  },
+  "MemoryReactions": {
+    "love": "حب",
+    "respect": "احترام",
+    "nostalgia": "حنين",
+    "important": "مهم",
+    "failed": "فشل التفاعل"
   },
   "MemoryForm": {
     "title": "إرسال ذكرى مجتمعية",
+    "editTitle": "تعديل الذكرى",
+    "update": "تحديث الذكرى",
     "ready": "الذكرى جاهزة للإرسال.",
     "fields": {
       "title": "عنوان الذكرى",
