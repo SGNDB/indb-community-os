@@ -1,21 +1,44 @@
 "use client";
 
 import {motion} from "framer-motion";
-import {Archive, Loader2, MapPin, MoreHorizontal, Pencil, Share2, Tag, Trash2, UserRound, X} from "lucide-react";
+import {Archive, Bookmark, Loader2, MessageCircle, MoreHorizontal, Pencil, Share2, Trash2, X} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
 import {useEffect, useRef, useState} from "react";
 import {toast} from "sonner";
 
 import {MemoryComments} from "@/components/memory/memory-comments";
 import {MemoryReactions} from "@/components/memory/memory-reactions";
-import {MemorySaveButton} from "@/components/memory/memory-save-button";
+import {UserAvatar} from "@/components/layout/user-avatar";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
-import {deleteMemoryAction, shareMemoryAction} from "@/app/[locale]/server-actions";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {deleteMemoryAction, saveMemoryAction, shareMemoryAction, unsaveMemoryAction} from "@/app/[locale]/server-actions";
 import {useCurrentUser} from "@/hooks/use-current-user";
 import {Link, useRouter} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/client";
 import type {MemoryReactionType, MemoryWithContributor} from "@/types/database";
+
+function timeAgo(dateStr: string, locale: string): string {
+  const now = Date.now();
+  const then = new Date(dateStr).getTime();
+  const diffSec = Math.floor((now - then) / 1000);
+
+  if (diffSec < 60) return locale === "ar" ? "الآن" : "now";
+  if (diffSec < 3600) {
+    const m = Math.floor(diffSec / 60);
+    return `${m}${locale === "ar" ? "د" : "m"}`;
+  }
+  if (diffSec < 86400) {
+    const h = Math.floor(diffSec / 3600);
+    return `${h}${locale === "ar" ? "س" : "h"}`;
+  }
+  if (diffSec < 2592000) {
+    const d = Math.floor(diffSec / 86400);
+    return `${d}${locale === "ar" ? "ي" : "d"}`;
+  }
+  const month = Math.floor(diffSec / 2592000);
+  return `${month}${locale === "ar" ? "ش" : "mo"}`;
+}
 
 export function MemoryCard({
   memory,
@@ -23,6 +46,7 @@ export function MemoryCard({
   memory: MemoryWithContributor;
 }) {
   const t = useTranslations("Memory");
+  const feed = useTranslations("Feed");
   const locale = useLocale();
   const router = useRouter();
   const {userId: clientUserId, loading: userLoading} = useCurrentUser();
@@ -32,6 +56,7 @@ export function MemoryCard({
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -67,15 +92,23 @@ export function MemoryCard({
         counts[row.reaction_type] = (counts[row.reaction_type] ?? 0) + 1;
       }
       setReactionCounts(counts);
+
+      const {count: cCount} = await supabase
+        .from("memory_comments")
+        .select("*", {count: "exact", head: true})
+        .eq("memory_id", memory.id);
+      setCommentCount(cCount ?? 0);
     }
     load();
   }, [memory.id, supabase]);
 
   const contributorName = memory.contributor?.full_name ?? memory.contributor?.username ?? t("unknownContributor");
+  const authorProfileHref = memory.contributor?.username ? `/profile/${memory.contributor.username}` : null;
   const isOwner = !!clientUserId && !!memory.contributor_id && clientUserId === memory.contributor_id;
+  const memoryTime = timeAgo(memory.created_at, locale);
 
   async function handleShare() {
-    const url = `${window.location.origin}/${window.location.pathname.split("/")[1]}/memory/${memory.id}`;
+    const url = `${window.location.origin}/${locale}/memory/${memory.id}`;
 
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
@@ -86,9 +119,9 @@ export function MemoryCard({
 
     try {
       await navigator.clipboard.writeText(url);
-      toast.success(t("linkCopied") ?? "Memory link copied");
+      toast.success(t("linkCopied"));
     } catch {
-      toast.error(t("shareFailed") ?? "Unable to share");
+      toast.error(t("shareFailed"));
       return;
     }
 
@@ -100,98 +133,140 @@ export function MemoryCard({
     }
   }
 
+  async function handleSave() {
+    const {data: {user}} = await supabase.auth.getUser();
+    if (!user) {
+      window.location.href = `/${locale}/login?next=/memory`;
+      return;
+    }
+
+    const {data: existing} = await supabase
+      .from("saved_memories")
+      .select("id")
+      .eq("memory_id", memory.id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const saved = !!existing;
+
+    const formData = new FormData();
+    formData.set("memoryId", memory.id);
+
+    const result = saved ? await unsaveMemoryAction(formData) : await saveMemoryAction(formData);
+    if (result.success) {
+      toast.success(saved ? feed("save") : feed("saved"));
+      router.refresh();
+    } else if (result.error === "unauthorized") {
+      window.location.href = `/${locale}/login?next=/memory`;
+    } else {
+      toast.error(feed("shareFailed") ?? "Failed");
+    }
+  }
+
   return (
     <motion.article
       initial={{opacity: 0, y: 14}}
       animate={{opacity: 1, y: 0}}
       whileHover={{y: -3}}
       transition={{duration: 0.28, ease: "easeOut"}}
-      className="group overflow-hidden rounded-2xl border border-border/70 bg-card shadow-[0_16px_36px_rgba(8,33,56,0.10)]"
     >
-      <Link href={`/memory/${memory.id}`} className="block">
-        <div className="relative">
-          {memory.media_url ? (
-            <img
-              src={memory.media_url}
-              alt={memory.title}
-              className="h-52 w-full object-cover transition duration-300 group-hover:scale-[1.03] sm:h-56"
-            />
-          ) : (
-            <div className="flex h-52 w-full items-center justify-center bg-gradient-to-br from-brand-primary/10 via-brand-primary/5 to-muted sm:h-56">
-              <div className="flex flex-col items-center gap-2 text-muted-foreground/60">
-                <Archive size={32} strokeWidth={1.5} />
-                <span className="text-xs font-medium">{t("storyMemory")}</span>
+      <Card className="overflow-hidden border-border/70 shadow-[0_16px_36px_rgba(8,33,56,0.10)]">
+        <CardHeader className="pb-2.5 sm:pb-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3 min-w-0">
+              {authorProfileHref ? (
+                <Link href={authorProfileHref} className="shrink-0 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/40">
+                  <UserAvatar label={contributorName} avatarUrl={memory.contributor?.avatar_url} className="h-11 w-11 shrink-0" />
+                </Link>
+              ) : (
+                <UserAvatar label={contributorName} avatarUrl={memory.contributor?.avatar_url} className="h-11 w-11 shrink-0" />
+              )}
+              <div className="space-y-1 min-w-0">
+                <CardTitle className="text-base leading-none sm:text-lg">
+                  {authorProfileHref ? (
+                    <Link href={authorProfileHref} className="transition hover:text-primary hover:underline">
+                      {contributorName}
+                    </Link>
+                  ) : (
+                    contributorName
+                  )}
+                </CardTitle>
+                <p className="text-xs text-muted-foreground sm:text-sm">
+                  {memoryTime} {feed("ago")}
+                </p>
               </div>
             </div>
-          )}
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-3 pt-8">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge className="border-0 bg-white/20 text-white backdrop-blur-sm">
+            <div className="flex items-center gap-1 shrink-0">
+              <Badge className="bg-brand-primary-soft px-2.5 py-1 text-xs text-brand-primary sm:text-sm">
                 {memory.decade ?? memory.year ?? "?"}
               </Badge>
+              {isOwner && !userLoading ? (
+                <div className="relative" ref={menuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setMenuOpen((p) => !p)}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted"
+                  >
+                    <MoreHorizontal size={16} />
+                  </button>
+                  {menuOpen ? (
+                    <div
+                      className="absolute end-0 top-full z-10 mt-1 min-w-[140px] rounded-xl border border-border/60 bg-card py-1 shadow-lg"
+                    >
+                      <Link
+                        href={`/memory/submit?id=${memory.id}`}
+                        className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <Pencil size={14} />
+                        {t("edit")}
+                      </Link>
+                      <button
+                        type="button"
+                        className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-destructive hover:bg-muted transition-colors"
+                        onClick={() => { setMenuOpen(false); setShowDeleteConfirm(true); }}
+                      >
+                        <Trash2 size={14} />
+                        {t("delete")}
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           </div>
-        </div>
+        </CardHeader>
 
-        <div className="space-y-2.5 p-4">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="min-w-0 text-base font-semibold leading-tight sm:text-lg">{memory.title}</h3>
-            {isOwner && !userLoading ? (
-              <div className="relative shrink-0" ref={menuRef}>
-                <button
-                  type="button"
-                  onClick={(e) => { e.preventDefault(); setMenuOpen((p) => !p); }}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted"
-                >
-                  <MoreHorizontal size={16} />
-                </button>
-                {menuOpen ? (
-                  <div
-                    className="absolute end-0 top-full z-10 mt-1 min-w-[140px] rounded-xl border border-border/60 bg-card py-1 shadow-lg"
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    <Link
-                      href={`/memory/submit?id=${memory.id}`}
-                      className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <Pencil size={14} />
-                      {t("edit") ?? "Edit memory"}
-                    </Link>
-                    <button
-                      type="button"
-                      className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-destructive hover:bg-muted transition-colors"
-                      onClick={() => { setMenuOpen(false); setShowDeleteConfirm(true); }}
-                    >
-                      <Trash2 size={14} />
-                      {t("delete") ?? "Delete memory"}
-                    </button>
-                  </div>
-                ) : null}
+        <CardContent className="space-y-3.5 pt-0 sm:space-y-4">
+          <Link href={`/memory/${memory.id}`} className="block">
+            {memory.media_url ? (
+              <div className="overflow-hidden rounded-2xl border border-border/70">
+                <img
+                  src={memory.media_url}
+                  alt={memory.title}
+                  className="h-56 w-full object-cover transition duration-300 hover:scale-[1.02] sm:h-72"
+                />
               </div>
-            ) : null}
-          </div>
+            ) : (
+              <div className="flex h-48 w-full items-center justify-center rounded-2xl bg-gradient-to-br from-brand-primary/10 via-brand-primary/5 to-muted sm:h-56">
+                <div className="flex flex-col items-center gap-2 text-muted-foreground/60">
+                  <Archive size={32} strokeWidth={1.5} />
+                  <span className="text-xs font-medium">{t("storyMemory")}</span>
+                </div>
+              </div>
+            )}
+          </Link>
 
-          <p className="line-clamp-2 text-sm text-muted-foreground">{memory.description ?? memory.title}</p>
-
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-            {memory.location ? (
-              <Badge className="rounded-lg border-primary/15 bg-primary/8 px-2 py-1 text-[11px] font-medium">
-                <MapPin size={12} className="me-1" />
-                {memory.location}
-              </Badge>
-            ) : null}
-            <Badge className="rounded-lg border-primary/15 bg-primary/8 px-2 py-1 text-[11px] font-medium">
-              <UserRound size={12} className="me-1" />
-              {contributorName}
-            </Badge>
+          <div className="space-y-2">
+            <Link href={`/memory/${memory.id}`} className="block">
+              <h3 className="text-base font-semibold leading-tight transition hover:text-primary sm:text-lg">{memory.title}</h3>
+            </Link>
+            <p className="line-clamp-3 text-sm leading-6 text-foreground/90">{memory.description ?? memory.title}</p>
           </div>
 
           {memory.tags && memory.tags.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5 pt-0.5">
+            <div className="flex flex-wrap gap-1.5">
               {memory.tags.slice(0, 4).map((tag) => (
                 <span key={tag} className="inline-flex items-center gap-1 rounded-full bg-muted/70 px-2 py-0.5 text-[10px] text-muted-foreground">
-                  <Tag size={10} />
                   {tag}
                 </span>
               ))}
@@ -200,46 +275,60 @@ export function MemoryCard({
               ) : null}
             </div>
           ) : null}
-        </div>
-      </Link>
 
-      <div className="border-t border-border/50 px-4 py-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <MemoryReactions
-            memoryId={memory.id}
-            initialCounts={reactionCounts}
-            initialUserReaction={userReaction}
-          />
-          <div className="flex items-center gap-1.5">
-            <MemoryComments memoryId={memory.id} />
+          <div className="flex items-center gap-1 border-t border-border/60 pt-2">
+            <div className="flex-1">
+              <MemoryReactions
+                memoryId={memory.id}
+                initialCounts={reactionCounts}
+                initialUserReaction={userReaction}
+              />
+            </div>
+
+            <MemoryComments memoryId={memory.id} onCommentCountChange={setCommentCount}>
+              <button
+                type="button"
+                className="flex flex-1 items-center justify-center gap-1.5 min-h-12 rounded-xl px-3 text-sm text-muted-foreground transition hover:bg-muted sm:gap-2 sm:px-4"
+              >
+                <MessageCircle size={18} className="shrink-0" />
+                <span>{commentCount > 0 ? commentCount : feed("comments")}</span>
+              </button>
+            </MemoryComments>
+
+            <button
+              type="button"
+              onClick={handleSave}
+              className="flex flex-1 items-center justify-center gap-1.5 min-h-12 rounded-xl px-3 text-sm text-muted-foreground transition hover:bg-muted sm:gap-2 sm:px-4"
+            >
+              <Bookmark size={18} className="shrink-0" />
+              <span className="hidden sm:inline">{feed("save")}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleShare}
+              className="flex flex-1 items-center justify-center gap-1.5 min-h-12 rounded-xl px-3 text-sm text-muted-foreground transition hover:bg-muted sm:gap-2 sm:px-4"
+            >
+              <Share2 size={18} className="shrink-0" />
+              <span className="hidden sm:inline">{t("share")}</span>
+            </button>
           </div>
-        </div>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={handleShare}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border/60 px-3 py-1.5 text-xs text-muted-foreground transition hover:bg-muted hover:text-foreground"
-          >
-            <Share2 size={14} />
-            {t("share")}
-          </button>
-          <MemorySaveButton memoryId={memory.id} />
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {showDeleteConfirm ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={() => setShowDeleteConfirm(false)}>
           <div className="w-full max-w-sm rounded-2xl bg-card p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="mb-2 flex items-center justify-between">
-              <h3 className="text-lg font-semibold">{t("confirmDeleteTitle") ?? "Delete memory"}</h3>
+              <h3 className="text-lg font-semibold">{t("confirmDeleteTitle")}</h3>
               <button type="button" onClick={() => setShowDeleteConfirm(false)} className="text-muted-foreground hover:text-foreground">
                 <X size={18} />
               </button>
             </div>
-            <p className="mb-6 text-sm text-muted-foreground">{t("deleteConfirm") ?? "Are you sure you want to delete this memory?"}</p>
+            <p className="mb-6 text-sm text-muted-foreground">{t("deleteConfirm")}</p>
             <div className="flex items-center justify-end gap-3">
               <Button type="button" variant="outline" onClick={() => setShowDeleteConfirm(false)}>
-                {t("cancel") ?? "Cancel"}
+                {t("cancel")}
               </Button>
               <form
                 onSubmit={async (e) => {
@@ -251,7 +340,7 @@ export function MemoryCard({
                   const result = await deleteMemoryAction(formData);
                   setDeleting(false);
                   if (result.success) {
-                    toast.success(t("memoryDeleted") ?? "Memory deleted");
+                    toast.success(t("memoryDeleted"));
                     router.refresh();
                   } else {
                     toast.error(result.error ?? "Failed to delete");
@@ -260,7 +349,7 @@ export function MemoryCard({
               >
                 <Button type="submit" variant="destructive" disabled={deleting}>
                   {deleting ? <Loader2 size={14} className="animate-spin" /> : null}
-                  {t("confirmDelete") ?? "Delete"}
+                  {t("confirmDelete")}
                 </Button>
               </form>
             </div>

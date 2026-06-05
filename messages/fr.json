@@ -173,10 +173,10 @@
     "reactions": {
       "like": "J'aime",
       "love": "J'adore",
-      "laugh": "Rire",
-      "surprise": "Surprise",
-      "sad": "Triste",
-      "celebrate": "C\u00e9l\u00e9brer"
+      "support": "Soutien",
+      "celebrate": "C\u00e9l\u00e9brer",
+      "insightful": "Pertinent",
+      "sad": "Triste"
     },
     "actionCounts": {
       "likes": "{count} J'aime",
@@ -516,7 +516,7 @@
     "commentDeleted": "Commentaire supprimé",
     "postDeleted": "Publication supprimée",
     "postSaved": "Publication enregistrée",
-    "memorySubmitted": "Souvenir soumis avec succès et en attente de révision",
+    "memorySubmitted": "Souvenir partagé avec succès",
     "ideaSubmitted": "Idée soumise avec succès",
     "voteAdded": "Vote ajouté",
     "updated": "Profil mis à jour",

@@ -173,10 +173,10 @@
     "reactions": {
       "like": "Like",
       "love": "Love",
-      "laugh": "Laugh",
-      "surprise": "Surprise",
-      "sad": "Sad",
-      "celebrate": "Celebrate"
+      "support": "Support",
+      "celebrate": "Celebrate",
+      "insightful": "Insightful",
+      "sad": "Sad"
     },
     "actionCounts": {
       "likes": "{count} Likes",
@@ -516,7 +516,7 @@
     "commentDeleted": "Comment deleted",
     "postDeleted": "Post deleted",
     "postSaved": "Post saved",
-    "memorySubmitted": "Memory submitted successfully and is pending review",
+    "memorySubmitted": "Memory shared successfully",
     "ideaSubmitted": "Idea submitted successfully",
     "voteAdded": "Vote added",
     "updated": "Profile updated",

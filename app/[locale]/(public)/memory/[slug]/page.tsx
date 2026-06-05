@@ -5,7 +5,6 @@ import {notFound} from "next/navigation";
 import {MemoryCard} from "@/components/memory/memory-card";
 import {MemoryDetailsClient} from "@/components/memory/memory-details-client";
 import {getApprovedMemories, getMemoryById} from "@/lib/data/memories";
-import {getCurrentProfile} from "@/lib/data/profile";
 
 export async function generateMetadata({
   params,
@@ -30,17 +29,8 @@ export default async function MemoryDetailsPage({
   const {locale, slug} = await params;
   const t = await getTranslations({locale, namespace: "Memory"});
   const memory = await getMemoryById(slug);
-  const profile = await getCurrentProfile();
 
   if (!memory) {
-    notFound();
-  }
-
-  const isContributor = profile?.id === memory.contributor_id;
-  const isAdmin = profile?.role === "admin" || profile?.role === "moderator";
-  const canView = memory.verification_status === "approved" || isContributor || isAdmin;
-
-  if (!canView) {
     notFound();
   }
 

@@ -3,7 +3,7 @@
 import {motion, AnimatePresence} from "framer-motion";
 import {Loader2, MessageSquare, SendHorizonal, Trash2} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
-import {useEffect, useRef, useState, useTransition} from "react";
+import React, {useEffect, useRef, useState, useTransition} from "react";
 import {toast} from "sonner";
 
 import {addMemoryCommentAction, deleteMemoryCommentAction} from "@/app/[locale]/server-actions";
@@ -36,9 +36,11 @@ function timeAgo(dateStr: string, locale: string): string {
 export function MemoryComments({
   memoryId,
   onCommentCountChange,
+  children,
 }: {
   memoryId: string;
   onCommentCountChange?: (count: number) => void;
+  children?: React.ReactNode;
 }) {
   const t = useTranslations("Ideas");
   const locale = useLocale();
@@ -136,14 +138,20 @@ export function MemoryComments({
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className="inline-flex items-center gap-1.5 rounded-xl border border-border/60 px-4 py-2.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
-      >
-        <MessageSquare size={16} />
-        {t("commentsWithCount", {count: comments.length})}
-      </button>
+      {children ? (
+        <div onClick={() => setOpen((prev) => !prev)}>
+          {children}
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen((prev) => !prev)}
+          className="inline-flex items-center gap-1.5 rounded-xl border border-border/60 px-4 py-2.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
+        >
+          <MessageSquare size={16} />
+          {t("commentsWithCount", {count: comments.length})}
+        </button>
+      )}
 
       <AnimatePresence initial={false}>
         {open ? (

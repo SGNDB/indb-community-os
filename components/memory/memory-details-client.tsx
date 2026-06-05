@@ -1,17 +1,16 @@
 "use client";
 
-import {Archive, CalendarDays, Loader2, MapPin, Pencil, Share2, Tag, Trash2, UserRound, X} from "lucide-react";
+import {Archive, Bookmark, CalendarDays, Loader2, MapPin, MessageCircle, Pencil, Share2, Tag, Trash2, UserRound, X} from "lucide-react";
 import {useTranslations} from "next-intl";
 import {useEffect, useRef, useState} from "react";
 import {toast} from "sonner";
 
 import {MemoryComments} from "@/components/memory/memory-comments";
 import {MemoryReactions} from "@/components/memory/memory-reactions";
-import {MemorySaveButton} from "@/components/memory/memory-save-button";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {deleteMemoryAction, shareMemoryAction} from "@/app/[locale]/server-actions";
+import {deleteMemoryAction, saveMemoryAction, shareMemoryAction, unsaveMemoryAction} from "@/app/[locale]/server-actions";
 import {useCurrentUser} from "@/hooks/use-current-user";
 import {Link, useRouter} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/client";
@@ -25,6 +24,7 @@ export function MemoryDetailsClient({
   locale: string;
 }) {
   const t = useTranslations("Memory");
+  const feed = useTranslations("Feed");
   const router = useRouter();
   const {userId: clientUserId, loading: userLoading} = useCurrentUser();
   const supabase = useRef(createClient()).current;
@@ -32,6 +32,8 @@ export function MemoryDetailsClient({
   const [userReaction, setUserReaction] = useState<MemoryReactionType | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [savePending, setSavePending] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -46,6 +48,13 @@ export function MemoryDetailsClient({
         if (myReaction) {
           setUserReaction(myReaction.reaction_type as MemoryReactionType);
         }
+        const {data: savedData} = await supabase
+          .from("saved_memories")
+          .select("id")
+          .eq("memory_id", memory.id)
+          .eq("user_id", user.id)
+          .maybeSingle();
+        setSaved(!!savedData);
       }
       const {data: allReactions} = await supabase
         .from("memory_reactions")
@@ -76,9 +85,9 @@ export function MemoryDetailsClient({
 
     try {
       await navigator.clipboard.writeText(url);
-      toast.success(t("linkCopied") ?? "Memory link copied");
+      toast.success(t("linkCopied"));
     } catch {
-      toast.error(t("shareFailed") ?? "Unable to share");
+      toast.error(t("shareFailed"));
       return;
     }
 
@@ -88,6 +97,27 @@ export function MemoryDetailsClient({
     if (!result.success && result.error === "unauthorized") {
       window.location.href = `/${locale}/login?next=/memory/${memory.id}`;
     }
+  }
+
+  async function handleSave() {
+    if (savePending) return;
+    setSavePending(true);
+
+    const formData = new FormData();
+    formData.set("memoryId", memory.id);
+
+    const result = saved ? await unsaveMemoryAction(formData) : await saveMemoryAction(formData);
+    if (result.success) {
+      setSaved(!saved);
+      toast.success(saved ? feed("save") : feed("saved"));
+    } else if (result.error === "unauthorized") {
+      window.location.href = `/${locale}/login?next=/memory/${memory.id}`;
+      setSavePending(false);
+      return;
+    } else {
+      toast.error(feed("shareFailed") ?? "Failed");
+    }
+    setSavePending(false);
   }
 
   return (
@@ -126,7 +156,7 @@ export function MemoryDetailsClient({
                   className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition"
                 >
                   <Pencil size={14} />
-                  {t("edit") ?? "Edit"}
+                  {t("edit")}
                 </Link>
                 <button
                   type="button"
@@ -134,7 +164,7 @@ export function MemoryDetailsClient({
                   className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-destructive transition"
                 >
                   <Trash2 size={14} />
-                  {t("delete") ?? "Delete"}
+                  {t("delete")}
                 </button>
               </div>
             ) : null}
@@ -177,26 +207,46 @@ export function MemoryDetailsClient({
             </div>
           ) : null}
 
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <MemoryReactions
-              memoryId={memory.id}
-              initialCounts={reactionCounts}
-              initialUserReaction={userReaction}
-              showLabels
-            />
-          </div>
+          <div className="flex items-center gap-1 border-t border-border/60 pt-3">
+            <div className="flex-1">
+              <MemoryReactions
+                memoryId={memory.id}
+                initialCounts={reactionCounts}
+                initialUserReaction={userReaction}
+              />
+            </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+            <MemoryComments memoryId={memory.id}>
+              <button
+                type="button"
+                className="flex flex-1 items-center justify-center gap-1.5 min-h-12 rounded-xl px-3 text-sm text-muted-foreground transition hover:bg-muted sm:gap-2 sm:px-4"
+              >
+                <MessageCircle size={18} className="shrink-0" />
+                <span>{feed("comments")}</span>
+              </button>
+            </MemoryComments>
+
+            <button
+              type="button"
+              onClick={handleSave}
+              className={`flex flex-1 items-center justify-center gap-1.5 min-h-12 rounded-xl px-3 text-sm transition sm:gap-2 sm:px-4 ${
+                saved
+                  ? "bg-primary/10 text-primary hover:bg-primary/15"
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              <Bookmark size={18} className="shrink-0" />
+              <span className="hidden sm:inline">{saved ? feed("saved") : feed("save")}</span>
+            </button>
+
             <button
               type="button"
               onClick={handleShare}
-              className="inline-flex items-center gap-2 rounded-xl border border-border/60 px-4 py-2.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              className="flex flex-1 items-center justify-center gap-1.5 min-h-12 rounded-xl px-3 text-sm text-muted-foreground transition hover:bg-muted sm:gap-2 sm:px-4"
             >
-              <Share2 size={16} />
-              {t("share")}
+              <Share2 size={18} className="shrink-0" />
+              <span className="hidden sm:inline">{t("share")}</span>
             </button>
-            <MemorySaveButton memoryId={memory.id} />
-            <MemoryComments memoryId={memory.id} />
           </div>
         </CardContent>
       </Card>
@@ -205,15 +255,15 @@ export function MemoryDetailsClient({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={() => setShowDeleteConfirm(false)}>
           <div className="w-full max-w-sm rounded-2xl bg-card p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="mb-2 flex items-center justify-between">
-              <h3 className="text-lg font-semibold">{t("confirmDeleteTitle") ?? "Delete memory"}</h3>
+              <h3 className="text-lg font-semibold">{t("confirmDeleteTitle")}</h3>
               <button type="button" onClick={() => setShowDeleteConfirm(false)} className="text-muted-foreground hover:text-foreground">
                 <X size={18} />
               </button>
             </div>
-            <p className="mb-6 text-sm text-muted-foreground">{t("deleteConfirm") ?? "Are you sure you want to delete this memory?"}</p>
+            <p className="mb-6 text-sm text-muted-foreground">{t("deleteConfirm")}</p>
             <div className="flex items-center justify-end gap-3">
               <Button type="button" variant="outline" onClick={() => setShowDeleteConfirm(false)}>
-                {t("cancel") ?? "Cancel"}
+                {t("cancel")}
               </Button>
               <form
                 onSubmit={async (e) => {
@@ -225,7 +275,7 @@ export function MemoryDetailsClient({
                   const result = await deleteMemoryAction(formData);
                   setDeleting(false);
                   if (result.success) {
-                    toast.success(t("memoryDeleted") ?? "Memory deleted");
+                    toast.success(t("memoryDeleted"));
                     router.refresh();
                     router.push(`/${locale}/memory`);
                   } else {
@@ -235,7 +285,7 @@ export function MemoryDetailsClient({
               >
                 <Button type="submit" variant="destructive" disabled={deleting}>
                   {deleting ? <Loader2 size={14} className="animate-spin" /> : null}
-                  {t("confirmDelete") ?? "Delete"}
+                  {t("confirmDelete")}
                 </Button>
               </form>
             </div>

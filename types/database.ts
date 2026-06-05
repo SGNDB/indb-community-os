@@ -8,7 +8,7 @@ export type MemoryVerificationStatus = "pending" | "approved" | "rejected" | "ne
 export type IdeaStatus = "submitted" | "under_review" | "accepted" | "in_progress" | "completed" | "rejected";
 export type IdeaBadge = "new_idea" | "growing_support" | "popular" | "community_priority" | "top_priority";
 export type ReactionType = "like" | "love" | "support" | "celebrate" | "insightful" | "sad";
-export type MemoryReactionType = "love" | "respect" | "nostalgia" | "important";
+export type MemoryReactionType = ReactionType;
 export type ReportTargetType = "post" | "comment" | "memory" | "idea";
 export type ReportStatus = "pending" | "reviewed" | "resolved" | "dismissed";
 

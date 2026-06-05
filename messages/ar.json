@@ -173,10 +173,10 @@
     "reactions": {
       "like": "\u0625\u0639\u062C\u0627\u0628",
       "love": "\u062D\u0628",
-      "laugh": "\u0636\u062D\u0643",
-      "surprise": "\u0645\u0641\u0627\u062C\u0623\u0629",
-      "sad": "\u062D\u0632\u064A\u0646",
-      "celebrate": "\u0627\u062D\u062A\u0641\u0627\u0644"
+      "support": "\u062F\u0639\u0645",
+      "celebrate": "\u0627\u062D\u062A\u0641\u0627\u0644",
+      "insightful": "\u0628\u0627\u0631\u0639",
+      "sad": "\u062D\u0632\u064A\u0646"
     },
     "actionCounts": {
       "likes": "{count} \u0625\u0639\u062C\u0627\u0628",
@@ -516,7 +516,7 @@
     "commentDeleted": "تم حذف التعليق",
     "postDeleted": "تم حذف المنشور",
     "postSaved": "تم حفظ المنشور",
-    "memorySubmitted": "تم إرسال الذكرى بنجاح وهي قيد المراجعة",
+    "memorySubmitted": "تمت مشاركة الذكرى بنجاح",
     "ideaSubmitted": "تم إرسال الفكرة بنجاح",
     "voteAdded": "تم إضافة التصويت",
     "updated": "تم تحديث الملف الشخصي",
