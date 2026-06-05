@@ -678,77 +678,62 @@ function getValidationError(
   return t(fallback);
 }
 
-export async function submitMemoryAction(formData: FormData) {
+export async function submitMemoryAction(
+  formData: FormData,
+): Promise<{success: false; error: string} | {success: true; memoryId?: string}> {
   const locale = normalizeLocale(formData.get("locale"));
   const errorsT = await getTranslations({locale, namespace: "Errors"});
   const imageT = await getTranslations({locale, namespace: "ImageUpload"});
   const supabase = await createClient();
 
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: "unauthorized"};
+  }
+
+  const parsed = memorySchema.safeParse({
+    title: formData.get("title"),
+    description: formData.get("description"),
+    decade: formData.get("decade"),
+    year: formData.get("year"),
+    location: formData.get("location"),
+    tags: formData.get("tags"),
+  });
+
+  if (!parsed.success) {
+    const errorMsg = getValidationError(parsed, errorsT, "invalidMemory");
+    return {success: false, error: errorMsg};
+  }
+
+  const mediaFile = formData.get("media");
+  const hasMedia = mediaFile instanceof File && mediaFile.size > 0;
+  let media_url: string | null = null;
+
+  if (hasMedia) {
+    let uploaded: {url?: string; error?: string};
+    try {
+      uploaded = await uploadImageFile(mediaFile, "memory-archive", user.id, "memory", imageT);
+    } catch {
+      return {success: false, error: imageT("failed")};
+    }
+    if (uploaded.error) {
+      return {success: false, error: uploaded.error};
+    }
+    media_url = uploaded.url ?? null;
+  }
+
+  const media_type = hasMedia ? "image" : null;
+
+  const tags = parsed.data.tags
+    ? parsed.data.tags.split(",").map((t: string) => t.trim()).filter(Boolean)
+    : [];
+
+  let memory: {id: string} | null = null;
   try {
-    const {
-      data: {user},
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      redirect(toPath(locale, "/login"));
-    }
-
-    const parsed = memorySchema.safeParse({
-      title: formData.get("title"),
-      description: formData.get("description"),
-      decade: formData.get("decade"),
-      year: formData.get("year"),
-      location: formData.get("location"),
-      tags: formData.get("tags"),
-    });
-
-    if (!parsed.success) {
-      const errorMsg = getValidationError(parsed, errorsT, "invalidMemory");
-      redirect(toPath(locale, `/memory/submit?error=${encodeURIComponent(errorMsg)}`));
-    }
-
-    const mediaFile = formData.get("media");
-    const hasMedia = mediaFile instanceof File && mediaFile.size > 0;
-    let media_url: string | null = null;
-
-    if (process.env.NODE_ENV === "development") {
-      console.log("[submitMemoryAction] media check", {
-        hasMedia,
-        isFile: mediaFile instanceof File,
-        size: mediaFile instanceof File ? mediaFile.size : typeof mediaFile,
-        type: mediaFile instanceof File ? mediaFile.type : typeof mediaFile,
-      });
-    }
-
-    if (hasMedia) {
-      const uploaded = await uploadImageFile(mediaFile, "memory-archive", user.id, "memory", imageT);
-      if (uploaded.error) {
-        if (process.env.NODE_ENV === "development") {
-          console.log("[submitMemoryAction] upload failed, redirecting with error", {error: uploaded.error});
-        }
-        redirect(toPath(locale, appendParam("/memory/submit", "error", uploaded.error)));
-      }
-      media_url = uploaded.url ?? null;
-      if (process.env.NODE_ENV === "development") {
-        console.log("[submitMemoryAction] upload succeeded", {media_url});
-      }
-    }
-
-    const media_type = hasMedia ? "image" : null;
-
-    const tags = parsed.data.tags
-      ? parsed.data.tags.split(",").map((t: string) => t.trim()).filter(Boolean)
-      : [];
-
-    if (process.env.NODE_ENV === "development") {
-      console.log("[submitMemoryAction] inserting memory", {
-        media_url,
-        media_type,
-        title: parsed.data.title,
-      });
-    }
-
-    const {data: memory, error} = await supabase
+    const result = await supabase
       .from("memories")
       .insert({
         contributor_id: user.id,
@@ -764,35 +749,17 @@ export async function submitMemoryAction(formData: FormData) {
       })
       .select("id")
       .single();
-
-    if (error || !memory) {
-      if (process.env.NODE_ENV === "development") {
-        console.log("[submitMemoryAction] insert failed", {error: error?.message, memory});
-      }
-      redirect(
-        toPath(locale, `/memory/submit?error=${encodeURIComponent(error?.message ?? errorsT("submitFailed"))}`),
-      );
+    memory = result.data;
+    if (result.error || !memory) {
+      return {success: false, error: result.error?.message ?? errorsT("submitFailed")};
     }
-
-    if (process.env.NODE_ENV === "development") {
-      console.log("[submitMemoryAction] insert success", {id: memory?.id});
-    }
-
-    revalidatePath(toPath(locale, "/memory"));
-    redirect(toPath(locale, "/memory?memorySubmitted=1"));
-  } catch (unexpectedError) {
-    if (typeof unexpectedError === "object" && unexpectedError !== null && "digest" in unexpectedError) {
-      const digest = (unexpectedError as {digest: string}).digest;
-      if (typeof digest === "string" && digest.startsWith("NEXT_REDIRECT")) {
-        throw unexpectedError;
-      }
-    }
-    if (process.env.NODE_ENV === "development") {
-      console.error("[submitMemoryAction] UNEXPECTED error:", unexpectedError);
-    }
-    const errorMessage = unexpectedError instanceof Error ? unexpectedError.message : String(unexpectedError);
-    redirect(toPath(locale, `/memory/submit?error=${encodeURIComponent(errorMessage)}`));
+  } catch {
+    return {success: false, error: errorsT("submitFailed")};
   }
+
+  revalidatePath(toPath(locale, "/memory"));
+
+  return {success: true, memoryId: memory.id};
 }
 
 export async function submitIdeaAction(formData: FormData) {
@@ -1503,7 +1470,9 @@ export async function deleteMemoryAction(
   return {success: true};
 }
 
-export async function updateMemoryAction(formData: FormData) {
+export async function updateMemoryAction(
+  formData: FormData,
+): Promise<{success: false; error: string} | {success: true; memoryId?: string}> {
   const locale = normalizeLocale(formData.get("locale"));
   const errorsT = await getTranslations({locale, namespace: "Errors"});
   const imageT = await getTranslations({locale, namespace: "ImageUpload"});
@@ -1514,22 +1483,22 @@ export async function updateMemoryAction(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(toPath(locale, "/login"));
+    return {success: false, error: "unauthorized"};
   }
 
   const memoryId = formData.get("memoryId");
   if (typeof memoryId !== "string") {
-    redirect(toPath(locale, "/memory"));
+    return {success: false, error: errorsT("invalidMemory")};
   }
 
-  const {data: existing} = await supabase
+  const {data: existing, error: fetchError} = await supabase
     .from("memories")
-    .select("contributor_id, media_url")
+    .select("contributor_id, media_url, media_type")
     .eq("id", memoryId)
     .single();
 
-  if (!existing || existing.contributor_id !== user.id) {
-    redirect(toPath(locale, "/memory"));
+  if (fetchError || !existing || existing.contributor_id !== user.id) {
+    return {success: false, error: errorsT("invalidMemory")};
   }
 
   const parsed = memorySchema.safeParse({
@@ -1543,44 +1512,57 @@ export async function updateMemoryAction(formData: FormData) {
 
   if (!parsed.success) {
     const errorMsg = getValidationError(parsed, errorsT, "invalidMemory");
-    redirect(toPath(locale, `/memory/submit?id=${encodeURIComponent(memoryId)}&error=${encodeURIComponent(errorMsg)}`));
+    return {success: false, error: errorMsg};
   }
 
   const mediaFile = formData.get("media");
   const hasMedia = mediaFile instanceof File && mediaFile.size > 0;
   let media_url = existing.media_url;
+  let media_type = existing.media_type;
 
   if (hasMedia) {
-    const uploaded = await uploadImageFile(mediaFile, "memory-archive", user.id, "memory", imageT);
+    let uploaded: {url?: string; error?: string};
+    try {
+      uploaded = await uploadImageFile(mediaFile, "memory-archive", user.id, "memory", imageT);
+    } catch {
+      return {success: false, error: imageT("failed")};
+    }
     if (uploaded.error) {
-      redirect(toPath(locale, `/memory/submit?id=${encodeURIComponent(memoryId)}&error=${encodeURIComponent(uploaded.error)}`));
+      return {success: false, error: uploaded.error};
     }
     media_url = uploaded.url ?? media_url;
+    media_type = "image";
   }
 
   const tags = parsed.data.tags
     ? parsed.data.tags.split(",").map((t: string) => t.trim()).filter(Boolean)
     : [];
 
-  const {error: updateError} = await supabase
-    .from("memories")
-    .update({
-      title: parsed.data.title,
-      description: parsed.data.description,
-      decade: parsed.data.decade || null,
-      year: parsed.data.year ? Number(parsed.data.year) : null,
-      location: parsed.data.location || null,
-      media_url,
-      tags: tags.length > 0 ? tags : null,
-    })
-    .eq("id", memoryId);
+  try {
+    const {error: updateError} = await supabase
+      .from("memories")
+      .update({
+        title: parsed.data.title,
+        description: parsed.data.description,
+        decade: parsed.data.decade || null,
+        year: parsed.data.year ? Number(parsed.data.year) : null,
+        location: parsed.data.location || null,
+        media_url,
+        media_type,
+        tags: tags.length > 0 ? tags : null,
+      })
+      .eq("id", memoryId);
 
-  if (updateError) {
-    redirect(toPath(locale, `/memory/submit?id=${encodeURIComponent(memoryId)}&error=${encodeURIComponent(updateError.message)}`));
+    if (updateError) {
+      return {success: false, error: updateError.message};
+    }
+  } catch {
+    return {success: false, error: errorsT("submitFailed")};
   }
 
   revalidatePath(toPath(locale, "/memory"));
-  redirect(toPath(locale, "/memory?memoryUpdated=1"));
+
+  return {success: true, memoryId};
 }
 
 export async function shareMemoryAction(

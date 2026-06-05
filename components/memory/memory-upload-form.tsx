@@ -107,23 +107,28 @@ export function MemoryUploadForm({
 
     setSubmitting(true);
 
-    let serverError: string | null = null;
     try {
+      let result;
       if (isEditing && existingMemory) {
         formData.set("memoryId", existingMemory.id);
-        await updateMemoryAction(formData);
+        result = await updateMemoryAction(formData);
       } else {
-        await submitMemoryAction(formData);
+        result = await submitMemoryAction(formData);
       }
+
+      if (result.success) {
+        router.push("/memory?memorySubmitted=1");
+        return;
+      }
+
+      toast.error(result.error || imageT("failed"));
     } catch (error) {
-      serverError = error instanceof Error ? error.message : String(error);
       if (process.env.NODE_ENV === "development") {
         console.error("[MemoryUploadForm] submit error:", error);
       }
-    }
-    setSubmitting(false);
-    if (serverError) {
-      toast.error(serverError);
+      toast.error(imageT("failed"));
+    } finally {
+      setSubmitting(false);
     }
   }
 
