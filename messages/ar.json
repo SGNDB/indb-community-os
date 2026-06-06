@@ -183,13 +183,13 @@
       "comments": "{count} تعليق",
       "saves": "{count} حفظ"
     },
-    "editComment": "????? ???????",
-    "deleteComment": "??? ???????",
-    "cancel": "?????",
-    "commentUpdated": "?? ????? ???????",
-    "commentDeleted": "?? ??? ???????",
-    "commentUpdateFailed": "??? ????? ???????",
-    "commentDeleteFailed": "??? ??? ???????"
+    "editComment": "تعديل التعليق",
+    "deleteComment": "حذف التعليق",
+    "cancel": "إلغاء",
+    "commentUpdated": "تم تحديث التعليق",
+    "commentDeleted": "تم حذف التعليق",
+    "commentUpdateFailed": "فشل تحديث التعليق",
+    "commentDeleteFailed": "فشل حذف التعليق"
   },
   "FeedComposer": {
     "title": "إنشاء منشور",
@@ -309,7 +309,7 @@
     "deleteConfirm": "هل أنت متأكد من حذف هذه الفكرة؟",
     "confirmDelete": "حذف",
     "confirmDeleteTitle": "حذف الفكرة",
-    "cancel": "?????",
+    "cancel": "إلغاء",
     "ideaUpdated": "تم تحديث الفكرة بنجاح",
     "ideaDeleted": "تم حذف الفكرة بنجاح",
     "showMore": "عرض المزيد",
@@ -325,12 +325,12 @@
       "completed": "مكتملة",
       "rejected": "مرفوضة"
     },
-    "editComment": "????? ???????",
-    "deleteComment": "??? ???????",
-    "save": "???",
-    "commentUpdated": "?? ????? ???????",
-    "commentDeleted": "?? ??? ???????",
-    "commentUpdateFailed": "??? ????? ???????"
+    "editComment": "تعديل التعليق",
+    "deleteComment": "حذف التعليق",
+    "save": "حفظ",
+    "commentUpdated": "تم تحديث التعليق",
+    "commentDeleted": "تم حذف التعليق",
+    "commentUpdateFailed": "فشل تحديث التعليق"
   },
   "IdeaForm": {
     "title": "إرسال فكرة مدنية",

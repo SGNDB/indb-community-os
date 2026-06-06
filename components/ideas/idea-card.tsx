@@ -272,8 +272,8 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
             ) : null}
           </div>
 
-          <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:items-center min-w-0">
-            <div className="flex flex-wrap items-center gap-2 min-w-0">
+          <div className="pt-1">
+            <div className="flex min-w-0 flex-wrap items-start gap-2">
               <VoteButton
                 ideaId={idea.id}
                 votes={idea.votes_count}
@@ -282,16 +282,21 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
                 totalUsers={totalUsers ?? 0}
                 hideDetails
               />
-              <IdeaComments ideaId={idea.id} contentOwnerId={idea.author_id} />
+              <IdeaComments
+                ideaId={idea.id}
+                contentOwnerId={idea.author_id}
+                rootClassName="contents"
+                panelClassName="order-last basis-full w-full"
+              />
+              <button
+                type="button"
+                onClick={handleShare}
+                className="inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-border/60 px-4 py-2.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground sm:w-auto"
+              >
+                <Share2 size={16} />
+                {t("share")}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={handleShare}
-              className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-xl border border-border/60 px-4 py-2.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
-            >
-              <Share2 size={16} />
-              {t("share")}
-            </button>
           </div>
         </CardContent>
       </Card>

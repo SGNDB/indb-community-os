@@ -20,6 +20,7 @@ import {
 } from "@/app/[locale]/server-actions";
 import {UserAvatar} from "@/components/layout/user-avatar";
 import {createClient} from "@/lib/supabase/client";
+import {cn} from "@/lib/utils/cn";
 import type {IdeaCommentWithAuthor} from "@/types/database";
 
 function timeAgo(dateStr: string, locale: string): string {
@@ -44,13 +45,33 @@ function timeAgo(dateStr: string, locale: string): string {
   return `${month}${locale === "ar" ? "ش" : "mo"}`;
 }
 
+function localizedTimeAgo(dateStr: string, locale: string): string {
+  if (locale !== "ar") return timeAgo(dateStr, locale);
+
+  const now = Date.now();
+  const then = new Date(dateStr).getTime();
+  const diffSec = Math.floor((now - then) / 1000);
+
+  if (diffSec < 60) return "\u0627\u0644\u0622\u0646";
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}\u062f`;
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}\u0633`;
+  if (diffSec < 2592000) return `${Math.floor(diffSec / 86400)}\u064a`;
+  return `${Math.floor(diffSec / 2592000)}\u0634`;
+}
+
 export function IdeaComments({
   ideaId,
   contentOwnerId,
+  rootClassName,
+  buttonClassName,
+  panelClassName,
   onCommentCountChange,
 }: {
   ideaId: string;
   contentOwnerId?: string | null;
+  rootClassName?: string;
+  buttonClassName?: string;
+  panelClassName?: string;
   onCommentCountChange?: (count: number) => void;
 }) {
   const t = useTranslations("Ideas");
@@ -189,11 +210,14 @@ export function IdeaComments({
   }
 
   return (
-    <div>
+    <div className={cn("space-y-3", rootClassName)}>
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="inline-flex items-center gap-1.5 rounded-xl border border-border/60 px-4 py-2.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
+        className={cn(
+          "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-border/60 px-4 py-2.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground",
+          buttonClassName,
+        )}
       >
         <MessageSquare size={16} />
         {t("commentsWithCount", {count: comments.length})}
@@ -207,9 +231,9 @@ export function IdeaComments({
             animate={{height: "auto", opacity: 1}}
             exit={{height: 0, opacity: 0}}
             transition={{duration: 0.2, ease: "easeInOut"}}
-            className="overflow-hidden"
+            className={cn("overflow-visible", panelClassName)}
           >
-            <div className="mt-3 space-y-3">
+            <div className="space-y-3 rounded-2xl border border-border/60 bg-muted/20 p-3">
               {loading ? (
                 <div className="flex items-center justify-center py-4">
                   <Loader2 size={16} className="animate-spin text-muted-foreground" />
@@ -227,7 +251,7 @@ export function IdeaComments({
                     const canDelete = isOwn || (!!currentUserId && currentUserId === contentOwnerId);
                     const isEditing = editingCommentId === comment.id;
                     return (
-                      <div key={comment.id} className="flex gap-2.5">
+                      <div key={comment.id} className="flex min-w-0 gap-2.5 text-start">
                         <UserAvatar
                           label={commentAuthorName}
                           avatarUrl={comment.author?.avatar_url}
@@ -237,7 +261,7 @@ export function IdeaComments({
                           <div className="flex items-baseline gap-2">
                             <span className="text-xs font-medium">{commentAuthorName}</span>
                             <span className="text-xs text-muted-foreground">
-                              {timeAgo(comment.created_at, locale)}
+                              {localizedTimeAgo(comment.created_at, locale)}
                             </span>
                           </div>
                           {isEditing ? (
@@ -269,7 +293,7 @@ export function IdeaComments({
                               </div>
                             </div>
                           ) : (
-                            <p className="text-base text-foreground/90 mt-0.5">{comment.content}</p>
+                            <p className="mt-0.5 break-words text-base text-foreground/90 [overflow-wrap:anywhere]">{comment.content}</p>
                           )}
                         </div>
                         {canDelete && !isEditing ? (
@@ -283,7 +307,7 @@ export function IdeaComments({
                               {deletePending ? <Loader2 size={12} className="animate-spin" /> : <MoreHorizontal size={14} />}
                             </button>
                             {openMenuCommentId === comment.id ? (
-                              <div className="absolute end-0 top-full z-20 mt-1 min-w-[170px] rounded-xl border border-border/60 bg-card py-1 shadow-lg">
+                              <div className="absolute end-0 top-full z-30 mt-1 min-w-[190px] rounded-xl border border-border/60 bg-card py-1 shadow-lg">
                                 {canEdit ? (
                                   <button
                                     type="button"
@@ -306,7 +330,7 @@ export function IdeaComments({
                                   {t("deleteComment")}
                                 </button>
                               </div>
-                          ) : null}
+                            ) : null}
                           </div>
                         ) : null}
                         </div>
