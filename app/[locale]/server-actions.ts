@@ -31,7 +31,7 @@ import {
   profileSchema,
   registerSchema,
 } from "@/lib/validations/community";
-import type {IdeaCommentWithAuthor, MemoryCommentWithAuthor, MemoryReactionType, ReactionType} from "@/types/database";
+import type {CommentWithAuthor, IdeaCommentWithAuthor, MemoryCommentWithAuthor, MemoryReactionType, ReactionType} from "@/types/database";
 
 function normalizeLocale(value: FormDataEntryValue | null) {
   const locale = typeof value === "string" ? value : routing.defaultLocale;
@@ -404,7 +404,7 @@ export async function addCommentAction(formData: FormData) {
 
 export async function submitCommentAction(
   formData: FormData,
-): Promise<{success: boolean; error?: string}> {
+): Promise<{success: boolean; error?: string; comment?: CommentWithAuthor}> {
   const postId = formData.get("postId");
   const supabase = await createClient();
 
@@ -426,19 +426,23 @@ export async function submitCommentAction(
     return {success: false, error: "post_not_found"};
   }
 
-  const {error: insertError} = await supabase.from("comments").insert({
-    post_id: postId,
-    author_id: user.id,
-    content: parsed.data.content,
-  });
+  const {data: newComment, error: insertError} = await supabase
+    .from("comments")
+    .insert({
+      post_id: postId,
+      author_id: user.id,
+      content: parsed.data.content,
+    })
+    .select("*, author:profiles!comments_author_id_fkey(id, username, full_name, avatar_url)")
+    .single();
 
-  if (insertError) return {success: false, error: "insert_failed"};
+  if (insertError || !newComment) return {success: false, error: "insert_failed"};
 
   if (postForNotify.author_id !== user.id) {
     await createCommentNotification(postForNotify.author_id, user.id, postId);
   }
 
-  return {success: true};
+  return {success: true, comment: newComment as unknown as CommentWithAuthor};
 }
 
 export async function toggleReactionAction(formData: FormData) {
@@ -984,7 +988,17 @@ export async function deleteCommentAction(formData: FormData) {
     .eq("id", commentId)
     .single();
 
-  if (!comment || comment.author_id !== user.id) {
+  if (!comment) {
+    redirect(toPath(locale, returnPath));
+  }
+
+  const {data: post} = await supabase
+    .from("posts")
+    .select("author_id")
+    .eq("id", comment.post_id)
+    .single();
+
+  if (comment.author_id !== user.id && post?.author_id !== user.id) {
     redirect(toPath(locale, returnPath));
   }
 
@@ -992,6 +1006,99 @@ export async function deleteCommentAction(formData: FormData) {
 
   revalidatePath(toPath(locale, returnPath));
   redirect(toPath(locale, appendParam(returnPath, "commentDeleted", "1")));
+}
+
+export async function updatePostCommentAction(
+  formData: FormData,
+): Promise<{success: boolean; error?: string; comment?: CommentWithAuthor}> {
+  const commentId = formData.get("commentId");
+  const parsed = commentSchema.safeParse({content: formData.get("content")});
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: "unauthorized"};
+  }
+
+  if (typeof commentId !== "string" || !parsed.success) {
+    return {success: false, error: "invalid"};
+  }
+
+  const {data: comment} = await supabase
+    .from("comments")
+    .select("author_id")
+    .eq("id", commentId)
+    .single();
+
+  if (!comment || comment.author_id !== user.id) {
+    return {success: false, error: "forbidden"};
+  }
+
+  const {data: updatedComment, error: updateError} = await supabase
+    .from("comments")
+    .update({content: parsed.data.content, updated_at: new Date().toISOString()})
+    .eq("id", commentId)
+    .select("*, author:profiles!comments_author_id_fkey(id, username, full_name, avatar_url)")
+    .single();
+
+  if (updateError || !updatedComment) {
+    return {success: false, error: "update_failed"};
+  }
+
+  return {success: true, comment: updatedComment as unknown as CommentWithAuthor};
+}
+
+export async function deletePostCommentAction(
+  formData: FormData,
+): Promise<{success: boolean; error?: string}> {
+  const commentId = formData.get("commentId");
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: "unauthorized"};
+  }
+
+  if (typeof commentId !== "string") {
+    return {success: false, error: "invalid"};
+  }
+
+  const {data: comment} = await supabase
+    .from("comments")
+    .select("author_id, post_id")
+    .eq("id", commentId)
+    .single();
+
+  if (!comment) {
+    return {success: false, error: "not_found"};
+  }
+
+  const {data: post} = await supabase
+    .from("posts")
+    .select("author_id")
+    .eq("id", comment.post_id)
+    .single();
+
+  if (comment.author_id !== user.id && post?.author_id !== user.id) {
+    return {success: false, error: "forbidden"};
+  }
+
+  const {error: deleteError} = await supabase
+    .from("comments")
+    .delete()
+    .eq("id", commentId);
+
+  if (deleteError) {
+    return {success: false, error: "delete_failed"};
+  }
+
+  return {success: true};
 }
 
 export async function forgotPasswordAction(formData: FormData) {
@@ -1121,11 +1228,21 @@ export async function deleteIdeaCommentAction(
 
   const {data: comment} = await supabase
     .from("idea_comments")
-    .select("author_id")
+    .select("author_id, idea_id")
     .eq("id", commentId)
     .single();
 
-  if (!comment || comment.author_id !== user.id) {
+  if (!comment) {
+    return {success: false, error: "not_found"};
+  }
+
+  const {data: idea} = await supabase
+    .from("ideas")
+    .select("author_id")
+    .eq("id", comment.idea_id)
+    .single();
+
+  if (comment.author_id !== user.id && idea?.author_id !== user.id) {
     return {success: false, error: "forbidden"};
   }
 
@@ -1139,6 +1256,49 @@ export async function deleteIdeaCommentAction(
   }
 
   return {success: true};
+}
+
+export async function updateIdeaCommentAction(
+  formData: FormData,
+): Promise<{success: boolean; error?: string; comment?: IdeaCommentWithAuthor}> {
+  const commentId = formData.get("commentId");
+  const parsed = commentSchema.safeParse({content: formData.get("content")});
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: "unauthorized"};
+  }
+
+  if (typeof commentId !== "string" || !parsed.success) {
+    return {success: false, error: "invalid"};
+  }
+
+  const {data: comment} = await supabase
+    .from("idea_comments")
+    .select("author_id")
+    .eq("id", commentId)
+    .single();
+
+  if (!comment || comment.author_id !== user.id) {
+    return {success: false, error: "forbidden"};
+  }
+
+  const {data: updatedComment, error: updateError} = await supabase
+    .from("idea_comments")
+    .update({content: parsed.data.content, updated_at: new Date().toISOString()})
+    .eq("id", commentId)
+    .select("*, author:profiles!idea_comments_author_id_fkey(id, username, full_name, avatar_url)")
+    .single();
+
+  if (updateError || !updatedComment) {
+    return {success: false, error: "update_failed"};
+  }
+
+  return {success: true, comment: updatedComment as unknown as IdeaCommentWithAuthor};
 }
 
 export async function voteIdeaAction(
@@ -1352,11 +1512,21 @@ export async function deleteMemoryCommentAction(
 
   const {data: comment} = await supabase
     .from("memory_comments")
-    .select("author_id")
+    .select("author_id, memory_id")
     .eq("id", commentId)
     .single();
 
-  if (!comment || comment.author_id !== user.id) {
+  if (!comment) {
+    return {success: false, error: "not_found"};
+  }
+
+  const {data: memory} = await supabase
+    .from("memories")
+    .select("contributor_id")
+    .eq("id", comment.memory_id)
+    .single();
+
+  if (comment.author_id !== user.id && memory?.contributor_id !== user.id) {
     return {success: false, error: "forbidden"};
   }
 
@@ -1370,6 +1540,49 @@ export async function deleteMemoryCommentAction(
   }
 
   return {success: true};
+}
+
+export async function updateMemoryCommentAction(
+  formData: FormData,
+): Promise<{success: boolean; error?: string; comment?: MemoryCommentWithAuthor}> {
+  const commentId = formData.get("commentId");
+  const parsed = commentSchema.safeParse({content: formData.get("content")});
+  const supabase = await createClient();
+
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {success: false, error: "unauthorized"};
+  }
+
+  if (typeof commentId !== "string" || !parsed.success) {
+    return {success: false, error: "invalid"};
+  }
+
+  const {data: comment} = await supabase
+    .from("memory_comments")
+    .select("author_id")
+    .eq("id", commentId)
+    .single();
+
+  if (!comment || comment.author_id !== user.id) {
+    return {success: false, error: "forbidden"};
+  }
+
+  const {data: updatedComment, error: updateError} = await supabase
+    .from("memory_comments")
+    .update({content: parsed.data.content, updated_at: new Date().toISOString()})
+    .eq("id", commentId)
+    .select("*, author:profiles!memory_comments_author_id_fkey(id, username, full_name, avatar_url)")
+    .single();
+
+  if (updateError || !updatedComment) {
+    return {success: false, error: "update_failed"};
+  }
+
+  return {success: true, comment: updatedComment as unknown as MemoryCommentWithAuthor};
 }
 
 export async function saveMemoryAction(

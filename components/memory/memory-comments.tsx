@@ -1,12 +1,12 @@
 "use client";
 
 import {motion, AnimatePresence} from "framer-motion";
-import {Loader2, MessageSquare, SendHorizonal, Trash2} from "lucide-react";
+import {Edit3, Loader2, MessageSquare, MoreHorizontal, SendHorizonal, Trash2} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
 import React, {useEffect, useRef, useState, useTransition} from "react";
 import {toast} from "sonner";
 
-import {addMemoryCommentAction, deleteMemoryCommentAction} from "@/app/[locale]/server-actions";
+import {addMemoryCommentAction, deleteMemoryCommentAction, updateMemoryCommentAction} from "@/app/[locale]/server-actions";
 import {UserAvatar} from "@/components/layout/user-avatar";
 import {createClient} from "@/lib/supabase/client";
 import type {MemoryCommentWithAuthor} from "@/types/database";
@@ -35,12 +35,14 @@ function timeAgo(dateStr: string, locale: string): string {
 
 export function MemoryComments({
   memoryId,
+  contentOwnerId,
   onCommentCountChange,
   children,
   open: controlledOpen,
   onToggle,
 }: {
   memoryId: string;
+  contentOwnerId?: string | null;
   onCommentCountChange?: (count: number) => void;
   children?: React.ReactNode;
   open?: boolean;
@@ -56,7 +58,11 @@ export function MemoryComments({
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editInput, setEditInput] = useState("");
+  const [openMenuCommentId, setOpenMenuCommentId] = useState<string | null>(null);
   const [addPending, startAddTransition] = useTransition();
+  const [editPending, startEditTransition] = useTransition();
   const [deletePending, startDeleteTransition] = useTransition();
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -132,6 +138,43 @@ export function MemoryComments({
 
       setComments((prev) => prev.filter((c) => c.id !== commentId));
       onCommentCountChange?.(comments.length - 1);
+      toast.success(t("commentDeleted"));
+    });
+  }
+
+  function startEditing(comment: MemoryCommentWithAuthor) {
+    setOpenMenuCommentId(null);
+    setEditingCommentId(comment.id);
+    setEditInput(comment.content);
+  }
+
+  function cancelEditing() {
+    setEditingCommentId(null);
+    setEditInput("");
+  }
+
+  async function handleUpdate(commentId: string) {
+    const trimmed = editInput.trim();
+    if (!trimmed || editPending) return;
+
+    const formData = new FormData();
+    formData.set("commentId", commentId);
+    formData.set("content", trimmed);
+
+    startEditTransition(async () => {
+      const result = await updateMemoryCommentAction(formData);
+
+      if (!result.success || !result.comment) {
+        toast.error(t("commentUpdateFailed"));
+        return;
+      }
+
+      setComments((prev) => prev.map((comment) => (
+        comment.id === result.comment!.id ? result.comment! : comment
+      )));
+      setEditingCommentId(null);
+      setEditInput("");
+      toast.success(t("commentUpdated"));
     });
   }
 
@@ -185,6 +228,9 @@ export function MemoryComments({
                   {comments.map((comment) => {
                     const commentAuthorName = comment.author?.full_name ?? comment.author?.username ?? t("unknownAuthor");
                     const isOwn = currentUserId === comment.author_id;
+                    const canEdit = isOwn;
+                    const canDelete = isOwn || (!!currentUserId && currentUserId === contentOwnerId);
+                    const isEditing = editingCommentId === comment.id;
                     return (
                       <div key={comment.id} className="flex gap-2.5">
                         <UserAvatar
@@ -200,20 +246,76 @@ export function MemoryComments({
                                 {timeAgo(comment.created_at, locale)}
                               </span>
                             </div>
-                            <p className="text-sm text-foreground/90 leading-relaxed">{comment.content}</p>
-                            {isOwn ? (
-                              <button
-                                type="button"
-                                onClick={() => handleDelete(comment.id)}
-                                disabled={deletePending}
-                                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition self-start"
-                              >
-                                <Trash2 size={11} />
-                                {t("delete") ?? "Delete"}
-                              </button>
-                            ) : null}
+                            {isEditing ? (
+                              <div className="space-y-2">
+                                <textarea
+                                  value={editInput}
+                                  onChange={(event) => setEditInput(event.target.value)}
+                                  rows={2}
+                                  className="w-full resize-none rounded-xl border border-border/60 bg-card px-3 py-2 text-sm outline-none ring-primary/30 focus:ring"
+                                />
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdate(comment.id)}
+                                    disabled={editPending || !editInput.trim()}
+                                    className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs text-primary-foreground disabled:opacity-50"
+                                  >
+                                    {editPending ? <Loader2 size={13} className="animate-spin" /> : null}
+                                    {t("save")}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={cancelEditing}
+                                    disabled={editPending}
+                                    className="inline-flex min-h-9 items-center rounded-lg px-3 text-xs text-muted-foreground hover:bg-muted"
+                                  >
+                                    {t("cancel")}
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-foreground/90 leading-relaxed">{comment.content}</p>
+                            )}
                           </div>
                         </div>
+                        {canDelete && !isEditing ? (
+                          <div className="relative shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => setOpenMenuCommentId((previous) => previous === comment.id ? null : comment.id)}
+                              disabled={deletePending}
+                              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted"
+                            >
+                              {deletePending ? <Loader2 size={12} className="animate-spin" /> : <MoreHorizontal size={14} />}
+                            </button>
+                            {openMenuCommentId === comment.id ? (
+                              <div className="absolute end-0 top-full z-20 mt-1 min-w-[170px] rounded-xl border border-border/60 bg-card py-1 shadow-lg">
+                                {canEdit ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => startEditing(comment)}
+                                    className="flex w-full items-center gap-2 px-3 py-2 text-start text-xs text-foreground hover:bg-muted"
+                                  >
+                                    <Edit3 size={13} />
+                                    {t("editComment")}
+                                  </button>
+                                ) : null}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setOpenMenuCommentId(null);
+                                    handleDelete(comment.id);
+                                  }}
+                                  className="flex w-full items-center gap-2 px-3 py-2 text-start text-xs text-destructive hover:bg-muted"
+                                >
+                                  <Trash2 size={13} />
+                                  {t("deleteComment")}
+                                </button>
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : null}
                       </div>
                     );
                   })}

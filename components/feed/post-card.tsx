@@ -119,33 +119,15 @@ export function PostCard({
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const content = formData.get("content") as string;
 
     startCommentTransition(async () => {
       const result = await submitCommentAction(formData);
       if (result.success) {
         form.reset();
-        const supabase = createClient();
-        const {data: {user}} = await supabase.auth.getUser();
-        const {data: profile} = user ? await supabase
-          .from("profiles")
-          .select("id, username, full_name, avatar_url")
-          .eq("id", user.id)
-          .single() : {data: null};
-
-        const newComment: CommentWithAuthor = {
-          id: `temp-${Date.now()}`,
-          post_id: post.id,
-          author_id: currentUserId ?? null,
-          parent_id: null,
-          content,
-          status: "published",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          author: profile ? {id: profile.id, username: profile.username, full_name: profile.full_name, avatar_url: profile.avatar_url} : null,
-        };
-        setLocalComments((prev) => [newComment, ...prev]);
-        setCommentsCount((c) => c + 1);
+        if (result.comment) {
+          setLocalComments((prev) => [result.comment!, ...prev]);
+          setCommentsCount((count) => count + 1);
+        }
       } else {
         toast.error(errors("commentFailed"));
       }
@@ -215,6 +197,17 @@ export function PostCard({
       setSavesCount(prevCount);
       toast.error(errors("saveFailed"));
     }
+  }
+
+  function handleCommentUpdated(updatedComment: CommentWithAuthor) {
+    setLocalComments((previous) => previous.map((comment) => (
+      comment.id === updatedComment.id ? updatedComment : comment
+    )));
+  }
+
+  function handleCommentDeleted(commentId: string) {
+    setLocalComments((previous) => previous.filter((comment) => comment.id !== commentId));
+    setCommentsCount((count) => Math.max(0, count - 1));
   }
 
   async function onToggleTranslation() {
@@ -419,9 +412,10 @@ export function PostCard({
                      authorAvatarUrl={comment.author?.avatar_url}
                      content={comment.content}
                      timeAgo={timeAgo(comment.created_at, locale)}
-                     isOwn={isOwnComment}
-                     locale={locale}
-                     returnTo={returnPath}
+                     canEdit={isOwnComment}
+                     canDelete={isOwnComment || isOwnPost}
+                     onUpdated={handleCommentUpdated}
+                     onDeleted={handleCommentDeleted}
                    />
                 );
               })}

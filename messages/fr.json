@@ -174,7 +174,7 @@
       "like": "J'aime",
       "love": "J'adore",
       "support": "Soutien",
-      "celebrate": "C\u00e9l\u00e9brer",
+      "celebrate": "Célébrer",
       "insightful": "Pertinent",
       "sad": "Triste"
     },
@@ -182,7 +182,14 @@
       "likes": "{count} J'aime",
       "comments": "{count} Commentaires",
       "saves": "{count} Enregistrements"
-    }
+    },
+    "editComment": "Modifier le commentaire",
+    "deleteComment": "Supprimer le commentaire",
+    "cancel": "Annuler",
+    "commentUpdated": "Commentaire mis ? jour",
+    "commentDeleted": "Commentaire supprim?",
+    "commentUpdateFailed": "?chec de la mise ? jour du commentaire",
+    "commentDeleteFailed": "?chec de la suppression du commentaire"
   },
   "FeedComposer": {
     "title": "Créer une publication",
@@ -317,7 +324,13 @@
       "inProgress": "En cours",
       "completed": "Terminée",
       "rejected": "Rejetée"
-    }
+    },
+    "editComment": "Modifier le commentaire",
+    "deleteComment": "Supprimer le commentaire",
+    "save": "Enregistrer",
+    "commentUpdated": "Commentaire mis ? jour",
+    "commentDeleted": "Commentaire supprim?",
+    "commentUpdateFailed": "?chec de la mise ? jour du commentaire"
   },
   "IdeaForm": {
     "title": "Soumettre une idée citoyenne",

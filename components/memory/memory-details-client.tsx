@@ -153,6 +153,7 @@ export function MemoryDetailsClient({
             <MemoryActions
               memoryId={memory.id}
               locale={locale}
+              contentOwnerId={memory.contributor_id}
               reactionCounts={reactionCounts}
               userReaction={userReaction}
               onReactionCountsChange={setReactionCounts}

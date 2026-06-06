@@ -14,6 +14,7 @@ import type {MemoryReactionType} from "@/types/database";
 export function MemoryActions({
   memoryId,
   locale,
+  contentOwnerId,
   reactionCounts,
   userReaction,
   onReactionCountsChange,
@@ -21,6 +22,7 @@ export function MemoryActions({
 }: {
   memoryId: string;
   locale: string;
+  contentOwnerId?: string | null;
   reactionCounts: Record<string, number>;
   userReaction: MemoryReactionType | null;
   onReactionCountsChange: (counts: Record<string, number>) => void;
@@ -175,6 +177,7 @@ export function MemoryActions({
       </div>
       <MemoryComments
         memoryId={memoryId}
+        contentOwnerId={contentOwnerId}
         onCommentCountChange={setCommentCount}
         open={commentsOpen}
         onToggle={() => setCommentsOpen((p) => !p)}

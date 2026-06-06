@@ -182,7 +182,14 @@
       "likes": "{count} Likes",
       "comments": "{count} Comments",
       "saves": "{count} Saves"
-    }
+    },
+    "editComment": "Edit comment",
+    "deleteComment": "Delete comment",
+    "cancel": "Cancel",
+    "commentUpdated": "Comment updated",
+    "commentDeleted": "Comment deleted",
+    "commentUpdateFailed": "Failed to update comment",
+    "commentDeleteFailed": "Failed to delete comment"
   },
   "FeedComposer": {
     "title": "Create post",
@@ -317,7 +324,13 @@
       "inProgress": "In Progress",
       "completed": "Completed",
       "rejected": "Rejected"
-    }
+    },
+    "editComment": "Edit comment",
+    "deleteComment": "Delete comment",
+    "save": "Save",
+    "commentUpdated": "Comment updated",
+    "commentDeleted": "Comment deleted",
+    "commentUpdateFailed": "Failed to update comment"
   },
   "IdeaForm": {
     "title": "Submit a civic idea",

@@ -282,7 +282,7 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
                 totalUsers={totalUsers ?? 0}
                 hideDetails
               />
-              <IdeaComments ideaId={idea.id} />
+              <IdeaComments ideaId={idea.id} contentOwnerId={idea.author_id} />
             </div>
             <button
               type="button"
