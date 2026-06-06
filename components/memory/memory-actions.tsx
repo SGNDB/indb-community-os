@@ -33,7 +33,7 @@ export function MemoryActions({
   const [saved, setSaved] = useState(false);
   const [savePending, setSavePending] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
-  const [, setCommentCount] = useState(0);
+  const [commentCount, setCommentCount] = useState(0);
   const supabase = createClient();
 
   useEffect(() => {
@@ -146,6 +146,7 @@ export function MemoryActions({
           }`}
         >
           <MessageCircle size={18} className="shrink-0" />
+          {commentCount > 0 ? <span>{commentCount}</span> : null}
         </button>
         <button
           type="button"
