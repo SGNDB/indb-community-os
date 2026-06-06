@@ -115,7 +115,7 @@ export function MemoryReactions({
       <button
         type="button"
         onClick={() => setOpen((p) => !p)}
-        className={`inline-flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl px-3 text-sm transition sm:gap-2 sm:px-4 ${
+        className={`inline-flex min-h-11 w-full min-w-0 items-center justify-center gap-1.5 rounded-xl px-2 text-xs transition xl:text-sm ${
           userReaction
             ? "bg-primary/10 text-primary hover:bg-primary/15"
             : "text-muted-foreground hover:bg-muted"

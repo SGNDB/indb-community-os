@@ -37,10 +37,10 @@ export default async function MemoryPage({
   const memories = await getApprovedMemories();
 
   return (
-    <div className="space-y-3 sm:space-y-4">
+    <div className="space-y-5">
       <MemorySubmittedToast submitted={sp.memorySubmitted} updated={sp.memoryUpdated} />
 
-      <div className="rounded-2xl border border-border/70 bg-card p-3.5 shadow-[0_14px_34px_rgba(8,33,56,0.08)] sm:p-4">
+      <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-[0_14px_34px_rgba(8,33,56,0.08)] sm:p-5">
         <h1 className="text-xl font-semibold">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">{t("description")}</p>
         <div className="mt-3">

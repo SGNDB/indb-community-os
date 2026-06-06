@@ -105,102 +105,106 @@ export function MemoryCard({
       animate={{opacity: 1, y: 0}}
       whileHover={{y: -3}}
       transition={{duration: 0.28, ease: "easeOut"}}
+      className="h-full min-w-0"
     >
-      <Card className="overflow-hidden border-border/70 shadow-[0_16px_36px_rgba(8,33,56,0.10)]">
-        <CardHeader className="pb-2.5 sm:pb-3">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-start gap-3 min-w-0">
-              {authorProfileHref ? (
-                <Link href={authorProfileHref} className="shrink-0 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/40">
-                  <UserAvatar label={contributorName} avatarUrl={memory.contributor?.avatar_url} className="h-11 w-11 shrink-0" />
-                </Link>
-              ) : (
-                <UserAvatar label={contributorName} avatarUrl={memory.contributor?.avatar_url} className="h-11 w-11 shrink-0" />
-              )}
-              <div className="space-y-1 min-w-0">
-                <CardTitle className="text-base leading-none sm:text-lg">
-                  {authorProfileHref ? (
-                    <Link href={authorProfileHref} className="transition hover:text-primary hover:underline">
-                      {contributorName}
-                    </Link>
-                  ) : (
-                    contributorName
-                  )}
-                </CardTitle>
-                <p className="text-xs text-muted-foreground sm:text-sm">
-                  {memoryTime} {feed("ago")}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-1 shrink-0">
-              <Badge className="bg-brand-primary-soft px-2.5 py-1 text-xs text-brand-primary sm:text-sm">
-                {memory.decade ?? memory.year ?? "?"}
-              </Badge>
-              {isOwner && !userLoading ? (
-                <div className="relative" ref={menuRef}>
-                  <button
-                    type="button"
-                    onClick={() => setMenuOpen((p) => !p)}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted"
-                  >
-                    <MoreHorizontal size={16} />
-                  </button>
-                  {menuOpen ? (
-                    <div
-                      className="absolute end-0 top-full z-10 mt-1 min-w-[140px] rounded-xl border border-border/60 bg-card py-1 shadow-lg"
-                    >
-                      <Link
-                        href={`/memory/submit?id=${memory.id}`}
-                        className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <Pencil size={14} />
-                        {t("edit")}
-                      </Link>
-                      <button
-                        type="button"
-                        className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-destructive hover:bg-muted transition-colors"
-                        onClick={() => { setMenuOpen(false); setShowDeleteConfirm(true); }}
-                      >
-                        <Trash2 size={14} />
-                        {t("delete")}
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className="space-y-3.5 pt-0 sm:space-y-4">
-          <Link href={`/memory/${memory.id}`} className="block space-y-3.5 sm:space-y-4">
+      <Card className="flex h-full min-w-0 flex-col overflow-visible border-border/70 shadow-[0_16px_36px_rgba(8,33,56,0.10)]">
+        <div className="relative">
+          <Link href={`/memory/${memory.id}`} className="block">
             {memory.media_url ? (
-              <div className="overflow-hidden rounded-2xl border border-border/70">
+              <div className="aspect-[4/3] w-full overflow-hidden rounded-t-2xl bg-muted">
                 <img
                   src={memory.media_url}
                   alt={memory.title}
-                  className="h-56 w-full object-cover transition duration-300 hover:scale-[1.02] sm:h-72"
+                  className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]"
                 />
               </div>
             ) : (
-              <div className="flex h-48 w-full items-center justify-center rounded-2xl bg-gradient-to-br from-brand-primary/10 via-brand-primary/5 to-muted sm:h-56">
+              <div className="flex aspect-[4/3] w-full items-center justify-center rounded-t-2xl bg-gradient-to-br from-brand-primary/10 via-brand-primary/5 to-muted">
                 <div className="flex flex-col items-center gap-2 text-muted-foreground/60">
-                  <Archive size={32} strokeWidth={1.5} />
+                  <Archive size={36} strokeWidth={1.5} />
                   <span className="text-xs font-medium">{t("storyMemory")}</span>
                 </div>
               </div>
             )}
+          </Link>
+
+          <div className="absolute start-3 top-3">
+            <Badge className="bg-card/90 px-2.5 py-1 text-xs text-brand-primary shadow-sm backdrop-blur sm:text-sm">
+              {memory.decade ?? memory.year ?? "?"}
+            </Badge>
+          </div>
+
+          {isOwner && !userLoading ? (
+            <div className="absolute end-3 top-3" ref={menuRef}>
+              <button
+                type="button"
+                onClick={() => setMenuOpen((p) => !p)}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-card/90 text-muted-foreground shadow-sm backdrop-blur hover:bg-card hover:text-foreground"
+              >
+                <MoreHorizontal size={16} />
+              </button>
+              {menuOpen ? (
+                <div className="absolute end-0 top-full z-20 mt-1 min-w-[140px] rounded-xl border border-border/60 bg-card py-1 shadow-lg">
+                  <Link
+                    href={`/memory/submit?id=${memory.id}`}
+                    className="flex w-full items-center gap-2 px-3 py-2.5 text-start text-sm text-foreground transition-colors hover:bg-muted"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <Pencil size={14} />
+                    {t("edit")}
+                  </Link>
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-2 px-3 py-2.5 text-start text-sm text-destructive transition-colors hover:bg-muted"
+                    onClick={() => { setMenuOpen(false); setShowDeleteConfirm(true); }}
+                  >
+                    <Trash2 size={14} />
+                    {t("delete")}
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+
+        <CardHeader className="pb-2.5 sm:pb-3">
+          <div className="flex items-start gap-3 text-start">
+            {authorProfileHref ? (
+              <Link href={authorProfileHref} className="shrink-0 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/40">
+                <UserAvatar label={contributorName} avatarUrl={memory.contributor?.avatar_url} className="h-10 w-10 shrink-0" />
+              </Link>
+            ) : (
+              <UserAvatar label={contributorName} avatarUrl={memory.contributor?.avatar_url} className="h-10 w-10 shrink-0" />
+            )}
+            <div className="min-w-0 space-y-1">
+              <CardTitle className="truncate text-sm leading-none sm:text-base">
+                {authorProfileHref ? (
+                  <Link href={authorProfileHref} className="transition hover:text-primary hover:underline">
+                    {contributorName}
+                  </Link>
+                ) : (
+                  contributorName
+                )}
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">
+                {memoryTime} {feed("ago")}
+              </p>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="flex flex-1 flex-col space-y-4 pt-0">
+          <Link href={`/memory/${memory.id}`} className="block min-w-0 flex-1 space-y-3 text-start">
 
             <div className="space-y-2">
-              <h3 className="text-base font-semibold leading-tight transition hover:text-primary sm:text-lg">{memory.title}</h3>
+              <h3 className="line-clamp-2 text-base font-semibold leading-tight transition hover:text-primary sm:text-lg">{memory.title}</h3>
               <p className="line-clamp-3 text-sm leading-6 text-foreground/90">{memory.description ?? memory.title}</p>
             </div>
 
             {memory.tags && memory.tags.length > 0 ? (
               <div className="flex flex-wrap gap-1.5">
                 {memory.tags.slice(0, 4).map((tag) => (
-                  <span key={tag} className="inline-flex items-center gap-1 rounded-full bg-muted/70 px-2 py-0.5 text-[10px] text-muted-foreground">
+                  <span key={tag} className="inline-flex min-w-0 items-center gap-1 rounded-full bg-muted/70 px-2 py-0.5 text-[10px] text-muted-foreground">
                     {tag}
                   </span>
                 ))}
@@ -211,7 +215,7 @@ export function MemoryCard({
             ) : null}
           </Link>
 
-          <div className="border-t border-border/60 pt-2">
+          <div className="mt-auto border-t border-border/60 pt-3">
             <MemoryActions
               memoryId={memory.id}
               locale={locale}

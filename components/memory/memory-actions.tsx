@@ -123,20 +123,20 @@ export function MemoryActions({
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-1 md:grid-cols-4">
+      <div className="flex flex-wrap gap-2">
         <MemoryReactions
           memoryId={memoryId}
           initialCounts={reactionCounts}
           initialUserReaction={userReaction}
           showLabels
-          className="w-full"
+          className="min-w-0 flex-[1_1_calc(50%-0.25rem)] xl:flex-1"
           onCountsChange={onReactionCountsChange}
           onUserReactionChange={onUserReactionChange}
         />
         <button
           type="button"
           onClick={handleCommentsToggle}
-          className={`flex items-center justify-center gap-1.5 min-h-[44px] rounded-xl px-2 text-sm transition ${
+          className={`flex min-h-11 min-w-0 flex-[1_1_calc(50%-0.25rem)] items-center justify-center gap-1.5 rounded-xl px-2 text-xs transition xl:flex-1 xl:text-sm ${
             commentsOpen
               ? "bg-primary/10 text-primary hover:bg-primary/15"
               : "text-muted-foreground hover:bg-muted"
@@ -149,7 +149,7 @@ export function MemoryActions({
           type="button"
           onClick={handleSave}
           disabled={savePending}
-          className={`flex items-center justify-center gap-1.5 min-h-[44px] rounded-xl px-2 text-sm transition ${
+          className={`flex min-h-11 min-w-0 flex-[1_1_calc(50%-0.25rem)] items-center justify-center gap-1.5 rounded-xl px-2 text-xs transition xl:flex-1 xl:text-sm ${
             saved
               ? "bg-primary/10 text-primary hover:bg-primary/15"
               : "text-muted-foreground hover:bg-muted"
@@ -165,7 +165,7 @@ export function MemoryActions({
         <button
           type="button"
           onClick={handleShare}
-          className="flex items-center justify-center gap-1.5 min-h-[44px] rounded-xl px-2 text-sm text-muted-foreground transition hover:bg-muted"
+          className="flex min-h-11 min-w-0 flex-[1_1_calc(50%-0.25rem)] items-center justify-center gap-1.5 rounded-xl px-2 text-xs text-muted-foreground transition hover:bg-muted xl:flex-1 xl:text-sm"
         >
           <Share2 size={18} className="shrink-0" />
           <span>{memoryT("share")}</span>
