@@ -47,19 +47,19 @@ export default async function LandingPage({
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <section className="relative overflow-hidden rounded-[24px] border border-[#E5E7EB] bg-white p-4 shadow-[0_10px_30px_rgba(0,0,0,0.06)] sm:p-6 md:p-9">
+      <section className="relative overflow-hidden rounded-[24px] border border-border bg-card p-4 shadow-[0_10px_30px_rgba(0,0,0,0.06)] sm:p-6 md:p-9">
         <div className="space-y-3 sm:space-y-4">
           <div className="hidden md:block">
             <Logo priority className="w-[120px]" />
           </div>
-          <p className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-[#4B5563]">
+          <p className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
             <Sparkles size={14} />
             {t("tagline")}
           </p>
-          <h1 className="max-w-3xl text-2xl font-semibold leading-tight text-black sm:text-3xl md:text-5xl">{t("heroTitle")}</h1>
-          <p className="max-w-2xl text-sm text-[#4B5563] md:text-base">{t("heroDescription")}</p>
-          <p className="text-sm font-medium text-black">{t("mottoPrimary")}</p>
-          <p className="text-xs text-[#4B5563]">{t("mottoSecondary")}</p>
+          <h1 className="max-w-3xl text-2xl font-semibold leading-tight text-foreground sm:text-3xl md:text-5xl">{t("heroTitle")}</h1>
+          <p className="max-w-2xl text-sm text-muted-foreground md:text-base">{t("heroDescription")}</p>
+          <p className="text-sm font-medium text-foreground">{t("mottoPrimary")}</p>
+          <p className="text-xs text-muted-foreground">{t("mottoSecondary")}</p>
 
           <div className="flex flex-wrap items-center gap-3">
             {isLoggedIn ? (
@@ -71,7 +71,7 @@ export default async function LandingPage({
                   </Button>
                 </Link>
                 <Link href="/memory">
-                  <Button variant="outline" className="border-black text-black hover:bg-gray-50">{t("exploreMemories")}</Button>
+                  <Button variant="outline">{t("exploreMemories")}</Button>
                 </Link>
               </>
             ) : (
@@ -83,7 +83,7 @@ export default async function LandingPage({
                   </Button>
                 </Link>
                 <Link href="/login">
-                  <Button variant="outline" className="border-black text-black hover:bg-gray-50">{t("login")}</Button>
+                  <Button variant="outline">{t("login")}</Button>
                 </Link>
               </>
             )}
