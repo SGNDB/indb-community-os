@@ -79,15 +79,16 @@ export function IdeaComments({
   const supabase = useRef(createClient()).current;
   const [open, setOpen] = useState(false);
   const [comments, setComments] = useState<IdeaCommentWithAuthor[]>([]);
+  const [commentCount, setCommentCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editInput, setEditInput] = useState("");
   const [openMenuCommentId, setOpenMenuCommentId] = useState<string | null>(null);
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
+  const [updatingCommentId, setUpdatingCommentId] = useState<string | null>(null);
   const [addPending, startAddTransition] = useTransition();
-  const [editPending, startEditTransition] = useTransition();
-  const [deletePending, startDeleteTransition] = useTransition();
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -95,6 +96,23 @@ export function IdeaComments({
       setCurrentUserId(data.user?.id ?? null);
     });
   }, [supabase]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    supabase
+      .from("idea_comments")
+      .select("*", {count: "exact", head: true})
+      .eq("idea_id", ideaId)
+      .then(({count}) => {
+        if (!cancelled) {
+          setCommentCount(count ?? 0);
+          onCommentCountChange?.(count ?? 0);
+        }
+      });
+
+    return () => { cancelled = true; };
+  }, [ideaId, onCommentCountChange, supabase]);
 
   useEffect(() => {
     if (!open) return;
@@ -109,14 +127,17 @@ export function IdeaComments({
         .order("created_at", {ascending: true});
 
       if (!cancelled) {
-        setComments((data ?? []) as unknown as IdeaCommentWithAuthor[]);
+        const nextComments = (data ?? []) as unknown as IdeaCommentWithAuthor[];
+        setComments(nextComments);
+        setCommentCount(nextComments.length);
+        onCommentCountChange?.(nextComments.length);
         setLoading(false);
       }
     }
 
     fetchComments();
     return () => { cancelled = true; };
-  }, [open, ideaId, supabase]);
+  }, [open, ideaId, onCommentCountChange, supabase]);
 
   async function handleSubmit() {
     const trimmed = input.trim();
@@ -139,20 +160,25 @@ export function IdeaComments({
       }
 
       if (result.comment) {
-        setComments((prev) => [...prev, result.comment!]);
+        setComments((prev) => {
+          const nextComments = [...prev, result.comment!];
+          setCommentCount(nextComments.length);
+          onCommentCountChange?.(nextComments.length);
+          return nextComments;
+        });
         setInput("");
-        onCommentCountChange?.(comments.length + 1);
       }
     });
   }
 
   async function handleDelete(commentId: string) {
-    if (deletePending) return;
+    if (deletingCommentId) return;
 
     const formData = new FormData();
     formData.set("commentId", commentId);
+    setDeletingCommentId(commentId);
 
-    startDeleteTransition(async () => {
+    try {
       const result = await deleteIdeaCommentAction(formData);
 
       if (!result.success) {
@@ -160,10 +186,16 @@ export function IdeaComments({
         return;
       }
 
-      setComments((prev) => prev.filter((c) => c.id !== commentId));
-      onCommentCountChange?.(comments.length - 1);
+      setComments((prev) => {
+        const nextComments = prev.filter((comment) => comment.id !== commentId);
+        setCommentCount(nextComments.length);
+        onCommentCountChange?.(nextComments.length);
+        return nextComments;
+      });
       toast.success(t("commentDeleted"));
-    });
+    } finally {
+      setDeletingCommentId(null);
+    }
   }
 
   function startEditing(comment: IdeaCommentWithAuthor) {
@@ -179,13 +211,14 @@ export function IdeaComments({
 
   async function handleUpdate(commentId: string) {
     const trimmed = editInput.trim();
-    if (!trimmed || editPending) return;
+    if (!trimmed || updatingCommentId) return;
 
     const formData = new FormData();
     formData.set("commentId", commentId);
     formData.set("content", trimmed);
+    setUpdatingCommentId(commentId);
 
-    startEditTransition(async () => {
+    try {
       const result = await updateIdeaCommentAction(formData);
 
       if (!result.success || !result.comment) {
@@ -199,7 +232,9 @@ export function IdeaComments({
       setEditingCommentId(null);
       setEditInput("");
       toast.success(t("commentUpdated"));
-    });
+    } finally {
+      setUpdatingCommentId(null);
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -220,7 +255,7 @@ export function IdeaComments({
         )}
       >
         <MessageSquare size={16} />
-        {t("commentsWithCount", {count: comments.length})}
+        {t("commentsWithCount", {count: commentCount})}
       </button>
 
       <AnimatePresence initial={false}>
@@ -250,6 +285,8 @@ export function IdeaComments({
                     const canEdit = isOwn;
                     const canDelete = isOwn || (!!currentUserId && currentUserId === contentOwnerId);
                     const isEditing = editingCommentId === comment.id;
+                    const isDeleting = deletingCommentId === comment.id;
+                    const isUpdating = updatingCommentId === comment.id;
                     return (
                       <div key={comment.id} className="flex min-w-0 gap-2.5 text-start">
                         <UserAvatar
@@ -276,16 +313,16 @@ export function IdeaComments({
                                 <button
                                   type="button"
                                   onClick={() => handleUpdate(comment.id)}
-                                  disabled={editPending || !editInput.trim()}
+                                  disabled={isUpdating || !editInput.trim()}
                                   className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs text-primary-foreground disabled:opacity-50"
                                 >
-                                  {editPending ? <Loader2 size={13} className="animate-spin" /> : null}
+                                  {isUpdating ? <Loader2 size={13} className="animate-spin" /> : null}
                                   {t("save")}
                                 </button>
                                 <button
                                   type="button"
                                   onClick={cancelEditing}
-                                  disabled={editPending}
+                                  disabled={isUpdating}
                                   className="inline-flex min-h-9 items-center rounded-lg px-3 text-xs text-muted-foreground hover:bg-muted"
                                 >
                                   {t("cancel")}
@@ -301,10 +338,10 @@ export function IdeaComments({
                             <button
                               type="button"
                               onClick={() => setOpenMenuCommentId((previous) => previous === comment.id ? null : comment.id)}
-                              disabled={deletePending}
+                              disabled={!!deletingCommentId}
                               className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted"
                             >
-                              {deletePending ? <Loader2 size={12} className="animate-spin" /> : <MoreHorizontal size={14} />}
+                              {isDeleting ? <Loader2 size={12} className="animate-spin" /> : <MoreHorizontal size={14} />}
                             </button>
                             {openMenuCommentId === comment.id ? (
                               <div className="absolute end-0 top-full z-30 mt-1 min-w-[190px] rounded-xl border border-border/60 bg-card py-1 shadow-lg">
