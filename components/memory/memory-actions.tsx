@@ -123,12 +123,13 @@ export function MemoryActions({
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-1">
+      <div className="grid grid-cols-2 gap-1 md:grid-cols-4">
         <MemoryReactions
           memoryId={memoryId}
           initialCounts={reactionCounts}
           initialUserReaction={userReaction}
           showLabels
+          className="w-full"
           onCountsChange={onReactionCountsChange}
           onUserReactionChange={onUserReactionChange}
         />

@@ -22,6 +22,7 @@ export function MemoryReactions({
   initialCounts,
   initialUserReaction,
   showLabels,
+  className,
   onCountsChange,
   onUserReactionChange,
 }: {
@@ -29,6 +30,7 @@ export function MemoryReactions({
   initialCounts?: Record<string, number>;
   initialUserReaction?: MemoryReactionType | null;
   showLabels?: boolean;
+  className?: string;
   onCountsChange?: (counts: Record<string, number>) => void;
   onUserReactionChange?: (reaction: MemoryReactionType | null) => void;
 }) {
@@ -109,11 +111,11 @@ export function MemoryReactions({
   }
 
   return (
-    <div className="relative inline-flex">
+    <div className={`relative inline-flex ${className ?? ""}`}>
       <button
         type="button"
         onClick={() => setOpen((p) => !p)}
-        className={`inline-flex min-h-12 items-center justify-center gap-1.5 rounded-xl px-3 text-sm transition sm:gap-2 sm:px-4 ${
+        className={`inline-flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl px-3 text-sm transition sm:gap-2 sm:px-4 ${
           userReaction
             ? "bg-primary/10 text-primary hover:bg-primary/15"
             : "text-muted-foreground hover:bg-muted"
