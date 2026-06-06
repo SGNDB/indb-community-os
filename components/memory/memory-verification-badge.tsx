@@ -17,7 +17,7 @@ const palette: Record<MemoryVerificationStatus, string> = {
   pending: "border-amber-300/40 bg-amber-50/70 text-amber-700 dark:border-amber-700/30 dark:bg-amber-950/20 dark:text-amber-400",
   approved: "border-emerald-300/40 bg-emerald-50/70 text-emerald-700 dark:border-emerald-700/30 dark:bg-emerald-950/20 dark:text-emerald-400",
   rejected: "border-destructive/20 bg-destructive/10 text-destructive",
-  needs_more_info: "border-blue-300/40 bg-blue-50/70 text-blue-700 dark:border-blue-700/30 dark:bg-blue-950/20 dark:text-blue-400",
+  needs_more_info: "border-gray-300/40 bg-gray-50/70 text-gray-700 dark:border-gray-700/30 dark:bg-gray-800/20 dark:text-gray-400",
 };
 
 const keys: Record<MemoryVerificationStatus, string> = {

@@ -25,8 +25,8 @@ const badgeTranslationKeys: Record<IdeaBadge, string> = {
 };
 
 const badgeStyles: Record<IdeaBadge, string> = {
-  new_idea: "bg-sky-50 text-sky-700 dark:bg-sky-900/20 dark:text-sky-400",
-  growing_support: "bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400",
+  new_idea: "bg-gray-50 text-gray-600 dark:bg-gray-800/30 dark:text-gray-400",
+  growing_support: "bg-gray-100 text-gray-700 dark:bg-gray-800/40 dark:text-gray-300",
   popular: "bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400",
   community_priority: "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400",
   top_priority: "bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400",

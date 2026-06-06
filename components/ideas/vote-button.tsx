@@ -21,8 +21,8 @@ interface VoteButtonProps {
 }
 
 const badgeConfig: Record<IdeaBadge, {icon: typeof Flame; bg: string; text: string; iconClass: string; translationKey: string}> = {
-  new_idea: {icon: Sparkles, bg: "bg-sky-50 dark:bg-sky-900/20", text: "text-sky-700 dark:text-sky-400", iconClass: "text-sky-500", translationKey: "badgeNewIdea"},
-  growing_support: {icon: TrendingUp, bg: "bg-teal-50 dark:bg-teal-900/20", text: "text-teal-700 dark:text-teal-400", iconClass: "text-teal-500", translationKey: "badgeGrowingSupport"},
+  new_idea: {icon: Sparkles, bg: "bg-gray-50 dark:bg-gray-800/30", text: "text-gray-600 dark:text-gray-400", iconClass: "text-gray-400", translationKey: "badgeNewIdea"},
+  growing_support: {icon: TrendingUp, bg: "bg-gray-100 dark:bg-gray-800/40", text: "text-gray-700 dark:text-gray-300", iconClass: "text-gray-500", translationKey: "badgeGrowingSupport"},
   popular: {icon: Flame, bg: "bg-orange-50 dark:bg-orange-900/20", text: "text-orange-700 dark:text-orange-400", iconClass: "text-orange-500", translationKey: "badgePopular"},
   community_priority: {icon: Star, bg: "bg-amber-50 dark:bg-amber-900/20", text: "text-amber-700 dark:text-amber-400", iconClass: "text-amber-500", translationKey: "badgeCommunityPriority"},
   top_priority: {icon: Trophy, bg: "bg-purple-50 dark:bg-purple-900/20", text: "text-purple-700 dark:text-purple-400", iconClass: "text-purple-500", translationKey: "badgeTopPriority"},
