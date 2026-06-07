@@ -113,7 +113,6 @@ export function IdeaSubmitForm({
 
       if (result.success) {
         toast.success(t("successMessage"));
-        router.refresh();
         router.push("/ideas");
         return;
       }

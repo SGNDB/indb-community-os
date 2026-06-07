@@ -112,35 +112,33 @@ export function MemoryCard({
     >
       <Card className="flex h-full min-w-0 flex-col overflow-visible border-border/70 shadow-[0_16px_36px_rgba(8,33,56,0.10)]">
         <div className="relative">
-          <Link href={`/memory/${memory.id}`} className="block">
-            {memory.media && memory.media.length > 0 ? (
-              <MediaGallery
-                items={memory.media.map((m) => ({url: m.url, type: m.type}))}
-                className="aspect-[4/3]"
-              />
-            ) : memory.media_url ? (
-              <div className="aspect-[4/3] w-full overflow-hidden rounded-t-2xl bg-muted">
-                <button
-                  type="button"
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxOpen(true); }}
-                  className="block h-full w-full cursor-pointer"
-                >
-                  <img
-                    src={memory.media_url}
-                    alt={memory.title}
-                    className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]"
-                  />
-                </button>
+          {memory.media && memory.media.length > 0 ? (
+            <MediaGallery
+              items={memory.media.map((m) => ({url: m.url, type: m.type}))}
+              className="aspect-[4/3]"
+            />
+          ) : memory.media_url ? (
+            <div className="aspect-[4/3] w-full overflow-hidden rounded-t-2xl bg-muted">
+              <button
+                type="button"
+                onClick={() => setLightboxOpen(true)}
+                className="block h-full w-full cursor-pointer"
+              >
+                <img
+                  src={memory.media_url}
+                  alt={memory.title}
+                  className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]"
+                />
+              </button>
+            </div>
+          ) : (
+            <div className="flex aspect-[4/3] w-full items-center justify-center rounded-t-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-muted">
+              <div className="flex flex-col items-center gap-2 text-muted-foreground/60">
+                <Archive size={36} strokeWidth={1.5} />
+                <span className="text-xs font-medium">{t("storyMemory")}</span>
               </div>
-            ) : (
-              <div className="flex aspect-[4/3] w-full items-center justify-center rounded-t-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-muted">
-                <div className="flex flex-col items-center gap-2 text-muted-foreground/60">
-                  <Archive size={36} strokeWidth={1.5} />
-                  <span className="text-xs font-medium">{t("storyMemory")}</span>
-                </div>
-              </div>
-            )}
-          </Link>
+            </div>
+          )}
           {memory.media_url && (!memory.media || memory.media.length === 0) ? (
             <ImageLightbox
               images={[memory.media_url]}

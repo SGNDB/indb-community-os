@@ -83,7 +83,6 @@ export function PostEditForm({
               const result = await updatePostAction(formData);
               if (result.success) {
                 toast.success(toastT("postUpdated"));
-                router.refresh();
                 router.push("/feed");
                 return;
               }
