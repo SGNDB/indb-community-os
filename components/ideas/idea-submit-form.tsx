@@ -30,6 +30,7 @@ export function IdeaSubmitForm({
   } | null;
 }) {
   const t = useTranslations("IdeaForm");
+  const imageUploadT = useTranslations("ImageUpload");
   const confirmT = useTranslations("ConfirmDialog");
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -44,6 +45,7 @@ export function IdeaSubmitForm({
   const [descError, setDescError] = useState<string | null>(null);
 
   const isEditing = !!initialData;
+  const mediaUploading = mediaItems.some((item) => item.uploading);
 
   const existingMediaItems: ExistingMediaItem[] | undefined = initialData?.media?.map((m) => ({
     storagePath: m.storage_path,
@@ -64,6 +66,10 @@ export function IdeaSubmitForm({
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (submitting) return;
+    if (mediaUploading) {
+      toast.error(imageUploadT("uploading"));
+      return;
+    }
 
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -223,20 +229,20 @@ export function IdeaSubmitForm({
                 type="button"
                 variant="outline"
                 onClick={handleCancel}
-                disabled={submitting}
+                disabled={submitting || mediaUploading}
                 className="w-full sm:w-auto"
               >
                 {t("cancel")}
               </Button>
               <Button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || mediaUploading}
                 className="w-full sm:w-auto"
               >
-                {submitting ? (
+                {submitting || mediaUploading ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    {t("submitting")}
+                    {mediaUploading ? imageUploadT("uploading") : t("submitting")}
                   </>
                 ) : isEditing ? (
                   t("update")

@@ -16,8 +16,7 @@ import {useCurrentUser} from "@/hooks/use-current-user";
 import {Link, useRouter} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/client";
 import type {MemoryReactionType, MemoryWithContributor} from "@/types/database";
-import {MediaGallery} from "@/components/shared/media-gallery";
-import {ImageLightbox} from "@/components/media/image-lightbox";
+import {MediaCarousel} from "@/components/media/media-carousel";
 
 function timeAgo(dateStr: string, locale: string): string {
   const now = Date.now();
@@ -57,7 +56,6 @@ export function MemoryCard({
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -101,6 +99,11 @@ export function MemoryCard({
   const authorProfileHref = memory.contributor?.username ? `/profile/${memory.contributor.username}` : null;
   const isOwner = !!clientUserId && !!memory.contributor_id && clientUserId === memory.contributor_id;
   const memoryTime = timeAgo(memory.created_at, locale);
+  const mediaItems = memory.media && memory.media.length > 0
+    ? memory.media.map((media) => ({url: media.url, type: media.type, alt: memory.title}))
+    : memory.media_url
+      ? [{url: memory.media_url, type: "image" as const, alt: memory.title}]
+      : [];
 
   return (
     <motion.article
@@ -112,25 +115,13 @@ export function MemoryCard({
     >
       <Card className="flex h-full min-w-0 flex-col overflow-visible border-border/70 shadow-[0_16px_36px_rgba(8,33,56,0.10)]">
         <div className="relative">
-          {memory.media && memory.media.length > 0 ? (
-            <MediaGallery
-              items={memory.media.map((m) => ({url: m.url, type: m.type}))}
-              className="aspect-[4/3]"
+          {mediaItems.length > 0 ? (
+            <MediaCarousel
+              items={mediaItems}
+              alt={memory.title}
+              className="rounded-t-2xl rounded-b-none border-0"
+              aspectClassName="aspect-[4/3]"
             />
-          ) : memory.media_url ? (
-            <div className="aspect-[4/3] w-full overflow-hidden rounded-t-2xl bg-muted">
-              <button
-                type="button"
-                onClick={() => setLightboxOpen(true)}
-                className="block h-full w-full cursor-pointer"
-              >
-                <img
-                  src={memory.media_url}
-                  alt={memory.title}
-                  className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]"
-                />
-              </button>
-            </div>
           ) : (
             <div className="flex aspect-[4/3] w-full items-center justify-center rounded-t-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-muted">
               <div className="flex flex-col items-center gap-2 text-muted-foreground/60">
@@ -139,14 +130,6 @@ export function MemoryCard({
               </div>
             </div>
           )}
-          {memory.media_url && (!memory.media || memory.media.length === 0) ? (
-            <ImageLightbox
-              images={[memory.media_url]}
-              initialIndex={0}
-              open={lightboxOpen}
-              onOpenChange={setLightboxOpen}
-            />
-          ) : null}
 
           <div className="absolute start-3 top-3">
             <Badge className="bg-card/90 px-2.5 py-1 text-xs text-primary shadow-sm backdrop-blur sm:text-sm">

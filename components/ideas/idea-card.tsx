@@ -15,8 +15,7 @@ import {useCurrentUser} from "@/hooks/use-current-user";
 import {Link, useRouter} from "@/lib/i18n/routing";
 import {cn} from "@/lib/utils/cn";
 import type {IdeaBadge, IdeaWithAuthor} from "@/types/database";
-import {MediaGallery} from "@/components/shared/media-gallery";
-import {ImageLightbox} from "@/components/media/image-lightbox";
+import {MediaCarousel} from "@/components/media/media-carousel";
 
 const badgeTranslationKeys: Record<IdeaBadge, string> = {
   new_idea: "badgeNewIdea",
@@ -78,7 +77,6 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
 
@@ -133,6 +131,11 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
   const ideaExtra = idea as IdeaWithAuthor & {supportPercentage?: number; badge?: IdeaBadge};
   const supportPercentage = ideaExtra.supportPercentage ?? 0;
   const badge = ideaExtra.badge ?? "new_idea";
+  const mediaItems = idea.media && idea.media.length > 0
+    ? idea.media.map((media) => ({url: media.url, type: media.type, alt: idea.title}))
+    : idea.image_url
+      ? [{url: idea.image_url, type: "image" as const, alt: idea.title}]
+      : [];
 
   const categoryName = idea.category
     ? locale === "ar"
@@ -187,24 +190,12 @@ export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
       transition={{duration: 0.28, ease: "easeOut"}}
     >
       <Card className="w-full overflow-hidden border-border/70 shadow-[0_14px_34px_rgba(8,33,56,0.08)]">
-        {idea.media && idea.media.length > 0 ? (
-          <MediaGallery
-            items={idea.media.map((m) => ({url: m.url, type: m.type}))}
-            className="max-h-48"
-          />
-        ) : idea.image_url ? (
-          <div className="relative h-48 w-full overflow-hidden">
-            <button type="button" onClick={() => setLightboxOpen(true)} className="block h-full w-full cursor-pointer">
-              <img src={idea.image_url} alt={idea.title} className="h-full w-full object-cover" />
-            </button>
-          </div>
-        ) : null}
-        {idea.image_url ? (
-          <ImageLightbox
-            images={[idea.image_url]}
-            initialIndex={0}
-            open={lightboxOpen}
-            onOpenChange={setLightboxOpen}
+        {mediaItems.length > 0 ? (
+          <MediaCarousel
+            items={mediaItems}
+            alt={idea.title}
+            className="rounded-none border-0 border-b border-border/70"
+            aspectClassName="aspect-[4/5] sm:aspect-square"
           />
         ) : null}
         <CardHeader className="pb-2.5">

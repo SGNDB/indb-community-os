@@ -19,8 +19,7 @@ import {Link, usePathname} from "@/lib/i18n/routing";
 import {withLocale} from "@/lib/i18n/paths";
 import {createClient} from "@/lib/supabase/client";
 import type {PostWithAuthor, CommentWithAuthor} from "@/types/database";
-import {MediaGallery} from "@/components/shared/media-gallery";
-import {ImageLightbox} from "@/components/media/image-lightbox";
+import {MediaCarousel} from "@/components/media/media-carousel";
 import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
 import {translateContent} from "@/lib/i18n/translateContent";
 import {
@@ -97,7 +96,6 @@ export function PostCard({
   const [commentsCount, setCommentsCount] = useState(post.comments_count);
   const [isSaved, setIsSaved] = useState(post.user_saved ?? false);
   const [savesCount, setSavesCount] = useState(post.saves_count);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const authorName = post.author?.full_name ?? post.author?.username ?? t("unknownAuthor");
   const authorProfileHref = post.author?.username ? `/profile/${post.author.username}` : null;
@@ -105,6 +103,11 @@ export function PostCard({
   const visibleContent = isTranslated && translatedText ? translatedText : post.content;
   const isOwnPost = currentUserId != null && post.author_id === currentUserId;
   const returnPath = pathname || "/feed";
+  const mediaItems = post.media && post.media.length > 0
+    ? post.media.map((media) => ({url: media.url, type: media.type, alt: post.content}))
+    : post.image_url
+      ? [{url: post.image_url, type: "image" as const, alt: post.content}]
+      : [];
 
   useEffect(() => {
     setIsTranslated(false);
@@ -331,27 +334,11 @@ export function PostCard({
             ) : null}
           </div>
 
-          {post.media && post.media.length > 0 ? (
-            <MediaGallery
-              items={post.media.map((m) => ({url: m.url, type: m.type}))}
-            />
-          ) : post.image_url ? (
-            <div className="overflow-hidden rounded-2xl border border-border/70">
-              <button type="button" onClick={() => setLightboxOpen(true)} className="block w-full cursor-pointer text-start">
-                <img
-                  src={post.image_url}
-                  alt={post.content}
-                  className="h-56 w-full object-cover transition duration-300 hover:scale-[1.02] sm:h-72"
-                />
-              </button>
-            </div>
-          ) : null}
-          {post.image_url ? (
-            <ImageLightbox
-              images={[post.image_url]}
-              initialIndex={0}
-              open={lightboxOpen}
-              onOpenChange={setLightboxOpen}
+          {mediaItems.length > 0 ? (
+            <MediaCarousel
+              items={mediaItems}
+              alt={post.content}
+              aspectClassName="aspect-[4/5] sm:aspect-square"
             />
           ) : null}
 

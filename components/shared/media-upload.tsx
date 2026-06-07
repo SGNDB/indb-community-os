@@ -77,7 +77,7 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind}: MediaUpl
 
     setUploading(true);
 
-    const placeholders: MediaItem[] = files.map((file) => ({
+    const placeholders: MediaItem[] = files.map(() => ({
       id: `new-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       type: "image" as const,
       url: "",
@@ -85,8 +85,9 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind}: MediaUpl
       uploading: true,
     }));
 
-    setNewItems((prev) => [...prev, ...placeholders]);
-    notifyChange([...newItems, ...placeholders]);
+    let currentItems = [...newItems, ...placeholders];
+    setNewItems(currentItems);
+    notifyChange(currentItems);
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -95,22 +96,22 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind}: MediaUpl
       try {
         const result = await uploadMediaItem(file, uploadKind);
 
-        setNewItems((prev) =>
-          prev.map((item) =>
+        currentItems = currentItems.map((item) =>
             item.id === placeholderId
               ? {...item, url: result.url, storagePath: result.storagePath, mimeType: result.mimeType, uploading: false}
               : item,
-          ),
         );
+        setNewItems(currentItems);
+        notifyChange(currentItems);
       } catch (error) {
         const msg = error instanceof ImageUploadError ? t(error.code) : t("failed");
         toast.error(msg);
 
-        setNewItems((prev) =>
-          prev.map((item) =>
-            item.id === placeholderId ? {...item, uploading: false, failed: true} : item,
-          ),
+        currentItems = currentItems.map((item) =>
+          item.id === placeholderId ? {...item, uploading: false, failed: true} : item,
         );
+        setNewItems(currentItems);
+        notifyChange(currentItems);
       }
     }
 
@@ -144,27 +145,28 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind}: MediaUpl
     };
 
     const filtered = newItems.filter((f) => f.type !== "video");
-    setNewItems([...filtered, placeholder]);
-    notifyChange([...filtered, placeholder]);
+    let currentItems = [...filtered, placeholder];
+    setNewItems(currentItems);
+    notifyChange(currentItems);
 
     try {
       const result = await uploadMediaItem(file, uploadKind);
 
-      setNewItems((prev) =>
-        prev.map((item) =>
+      currentItems = currentItems.map((item) =>
           item.id === placeholder.id
             ? {...item, url: result.url, storagePath: result.storagePath, mimeType: result.mimeType, uploading: false}
             : item,
-        ),
       );
+      setNewItems(currentItems);
+      notifyChange(currentItems);
     } catch {
       toast.error(t("failed"));
 
-      setNewItems((prev) =>
-        prev.map((item) =>
-          item.id === placeholder.id ? {...item, uploading: false, failed: true} : item,
-        ),
+      currentItems = currentItems.map((item) =>
+        item.id === placeholder.id ? {...item, uploading: false, failed: true} : item,
       );
+      setNewItems(currentItems);
+      notifyChange(currentItems);
     }
 
     e.target.value = "";
