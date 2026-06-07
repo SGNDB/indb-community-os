@@ -111,18 +111,20 @@ export function IdeaSubmitForm({
         ? await updateIdeaAction(formData)
         : await submitIdeaAction(formData);
 
-      if (result.success) {
-        toast.success(t("successMessage"));
-        router.push("/ideas");
+      if (!result.success) {
+        toast.error(result.error || t("errors.submitFailed"));
         return;
       }
 
-      toast.error(result.error || t("errors.submitFailed"));
+      toast.success(t("successMessage"));
     } catch {
       toast.error(t("errors.submitFailed"));
+      return;
     } finally {
       setSubmitting(false);
     }
+
+    router.push("/ideas");
   }
 
   function handleCancel() {

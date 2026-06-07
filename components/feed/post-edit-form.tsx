@@ -81,17 +81,19 @@ export function PostEditForm({
             }
             try {
               const result = await updatePostAction(formData);
-              if (result.success) {
-                toast.success(toastT("postUpdated"));
-                router.push("/feed");
+              if (!result.success) {
+                toast.error(result.error ?? t("errors.submitFailed"));
                 return;
               }
-              toast.error(result.error ?? t("errors.submitFailed"));
+              toast.success(toastT("postUpdated"));
             } catch {
               toast.error(t("errors.submitFailed"));
+              return;
             } finally {
               setSubmitting(false);
             }
+
+            router.push("/feed");
           }}
           className="space-y-3"
           encType="multipart/form-data"
