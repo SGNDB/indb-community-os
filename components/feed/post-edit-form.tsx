@@ -83,8 +83,8 @@ export function PostEditForm({
               const result = await updatePostAction(formData);
               if (result.success) {
                 toast.success(toastT("postUpdated"));
-                router.push("/feed");
                 router.refresh();
+                router.push("/feed");
                 return;
               }
               toast.error(result.error ?? t("errors.submitFailed"));

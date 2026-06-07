@@ -2,6 +2,7 @@
 
 import {useCallback, useEffect, useRef, useState} from "react";
 import {ChevronLeft, ChevronRight, X} from "lucide-react";
+import {useLocale} from "next-intl";
 
 interface ImageLightboxProps {
   images: string[];
@@ -13,8 +14,8 @@ interface ImageLightboxProps {
 export function ImageLightbox({images, initialIndex, open, onOpenChange}: ImageLightboxProps) {
   const [index, setIndex] = useState(initialIndex);
   const touchStartX = useRef<number | null>(null);
-  const dir = document.documentElement.dir || "ltr";
-  const isRTL = dir === "rtl";
+  const locale = useLocale();
+  const isRTL = locale === "ar";
 
   useEffect(() => {
     setIndex(initialIndex);
