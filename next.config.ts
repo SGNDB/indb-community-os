@@ -6,6 +6,11 @@ const withNextIntl = createNextIntlPlugin("./lib/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.resolve("./"),
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "100MB",
+    },
+  },
   images: {
     remotePatterns: [
       {

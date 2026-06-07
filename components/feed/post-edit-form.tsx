@@ -2,6 +2,7 @@
 
 import {useTranslations} from "next-intl";
 import {useState} from "react";
+import {toast} from "sonner";
 
 import {MediaUpload, type MediaItem, type ExistingMediaItem} from "@/components/shared/media-upload";
 import {Button} from "@/components/ui/button";
@@ -67,7 +68,11 @@ export function PostEditForm({
             if (removedMediaPaths.length > 0) {
               formData.set("removedMedia", JSON.stringify(removedMediaPaths));
             }
-            await updatePostAction(formData);
+            try {
+              await updatePostAction(formData);
+            } catch {
+              toast.error("Failed to update post");
+            }
           }}
           className="space-y-3"
           encType="multipart/form-data"

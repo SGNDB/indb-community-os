@@ -103,10 +103,14 @@ export function IdeaSubmitForm({
 
     setSubmitting(true);
 
-    if (isEditing) {
-      await updateIdeaAction(formData);
-    } else {
-      await submitIdeaAction(formData);
+    try {
+      if (isEditing) {
+        await updateIdeaAction(formData);
+      } else {
+        await submitIdeaAction(formData);
+      }
+    } catch {
+      toast.error(t("errors.submitFailed") ?? "Failed to submit");
     }
   }
 

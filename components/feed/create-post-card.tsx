@@ -3,6 +3,7 @@
 import {useState} from "react";
 import {ImagePlus, X} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
+import {toast} from "sonner";
 
 import {UserAvatar} from "@/components/layout/user-avatar";
 import {MediaUpload, type MediaItem} from "@/components/shared/media-upload";
@@ -68,6 +69,8 @@ export function CreatePostCard({avatarUrl, profileName}: {avatarUrl?: string | n
 
     try {
       await createPostAction(formData);
+    } catch {
+      toast.error(t("postFailed") ?? "Failed to create post");
     } finally {
       setSubmitting(false);
     }
