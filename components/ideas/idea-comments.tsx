@@ -65,6 +65,7 @@ export function IdeaComments({
   rootClassName,
   buttonClassName,
   panelClassName,
+  defaultOpen = false,
   onCommentCountChange,
 }: {
   ideaId: string;
@@ -72,12 +73,13 @@ export function IdeaComments({
   rootClassName?: string;
   buttonClassName?: string;
   panelClassName?: string;
+  defaultOpen?: boolean;
   onCommentCountChange?: (count: number) => void;
 }) {
   const t = useTranslations("Ideas");
   const locale = useLocale();
   const supabase = useRef(createClient()).current;
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [comments, setComments] = useState<IdeaCommentWithAuthor[]>([]);
   const [commentCount, setCommentCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -90,6 +92,24 @@ export function IdeaComments({
   const [updatingCommentId, setUpdatingCommentId] = useState<string | null>(null);
   const [addPending, startAddTransition] = useTransition();
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (defaultOpen) {
+      setOpen(true);
+    }
+  }, [defaultOpen]);
+
+  useEffect(() => {
+    if (!defaultOpen || !open) return;
+
+    const timeout = window.setTimeout(() => {
+      panelRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
+      inputRef.current?.focus();
+    }, 250);
+
+    return () => window.clearTimeout(timeout);
+  }, [defaultOpen, open]);
 
   useEffect(() => {
     supabase.auth.getUser().then(({data}) => {
@@ -261,6 +281,8 @@ export function IdeaComments({
       <AnimatePresence initial={false}>
         {open ? (
           <motion.div
+            id={`idea-comments-${ideaId}`}
+            ref={panelRef}
             key="comments-section"
             initial={{height: 0, opacity: 0}}
             animate={{height: "auto", opacity: 1}}

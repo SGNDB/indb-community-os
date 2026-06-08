@@ -242,7 +242,7 @@ export function NotificationDropdown({locale}: {locale: string}) {
           router.push(`/feed#post-${n.entity_id}`);
           return;
         case "idea":
-          router.push("/ideas");
+          router.push(`/ideas?idea=${n.entity_id}&comments=1#idea-comments-${n.entity_id}`);
           return;
         case "project":
           router.push("/projects");

@@ -47,7 +47,13 @@ export default async function IdeasPage({
   searchParams,
 }: {
   params: Promise<{locale: string}>;
-  searchParams: Promise<{ideaSubmitted?: string; ideaUpdated?: string; ideaDeleted?: string}>;
+  searchParams: Promise<{
+    idea?: string;
+    comments?: string;
+    ideaSubmitted?: string;
+    ideaUpdated?: string;
+    ideaDeleted?: string;
+  }>;
 }) {
   const {locale} = await params;
   const sp = await searchParams;
@@ -115,7 +121,13 @@ export default async function IdeasPage({
     <div className="min-w-0 space-y-3 sm:space-y-4">
           <h2 className="text-lg font-bold sm:text-xl px-0.5">{t("allIdeas")}</h2>
           {ideas.map((idea) => (
-            <IdeaCard key={idea.id} idea={idea} totalUsers={totalUsers} currentUserId={serverCurrentUserId} />
+            <IdeaCard
+              key={idea.id}
+              idea={idea}
+              totalUsers={totalUsers}
+              currentUserId={serverCurrentUserId}
+              autoOpenComments={sp.comments === "1" && sp.idea === idea.id}
+            />
           ))}
         </div>
       ) : (
