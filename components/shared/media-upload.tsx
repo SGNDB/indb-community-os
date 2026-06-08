@@ -11,6 +11,7 @@ import {
   ACCEPTED_IMAGE_EXTENSIONS,
   ACCEPTED_VIDEO_EXTENSIONS,
   MEDIA_LIMITS,
+  VIDEO_UPLOAD_CONFIG,
   isVideoFile,
   validateVideoFile,
 } from "@/lib/images/upload-config";
@@ -71,9 +72,51 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind}: MediaUpl
     onMediaChange(items, removedExisting);
   }
 
+  function getVideoDuration(file: File): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement("video");
+      const objectUrl = URL.createObjectURL(file);
+
+      video.preload = "metadata";
+      video.muted = true;
+      video.playsInline = true;
+
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(video.duration);
+      };
+      video.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error("Unable to read video metadata"));
+      };
+
+      video.src = objectUrl;
+    });
+  }
+
+  async function validateSelectedVideo(file: File): Promise<string | null> {
+    const validationError = validateVideoFile(file);
+    if (validationError) {
+      return validationError;
+    }
+
+    const duration = await getVideoDuration(file);
+    if (Number.isFinite(duration) && duration > VIDEO_UPLOAD_CONFIG.maxDurationSeconds) {
+      return "videoTooLong";
+    }
+
+    return null;
+  }
+
   async function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0) return;
+
+    if (hasVideo) {
+      toast.error(t("imagesOrVideo"));
+      e.target.value = "";
+      return;
+    }
 
     const remainingSlots = MEDIA_LIMITS.maxImages - getImageCount();
     if (files.length > remainingSlots) {
@@ -184,13 +227,25 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind}: MediaUpl
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (hasImage) {
+      toast.error(t("imagesOrVideo"));
+      e.target.value = "";
+      return;
+    }
+
     if (!isVideoFile(file)) {
       toast.error(t("invalidType"));
       e.target.value = "";
       return;
     }
 
-    const validationError = validateVideoFile(file);
+    let validationError: string | null = null;
+    try {
+      validationError = await validateSelectedVideo(file);
+    } catch {
+      validationError = "failed";
+    }
+
     if (validationError) {
       toast.error(t(validationError));
       e.target.value = "";
@@ -302,22 +357,24 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind}: MediaUpl
                   <span className="text-xs text-muted-foreground">{t("uploading")}</span>
                 </div>
               ) : item.type === "video" ? (
-                <video src={item.url} className="h-full w-full object-cover" />
+                <video src={item.url} controls playsInline preload="metadata" className="h-full w-full object-cover" />
               ) : (
                 <img src={item.url} alt="" className="h-full w-full object-cover" />
               )}
-              {item.type === "image" && replacingKey !== `existing-${item.storagePath}` ? (
+              {replacingKey !== `existing-${item.storagePath}` ? (
                 <div className="absolute end-1.5 top-1.5 flex gap-1 opacity-0 transition group-hover:opacity-100">
-                  <button
-                    type="button"
-                    onClick={() => startReplace({kind: "existing", storagePath: item.storagePath})}
-                    disabled={uploading}
-                    className="rounded-full bg-background/80 p-1 text-foreground transition hover:bg-background disabled:opacity-60"
-                    aria-label={t("replace")}
-                    title={t("replace")}
-                  >
-                    <RefreshCw size={12} />
-                  </button>
+                  {item.type === "image" ? (
+                    <button
+                      type="button"
+                      onClick={() => startReplace({kind: "existing", storagePath: item.storagePath})}
+                      disabled={uploading}
+                      className="rounded-full bg-background/80 p-1 text-foreground transition hover:bg-background disabled:opacity-60"
+                      aria-label={t("replace")}
+                      title={t("replace")}
+                    >
+                      <RefreshCw size={12} />
+                    </button>
+                  ) : null}
                   <button
                     type="button"
                     onClick={() => removeExisting(item.storagePath)}
@@ -346,7 +403,7 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind}: MediaUpl
                   <span className="text-xs text-destructive">{t("failed")}</span>
                 </div>
               ) : item.type === "video" ? (
-                <video src={item.url} className="h-full w-full object-cover" />
+                <video src={item.url} controls playsInline preload="metadata" className="h-full w-full object-cover" />
               ) : (
                 <img src={item.url} alt="" className="h-full w-full object-cover" />
               )}

@@ -1,6 +1,7 @@
 export type ImageUploadKind = "avatar" | "cover" | "post" | "memory" | "idea";
 
 export type ImageValidationError = "invalidType" | "tooLarge";
+export type VideoValidationError = "invalidType" | "videoTooLarge";
 
 export const ACCEPTED_IMAGE_EXTENSIONS = ".jpg,.jpeg,.png,.webp";
 export const ACCEPTED_VIDEO_EXTENSIONS = ".mp4,.webm,.mov";
@@ -54,6 +55,7 @@ export const IMAGE_UPLOAD_CONFIG: Record<
 
 export const VIDEO_UPLOAD_CONFIG = {
   maxOriginalBytes: 50 * 1024 * 1024,
+  maxDurationSeconds: 60,
 };
 
 export const MEDIA_LIMITS = {
@@ -87,13 +89,13 @@ export function validateCompressedImageFile(file: File, kind: ImageUploadKind): 
   return null;
 }
 
-export function validateVideoFile(file: File): ImageValidationError | null {
+export function validateVideoFile(file: File): VideoValidationError | null {
   if (!isAllowedVideoFile(file)) {
     return "invalidType";
   }
 
   if (file.size > VIDEO_UPLOAD_CONFIG.maxOriginalBytes) {
-    return "tooLarge";
+    return "videoTooLarge";
   }
 
   return null;

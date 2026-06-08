@@ -59,11 +59,18 @@ export async function uploadMediaItem(
 
   const bucket = bucketMap[uploadKind] ?? "post-media";
   const prefix = prefixMap[uploadKind] ?? "posts";
+  const supabase = createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+  const mediaType = getMediaType(file);
+  const mediaFolder = mediaType === "video" ? "videos" : "images";
+  const pathPrefix = user?.id ? `${user.id}/${prefix}/${mediaFolder}` : `${prefix}/${mediaFolder}`;
 
   if (isVideoFile(file)) {
-    return uploadFileToStorage(file, bucket, prefix);
+    return uploadFileToStorage(file, bucket, pathPrefix);
   }
 
   const compressed = await prepareImageForUpload(file, uploadKind);
-  return uploadFileToStorage(compressed, bucket, prefix);
+  return uploadFileToStorage(compressed, bucket, pathPrefix);
 }

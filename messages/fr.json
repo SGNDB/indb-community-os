@@ -563,6 +563,9 @@
   },
   "ImageUpload": {
     "tooLarge": "Le fichier est trop volumineux. Veuillez choisir un fichier plus petit.",
+    "videoTooLarge": "La vidéo est trop volumineuse. La taille maximale est de 50 Mo.",
+    "videoTooLong": "La vidéo est trop longue. La durée maximale est de 60 secondes.",
+    "imagesOrVideo": "Vous pouvez téléverser soit des images, soit une seule vidéo, pas les deux.",
     "invalidType": "Veuillez choisir un fichier valide (JPG, PNG, WebP, MP4, WebM, MOV).",
     "uploading": "Téléversement...",
     "success": "Téléversé avec succès.",

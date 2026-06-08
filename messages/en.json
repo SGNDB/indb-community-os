@@ -563,6 +563,9 @@
   },
   "ImageUpload": {
     "tooLarge": "File is too large. Please choose a smaller file.",
+    "videoTooLarge": "Video is too large. Maximum size is 50MB.",
+    "videoTooLong": "Video is too long. Maximum duration is 60 seconds.",
+    "imagesOrVideo": "You can upload either images or one video, not both.",
     "invalidType": "Please choose a valid file (JPG, PNG, WebP, MP4, WebM, MOV).",
     "uploading": "Uploading...",
     "success": "Uploaded successfully.",
