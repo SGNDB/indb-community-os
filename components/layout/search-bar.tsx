@@ -6,7 +6,6 @@ import {useEffect, useMemo, useRef, useState} from "react";
 
 import {UserAvatar} from "@/components/layout/user-avatar";
 import {Input} from "@/components/ui/input";
-import {useRouter} from "@/lib/i18n/routing";
 import type {GlobalSearchResults, SearchResultItem, SearchResultType} from "@/lib/data/search";
 
 const resultIcons: Record<SearchResultType, typeof Newspaper> = {
@@ -29,7 +28,6 @@ function flattenResults(results: GlobalSearchResults | null): SearchResultItem[]
 export function SearchBar() {
   const t = useTranslations("Search");
   const locale = useLocale();
-  const router = useRouter();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
