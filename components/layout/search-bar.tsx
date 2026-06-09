@@ -97,13 +97,13 @@ export function SearchBar() {
     if (trimmedQuery.length < 2) return;
     setOpen(false);
     inputRef.current?.blur();
-    router.push(`/search?q=${encodeURIComponent(trimmedQuery)}`);
+    window.location.href = `/${locale}/search?q=${encodeURIComponent(trimmedQuery)}`;
   }
 
   function openResult(result: SearchResultItem) {
     setOpen(false);
     setQuery("");
-    router.push(result.href);
+    window.location.href = `/${locale}${result.href}`;
   }
 
   return (
