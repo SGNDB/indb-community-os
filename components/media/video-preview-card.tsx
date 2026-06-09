@@ -1,7 +1,7 @@
 "use client";
 
 import {Play, VideoOff, VolumeX} from "lucide-react";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 
 import {cn} from "@/lib/utils/cn";
 
@@ -31,6 +31,9 @@ export function VideoPreviewCard({
   const [duration, setDuration] = useState<number | null>(null);
   const [dimensions, setDimensions] = useState<{width: number; height: number} | null>(null);
   const [failed, setFailed] = useState(false);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+  const containerRef = useRef<HTMLButtonElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const aspectClassName = useMemo(() => {
     if (!dimensions) return fallbackAspectClassName;
@@ -43,8 +46,37 @@ export function VideoPreviewCard({
 
   const durationLabel = formatDuration(duration);
 
+  useEffect(() => {
+    const container = containerRef.current;
+    const video = videoRef.current;
+    if (!container || !video || failed) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+          video.muted = true;
+          video.play()
+            .then(() => setIsAutoPlaying(true))
+            .catch(() => setIsAutoPlaying(false));
+        } else {
+          video.pause();
+          setIsAutoPlaying(false);
+        }
+      },
+      {threshold: [0, 0.6, 1]},
+    );
+
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+      video.pause();
+    };
+  }, [failed, src]);
+
   return (
     <button
+      ref={containerRef}
       type="button"
       onClick={onPlay}
       className={cn(
@@ -60,11 +92,15 @@ export function VideoPreviewCard({
         </div>
       ) : (
         <video
+          ref={videoRef}
           src={src}
           muted
+          loop
           playsInline
           preload="metadata"
           className="h-full w-full bg-black object-contain"
+          onPlay={() => setIsAutoPlaying(true)}
+          onPause={() => setIsAutoPlaying(false)}
           onLoadedMetadata={(event) => {
             const video = event.currentTarget;
             setDuration(video.duration);
@@ -77,9 +113,15 @@ export function VideoPreviewCard({
         />
       )}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/5 to-black/20 opacity-90 transition group-hover:opacity-75" />
+      <div className={cn(
+        "absolute inset-0 bg-gradient-to-t from-black/45 via-black/5 to-black/20 transition group-hover:opacity-75",
+        isAutoPlaying ? "opacity-35" : "opacity-90",
+      )} />
 
-      <span className="absolute left-1/2 top-1/2 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#ED2124] text-white shadow-[0_12px_30px_rgba(237,33,36,0.42)] transition duration-200 group-hover:scale-105">
+      <span className={cn(
+        "absolute left-1/2 top-1/2 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#ED2124] text-white shadow-[0_12px_30px_rgba(237,33,36,0.42)] transition duration-200 group-hover:scale-105",
+        isAutoPlaying ? "scale-75 opacity-0" : "opacity-100",
+      )}>
         <Play size={28} className="ms-1 fill-white" />
       </span>
 
