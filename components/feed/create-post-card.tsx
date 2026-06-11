@@ -16,12 +16,18 @@ import {createPostAction} from "@/app/[locale]/server-actions";
 const PLACEHOLDER: Record<string, string> = {
   ar: "ما الجديد في نواذيبو؟",
   fr: "Quoi de neuf à Nouadhibou ?",
+  ff: "Ko kesum woni e Nuwaadibu?",
+  snk: "Mu siiɓen Nuwaadibu?",
+  wo: "Lu bees ci Nuwadibu?",
   en: "What\u2019s new in Nouadhibou?",
 };
 
 const SECONDARY_LINKS: Record<string, {memory: string; idea: string}> = {
   ar: {memory: "شارك ذكرى", idea: "اقترح فكرة"},
   fr: {memory: "Partager un souvenir", idea: "Proposer une idée"},
+  ff: {memory: "Yeɗ Jikku", idea: "Yeɗ Miijo"},
+  snk: {memory: "Ntene Jikku", idea: "Ntene Miijo"},
+  wo: {memory: "Ngalif Jikku", idea: "Ngalif Xalaat"},
   en: {memory: "Share a memory", idea: "Suggest an idea"},
 };
 
