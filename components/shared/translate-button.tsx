@@ -2,7 +2,6 @@
 
 import {useLocale, useTranslations} from "next-intl";
 import {useState, useCallback} from "react";
-import {translateContentAction} from "@/lib/i18n/translateContentAction";
 
 interface Props {
   text: string;
@@ -28,10 +27,14 @@ export function TranslateButton({text, contentType, contentId, className = ""}: 
     setLoading(true);
     setError(null);
     try {
-      const result = await translateContentAction(contentType, contentId, text, locale);
+      const res = await fetch("/api/translate", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({contentType, contentId, text, targetLang: locale}),
+      });
+      const result = await res.json();
       if (result.error) {
         setError(result.error);
-        setLoading(false);
         return;
       }
       setTranslated(result.translatedText);
