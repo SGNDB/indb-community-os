@@ -118,6 +118,7 @@ async function callTranslationApi(
 export interface TranslateResult {
   translatedText: string;
   sourceLang: ContentLanguage;
+  error?: string;
 }
 
 export async function translateContentAction(
@@ -126,42 +127,35 @@ export async function translateContentAction(
   text: string,
   targetLang: string,
 ): Promise<TranslateResult> {
-  if (text.length > MAX_LENGTH) {
-    throw new Error("Content too long to translate");
+  try {
+    if (text.length > MAX_LENGTH) {
+      return {translatedText: "", sourceLang: "en", error: "Content too long (max 3000 chars)"};
+    }
+
+    const detected = detectContentLanguage(text);
+    const sourceLang = detected;
+
+    if (sourceLang === targetLang) {
+      return {translatedText: text, sourceLang};
+    }
+
+    const cached = await getCachedTranslation(contentType, contentId, targetLang);
+    if (cached) {
+      return {translatedText: cached, sourceLang};
+    }
+
+    const originalHash = hashText(text);
+    const apiResult = await callTranslationApi(text, sourceLang, targetLang);
+
+    if (!apiResult) {
+      return {translatedText: "", sourceLang, error: "All translation APIs returned no result"};
+    }
+
+    await saveTranslation(contentType, contentId, sourceLang, targetLang as ContentLanguage, originalHash, apiResult);
+
+    return {translatedText: apiResult, sourceLang};
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return {translatedText: "", sourceLang: "en", error: msg};
   }
-
-  const detected = detectContentLanguage(text);
-  const sourceLang = detected;
-
-  if (sourceLang === targetLang) {
-    return {translatedText: text, sourceLang};
-  }
-
-  const cached = await getCachedTranslation(contentType, contentId, targetLang);
-  if (cached) {
-    return {translatedText: cached, sourceLang};
-  }
-
-  const originalHash = hashText(text);
-  const apiResult = await callTranslationApi(
-    text,
-    sourceLang,
-    targetLang,
-  );
-
-  if (!apiResult) {
-    console.error("translateContentAction: API returned null for", {contentType, contentId, sourceLang, targetLang: targetLang as ContentLanguage});
-    throw new Error("Translation unavailable");
-  }
-
-  await saveTranslation(
-    contentType,
-    contentId,
-    sourceLang,
-    targetLang as ContentLanguage,
-    originalHash,
-    apiResult,
-  );
-
-  return {translatedText: apiResult, sourceLang};
 }

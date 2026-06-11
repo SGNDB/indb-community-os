@@ -15,7 +15,7 @@ export function TranslateButton({text, contentType, contentId, className = ""}: 
   const locale = useLocale();
   const [translated, setTranslated] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showingTranslation, setShowingTranslation] = useState(false);
 
   const translatingT = useTranslations("Translating");
@@ -26,13 +26,18 @@ export function TranslateButton({text, contentType, contentId, className = ""}: 
       return;
     }
     setLoading(true);
-    setError(false);
+    setError(null);
     try {
       const result = await translateContentAction(contentType, contentId, text, locale);
+      if (result.error) {
+        setError(result.error);
+        setLoading(false);
+        return;
+      }
       setTranslated(result.translatedText);
       setShowingTranslation(true);
     } catch {
-      setError(true);
+      setError("unexpected error");
     } finally {
       setLoading(false);
     }
@@ -50,9 +55,10 @@ export function TranslateButton({text, contentType, contentId, className = ""}: 
 
   if (error) {
     return (
-      <span className={`text-xs text-destructive ${className}`}>
-        {translatingT("unavailable")}
-      </span>
+      <div className={className}>
+        <span className="text-xs text-destructive">{translatingT("unavailable")}</span>
+        <span className="block text-[10px] text-muted-foreground">{error}</span>
+      </div>
     );
   }
 
