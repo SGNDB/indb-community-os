@@ -36,7 +36,7 @@ export async function getIdeas(): Promise<{ideas: IdeaWithSupport[]; totalUsers:
     .select(`
       *,
       author:profiles!ideas_author_id_fkey(id, username, full_name, avatar_url),
-      category:categories(id, slug, name_en, name_fr, name_ar)
+      category:categories(id, slug, name_en, name_fr, name_ar, name_ff, name_snk, name_wo)
     `)
     .not("author_id", "is", null)
     .order("created_at", {ascending: false});
@@ -67,7 +67,7 @@ export async function getUserIdeas(userId: string): Promise<IdeaWithAuthor[]> {
     .select(`
       *,
       author:profiles!ideas_author_id_fkey(id, username, full_name, avatar_url),
-      category:categories(id, slug, name_en, name_fr, name_ar)
+      category:categories(id, slug, name_en, name_fr, name_ar, name_ff, name_snk, name_wo)
     `)
     .eq("author_id", userId)
     .order("created_at", {ascending: false});
@@ -84,7 +84,7 @@ export async function getIdeaById(id: string): Promise<IdeaWithAuthor | null> {
     .select(`
       *,
       author:profiles!ideas_author_id_fkey(id, username, full_name, avatar_url),
-      category:categories(id, slug, name_en, name_fr, name_ar)
+      category:categories(id, slug, name_en, name_fr, name_ar, name_ff, name_snk, name_wo)
     `)
     .eq("id", id)
     .not("author_id", "is", null)

@@ -143,7 +143,13 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
       ? idea.category.name_ar
       : locale === "fr"
         ? idea.category.name_fr
-        : idea.category.name_en
+        : locale === "ff"
+          ? idea.category.name_ff
+          : locale === "snk"
+            ? idea.category.name_snk
+            : locale === "wo"
+              ? idea.category.name_wo
+              : idea.category.name_en
     : null;
 
   async function handleShare() {

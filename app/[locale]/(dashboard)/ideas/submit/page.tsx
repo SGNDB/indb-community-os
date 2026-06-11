@@ -43,7 +43,7 @@ export default async function SubmitIdeaPage({
   const dbCategories = await getCategories();
   const categories = dbCategories.map((cat) => ({
     id: cat.id,
-    name: locale === "ar" ? cat.name_ar : locale === "fr" ? cat.name_fr : cat.name_en,
+    name: locale === "ar" ? cat.name_ar : locale === "fr" ? cat.name_fr : locale === "ff" ? cat.name_ff : locale === "snk" ? cat.name_snk : locale === "wo" ? cat.name_wo : cat.name_en,
   }));
 
   let initialData = null;

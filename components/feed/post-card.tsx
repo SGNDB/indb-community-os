@@ -54,6 +54,9 @@ function getCategorySlug(
 
   if (locale === "ar") return post.category.name_ar;
   if (locale === "fr") return post.category.name_fr;
+  if (locale === "ff") return post.category.name_ff;
+  if (locale === "snk") return post.category.name_snk;
+  if (locale === "wo") return post.category.name_wo;
   return post.category.name_en;
 }
 
@@ -81,7 +84,14 @@ export function PostCard({
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
-  const uiLanguage: ContentLanguage = locale === "ar" || locale === "fr" ? locale : "en";
+  const LOCALE_TO_CONTENT_LANG: Record<string, ContentLanguage> = {
+    ar: "ar",
+    fr: "fr",
+    wo: "wo",
+    ff: "ff",
+    snk: "snk",
+  };
+  const uiLanguage: ContentLanguage = LOCALE_TO_CONTENT_LANG[locale] ?? "en";
   const contentLanguage = useMemo(() => detectContentLanguage(post.content), [post.content]);
   const canTranslate = contentLanguage !== uiLanguage;
   const commentInputRef = useRef<HTMLInputElement>(null);

@@ -86,7 +86,7 @@ export async function getPosts(
     .select(`
       *,
       author:profiles!posts_author_id_fkey(id, username, full_name, avatar_url),
-      category:categories(id, slug, name_en, name_fr, name_ar)
+      category:categories(id, slug, name_en, name_fr, name_ar, name_ff, name_snk, name_wo)
     `)
     .eq("status", "published")
     .not("author_id", "is", null)
@@ -108,7 +108,7 @@ export async function getPostById(
     .select(`
       *,
       author:profiles!posts_author_id_fkey(id, username, full_name, avatar_url),
-      category:categories(id, slug, name_en, name_fr, name_ar)
+      category:categories(id, slug, name_en, name_fr, name_ar, name_ff, name_snk, name_wo)
     `)
     .eq("id", id)
     .not("author_id", "is", null)
@@ -132,7 +132,7 @@ export async function getUserPosts(
     .select(`
       *,
       author:profiles!posts_author_id_fkey(id, username, full_name, avatar_url),
-      category:categories(id, slug, name_en, name_fr, name_ar)
+      category:categories(id, slug, name_en, name_fr, name_ar, name_ff, name_snk, name_wo)
     `)
     .eq("author_id", userId)
     .order("created_at", {ascending: false});

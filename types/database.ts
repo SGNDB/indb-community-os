@@ -51,6 +51,9 @@ export interface CategoryRow {
   name_en: string;
   name_fr: string;
   name_ar: string;
+  name_ff: string;
+  name_snk: string;
+  name_wo: string;
   slug: string;
   icon: string | null;
   color: string | null;
@@ -296,7 +299,7 @@ export interface PollVoteRow {
 
 export interface PostWithAuthor extends PostRow {
   author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
-  category: Pick<CategoryRow, "id" | "slug" | "name_en" | "name_fr" | "name_ar"> | null;
+  category: Pick<CategoryRow, "id" | "slug" | "name_en" | "name_fr" | "name_ar" | "name_ff" | "name_snk" | "name_wo"> | null;
   user_reaction?: ReactionType | null;
   reaction_counts?: Record<string, number>;
   user_saved?: boolean;
@@ -339,7 +342,7 @@ export interface MemoryCommentWithAuthor extends MemoryCommentRow {
 
 export interface IdeaWithAuthor extends IdeaRow {
   author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
-  category: Pick<CategoryRow, "id" | "slug" | "name_en" | "name_fr" | "name_ar"> | null;
+  category: Pick<CategoryRow, "id" | "slug" | "name_en" | "name_fr" | "name_ar" | "name_ff" | "name_snk" | "name_wo"> | null;
   media?: IdeaMediaRow[];
 }
 

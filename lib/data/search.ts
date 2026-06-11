@@ -39,6 +39,9 @@ type CategorySummary = {
   name_en: string;
   name_fr: string;
   name_ar: string;
+  name_ff: string;
+  name_snk: string;
+  name_wo: string;
 };
 
 const communityShareCategoryLabels: Record<string, string[]> = {
@@ -89,7 +92,11 @@ function categoryName(category: CategorySummary | null | undefined, locale: stri
   if (!category) return null;
   if (locale === "ar") return category.name_ar;
   if (locale === "en") return category.name_en;
-  return category.name_fr;
+  if (locale === "fr") return category.name_fr;
+  if (locale === "ff") return category.name_ff;
+  if (locale === "snk") return category.name_snk;
+  if (locale === "wo") return category.name_wo;
+  return category.name_en;
 }
 
 function matchingCommunityShareCategories(query: string) {
@@ -128,11 +135,14 @@ async function getMatchingCategories(query: string): Promise<CategorySummary[]> 
 
   const {data} = await supabase
     .from("categories")
-    .select("id, name_en, name_fr, name_ar")
+    .select("id, name_en, name_fr, name_ar, name_ff, name_snk, name_wo")
     .or(joinOr([
       `name_en.ilike.${pattern}`,
       `name_fr.ilike.${pattern}`,
       `name_ar.ilike.${pattern}`,
+      `name_ff.ilike.${pattern}`,
+      `name_snk.ilike.${pattern}`,
+      `name_wo.ilike.${pattern}`,
       `slug.ilike.${pattern}`,
     ]))
     .limit(20);
@@ -196,7 +206,7 @@ export async function globalSearch(
         title,
         description,
         author:profiles!ideas_author_id_fkey(id, username, full_name, avatar_url),
-        category:categories(id, name_en, name_fr, name_ar)
+        category:categories(id, name_en, name_fr, name_ar, name_ff, name_snk, name_wo)
       `)
       .or(joinOr([
         `title.ilike.${pattern}`,

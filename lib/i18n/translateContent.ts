@@ -62,6 +62,21 @@ const translationDictionary: Record<
     en: {},
     fr: {},
   },
+  wo: {
+    en: {},
+    fr: {},
+    ar: {},
+  },
+  ff: {
+    en: {},
+    fr: {},
+    ar: {},
+  },
+  snk: {
+    en: {},
+    fr: {},
+    ar: {},
+  },
 };
 
 // TODO: Replace this dictionary lookup with a real translation provider
