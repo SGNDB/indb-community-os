@@ -1,3 +1,5 @@
+export type ContentLanguage = "ar" | "fr" | "en" | "ff" | "snk" | "wo";
+
 export type CommunityRole = "member" | "contributor" | "historian" | "moderator" | "admin";
 
 export type PostType = "community" | "news" | "memory" | "event" | "idea" | "project";
@@ -78,6 +80,7 @@ export interface PostRow {
   type: PostType;
   title: string | null;
   content: string;
+  content_language: ContentLanguage | null;
   image_url: string | null;
   status: PostStatus;
   language: string;
@@ -88,12 +91,24 @@ export interface PostRow {
   updated_at: string;
 }
 
+export interface ContentTranslationRow {
+  id: string;
+  content_type: string;
+  content_id: string;
+  source_lang: ContentLanguage;
+  target_lang: ContentLanguage;
+  original_hash: string;
+  translated_text: string;
+  created_at: string;
+}
+
 export interface CommentRow {
   id: string;
   post_id: string;
   author_id: string | null;
   parent_id: string | null;
   content: string;
+  content_language: ContentLanguage | null;
   status: CommentStatus;
   created_at: string;
   updated_at: string;
@@ -146,6 +161,7 @@ export interface MemoryRow {
   contributor_id: string | null;
   title: string;
   description: string | null;
+  content_language: ContentLanguage | null;
   decade: string | null;
   year: number | null;
   location: string | null;
@@ -172,6 +188,7 @@ export interface IdeaRow {
   id: string;
   author_id: string | null;
   title: string;
+  content_language: ContentLanguage | null;
   description: string;
   category_id: number | null;
   status: IdeaStatus;
@@ -186,6 +203,7 @@ export interface IdeaCommentRow {
   idea_id: string;
   author_id: string;
   content: string;
+  content_language: ContentLanguage | null;
   created_at: string;
   updated_at: string;
 }
@@ -230,6 +248,7 @@ export interface CommunityShareRow {
   owner_id: string;
   title: string;
   description: string;
+  content_language: ContentLanguage | null;
   category: CommunityShareCategory;
   condition: string | null;
   location: string | null;
@@ -320,6 +339,7 @@ export interface MemoryCommentRow {
   memory_id: string;
   author_id: string;
   content: string;
+  content_language: ContentLanguage | null;
   created_at: string;
   updated_at: string;
 }

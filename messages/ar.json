@@ -918,5 +918,11 @@
       "title": "لا توجد مشاركات بعد",
       "description": "كن أول من يشارك شيئًا مفيدًا مع المجتمع."
     }
+  },
+  "Translating": {
+    "seeTranslation": "عرض الترجمة",
+    "showOriginal": "إظهار النص الأصلي",
+    "translating": "جارٍ الترجمة...",
+    "unavailable": "الترجمة غير متاحة"
   }
 }

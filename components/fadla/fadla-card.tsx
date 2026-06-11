@@ -10,12 +10,14 @@ import {
   requestCommunityShareAction,
   updateCommunityShareStatusAction,
 } from "@/app/[locale]/server-actions";
+import {TranslateButton} from "@/components/shared/translate-button";
 import {UserAvatar} from "@/components/layout/user-avatar";
 import {MediaCarousel} from "@/components/media/media-carousel";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {Link} from "@/lib/i18n/routing";
 import {cn} from "@/lib/utils/cn";
+import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
 import type {CommunityShareStatus, CommunityShareWithOwner} from "@/types/database";
 
 const statusClassName: Record<CommunityShareStatus, string> = {
@@ -59,6 +61,10 @@ export function FadlaCard({
   const t = useTranslations("Fadla");
   const isOwner = currentUserId === share.owner_id;
   const ownerName = share.owner?.full_name ?? share.owner?.username ?? t("unknownOwner");
+  const LOCALE_TO_CONTENT_LANG: Record<string, ContentLanguage> = {ar:"ar",fr:"fr",wo:"wo",ff:"ff",snk:"snk"};
+  const uiLanguage: ContentLanguage = LOCALE_TO_CONTENT_LANG[locale] ?? "en";
+  const contentLanguage = detectContentLanguage(share.description);
+  const canTranslate = contentLanguage !== uiLanguage;
   const createdAt = new Date(share.created_at).toLocaleDateString(
     locale === "ar" ? "ar-SA" : locale === "fr" ? "fr-FR" : "en-US",
     {month: "short", day: "numeric"},
@@ -104,6 +110,9 @@ export function FadlaCard({
         </div>
 
         <p className="break-words text-sm leading-6 text-muted-foreground sm:text-base">{share.description}</p>
+        {canTranslate ? (
+          <TranslateButton text={share.description} contentType="fadla" contentId={share.id} />
+        ) : null}
 
         <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
           {share.location ? (

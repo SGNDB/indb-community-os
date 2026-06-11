@@ -918,5 +918,11 @@
     "message": "Soppi bi tankul.",
     "keepEditing": "Jokko soppi",
     "discard": "Far"
+  },
+  "Translating": {
+    "seeTranslation": "See translation",
+    "showOriginal": "Show original",
+    "translating": "Translating...",
+    "unavailable": "Translation unavailable"
   }
 }

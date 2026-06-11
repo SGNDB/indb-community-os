@@ -1,12 +1,14 @@
 "use client";
 
 import {Edit3, Loader2, MoreHorizontal, Trash2} from "lucide-react";
-import {useTranslations} from "next-intl";
-import {useEffect, useRef, useState, useTransition} from "react";
+import {useLocale, useTranslations} from "next-intl";
+import {useEffect, useMemo, useRef, useState, useTransition} from "react";
 import {toast} from "sonner";
 
 import {UserAvatar} from "@/components/layout/user-avatar";
 import {Button} from "@/components/ui/button";
+import {TranslateButton} from "@/components/shared/translate-button";
+import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
 import {deletePostCommentAction, updatePostCommentAction} from "@/app/[locale]/server-actions";
 import type {CommentWithAuthor} from "@/types/database";
 
@@ -32,6 +34,11 @@ export function CommentCard({
   onDeleted: (commentId: string) => void;
 }) {
   const t = useTranslations("Feed");
+  const locale = useLocale();
+  const LOCALE_TO_CONTENT_LANG: Record<string, ContentLanguage> = {ar:"ar",fr:"fr",wo:"wo",ff:"ff",snk:"snk"};
+  const uiLanguage: ContentLanguage = LOCALE_TO_CONTENT_LANG[locale] ?? "en";
+  const contentLanguage = useMemo(() => detectContentLanguage(content), [content]);
+  const canTranslate = contentLanguage !== uiLanguage;
   const [menuOpen, setMenuOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(content);
@@ -138,7 +145,12 @@ export function CommentCard({
             </div>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">{content}</p>
+          <>
+            <p className="text-sm text-muted-foreground">{content}</p>
+            {canTranslate ? (
+              <TranslateButton text={content} contentType="comment" contentId={commentId} />
+            ) : null}
+          </>
         )}
       </div>
       {canShowMenu && !editing ? (

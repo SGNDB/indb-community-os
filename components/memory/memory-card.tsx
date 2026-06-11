@@ -11,6 +11,8 @@ import {UserAvatar} from "@/components/layout/user-avatar";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {TranslateButton} from "@/components/shared/translate-button";
+import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
 import {deleteMemoryAction} from "@/app/[locale]/server-actions";
 import {useCurrentUser} from "@/hooks/use-current-user";
 import {Link, useRouter} from "@/lib/i18n/routing";
@@ -99,6 +101,10 @@ export function MemoryCard({
   const authorProfileHref = memory.contributor?.username ? `/profile/${memory.contributor.username}` : null;
   const isOwner = !!clientUserId && !!memory.contributor_id && clientUserId === memory.contributor_id;
   const memoryTime = timeAgo(memory.created_at, locale);
+  const LOCALE_TO_CONTENT_LANG: Record<string, ContentLanguage> = {ar:"ar",fr:"fr",wo:"wo",ff:"ff",snk:"snk"};
+  const uiLanguage: ContentLanguage = LOCALE_TO_CONTENT_LANG[locale] ?? "en";
+  const contentLanguage = detectContentLanguage(memory.description ?? memory.title);
+  const canTranslate = contentLanguage !== uiLanguage;
   const mediaItems = memory.media && memory.media.length > 0
     ? memory.media.map((media) => ({url: media.url, type: media.type, alt: memory.title}))
     : memory.media_url
@@ -217,6 +223,10 @@ export function MemoryCard({
               </div>
             ) : null}
           </Link>
+
+          {canTranslate ? (
+            <TranslateButton text={memory.description ?? memory.title} contentType="memory" contentId={memory.id} className="mt-1" />
+          ) : null}
 
           <div className="mt-auto border-t border-border/60 pt-3">
             <MemoryActions

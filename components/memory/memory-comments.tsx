@@ -7,6 +7,8 @@ import React, {useEffect, useRef, useState, useTransition} from "react";
 import {toast} from "sonner";
 
 import {addMemoryCommentAction, deleteMemoryCommentAction, updateMemoryCommentAction} from "@/app/[locale]/server-actions";
+import {TranslateButton} from "@/components/shared/translate-button";
+import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
 import {UserAvatar} from "@/components/layout/user-avatar";
 import {createClient} from "@/lib/supabase/client";
 import type {MemoryCommentWithAuthor} from "@/types/database";
@@ -50,6 +52,8 @@ export function MemoryComments({
 }) {
   const t = useTranslations("Ideas");
   const locale = useLocale();
+  const LOCALE_TO_CONTENT_LANG: Record<string, ContentLanguage> = {ar:"ar",fr:"fr",wo:"wo",ff:"ff",snk:"snk"};
+  const uiLanguage: ContentLanguage = LOCALE_TO_CONTENT_LANG[locale] ?? "en";
   const supabase = useRef(createClient()).current;
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen ?? internalOpen;
@@ -312,7 +316,10 @@ export function MemoryComments({
                                 </div>
                               </div>
                             ) : (
-                              <p className="text-sm text-foreground/90 leading-relaxed">{comment.content}</p>
+                              <><p className="text-sm text-foreground/90 leading-relaxed">{comment.content}</p>
+                                {detectContentLanguage(comment.content) !== uiLanguage ? (
+                                  <TranslateButton text={comment.content} contentType="memory_comment" contentId={comment.id} />
+                                ) : null}</>
                             )}
                           </div>
                         </div>

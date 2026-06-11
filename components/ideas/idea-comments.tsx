@@ -18,6 +18,8 @@ import {
   deleteIdeaCommentAction,
   updateIdeaCommentAction,
 } from "@/app/[locale]/server-actions";
+import {TranslateButton} from "@/components/shared/translate-button";
+import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
 import {UserAvatar} from "@/components/layout/user-avatar";
 import {createClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils/cn";
@@ -78,6 +80,8 @@ export function IdeaComments({
 }) {
   const t = useTranslations("Ideas");
   const locale = useLocale();
+  const LOCALE_TO_CONTENT_LANG: Record<string, ContentLanguage> = {ar:"ar",fr:"fr",wo:"wo",ff:"ff",snk:"snk"};
+  const uiLanguage: ContentLanguage = LOCALE_TO_CONTENT_LANG[locale] ?? "en";
   const supabase = useRef(createClient()).current;
   const [open, setOpen] = useState(defaultOpen);
   const [comments, setComments] = useState<IdeaCommentWithAuthor[]>([]);
@@ -352,7 +356,10 @@ export function IdeaComments({
                               </div>
                             </div>
                           ) : (
-                            <p className="mt-0.5 break-words text-base text-foreground/90 [overflow-wrap:anywhere]">{comment.content}</p>
+                            <><p className="mt-0.5 break-words text-base text-foreground/90 [overflow-wrap:anywhere]">{comment.content}</p>
+                              {detectContentLanguage(comment.content) !== uiLanguage ? (
+                                <TranslateButton text={comment.content} contentType="idea_comment" contentId={comment.id} />
+                              ) : null}</>
                           )}
                         </div>
                         {canDelete && !isEditing ? (

@@ -918,5 +918,11 @@
     "message": "Taƴtu maa marinta.",
     "keepEditing": "Joxu taƴtun",
     "discard": "Fo"
+  },
+  "Translating": {
+    "seeTranslation": "See translation",
+    "showOriginal": "Show original",
+    "translating": "Translating...",
+    "unavailable": "Translation unavailable"
   }
 }

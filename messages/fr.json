@@ -918,5 +918,11 @@
       "title": "Aucun objet partage pour le moment",
       "description": "Soyez la premiere personne a partager quelque chose d'utile avec la communaute."
     }
+  },
+  "Translating": {
+    "seeTranslation": "Voir la traduction",
+    "showOriginal": "Voir l'original",
+    "translating": "Traduction...",
+    "unavailable": "Traduction indisponible"
   }
 }

@@ -9,6 +9,8 @@ import {MemoryActions} from "@/components/memory/memory-actions";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {TranslateButton} from "@/components/shared/translate-button";
+import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
 import {deleteMemoryAction} from "@/app/[locale]/server-actions";
 import {useCurrentUser} from "@/hooks/use-current-user";
 import {Link, useRouter} from "@/lib/i18n/routing";
@@ -62,6 +64,10 @@ export function MemoryDetailsClient({
   const contributorName = memory.contributor?.full_name ?? memory.contributor?.username ?? t("unknownContributor");
   const authorUsername = memory.contributor?.username;
   const isOwner = !!clientUserId && !!memory.contributor_id && clientUserId === memory.contributor_id;
+  const LOCALE_TO_CONTENT_LANG: Record<string, ContentLanguage> = {ar:"ar",fr:"fr",wo:"wo",ff:"ff",snk:"snk"};
+  const uiLanguage: ContentLanguage = LOCALE_TO_CONTENT_LANG[locale] ?? "en";
+  const contentLanguage = detectContentLanguage(memory.description ?? memory.title);
+  const canTranslate = contentLanguage !== uiLanguage;
   const mediaItems = memory.media && memory.media.length > 0
     ? memory.media.map((media) => ({url: media.url, type: media.type, alt: memory.title}))
     : memory.media_url
@@ -125,6 +131,9 @@ export function MemoryDetailsClient({
 
         <CardContent className="space-y-4">
           <p className="text-base leading-7 text-foreground/90">{memory.description ?? memory.title}</p>
+          {canTranslate ? (
+            <TranslateButton text={memory.description ?? memory.title} contentType="memory" contentId={memory.id} />
+          ) : null}
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
             {authorUsername ? (

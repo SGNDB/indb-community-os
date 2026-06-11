@@ -21,7 +21,7 @@ import {createClient} from "@/lib/supabase/client";
 import type {PostWithAuthor, CommentWithAuthor} from "@/types/database";
 import {MediaCarousel} from "@/components/media/media-carousel";
 import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
-import {translateContent} from "@/lib/i18n/translateContent";
+import {translateContentAction} from "@/lib/i18n/translateContentAction";
 import {
   deletePostAction,
   submitCommentAction,
@@ -243,11 +243,7 @@ export function PostCard({
     setTranslationError(false);
 
     try {
-      const result = await translateContent({
-        text: post.content,
-        sourceLang: contentLanguage,
-        targetLang: uiLanguage,
-      });
+      const result = await translateContentAction("post", post.id, post.content, locale);
 
       setTranslatedText(result.translatedText);
       setIsTranslated(true);

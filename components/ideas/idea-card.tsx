@@ -8,12 +8,14 @@ import {toast} from "sonner";
 
 import {deleteIdeaAction, shareIdeaAction} from "@/app/[locale]/server-actions";
 import {IdeaComments} from "@/components/ideas/idea-comments";
+import {TranslateButton} from "@/components/shared/translate-button";
 import {VoteButton} from "@/components/ideas/vote-button";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {useCurrentUser} from "@/hooks/use-current-user";
 import {Link, useRouter} from "@/lib/i18n/routing";
 import {cn} from "@/lib/utils/cn";
+import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
 import type {IdeaBadge, IdeaWithAuthor} from "@/types/database";
 import {MediaCarousel} from "@/components/media/media-carousel";
 
@@ -138,6 +140,10 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
       ? [{url: idea.image_url, type: "image" as const, alt: idea.title}]
       : [];
 
+  const LOCALE_TO_CONTENT_LANG: Record<string, ContentLanguage> = {ar:"ar",fr:"fr",wo:"wo",ff:"ff",snk:"snk"};
+  const uiLanguage: ContentLanguage = LOCALE_TO_CONTENT_LANG[locale] ?? "en";
+  const contentLanguage = detectContentLanguage(idea.description);
+  const canTranslate = contentLanguage !== uiLanguage;
   const categoryName = idea.category
     ? locale === "ar"
       ? idea.category.name_ar
@@ -251,6 +257,9 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
                   <><ChevronDown size={14} />{t("showMore")}</>
                 )}
               </button>
+            ) : null}
+            {canTranslate ? (
+              <TranslateButton text={idea.description} contentType="idea" contentId={idea.id} className="mt-1" />
             ) : null}
           </div>
 

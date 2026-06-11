@@ -1,0 +1,83 @@
+"use client";
+
+import {useLocale, useTranslations} from "next-intl";
+import {useState, useCallback} from "react";
+import {translateContentAction} from "@/lib/i18n/translateContentAction";
+
+interface Props {
+  text: string;
+  contentType: string;
+  contentId: string;
+  className?: string;
+}
+
+export function TranslateButton({text, contentType, contentId, className = ""}: Props) {
+  const locale = useLocale();
+  const [translated, setTranslated] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [showingTranslation, setShowingTranslation] = useState(false);
+
+  const translatingT = useTranslations("Translating");
+
+  const handleTranslate = useCallback(async () => {
+    if (translated) {
+      setShowingTranslation((prev) => !prev);
+      return;
+    }
+    setLoading(true);
+    setError(false);
+    try {
+      const result = await translateContentAction(contentType, contentId, text, locale);
+      setTranslated(result.translatedText);
+      setShowingTranslation(true);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [text, contentType, contentId, locale, translated]);
+
+  if (!text || text.length < 10) return null;
+
+  if (loading) {
+    return (
+      <span className={`text-xs text-muted-foreground italic ${className}`}>
+        {translatingT("translating")}
+      </span>
+    );
+  }
+
+  if (error) {
+    return (
+      <span className={`text-xs text-destructive ${className}`}>
+        {translatingT("unavailable")}
+      </span>
+    );
+  }
+
+  if (showingTranslation && translated) {
+    return (
+      <div className={className}>
+        <p className="whitespace-pre-wrap break-words">{translated}</p>
+        <button
+          type="button"
+          onClick={() => setShowingTranslation(false)}
+          className="mt-1 text-xs text-primary hover:underline"
+        >
+          {translatingT("showOriginal")}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleTranslate}
+      className={`text-xs text-primary hover:underline ${className}`}
+    >
+      {translatingT("seeTranslation")}
+    </button>
+  );
+}
