@@ -39,8 +39,8 @@
       "description": "اعرض ملفك المجتمعي ومساهماتك ونشاطك."
     },
     "admin": {
-      "title": "لوحة الإدارة",
-      "description": "تابع أعمال الإشراف ومؤشرات المنصة."
+      "title": "لوحة تحكم الإدارة",
+      "description": "إدارة المستخدمين والنقاط والمحتوى الحديث."
     },
     "memorySubmit": {
       "title": "إرسال ذكرى",
@@ -57,6 +57,10 @@
     "postEdit": {
       "title": "تعديل المنشور",
       "description": "تحديث منشورك."
+    },
+    "fadla": {
+      "title": "الفظلة",
+      "description": "شارك الأشياء المفيدة التي لم تعد تحتاجها مع من يحتاجها."
     }
   },
   "LanguageSwitcher": {
@@ -103,6 +107,10 @@
       "profile": {
         "label": "الملف الشخصي",
         "short": "الملف"
+      },
+      "fadla": {
+        "label": "الفظلة",
+        "short": "الفظلة"
       }
     }
   },
@@ -123,13 +131,15 @@
       "posts": "المنشورات",
       "ideas": "الأفكار",
       "memories": "الذكريات",
-      "people": "الأشخاص"
+      "people": "الأشخاص",
+      "fadla": "الفظلة"
     },
     "types": {
       "post": "منشور",
       "idea": "فكرة",
       "memory": "ذكرى",
-      "profile": "شخص"
+      "profile": "شخص",
+      "fadla": "عنصر مشارك"
     }
   },
   "Notifications": {
@@ -147,7 +157,9 @@
     "reactedToMemory": "تفاعل {actorName} مع ذاكرتك",
     "commentedOnYourMemory": "علّق {actorName} على ذاكرتك",
     "sharedYourMemory": "شارك {actorName} ذاكرتك",
-    "someone": "شخص ما"
+    "creditAwarded": "لقد حصلت على {points} نقاط مساهمة",
+    "someone": "شخص ما",
+    "communityShareRequested": "طلب شخص الاستفادة من العنصر الذي شاركته"
   },
   "RightSidebar": {
     "trendingTopics": "المواضيع الرائجة",
@@ -422,16 +434,13 @@
       "posts": "منشورات",
       "memories": "ذكريات",
       "ideas": "أفكار",
-      "about": "حول"
+      "about": "حول",
+      "shares": "الفظلة"
     },
     "joined": "انضم في",
     "role": {
-      "member": "عضو",
-      "contributor": "مساهم",
-      "historian": "مؤرخ",
-      "volunteer": "متطوع",
-      "diaspora": "شتات",
-      "organization": "منظمة"
+      "admin": "مدير",
+      "moderator": "مشرف"
     },
     "recentMemories": "ذكريات حديثة",
     "save": "حفظ التغييرات",
@@ -457,6 +466,14 @@
       "coverImage": "صورة الغلاف",
       "role": "الدور",
       "memberSince": "عضو منذ"
+    },
+    "contributionScore": "نقاط المساهمة",
+    "contributionRanks": {
+      "member": "عضو",
+      "contributor": "مساهم",
+      "communityBuilder": "باني المجتمع",
+      "communityLeader": "قائد مجتمعي",
+      "ndbChampion": "بطل نواذيبو"
     }
   },
   "Follow": {
@@ -488,20 +505,194 @@
       "postsToday": "منشورات اليوم",
       "pendingMemories": "ذكريات معلقة",
       "openIdeas": "أفكار مفتوحة",
-      "reportsQueue": "طابور البلاغات"
+      "reportsQueue": "قائمة البلاغات"
     },
-    "moderationQueue": "طابور الإشراف",
+    "moderationQueue": "قائمة المراجعة",
     "noPendingReports": "لا توجد بلاغات معلقة.",
     "targetType": {
       "memory": "ذكرى",
       "post": "منشور"
     },
     "status": {
-      "pending": "معلّق"
+      "pending": "معلق"
     },
     "reasons": {
-      "yearConfirmation": "يتطلب تأكيد سنة النشر",
+      "yearConfirmation": "يحتاج إلى تأكيد سنة النشر",
       "respectfulTone": "مراجعة الصياغة لضمان أسلوب محترم"
+    },
+    "commandCenter": "مركز INDB",
+    "nouadhibouSignal": "نبض نواذيبو",
+    "eyebrow": "مركز قيادة المجتمع",
+    "signedInLabel": "مسجل كـ",
+    "signedInAs": "المدير: {name}",
+    "hero": {
+      "title": "نواذيبو حيّة. هذا هو نبضها.",
+      "description": "تابع الأشخاص والأفكار والذكريات والمساهمات التي تبني INDB. هذه مساحة لقيادة مجتمع حي، وليست لإدارة قاعدة بيانات."
+    },
+    "nav": {
+      "dashboard": "الرئيسية",
+      "users": "المستخدمون",
+      "content": "المحتوى",
+      "credits": "النقاط",
+      "analytics": "التحليلات",
+      "settings": "الإعدادات"
+    },
+    "sections": {
+      "overview": "نظرة عامة",
+      "users": "المستخدمون",
+      "credits": "النقاط",
+      "content": "المحتوى"
+    },
+    "health": {
+      "eyebrow": "صحة المجتمع",
+      "title": "ما الذي يحدث الآن",
+      "members": "الأعضاء",
+      "posts": "المنشورات",
+      "ideas": "الأفكار",
+      "memories": "الذكريات",
+      "activeToday": "النشطون اليوم",
+      "newToday": "+{count} اليوم",
+      "today": "+{count} اليوم",
+      "activeSignal": "نبض حي",
+      "totalComments": "{count} تعليق"
+    },
+    "pulse": {
+      "eyebrow": "نبض المجتمع",
+      "title": "الحوارات التي تحرك المدينة",
+      "noPreview": "لا توجد معاينة بعد.",
+      "type": {
+        "post": "النقاش الأكثر نشاطًا",
+        "idea": "الفكرة الأكثر نشاطًا",
+        "memory": "ذكرى بارزة",
+        "member": "عضو جديد"
+      }
+    },
+    "newMembers": {
+      "eyebrow": "المنضمون الجدد",
+      "title": "أحدث الأعضاء"
+    },
+    "contributors": {
+      "eyebrow": "أفضل المساهمين",
+      "title": "الأشخاص الذين يبنون المجتمع",
+      "rank": {
+        "member": "عضو",
+        "contributor": "مساهم",
+        "communityBuilder": "باني المجتمع",
+        "communityLeader": "قائد مجتمعي",
+        "ndbChampion": "بطل نواذيبو"
+      }
+    },
+    "actions": {
+      "eyebrow": "مركز الإجراءات",
+      "title": "حرّك المجتمع إلى الأمام",
+      "awardCredits": "منح نقاط",
+      "awardCreditsDescription": "تقدير الأعضاء المفيدين.",
+      "reviewReports": "مراجعة البلاغات",
+      "reviewReportsDescription": "راجع ما يحتاج إلى انتباه.",
+      "viewUsers": "عرض المستخدمين",
+      "viewUsersDescription": "ابحث عن الأعضاء وعدّل الأدوار.",
+      "analytics": "تحليلات المجتمع",
+      "analyticsDescription": "اقرأ النبض والنشاط."
+    },
+    "overview": {
+      "totalUsers": "إجمالي المستخدمين",
+      "totalPosts": "إجمالي المنشورات",
+      "totalIdeas": "إجمالي الأفكار",
+      "totalMemories": "إجمالي الذكريات",
+      "totalComments": "إجمالي التعليقات"
+    },
+    "users": {
+      "eyebrow": "أشخاص المجتمع",
+      "title": "إدارة الأعضاء",
+      "description": "يبقى المستخدمون أعضاء، والمدير فقط يستطيع حذف الحسابات عند الحاجة.",
+      "search": "ابحث عن المستخدمين",
+      "searchButton": "بحث",
+      "user": "المستخدم",
+      "email": "البريد الإلكتروني",
+      "role": "الدور",
+      "score": "نقاط المساهمة",
+      "award": "منح نقاط",
+      "noUsername": "لا يوجد اسم مستخدم",
+      "emailUnavailable": "غير متاح",
+      "updateRole": "تحديث",
+      "selfRoleProtected": "حسابك كمدير محمي",
+      "deleteUser": "حذف الحساب",
+      "deleteConfirm": "هل تريد حذف هذا الحساب من المجتمع؟ لا يمكن التراجع عن هذا من لوحة التحكم."
+    },
+    "roles": {
+      "member": "عضو",
+      "admin": "مدير"
+    },
+    "credits": {
+      "eyebrow": "نقاط المساهمة",
+      "title": "كافئ أثر المجتمع",
+      "description": "امنح نقاط المساهمة واحفظ السجل.",
+      "user": "المستخدم",
+      "points": "النقاط",
+      "reason": "السبب",
+      "note": "ملاحظة",
+      "notePlaceholder": "ملاحظة اختيارية",
+      "award": "منح النقاط",
+      "recent": "النقاط الأخيرة",
+      "empty": "لم يتم منح أي نقاط بعد."
+    },
+    "creditReasons": {
+      "helpedCommunity": "ساعد المجتمع",
+      "sharedValuableMemory": "شارك ذكرى قيّمة",
+      "proposedUsefulIdea": "اقترح فكرة مفيدة",
+      "volunteerWork": "عمل تطوعي",
+      "cityImprovementAction": "عمل لتحسين المدينة",
+      "other": "أخرى"
+    },
+    "content": {
+      "eyebrow": "مراقبة المحتوى",
+      "title": "أحدث المنشورات والأفكار والذكريات",
+      "description": "راجع المنشورات والأفكار والذكريات الحديثة.",
+      "by": "بواسطة {name}",
+      "view": "عرض",
+      "delete": "حذف",
+      "type": {
+        "post": "منشور",
+        "idea": "فكرة",
+        "memory": "ذكرى"
+      }
+    },
+    "activity": {
+      "eyebrow": "النشاط الأخير",
+      "title": "خط زمني للمجتمع",
+      "type": {
+        "post": "{name} شارك منشورًا: {title}",
+        "idea": "{name} اقترح فكرة: {title}",
+        "memory": "{name} شارك ذكرى: {title}",
+        "credit": "{name} حصل على {title} نقطة",
+        "member": "{title} انضم إلى المجتمع"
+      }
+    },
+    "identity": {
+      "eyebrow": "هوية المجتمع",
+      "title": "أنت تبني البيت الرقمي لنواذيبو.",
+      "description": "كل نقطة ومراجعة وتعديل دور يجب أن يجعل الناس يشعرون بأنهم مرئيون ومفيدون ومرتبطون بالمدينة.",
+      "settingsNote": "الإعدادات والتحليلات المتقدمة يمكن أن تأتي لاحقًا. نسخة MVP تبقى مركزة على الناس والمساهمة."
+    },
+    "statusMessage": {
+      "roleUpdated": "تم تحديث الدور بنجاح.",
+      "creditsAwarded": "تم منح النقاط بنجاح.",
+      "contentDeleted": "تم حذف المحتوى بنجاح.",
+      "invalid": "إجراء إداري غير صالح.",
+      "roleError": "تعذّر تحديث الدور.",
+      "creditError": "تعذّر منح النقاط. تأكد من تطبيق ترحيل Supabase.",
+      "deleteError": "تعذّر حذف المحتوى.",
+      "selfRoleBlocked": "لا يمكنك إزالة دورك كمدير من هذه الصفحة.",
+      "userDeleted": "تم حذف حساب المستخدم من المجتمع.",
+      "userDeleteError": "تعذّر حذف هذا الحساب. تأكد من صلاحيات مفتاح Supabase service role ثم حاول مرة أخرى.",
+      "selfDeleteBlocked": "لا يمكنك حذف حسابك كمدير من هذه الصفحة.",
+      "userDeleteConfigError": "مفتاح Supabase service role غير موجود. أضف SUPABASE_SERVICE_ROLE_KEY في Vercel أولًا."
+    },
+    "sidebar": {
+      "backToSite": "العودة إلى الموقع",
+      "close": "إغلاق القائمة",
+      "collapse": "طي القائمة",
+      "expand": "فتح القائمة"
     }
   },
   "Categories": {
@@ -529,7 +720,9 @@
       "submitting": "جارٍ تسجيل الدخول...",
       "forgotPassword": "نسيت كلمة المرور؟",
       "noAccount": "ليس لديك حساب؟",
-      "register": "إنشاء حساب"
+      "register": "إنشاء حساب",
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور"
     },
     "register": {
       "title": "إنشاء حساب",
@@ -541,7 +734,9 @@
       "submit": "إنشاء الحساب",
       "submitting": "جارٍ إنشاء الحساب...",
       "hasAccount": "لديك حساب بالفعل؟",
-      "login": "تسجيل الدخول"
+      "login": "تسجيل الدخول",
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور"
     },
     "forgotPassword": {
       "title": "إعادة تعيين كلمة المرور",
@@ -644,6 +839,11 @@
       "title": "لا توجد مشاريع بعد",
       "description": "أطلق مشروعاً مواطناً واجمع المجتمع حول عمل محلي.",
       "cta": "استكشف المنشورات"
+    },
+    "fadla": {
+      "title": "لا توجد عناصر مشاركة بعد",
+      "description": "شارك شيئًا مفيدًا لم تعد تحتاجه وساعد عائلة أخرى.",
+      "cta": "افتح الفظلة"
     }
   },
   "ConfirmDialog": {
@@ -651,5 +851,70 @@
     "message": "لن يتم حفظ التغييرات.",
     "keepEditing": "متابعة التعديل",
     "discard": "تجاهل"
+  },
+  "Fadla": {
+    "title": "الفظلة",
+    "eyebrow": "تشارك مجتمعي",
+    "description": "شارك الأشياء المفيدة التي لم تعد تحتاجها مع من يحتاجها. نفايات أقل، تضامن أكثر، ونواذيبو أقوى.",
+    "notMarketplace": "لا أسعار. لا دفع. فقط مشاركة ومساعدة.",
+    "shareButton": "شارك شيئًا",
+    "searchPlaceholder": "ابحث في العناصر المشاركة",
+    "allCategories": "كل الفئات",
+    "unknownOwner": "عضو في المجتمع",
+    "sharedForHelp": "مشارك للمساعدة",
+    "imagePlaceholder": "عنصر مفيد",
+    "needThis": "أحتاجه",
+    "requested": "تم الطلب",
+    "alreadyGiven": "تم التبرع به",
+    "categories": {
+      "food": "طعام",
+      "clothes": "ملابس",
+      "furniture": "أثاث",
+      "electronics": "إلكترونيات",
+      "school_supplies": "مستلزمات مدرسية",
+      "books": "كتب",
+      "services": "خدمات",
+      "other": "أخرى"
+    },
+    "status": {
+      "available": "متاح",
+      "reserved": "محجوز",
+      "given": "تم التبرع"
+    },
+    "actions": {
+      "edit": "تعديل العنصر",
+      "delete": "حذف العنصر",
+      "mark": {
+        "available": "جعله متاحًا",
+        "reserved": "وضعه كمحجوز",
+        "given": "وضعه كمتبرع به"
+      }
+    },
+    "form": {
+      "createTitle": "شارك شيئًا مفيدًا",
+      "editTitle": "تعديل العنصر المشارك",
+      "helper": "اجعلها بسيطة وكريمة. لا أسعار ولا دفع.",
+      "title": "العنوان",
+      "description": "الوصف",
+      "condition": "الحالة",
+      "location": "الموقع",
+      "cancel": "إلغاء",
+      "submit": "مشاركة",
+      "update": "تحديث"
+    },
+    "toasts": {
+      "created": "تمت مشاركة العنصر بنجاح",
+      "updated": "تم تحديث العنصر المشارك",
+      "deleted": "تم حذف العنصر المشارك",
+      "requested": "تم إرسال الطلب إلى المالك"
+    },
+    "errors": {
+      "saveFailed": "تعذر حفظ العنصر المشارك",
+      "actionFailed": "تعذر إكمال هذا الإجراء"
+    },
+    "empty": {
+      "title": "لا توجد مشاركات بعد",
+      "description": "كن أول من يشارك شيئًا مفيدًا مع المجتمع."
+    }
   }
 }

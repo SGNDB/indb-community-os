@@ -1,9 +1,10 @@
-import {CalendarDays, MapPin, UserRound} from "lucide-react";
+import {CalendarDays, Heart, MapPin, UserRound} from "lucide-react";
 import type {Metadata} from "next";
 import {notFound} from "next/navigation";
 import {getTranslations} from "next-intl/server";
 
 import {PostCard} from "@/components/feed/post-card";
+import {FadlaCard} from "@/components/fadla/fadla-card";
 import {FollowSummary} from "@/components/profile/follow-summary";
 import {MemoryCard} from "@/components/memory/memory-card";
 import {IdeaCard} from "@/components/ideas/idea-card";
@@ -11,11 +12,13 @@ import {EmptyState} from "@/components/shared/empty-state";
 import {Badge} from "@/components/ui/badge";
 import {Card, CardContent} from "@/components/ui/card";
 import {getCommentsByPost} from "@/lib/data/comments";
+import {getContributionRankKey} from "@/lib/contribution";
 import {getFollowStats, isFollowing} from "@/lib/data/follows";
 import {getUserPosts} from "@/lib/data/posts";
 import {getProfileByUsername} from "@/lib/data/profile";
 import {getUserMemories} from "@/lib/data/memories";
 import {getUserIdeas} from "@/lib/data/ideas";
+import {getUserCommunityShares} from "@/lib/data/fadla";
 import {Link} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/server";
 
@@ -66,10 +69,11 @@ export default async function PublicProfilePage({
   const {data: {user}} = await supabase.auth.getUser();
   const currentUserId = user?.id ?? null;
 
-  const [allPosts, memories, ideas, followStats, currentUserIsFollowing] = await Promise.all([
+  const [allPosts, memories, ideas, shares, followStats, currentUserIsFollowing] = await Promise.all([
     getUserPosts(profile.id, currentUserId),
     getUserMemories(profile.id),
     getUserIdeas(profile.id),
+    getUserCommunityShares(profile.id),
     getFollowStats(profile.id),
     isFollowing(currentUserId, profile.id),
   ]);
@@ -77,17 +81,21 @@ export default async function PublicProfilePage({
   const displayName = profile.full_name ?? profile.username ?? "?";
   const initials = getInitials(displayName);
   const joinDate = formatJoinDate(profile.created_at, locale);
-  const currentTab = activeTab === "memories" ? "memories" : activeTab === "ideas" ? "ideas" : activeTab === "about" ? "about" : "posts";
+  const contributionScore = profile.contribution_score ?? 0;
+  const contributionRank = getContributionRankKey(contributionScore);
+  const currentTab = activeTab === "memories" ? "memories" : activeTab === "ideas" ? "ideas" : activeTab === "shares" ? "shares" : activeTab === "about" ? "about" : "posts";
 
   const t = await getTranslations({locale, namespace: "Profile"});
   const emptyPosts = await getTranslations({locale, namespace: "EmptyStates.posts"});
   const emptyMemories = await getTranslations({locale, namespace: "EmptyStates.memories"});
   const emptyIdeas = await getTranslations({locale, namespace: "EmptyStates.ideas"});
+  const emptyFadla = await getTranslations({locale, namespace: "EmptyStates.fadla"});
 
   const tabs = [
     {key: "posts", label: t("tabs.posts"), count: allPosts.length},
     {key: "memories", label: t("tabs.memories"), count: memories.length},
     {key: "ideas", label: t("tabs.ideas"), count: ideas.length},
+    {key: "shares", label: t("tabs.shares"), count: shares.length},
     {key: "about", label: t("tabs.about"), count: null},
   ] as const;
 
@@ -153,6 +161,12 @@ export default async function PublicProfilePage({
                   <CalendarDays size={13} />
                   {t("joined")} {joinDate}
                 </span>
+              </div>
+              <div className="mt-3 inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary sm:justify-start">
+                <Heart size={16} fill="currentColor" />
+                <span>{contributionScore} {t("contributionScore")}</span>
+                <span className="text-primary/60">•</span>
+                <span>{t(`contributionRanks.${contributionRank}`)}</span>
               </div>
             </div>
 
@@ -283,6 +297,30 @@ export default async function PublicProfilePage({
         )
       ) : null}
 
+      {currentTab === "shares" ? (
+        shares.length > 0 ? (
+          <div className="grid gap-4 lg:grid-cols-2">
+            {shares.map((share) => (
+              <FadlaCard
+                key={share.id}
+                share={share}
+                currentUserId={currentUserId}
+                locale={locale}
+                compact
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon={UserRound}
+            title={emptyFadla("title")}
+            description={emptyFadla("description")}
+            ctaLabel={emptyFadla("cta")}
+            ctaHref="/fadla"
+          />
+        )
+      ) : null}
+
       {currentTab === "about" ? (
         <Card className="border-border/70 shadow-[0_8px_24px_rgba(8,33,56,0.06)]">
           <CardContent className="space-y-4 p-5 sm:p-6">
@@ -306,6 +344,10 @@ export default async function PublicProfilePage({
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("fields.role")}</p>
                 <p className="mt-1 text-sm">{t(`role.${profile.role}`)}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("contributionScore")}</p>
+                <p className="mt-1 text-sm">{contributionScore} • {t(`contributionRanks.${contributionRank}`)}</p>
               </div>
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("fields.memberSince")}</p>

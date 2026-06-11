@@ -38,6 +38,7 @@ export async function getIdeas(): Promise<{ideas: IdeaWithSupport[]; totalUsers:
       author:profiles!ideas_author_id_fkey(id, username, full_name, avatar_url),
       category:categories(id, slug, name_en, name_fr, name_ar)
     `)
+    .not("author_id", "is", null)
     .order("created_at", {ascending: false});
 
   const ideas = (data ?? []) as unknown as IdeaWithAuthor[];
@@ -86,6 +87,7 @@ export async function getIdeaById(id: string): Promise<IdeaWithAuthor | null> {
       category:categories(id, slug, name_en, name_fr, name_ar)
     `)
     .eq("id", id)
+    .not("author_id", "is", null)
     .single();
 
   if (!data) return null;
@@ -101,6 +103,7 @@ export async function getIdeaComments(ideaId: string): Promise<IdeaCommentWithAu
     .from("idea_comments")
     .select("*, author:profiles!idea_comments_author_id_fkey(id, username, full_name, avatar_url)")
     .eq("idea_id", ideaId)
+    .not("author_id", "is", null)
     .order("created_at", {ascending: true});
 
   return (data ?? []) as unknown as IdeaCommentWithAuthor[];
@@ -121,6 +124,7 @@ export async function getIdeasCount(): Promise<number> {
   const supabase = await createClient();
   const {count} = await supabase
     .from("ideas")
-    .select("*", {count: "exact", head: true});
+    .select("*", {count: "exact", head: true})
+    .not("author_id", "is", null);
   return count ?? 0;
 }

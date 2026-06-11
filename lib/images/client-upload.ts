@@ -49,12 +49,14 @@ export async function uploadMediaItem(
     post: "post-media",
     memory: "memory-archive",
     idea: "idea-media",
+    fadla: "fadla-media",
   };
 
   const prefixMap: Record<string, string> = {
     post: "posts",
     memory: "memories",
     idea: "ideas",
+    fadla: "fadla",
   };
 
   const bucket = bucketMap[uploadKind] ?? "post-media";

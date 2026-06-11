@@ -1,19 +1,21 @@
 ﻿"use client";
 
 import {useTransition} from "react";
+import {useSearchParams} from "next/navigation";
 import {useLocale, useTranslations} from "next-intl";
 
-import {localeLabels} from "@/lib/i18n/routing";
+import {localeLabels, routing} from "@/lib/i18n/routing";
 import {usePathname, useRouter} from "@/lib/i18n/routing";
 
 export function LanguageSwitcher() {
   const t = useTranslations("LanguageSwitcher");
   const locale = useLocale();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const locales = ["en", "fr", "ar"] as const;
+  const locales = routing.locales;
 
   async function changeLanguage(nextLocale: (typeof locales)[number]) {
     if (nextLocale === locale) {
@@ -32,7 +34,10 @@ export function LanguageSwitcher() {
     });
 
     startTransition(() => {
-      router.replace(pathname, {locale: nextLocale});
+      const query = searchParams.toString();
+      const hash = typeof window !== "undefined" ? window.location.hash : "";
+      const nextPath = `${pathname}${query ? `?${query}` : ""}${hash}`;
+      router.replace(nextPath, {locale: nextLocale});
     });
   }
 
@@ -48,7 +53,7 @@ export function LanguageSwitcher() {
           aria-label={t("label")}
           onChange={(event) => changeLanguage(event.target.value as (typeof locales)[number])}
           disabled={isPending}
-          className="min-h-11 rounded-full border border-border bg-card px-3 text-xs font-medium text-foreground outline-none ring-primary/35 transition focus:ring"
+          className="min-h-11 max-w-[8.5rem] rounded-full border border-border bg-card px-3 text-xs font-medium text-foreground outline-none ring-primary/35 transition focus:ring"
         >
           {locales.map((item) => (
             <option key={item} value={item}>

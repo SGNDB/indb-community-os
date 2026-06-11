@@ -89,6 +89,7 @@ export async function getPosts(
       category:categories(id, slug, name_en, name_fr, name_ar)
     `)
     .eq("status", "published")
+    .not("author_id", "is", null)
     .order("created_at", {ascending: false});
 
   const posts = (data ?? []) as unknown as PostWithAuthor[];
@@ -110,6 +111,7 @@ export async function getPostById(
       category:categories(id, slug, name_en, name_fr, name_ar)
     `)
     .eq("id", id)
+    .not("author_id", "is", null)
     .single();
 
   if (!data) return null;
@@ -145,7 +147,8 @@ export async function getPostsCount(): Promise<number> {
   const {count} = await supabase
     .from("posts")
     .select("*", {count: "exact", head: true})
-    .eq("status", "published");
+    .eq("status", "published")
+    .not("author_id", "is", null);
   return count ?? 0;
 }
 
@@ -158,6 +161,7 @@ export async function getPostsTodayCount(): Promise<number> {
     .from("posts")
     .select("*", {count: "exact", head: true})
     .eq("status", "published")
+    .not("author_id", "is", null)
     .gte("created_at", today.toISOString());
 
   return count ?? 0;

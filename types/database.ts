@@ -11,6 +11,15 @@ export type ReactionType = "like" | "love" | "support" | "celebrate" | "insightf
 export type MemoryReactionType = ReactionType;
 export type ReportTargetType = "post" | "comment" | "memory" | "idea";
 export type ReportStatus = "pending" | "reviewed" | "resolved" | "dismissed";
+export type CommunityShareStatus = "available" | "reserved" | "given";
+export type CommunityShareCategory = "food" | "clothes" | "furniture" | "electronics" | "school_supplies" | "books" | "services" | "other";
+
+export interface CommunityShareImage {
+  url: string;
+  storagePath: string;
+  type?: "image";
+  mimeType?: string;
+}
 
 export interface ProfileRow {
   id: string;
@@ -21,9 +30,20 @@ export interface ProfileRow {
   bio: string | null;
   city: string | null;
   role: CommunityRole;
+  contribution_score: number;
   language_preference: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface CommunityCreditRow {
+  id: string;
+  user_id: string;
+  points: number;
+  reason: string;
+  note: string | null;
+  created_at: string;
+  awarded_by: string | null;
 }
 
 export interface CategoryRow {
@@ -202,6 +222,27 @@ export interface NotificationWithActor extends NotificationRow {
   actor: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
 }
 
+export interface CommunityShareRow {
+  id: string;
+  owner_id: string;
+  title: string;
+  description: string;
+  category: CommunityShareCategory;
+  condition: string | null;
+  location: string | null;
+  status: CommunityShareStatus;
+  images: CommunityShareImage[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CommunityShareRequestRow {
+  id: string;
+  share_id: string;
+  requester_id: string;
+  created_at: string;
+}
+
 export interface EventRow {
   id: string;
   title: string;
@@ -316,11 +357,18 @@ export interface CommentWithAuthor extends CommentRow {
   author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
 }
 
+export interface CommunityShareWithOwner extends CommunityShareRow {
+  owner: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+  requested_by_current_user?: boolean;
+  requests_count?: number;
+}
+
 export interface ProfileWithCounts extends ProfileRow {
   posts_count: number;
   memories_count: number;
   ideas_count: number;
   comments_count: number;
+  shares_count?: number;
   followers_count: number;
   following_count: number;
 }

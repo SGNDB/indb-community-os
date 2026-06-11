@@ -16,6 +16,7 @@ function matchPath(pathname: string, patterns: string[]): boolean {
 
 export default async function middleware(request: NextRequest) {
   const {pathname} = request.nextUrl;
+  request.headers.set("x-indb-pathname", pathname);
 
   const locale = routing.locales.find((l) => pathname.startsWith(`/${l}/`) || pathname === `/${l}`) ?? routing.defaultLocale;
   const pathWithoutLocale = "/" + pathname.split("/").slice(2).join("/");

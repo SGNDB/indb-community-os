@@ -25,24 +25,13 @@ export async function Navbar({locale}: {locale: string}) {
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/90 pt-[var(--safe-top)] backdrop-blur-xl">
       <div className="mx-auto w-full max-w-7xl ps-[max(0.75rem,var(--safe-left))] pe-[max(0.75rem,var(--safe-right))] sm:px-4">
-        <div className="grid h-14 grid-cols-[auto_1fr_auto] items-center gap-2 md:hidden">
+        <div className="grid min-h-14 grid-cols-[auto_1fr_auto] items-center gap-2 md:hidden">
           {isLoggedIn ? (
             <Link href="/profile" className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full">
               <UserAvatar label={profileName} avatarUrl={avatarUrl} className="h-10 w-10" />
             </Link>
           ) : (
-            <div className="flex items-center gap-1">
-              <Link href="/register">
-                <Button variant="ghost" size="sm" className="h-10 px-3 text-sm">
-                  {t("createAccount")}
-                </Button>
-              </Link>
-              <Link href="/login">
-                <Button variant="ghost" size="sm" className="h-10 px-3 text-sm">
-                  {t("login")}
-                </Button>
-              </Link>
-            </div>
+            <span className="min-h-11 min-w-11" aria-hidden />
           )}
 
           <Link href="/" className="inline-flex items-center justify-self-center">
@@ -55,6 +44,20 @@ export async function Navbar({locale}: {locale: string}) {
             <LanguageSwitcher />
           </div>
         </div>
+        {!isLoggedIn ? (
+          <div className="grid grid-cols-2 gap-2 pb-2 md:hidden">
+            <Link href="/register" className="min-w-0">
+              <Button variant="outline" size="sm" className="h-10 w-full min-w-0 px-2 text-xs font-semibold sm:text-sm">
+                <span className="truncate">{t("createAccount")}</span>
+              </Button>
+            </Link>
+            <Link href="/login" className="min-w-0">
+              <Button variant="outline" size="sm" className="h-10 w-full min-w-0 px-2 text-xs font-semibold sm:text-sm">
+                <span className="truncate">{t("login")}</span>
+              </Button>
+            </Link>
+          </div>
+        ) : null}
         <div className="pb-2 md:hidden">
           <SearchBar />
         </div>

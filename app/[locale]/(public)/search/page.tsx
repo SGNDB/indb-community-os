@@ -1,4 +1,4 @@
-import {Archive, Lightbulb, Newspaper, Search, UserRound} from "lucide-react";
+import {Archive, Gift, Lightbulb, Newspaper, Search, UserRound} from "lucide-react";
 import type {Metadata} from "next";
 import {getTranslations} from "next-intl/server";
 
@@ -11,6 +11,7 @@ const resultIcons: Record<SearchResultType, typeof Newspaper> = {
   post: Newspaper,
   idea: Lightbulb,
   memory: Archive,
+  fadla: Gift,
   profile: UserRound,
 };
 
@@ -155,6 +156,11 @@ export default async function SearchPage({
             title={t("sections.memories")}
             typeLabel={t("types.memory")}
             results={results.memories}
+          />
+          <ResultSection
+            title={t("sections.fadla")}
+            typeLabel={t("types.fadla")}
+            results={results.fadla}
           />
           <ResultSection
             title={t("sections.people")}

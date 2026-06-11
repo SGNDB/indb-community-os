@@ -40,6 +40,7 @@ export async function getApprovedMemories(): Promise<MemoryWithContributor[]> {
       contributor:profiles!memories_contributor_id_fkey(id, username, full_name, avatar_url)
     `)
     .eq("verification_status", "approved")
+    .not("contributor_id", "is", null)
     .order("year", {ascending: false});
 
   const memories = (data ?? []) as unknown as MemoryWithContributor[];
@@ -56,6 +57,7 @@ export async function getMemoryById(id: string): Promise<MemoryWithContributor |
       contributor:profiles!memories_contributor_id_fkey(id, username, full_name, avatar_url)
     `)
     .eq("id", id)
+    .not("contributor_id", "is", null)
     .single();
 
   if (!data) return null;
@@ -78,7 +80,8 @@ export async function getMemoriesCount(): Promise<number> {
   const {count} = await supabase
     .from("memories")
     .select("*", {count: "exact", head: true})
-    .eq("verification_status", "approved");
+    .eq("verification_status", "approved")
+    .not("contributor_id", "is", null);
   return count ?? 0;
 }
 
@@ -91,6 +94,7 @@ export async function getMemoryComments(
     .from("memory_comments")
     .select("*, author:profiles!memory_comments_author_id_fkey(id, username, full_name, avatar_url)")
     .eq("memory_id", memoryId)
+    .not("author_id", "is", null)
     .order("created_at", {ascending: true});
 
   return (data ?? []) as unknown as MemoryCommentWithAuthor[];

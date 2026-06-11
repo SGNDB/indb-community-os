@@ -45,6 +45,11 @@ export async function getProfileWithCounts(userId: string): Promise<ProfileWithC
     .select("*", {count: "exact", head: true})
     .eq("author_id", userId);
 
+  const {count: sharesCount} = await supabase
+    .from("community_shares")
+    .select("*", {count: "exact", head: true})
+    .eq("owner_id", userId);
+
   const followStats = await getFollowStats(userId);
 
   return {
@@ -53,6 +58,7 @@ export async function getProfileWithCounts(userId: string): Promise<ProfileWithC
     memories_count: memoriesCount ?? 0,
     ideas_count: ideasCount ?? 0,
     comments_count: commentsCount ?? 0,
+    shares_count: sharesCount ?? 0,
     followers_count: followStats.followersCount,
     following_count: followStats.followingCount,
   };

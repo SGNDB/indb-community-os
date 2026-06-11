@@ -2,6 +2,7 @@
 import {hasLocale} from "next-intl";
 import {NextIntlClientProvider} from "next-intl";
 import {getMessages, getTranslations} from "next-intl/server";
+import {headers} from "next/headers";
 import {notFound} from "next/navigation";
 
 import {Suspense} from "react";
@@ -16,6 +17,7 @@ import {Sidebar} from "@/components/layout/sidebar";
 import {ToastHandler} from "@/components/shared/toast-handler";
 import {ThemeProvider} from "@/components/layout/theme-provider";
 import {routing} from "@/lib/i18n/routing";
+import {stripLocale} from "@/lib/i18n/paths";
 import {cn} from "@/lib/utils/cn";
 
 function getLanguageAlternates(pathname = "") {
@@ -70,6 +72,10 @@ export default async function LocaleLayout({
 
   const messages = await getMessages();
   const isRtl = locale === "ar";
+  const requestHeaders = await headers();
+  const pathname = requestHeaders.get("x-indb-pathname") ?? "";
+  const pathWithoutLocale = stripLocale(pathname);
+  const isAdminRoute = pathWithoutLocale === "/admin" || pathWithoutLocale.startsWith("/admin/");
 
   return (
     <ThemeProvider>
@@ -86,19 +92,27 @@ export default async function LocaleLayout({
             isRtl ? "font-[var(--font-arabic)]" : "font-[var(--font-latin)]",
           )}
         >
-          <Navbar locale={locale} />
-          <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-4 px-3 py-4 sm:gap-5 sm:px-4 sm:py-5 lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-6 lg:py-6 xl:grid-cols-[250px_minmax(0,1fr)_310px]">
-            <aside className="hidden lg:block">
-              <Sidebar />
-            </aside>
-            <main className="min-w-0">
+          {isAdminRoute ? (
+            <main className="mx-auto min-w-0 max-w-6xl px-3 py-4 sm:px-4 sm:py-5">
               <PageTransition>{children}</PageTransition>
             </main>
-            <aside className="hidden xl:block">
-              <RightSidebar />
-            </aside>
-          </div>
-          <MobileNav />
+          ) : (
+            <>
+              <Navbar locale={locale} />
+              <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-4 px-3 py-4 sm:gap-5 sm:px-4 sm:py-5 lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-6 lg:py-6 xl:grid-cols-[250px_minmax(0,1fr)_310px]">
+                <aside className="hidden lg:block">
+                  <Sidebar />
+                </aside>
+                <main className="min-w-0">
+                  <PageTransition>{children}</PageTransition>
+                </main>
+                <aside className="hidden xl:block">
+                  <RightSidebar />
+                </aside>
+              </div>
+              <MobileNav />
+            </>
+          )}
         </div>
       </NextIntlClientProvider>
     </ThemeProvider>

@@ -12,6 +12,7 @@ export async function getCommentsByPost(postId: string): Promise<CommentWithAuth
     `)
     .eq("post_id", postId)
     .eq("status", "published")
+    .not("author_id", "is", null)
     .order("created_at", {ascending: true});
 
   return (data ?? []) as unknown as CommentWithAuthor[];
@@ -22,6 +23,7 @@ export async function getCommentsCount(): Promise<number> {
   const {count} = await supabase
     .from("comments")
     .select("*", {count: "exact", head: true})
-    .eq("status", "published");
+    .eq("status", "published")
+    .not("author_id", "is", null);
   return count ?? 0;
 }

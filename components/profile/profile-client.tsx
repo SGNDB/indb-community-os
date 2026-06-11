@@ -5,12 +5,17 @@ import {useSearchParams} from "next/navigation";
 import {useTranslations} from "next-intl";
 import {
   CalendarDays,
+  Heart,
   ImagePlus,
+  LogOut,
   MapPin,
   Pencil,
   UserRound,
 } from "lucide-react";
+import {useFormStatus} from "react-dom";
 
+import {signOutAction} from "@/app/[locale]/server-actions";
+import {FadlaCard} from "@/components/fadla/fadla-card";
 import {PostCard} from "@/components/feed/post-card";
 import {IdeaCard} from "@/components/ideas/idea-card";
 import {MemoryCard} from "@/components/memory/memory-card";
@@ -18,8 +23,9 @@ import {EmptyState} from "@/components/shared/empty-state";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent} from "@/components/ui/card";
+import {getContributionRankKey} from "@/lib/contribution";
 import {Link} from "@/lib/i18n/routing";
-import type {CommentWithAuthor, IdeaWithAuthor, MemoryWithContributor, PostWithAuthor, ProfileWithCounts} from "@/types/database";
+import type {CommentWithAuthor, CommunityShareWithOwner, IdeaWithAuthor, MemoryWithContributor, PostWithAuthor, ProfileWithCounts} from "@/types/database";
 
 import {EditProfileModal} from "./edit-profile-modal";
 import {FollowSummary} from "./follow-summary";
@@ -39,11 +45,29 @@ function formatJoinDate(dateStr: string, locale: string): string {
   });
 }
 
+function MobileSignOutButton({label, loading}: {label: string; loading: string}) {
+  const {pending} = useFormStatus();
+
+  return (
+    <Button
+      type="submit"
+      variant="outline"
+      size="sm"
+      disabled={pending}
+      className="w-full gap-1.5 rounded-full border-destructive/30 px-5 text-destructive hover:bg-destructive/10 hover:text-destructive md:hidden"
+    >
+      <LogOut size={16} />
+      {pending ? loading : label}
+    </Button>
+  );
+}
+
 interface ProfileClientProps {
   profile: ProfileWithCounts;
   postsWithComments: {post: PostWithAuthor; comments: CommentWithAuthor[]}[];
   memories: MemoryWithContributor[];
   ideas: IdeaWithAuthor[];
+  shares: CommunityShareWithOwner[];
   currentUserId: string;
   locale: string;
 }
@@ -53,13 +77,16 @@ export function ProfileClient({
   postsWithComments,
   memories,
   ideas,
+  shares,
   currentUserId,
   locale,
 }: ProfileClientProps) {
   const t = useTranslations("Profile");
+  const navbarT = useTranslations("Navbar");
   const emptyProfilePosts = useTranslations("EmptyStates.profile");
   const emptyMemories = useTranslations("EmptyStates.memories");
   const emptyIdeas = useTranslations("EmptyStates.ideas");
+  const emptyFadla = useTranslations("EmptyStates.fadla");
   const searchParams = useSearchParams();
 
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -68,12 +95,15 @@ export function ProfileClient({
   const displayName = profile.full_name ?? profile.username ?? "?";
   const initials = getInitials(displayName);
   const joinDate = formatJoinDate(profile.created_at, locale);
-  const currentTab = activeTab === "memories" ? "memories" : activeTab === "ideas" ? "ideas" : activeTab === "about" ? "about" : "posts";
+  const contributionScore = profile.contribution_score ?? 0;
+  const contributionRank = getContributionRankKey(contributionScore);
+  const currentTab = activeTab === "memories" ? "memories" : activeTab === "ideas" ? "ideas" : activeTab === "shares" ? "shares" : activeTab === "about" ? "about" : "posts";
 
   const tabs = [
     {key: "posts", label: t("tabs.posts"), count: postsWithComments.length},
     {key: "memories", label: t("tabs.memories"), count: memories.length},
     {key: "ideas", label: t("tabs.ideas"), count: ideas.length},
+    {key: "shares", label: t("tabs.shares"), count: shares.length},
     {key: "about", label: t("tabs.about"), count: null},
   ] as const;
 
@@ -181,6 +211,12 @@ export function ProfileClient({
                   {t("joined")} {joinDate}
                 </span>
               </div>
+              <div className="mt-3 inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary sm:justify-start">
+                <Heart size={16} fill="currentColor" />
+                <span>{contributionScore} {t("contributionScore")}</span>
+                <span className="text-primary/60">•</span>
+                <span>{t(`contributionRanks.${contributionRank}`)}</span>
+              </div>
               <div className="mt-3">
                 <FollowSummary
                   profileId={profile.id}
@@ -200,11 +236,15 @@ export function ProfileClient({
                 variant="outline"
                 size="sm"
                 onClick={() => setEditModalOpen(true)}
-                className="gap-1.5 rounded-full px-5"
+                className="w-full gap-1.5 rounded-full px-5 sm:w-auto"
               >
                 <Pencil size={16} />
                 {t("editProfile")}
               </Button>
+              <form action={signOutAction} className="mt-2 md:hidden">
+                <input type="hidden" name="locale" value={locale} />
+                <MobileSignOutButton label={navbarT("logout")} loading={navbarT("loggingOut")} />
+              </form>
             </div>
           </div>
 
@@ -312,6 +352,30 @@ export function ProfileClient({
               )
             ) : null}
 
+            {currentTab === "shares" ? (
+              shares.length > 0 ? (
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {shares.map((share) => (
+                    <FadlaCard
+                      key={share.id}
+                      share={share}
+                      currentUserId={currentUserId}
+                      locale={locale}
+                      compact
+                    />
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={UserRound}
+                  title={emptyFadla("title")}
+                  description={emptyFadla("description")}
+                  ctaLabel={emptyFadla("cta")}
+                  ctaHref="/fadla"
+                />
+              )
+            ) : null}
+
             {currentTab === "about" ? (
               <Card className="border-border/70">
                 <CardContent className="space-y-4 p-5 sm:p-6">
@@ -339,6 +403,10 @@ export function ProfileClient({
                     <div>
                       <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">{t("fields.role")}</p>
                       <p className="mt-1 text-base">{t(`role.${profile.role}`)}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">{t("contributionScore")}</p>
+                      <p className="mt-1 text-base">{contributionScore} • {t(`contributionRanks.${contributionRank}`)}</p>
                     </div>
                     <div>
                       <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">{t("fields.memberSince")}</p>

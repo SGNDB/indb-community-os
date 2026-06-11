@@ -2,15 +2,18 @@
 import {defineRouting} from "next-intl/routing";
 
 export const routing = defineRouting({
-  locales: ["ar", "fr", "en"],
+  locales: ["ar", "fr", "ff", "snk", "wo", "en"],
   defaultLocale: "fr",
   localePrefix: "always",
 });
 
 export const localeLabels: Record<string, string> = {
-  en: "🇺🇸 English",
-  fr: "🇫🇷 Français",
-  ar: "🇲🇷 العربية",
+  ar: "العربية",
+  fr: "Français",
+  ff: "Pulaar",
+  snk: "Soninké",
+  wo: "Wolof",
+  en: "English",
 };
 
 export const roleLabels = [

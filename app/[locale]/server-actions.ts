@@ -7,10 +7,13 @@ import {getTranslations} from "next-intl/server";
 import {routing} from "@/lib/i18n/routing";
 import {withLocale} from "@/lib/i18n/paths";
 import {type ImageUploadKind, validateCompressedImageFile} from "@/lib/images/upload-config";
+import {createAdminClient} from "@/lib/supabase/admin";
 import {createClient} from "@/lib/supabase/server";
+import {adminCreditPointOptions, type AdminContentType} from "@/lib/data/admin";
 import {toggleFollow} from "@/lib/data/follows";
 import {
   createFollowNotification,
+  createNotification,
   upsertReactionNotification,
   createCommentNotification,
   createShareNotification,
@@ -21,6 +24,7 @@ import {
 import {toggleReaction} from "@/lib/data/reactions";
 import {
   commentSchema,
+  communityShareSchema,
   createPostSchema,
   ideaSchema,
   loginSchema,
@@ -28,7 +32,7 @@ import {
   profileSchema,
   registerSchema,
 } from "@/lib/validations/community";
-import type {CommentWithAuthor, IdeaCommentWithAuthor, MemoryCommentWithAuthor, MemoryReactionType, ReactionType} from "@/types/database";
+import type {CommentWithAuthor, CommunityShareImage, CommunityShareStatus, IdeaCommentWithAuthor, MemoryCommentWithAuthor, MemoryReactionType, ReactionType} from "@/types/database";
 import {
   deletePostMedia,
   deleteMemoryMedia,
@@ -43,7 +47,7 @@ import {
 
 function normalizeLocale(value: FormDataEntryValue | null) {
   const locale = typeof value === "string" ? value : routing.defaultLocale;
-  return routing.locales.includes(locale as "ar" | "fr" | "en")
+  return routing.locales.includes(locale as (typeof routing.locales)[number])
     ? locale
     : routing.defaultLocale;
 }
@@ -2042,4 +2046,587 @@ export async function shareMemoryAction(
   }
 
   return {success: true};
+}
+
+async function getStrictAdminUserId() {
+  const supabase = await createClient();
+  const {data: {user}} = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  const {data: profile} = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role !== "admin") return null;
+
+  return user.id;
+}
+
+function redirectAdmin(locale: string, status: string, path = "/admin"): never {
+  redirect(toPath(locale, `${path}?status=${encodeURIComponent(status)}`));
+}
+
+function extractPublicStoragePath(url: string | null | undefined, bucket: string) {
+  if (!url) return null;
+  const marker = `/storage/v1/object/public/${bucket}/`;
+  const markerIndex = url.indexOf(marker);
+
+  if (markerIndex === -1) return null;
+
+  const pathWithQuery = url.slice(markerIndex + marker.length);
+  const path = pathWithQuery.split("?")[0];
+
+  try {
+    return decodeURIComponent(path);
+  } catch {
+    return path;
+  }
+}
+
+async function removeStoragePaths(
+  adminClient: NonNullable<ReturnType<typeof createAdminClient>>,
+  bucket: string,
+  paths: string[],
+) {
+  const uniquePaths = Array.from(new Set(paths.filter(Boolean)));
+
+  for (let index = 0; index < uniquePaths.length; index += 100) {
+    const chunk = uniquePaths.slice(index, index + 100);
+    if (chunk.length > 0) {
+      await adminClient.storage.from(bucket).remove(chunk);
+    }
+  }
+}
+
+async function deleteAdminUserEverywhere(targetUserId: string) {
+  const adminClient = createAdminClient();
+
+  if (!adminClient) {
+    return {success: false as const, reason: "config"};
+  }
+
+  const [{data: profile}, {data: posts}, {data: ideas}, {data: memories}, {data: shares}] = await Promise.all([
+    adminClient
+      .from("profiles")
+      .select("avatar_url, cover_image_url")
+      .eq("id", targetUserId)
+      .maybeSingle(),
+    adminClient.from("posts").select("id").eq("author_id", targetUserId),
+    adminClient.from("ideas").select("id").eq("author_id", targetUserId),
+    adminClient.from("memories").select("id").eq("contributor_id", targetUserId),
+    adminClient.from("community_shares").select("id, images").eq("owner_id", targetUserId),
+  ]);
+
+  const postIds = (posts ?? []).map((post) => post.id);
+  const ideaIds = (ideas ?? []).map((idea) => idea.id);
+  const memoryIds = (memories ?? []).map((memory) => memory.id);
+  const shareIds = (shares ?? []).map((share) => share.id);
+  const shareMediaPaths = (shares ?? []).flatMap((share) => {
+    const images = Array.isArray(share.images) ? share.images as CommunityShareImage[] : [];
+    return images.map((image) => image.storagePath).filter(Boolean);
+  });
+
+  const [postMedia, ideaMedia, memoryMedia] = await Promise.all([
+    postIds.length > 0
+      ? adminClient.from("post_media").select("storage_path").in("post_id", postIds)
+      : Promise.resolve({data: [] as Array<{storage_path: string}>}),
+    ideaIds.length > 0
+      ? adminClient.from("idea_media").select("storage_path").in("idea_id", ideaIds)
+      : Promise.resolve({data: [] as Array<{storage_path: string}>}),
+    memoryIds.length > 0
+      ? adminClient.from("memory_media").select("storage_path").in("memory_id", memoryIds)
+      : Promise.resolve({data: [] as Array<{storage_path: string}>}),
+  ]);
+
+  await Promise.all([
+    removeStoragePaths(
+      adminClient,
+      "avatars",
+      [extractPublicStoragePath(profile?.avatar_url, "avatars")].filter(Boolean) as string[],
+    ),
+    removeStoragePaths(
+      adminClient,
+      "profile-covers",
+      [extractPublicStoragePath(profile?.cover_image_url, "profile-covers")].filter(Boolean) as string[],
+    ),
+    removeStoragePaths(adminClient, "post-media", (postMedia.data ?? []).map((item) => item.storage_path)),
+    removeStoragePaths(adminClient, "idea-media", (ideaMedia.data ?? []).map((item) => item.storage_path)),
+    removeStoragePaths(adminClient, "memory-archive", (memoryMedia.data ?? []).map((item) => item.storage_path)),
+    removeStoragePaths(adminClient, "fadla-media", shareMediaPaths),
+  ]);
+
+  await Promise.all([
+    adminClient.from("notifications").delete().or(`user_id.eq.${targetUserId},actor_id.eq.${targetUserId}`),
+    adminClient.from("community_credits").update({awarded_by: null}).eq("awarded_by", targetUserId),
+    adminClient.from("comments").delete().eq("author_id", targetUserId),
+    adminClient.from("idea_comments").delete().eq("author_id", targetUserId),
+    adminClient.from("memory_comments").delete().eq("author_id", targetUserId),
+    adminClient.from("community_share_requests").delete().eq("requester_id", targetUserId),
+    postIds.length > 0 ? adminClient.from("posts").delete().in("id", postIds) : Promise.resolve(),
+    ideaIds.length > 0 ? adminClient.from("ideas").delete().in("id", ideaIds) : Promise.resolve(),
+    memoryIds.length > 0 ? adminClient.from("memories").delete().in("id", memoryIds) : Promise.resolve(),
+    shareIds.length > 0 ? adminClient.from("community_shares").delete().in("id", shareIds) : Promise.resolve(),
+    adminClient.from("events").delete().eq("creator_id", targetUserId),
+    adminClient.from("projects").delete().eq("creator_id", targetUserId),
+    adminClient.from("polls").delete().eq("creator_id", targetUserId),
+  ]);
+
+  const {error: profileDeleteError} = await adminClient
+    .from("profiles")
+    .delete()
+    .eq("id", targetUserId);
+
+  if (profileDeleteError) {
+    return {success: false as const, reason: "profile", error: profileDeleteError};
+  }
+
+  const {error: authError} = await adminClient.auth.admin.deleteUser(targetUserId);
+
+  if (authError) {
+    const message = authError.message.toLowerCase();
+    if (message.includes("not found") || message.includes("no user")) {
+      return {success: true as const};
+    }
+
+    return {success: false as const, reason: "auth", error: authError};
+  }
+
+  return {success: true as const};
+}
+
+export async function updateAdminUserRoleAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const adminUserId = await getStrictAdminUserId();
+
+  if (!adminUserId) {
+    redirect(toPath(locale, "/"));
+  }
+
+  const targetUserId = formData.get("userId");
+  const role = formData.get("role");
+
+  if (typeof targetUserId !== "string" || (role !== "member" && role !== "admin")) {
+    redirectAdmin(locale, "invalid", "/admin/users");
+  }
+
+  if (targetUserId === adminUserId && role !== "admin") {
+    redirectAdmin(locale, "selfRoleBlocked", "/admin/users");
+  }
+
+  const supabase = await createClient();
+  const {error} = await supabase
+    .from("profiles")
+    .update({role})
+    .eq("id", targetUserId);
+
+  if (error) {
+    redirectAdmin(locale, "roleError", "/admin/users");
+  }
+
+  revalidatePath(toPath(locale, "/admin"));
+  revalidatePath(toPath(locale, "/admin/users"));
+  revalidatePath("/", "layout");
+  redirectAdmin(locale, "roleUpdated", "/admin/users");
+}
+
+export async function deleteAdminUserAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const adminUserId = await getStrictAdminUserId();
+
+  if (!adminUserId) {
+    redirect(toPath(locale, "/"));
+  }
+
+  const targetUserId = formData.get("userId");
+
+  if (typeof targetUserId !== "string" || !targetUserId) {
+    redirectAdmin(locale, "invalid", "/admin/users");
+  }
+
+  if (targetUserId === adminUserId) {
+    redirectAdmin(locale, "selfDeleteBlocked", "/admin/users");
+  }
+
+  const result = await deleteAdminUserEverywhere(targetUserId);
+
+  if (!result.success && result.reason === "config") {
+    redirectAdmin(locale, "userDeleteConfigError", "/admin/users");
+  }
+
+  if (!result.success) {
+    console.error("deleteAdminUserAction error:", result.error);
+    redirectAdmin(locale, "userDeleteError", "/admin/users");
+  }
+
+  revalidatePath(toPath(locale, "/admin"));
+  revalidatePath(toPath(locale, "/admin/users"));
+  revalidatePath("/", "layout");
+  redirectAdmin(locale, "userDeleted", "/admin/users");
+}
+
+export async function awardCommunityCreditsAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const adminUserId = await getStrictAdminUserId();
+
+  if (!adminUserId) {
+    redirect(toPath(locale, "/"));
+  }
+
+  const userId = formData.get("userId");
+  const pointsValue = formData.get("points");
+  const reason = formData.get("reason");
+  const note = formData.get("note");
+  const points = typeof pointsValue === "string" ? Number(pointsValue) : NaN;
+
+  if (
+    typeof userId !== "string" ||
+    typeof reason !== "string" ||
+    !reason.trim() ||
+    !adminCreditPointOptions.includes(points as (typeof adminCreditPointOptions)[number])
+  ) {
+    redirectAdmin(locale, "invalid", "/admin/credits");
+  }
+
+  const supabase = await createClient();
+  const {error} = await supabase.rpc("award_community_credit", {
+    target_user_id: userId,
+    credit_points: points,
+    credit_reason: reason,
+    credit_note: typeof note === "string" ? note : null,
+  });
+
+  if (error) {
+    redirectAdmin(locale, "creditError", "/admin/credits");
+  }
+
+  await createNotification({
+    userId,
+    actorId: adminUserId,
+    type: "credit",
+    entityType: "credit",
+    entityId: userId,
+    title: "Community credits awarded",
+    message: String(points),
+  });
+
+  revalidatePath(toPath(locale, "/admin"));
+  revalidatePath(toPath(locale, "/admin/credits"));
+  revalidatePath("/", "layout");
+  redirectAdmin(locale, "creditsAwarded", "/admin/credits");
+}
+
+export async function deleteAdminContentAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const adminUserId = await getStrictAdminUserId();
+
+  if (!adminUserId) {
+    redirect(toPath(locale, "/"));
+  }
+
+  const contentId = formData.get("contentId");
+  const contentType = formData.get("contentType");
+
+  if (
+    typeof contentId !== "string" ||
+    (contentType !== "post" && contentType !== "idea" && contentType !== "memory")
+  ) {
+    redirectAdmin(locale, "invalid", "/admin/content");
+  }
+
+  const supabase = await createClient();
+  const type = contentType as AdminContentType;
+  const id = contentId;
+
+  if (type === "post") {
+    await deletePostMedia(id);
+    await supabase.from("notifications").delete().eq("entity_type", "post").eq("entity_id", id);
+    const {error} = await supabase.from("posts").delete().eq("id", id);
+    if (error) redirectAdmin(locale, "deleteError", "/admin/content");
+  }
+
+  if (type === "idea") {
+    await deleteIdeaMedia(id);
+    await supabase.from("notifications").delete().eq("entity_type", "idea").eq("entity_id", id);
+    const {error} = await supabase.from("ideas").delete().eq("id", id);
+    if (error) redirectAdmin(locale, "deleteError", "/admin/content");
+  }
+
+  if (type === "memory") {
+    await deleteMemoryMedia(id);
+    await supabase.from("notifications").delete().eq("entity_type", "memory").eq("entity_id", id);
+    const {error} = await supabase.from("memories").delete().eq("id", id);
+    if (error) redirectAdmin(locale, "deleteError", "/admin/content");
+  }
+
+  revalidatePath(toPath(locale, "/admin"));
+  revalidatePath(toPath(locale, "/admin/content"));
+  revalidatePath("/", "layout");
+  redirectAdmin(locale, "contentDeleted", "/admin/content");
+}
+
+function parseShareImages(formData: FormData): CommunityShareImage[] {
+  const mediaDataStr = formData.get("mediaData");
+  if (typeof mediaDataStr !== "string" || !mediaDataStr) return [];
+
+  try {
+    const parsed = JSON.parse(mediaDataStr) as Array<{
+      url?: string;
+      storagePath?: string;
+      type?: "image" | "video";
+      mime_type?: string;
+      mimeType?: string;
+    }>;
+
+    return parsed
+      .filter((item) => item.type !== "video" && item.url && item.storagePath)
+      .map((item) => ({
+        url: item.url as string,
+        storagePath: item.storagePath as string,
+        type: "image" as const,
+        mimeType: item.mimeType ?? item.mime_type ?? "",
+      }));
+  } catch {
+    return [];
+  }
+}
+
+function parseRemovedShareMedia(formData: FormData): string[] {
+  const removedMediaStr = formData.get("removedMedia");
+  if (typeof removedMediaStr !== "string" || !removedMediaStr) return [];
+
+  try {
+    const parsed = JSON.parse(removedMediaStr);
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+async function removeFadlaMedia(paths: string[]) {
+  if (paths.length === 0) return;
+  const supabase = await createClient();
+  await supabase.storage.from("fadla-media").remove(paths);
+}
+
+export async function submitCommunityShareAction(
+  formData: FormData,
+): Promise<{success: true; id: string} | {success: false; error: string}> {
+  const locale = normalizeLocale(formData.get("locale"));
+  const errorsT = await getTranslations({locale, namespace: "Errors"});
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) return {success: false, error: errorsT("submitFailed")};
+
+  const parsed = communityShareSchema.safeParse({
+    title: formData.get("title"),
+    description: formData.get("description"),
+    category: formData.get("category"),
+    condition: formData.get("condition"),
+    location: formData.get("location"),
+  });
+
+  if (!parsed.success) return {success: false, error: errorsT("invalidInput")};
+
+  const {data, error} = await supabase
+    .from("community_shares")
+    .insert({
+      owner_id: user.id,
+      title: parsed.data.title,
+      description: parsed.data.description,
+      category: parsed.data.category,
+      condition: parsed.data.condition || null,
+      location: parsed.data.location || null,
+      images: parseShareImages(formData),
+    })
+    .select("id")
+    .single();
+
+  if (error || !data) return {success: false, error: errorsT("submitFailed")};
+
+  revalidatePath(toPath(locale, "/fadla"));
+  revalidatePath(toPath(locale, "/profile"));
+  return {success: true, id: data.id};
+}
+
+export async function updateCommunityShareAction(
+  formData: FormData,
+): Promise<{success: true} | {success: false; error: string}> {
+  const locale = normalizeLocale(formData.get("locale"));
+  const errorsT = await getTranslations({locale, namespace: "Errors"});
+  const shareId = formData.get("shareId");
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user || typeof shareId !== "string") return {success: false, error: errorsT("submitFailed")};
+
+  const {data: existing} = await supabase
+    .from("community_shares")
+    .select("owner_id, images")
+    .eq("id", shareId)
+    .single();
+
+  if (!existing || existing.owner_id !== user.id) return {success: false, error: errorsT("submitFailed")};
+
+  const parsed = communityShareSchema.safeParse({
+    title: formData.get("title"),
+    description: formData.get("description"),
+    category: formData.get("category"),
+    condition: formData.get("condition"),
+    location: formData.get("location"),
+  });
+
+  if (!parsed.success) return {success: false, error: errorsT("invalidInput")};
+
+  const removedPaths = parseRemovedShareMedia(formData);
+  if (removedPaths.length > 0) {
+    await removeFadlaMedia(removedPaths);
+  }
+
+  const existingImages = Array.isArray(existing.images)
+    ? (existing.images as CommunityShareImage[]).filter((image) => !removedPaths.includes(image.storagePath))
+    : [];
+  const images = [...existingImages, ...parseShareImages(formData)];
+
+  const {error} = await supabase
+    .from("community_shares")
+    .update({
+      title: parsed.data.title,
+      description: parsed.data.description,
+      category: parsed.data.category,
+      condition: parsed.data.condition || null,
+      location: parsed.data.location || null,
+      images,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", shareId);
+
+  if (error) return {success: false, error: errorsT("submitFailed")};
+
+  revalidatePath(toPath(locale, "/fadla"));
+  revalidatePath(toPath(locale, "/profile"));
+  return {success: true};
+}
+
+export async function deleteCommunityShareAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const shareId = formData.get("shareId");
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user || typeof shareId !== "string") {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  const {data: existing} = await supabase
+    .from("community_shares")
+    .select("owner_id, images")
+    .eq("id", shareId)
+    .single();
+
+  if (!existing || existing.owner_id !== user.id) {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  const images = Array.isArray(existing.images) ? (existing.images as CommunityShareImage[]) : [];
+  await removeFadlaMedia(images.map((image) => image.storagePath).filter(Boolean));
+  await supabase.from("community_shares").delete().eq("id", shareId);
+
+  revalidatePath(toPath(locale, "/fadla"));
+  revalidatePath(toPath(locale, "/profile"));
+  redirect(toPath(locale, "/fadla?shareDeleted=1"));
+}
+
+export async function updateCommunityShareStatusAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const shareId = formData.get("shareId");
+  const status = formData.get("status");
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (
+    !user ||
+    typeof shareId !== "string" ||
+    (status !== "available" && status !== "reserved" && status !== "given")
+  ) {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  const {data: existing} = await supabase
+    .from("community_shares")
+    .select("owner_id")
+    .eq("id", shareId)
+    .single();
+
+  if (!existing || existing.owner_id !== user.id) {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  await supabase
+    .from("community_shares")
+    .update({status: status as CommunityShareStatus, updated_at: new Date().toISOString()})
+    .eq("id", shareId);
+
+  revalidatePath(toPath(locale, "/fadla"));
+  revalidatePath(toPath(locale, "/profile"));
+  redirect(toPath(locale, `/fadla?shareStatus=${status}`));
+}
+
+export async function requestCommunityShareAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const shareId = formData.get("shareId");
+  const returnPath = getReturnPath(formData, "/fadla");
+  const supabase = await createClient();
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(toPath(locale, `/login?next=${encodeURIComponent(returnPath)}`));
+  }
+
+  if (typeof shareId !== "string") {
+    redirect(toPath(locale, appendParam(returnPath, "shareError", "1")));
+  }
+
+  const {data: share} = await supabase
+    .from("community_shares")
+    .select("owner_id, status")
+    .eq("id", shareId)
+    .single();
+
+  if (!share || share.owner_id === user.id || share.status !== "available") {
+    redirect(toPath(locale, appendParam(returnPath, "shareError", "1")));
+  }
+
+  const {error} = await supabase
+    .from("community_share_requests")
+    .upsert({share_id: shareId, requester_id: user.id}, {onConflict: "share_id,requester_id"});
+
+  if (error) {
+    redirect(toPath(locale, appendParam(returnPath, "shareError", "1")));
+  }
+
+  await createNotification({
+    userId: share.owner_id,
+    actorId: user.id,
+    type: "community_share_request",
+    entityType: "community_share",
+    entityId: shareId,
+    title: "Community share request",
+  });
+
+  revalidatePath(toPath(locale, "/fadla"));
+  redirect(toPath(locale, appendParam(returnPath, "shareRequested", "1")));
 }

@@ -1,4 +1,4 @@
-export type ImageUploadKind = "avatar" | "cover" | "post" | "memory" | "idea";
+export type ImageUploadKind = "avatar" | "cover" | "post" | "memory" | "idea" | "fadla";
 
 export type ImageValidationError = "invalidType" | "tooLarge";
 export type VideoValidationError = "invalidType" | "videoTooLarge";
@@ -46,6 +46,12 @@ export const IMAGE_UPLOAD_CONFIG: Record<
     maxWidthOrHeight: 2400,
   },
   idea: {
+    maxOriginalBytes: 10 * 1024 * 1024,
+    targetMaxBytes: 2 * 1024 * 1024,
+    compressionMaxSizeMB: 2,
+    maxWidthOrHeight: 1920,
+  },
+  fadla: {
     maxOriginalBytes: 10 * 1024 * 1024,
     targetMaxBytes: 2 * 1024 * 1024,
     compressionMaxSizeMB: 2,

@@ -35,10 +35,11 @@ export interface ExistingMediaItem {
 interface MediaUploadProps {
   existingMedia?: ExistingMediaItem[];
   onMediaChange: (items: MediaItem[], removedStoragePaths: string[]) => void;
-  uploadKind: "post" | "memory" | "idea";
+  uploadKind: "post" | "memory" | "idea" | "fadla";
+  allowVideo?: boolean;
 }
 
-export function MediaUpload({existingMedia, onMediaChange, uploadKind}: MediaUploadProps) {
+export function MediaUpload({existingMedia, onMediaChange, uploadKind, allowVideo = true}: MediaUploadProps) {
   const t = useTranslations("ImageUpload");
   const [newItems, setNewItems] = useState<MediaItem[]>([]);
   const [removedExisting, setRemovedExisting] = useState<string[]>([]);
@@ -112,7 +113,7 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind}: MediaUpl
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0) return;
 
-    if (hasVideo) {
+    if (allowVideo && hasVideo) {
       toast.error(t("imagesOrVideo"));
       e.target.value = "";
       return;
@@ -326,18 +327,20 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind}: MediaUpl
           onChange={(e) => void handleReplaceImageSelect(e)}
         />
 
-        <label className="flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-border bg-card px-3.5 text-sm font-medium text-muted-foreground transition hover:border-primary/40 hover:text-foreground">
-          <Film size={18} />
-          {t("chooseVideo")}
-          <input
-            ref={videoInputRef}
-            type="file"
-            accept={ACCEPTED_VIDEO_EXTENSIONS}
-            className="hidden"
-            disabled={uploading || hasImage || newItems.some((f) => f.type === "video")}
-            onChange={(e) => void handleVideoSelect(e)}
-          />
-        </label>
+        {allowVideo ? (
+          <label className="flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-border bg-card px-3.5 text-sm font-medium text-muted-foreground transition hover:border-primary/40 hover:text-foreground">
+            <Film size={18} />
+            {t("chooseVideo")}
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept={ACCEPTED_VIDEO_EXTENSIONS}
+              className="hidden"
+              disabled={uploading || hasImage || newItems.some((f) => f.type === "video")}
+              onChange={(e) => void handleVideoSelect(e)}
+            />
+          </label>
+        ) : null}
 
         {uploading ? (
           <span className="flex items-center gap-1 text-sm text-muted-foreground">

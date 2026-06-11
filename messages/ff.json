@@ -1,0 +1,920 @@
+{
+  "Meta": {
+    "siteTitle": "I love NDB",
+    "siteDescription": "Kuurdu Nuwaadibu : jikku siwil, tawtital, e fasluuji nokkuuje.",
+    "home": {
+      "title": "Galle",
+      "description": "Anndu kuurdu INDB ngam jikku, tawtital, e gollal nokkuwal."
+    },
+    "feed": {
+      "title": "Kesɗitine",
+      "description": "Rew kawral kuurdu, daarti, e yeewte mahooje."
+    },
+    "memory": {
+      "title": "Mbangiyawol Jikku",
+      "description": "Yiylo jikkuuji kuurdu, daarti, e ngalu nokkuwal."
+    },
+    "events": {
+      "title": "ɗewte",
+      "description": "Yiylo ɗewte garooje e darnde nokkuuje."
+    },
+    "projects": {
+      "title": "Proje",
+      "description": "Rew proje siwil, doole gollotooɓe, e ɓamtaare."
+    },
+    "polls": {
+      "title": "Nootorgal",
+      "description": "Tawtu e nootorgal kuurdu ngam fasluuji mbaawɗi tawtude kala."
+    },
+    "ideas": {
+      "title": "Miijooji",
+      "description": "Suɓo e tawtu e miijooji kuuɓtuɗi ngam Nuwaadibu."
+    },
+    "fadla": {
+      "title": "Fadla",
+      "description": "Yeɗ ko njiɗaa koo ko heddii e juuɗe maa, yo heɓo ɗum en ngantooɓe."
+    },
+    "timeline": {
+      "title": "Laawol Wakkati",
+      "description": "Yiylo sahaaji mawɗi jikku kuurdu Nuwaadibu."
+    },
+    "profile": {
+      "title": "Profil",
+      "description": "Yeru profil maa e kuurdu, darnde maa, e golle maa."
+    },
+    "admin": {
+      "title": "Lindowal Njuɓɓudi",
+      "description": "Njuɓɓu huutortooɓe kuurdu, kiredi, e finaa-ñiiwa keso."
+    },
+    "memorySubmit": {
+      "title": "Yeɗ Jikku",
+      "description": "Yeɗ jikku kuurdu e nder yowre e tefteede."
+    },
+    "ideaSubmit": {
+      "title": "Yeɗ Miijo",
+      "description": "Yeɗ miijo siwil balluɗo e sifaade ko adii e nder kuurdu."
+    },
+    "ideaEdit": {
+      "title": "Taƴto Miijo",
+      "description": "Hesɗitin miijo maa siwil."
+    },
+    "postEdit": {
+      "title": "Taƴto Blaŋto",
+      "description": "Hesɗitin blaŋto maa."
+    }
+  },
+  "LanguageSwitcher": {
+    "label": "Taƴto ɗemngal",
+    "changeTo": "Taƴto ɗemngal fah {language}"
+  },
+  "Navbar": {
+    "memberAvatarLabel": "Profil terɗo kuurdu",
+    "createAccount": "Mah huunde",
+    "login": "Naatu",
+    "logout": "Yaalti",
+    "loggingOut": "No yaaltino..."
+  },
+  "Navigation": {
+    "items": {
+      "home": {
+        "label": "Galle",
+        "short": "Galle"
+      },
+      "feed": {
+        "label": "Kesɗitine",
+        "short": "Kesɗi"
+      },
+      "memory": {
+        "label": "Jikkuuji",
+        "short": "Jikku"
+      },
+      "ideas": {
+        "label": "Miijooji",
+        "short": "Miijooji"
+      },
+      "fadla": {
+        "label": "Fadla",
+        "short": "Yeɗ"
+      },
+      "polls": {
+        "label": "Nootorgal",
+        "short": "Nootor"
+      },
+      "events": {
+        "label": "ɗewte",
+        "short": "ɗewte"
+      },
+      "projects": {
+        "label": "Proje",
+        "short": "Proje"
+      },
+      "profile": {
+        "label": "Profil",
+        "short": "Profil"
+      }
+    }
+  },
+  "Theme": {
+    "toggle": "Taƴto mbaydi"
+  },
+  "Search": {
+    "title": "ɗaɓɓitde",
+    "placeholder": "ɗaɓɓit nder kuurdu",
+    "clear": "Muynu ɗaɓɓitde",
+    "noResults": "Alaa ko tawaa",
+    "viewAll": "Yiylo kala ko tawaa",
+    "searching": "No ɗaɓɓito..." ,
+    "error": "Dañii timminirde ɗaɓɓitde",
+    "minLength": "Winndu ko ɓuri 2 binndi ngam ɗaɓɓitde.",
+    "resultsFor": "Kuumɗi ɗaɓɓitde ngam \"{query}\"",
+    "sections": {
+      "posts": "Blaŋtooji",
+      "ideas": "Miijooji",
+      "memories": "Jikkuuji",
+      "fadla": "Yeɗitine",
+      "people": "Yimɓe"
+    },
+    "types": {
+      "post": "Blaŋto",
+      "idea": "Miijo",
+      "memory": "Jikku",
+      "fadla": "Huunde yeɗaande",
+      "profile": "Neɗɗo"
+    }
+  },
+  "Notifications": {
+    "button": "Anndine",
+    "title": "Anndine",
+    "empty": "Alaa anndine haa jooni",
+    "markAllRead": "Waɗu kala ko juura",
+    "loading": "No loowoo...",
+    "close": "Nappu",
+    "startedFollowing": "{actorName} fuɗɗii rewde ma",
+    "reactedToPost": "{actorName} jaabitike blaŋto maa",
+    "commentedOnPost": "{actorName} wiɗtii blaŋto maa",
+    "commentedOnYourIdea": "{actorName} wiɗtii miijo maa",
+    "sharedYourIdea": "{actorName} yeɗitike miijo maa",
+    "reactedToMemory": "{actorName} jaabitike jikku maa",
+    "commentedOnYourMemory": "{actorName} wiɗtii jikku maa",
+    "sharedYourMemory": "{actorName} yeɗitike jikku maa",
+    "creditAwarded": "Heɓii {points} kiredi ballondiral",
+    "communityShareRequested": "Goɗɗo ƴami huunde nde yeɗuɗaa",
+    "someone": "Goɗɗo"
+  },
+  "RightSidebar": {
+    "trendingTopics": "Toɓɓe No Mberlaa",
+    "featuredMemories": "Jikkuuji Cuɓaaɗi",
+    "activePoll": "Nootorgal Fuɗɗungal",
+    "votes": "{count} noota",
+    "upcomingEvents": "ɗewte Garooje"
+  },
+  "Landing": {
+    "tagline": "Jikku - Tawtital - Arande",
+    "heroTitle": "Moorna Jikku. Mah Arande.",
+    "heroDescription": "Kuurdu dijital wonande Daqlat Nuwaadibu.",
+    "mottoPrimary": "Nuwaadibu ko heen kala.",
+    "mottoSecondary": "Jikku kuurdu ardotoo ɓamtaare wonande kala.",
+    "joinCommunity": "Tawtu e Kuurdu",
+    "exploreMemories": "Yiylo Jikkuuji",
+    "latestPosts": "Blaŋtooji Kesɗi",
+    "pollPreview": "Préfiguration Nootorgal",
+    "featuredMemories": "Jikkuuji Cuɓaaɗi",
+    "communityIdeas": "Miijooji Kuurdu",
+    "createAccount": "Mah huunde",
+    "login": "Naatu"
+  },
+  "Feed": {
+    "ago": "ko ɓenni",
+    "save": "Danndu",
+    "saved": "Danndaama",
+    "comments": "Wiɗtooji",
+    "share": "Yeɗit",
+    "linkCopied": "Jokkorgal blaŋto ngal jattinaama",
+    "shareFailed": "Yeɗitde waawaa",
+    "deleting": "No momtoo...",
+    "sending": "No neldtoo...",
+    "commentPlaceholder": "Winndu wiɗto...",
+    "unknownAuthor": "Anndaa",
+    "all": "Fuu",
+    "categories": {
+      "community": "Kuurdu",
+      "events": "ɗewte",
+      "memory": "Jikku",
+      "ideas": "Miijooji"
+    },
+    "reactions": {
+      "like": "Jaɓi",
+      "love": "Yiɗi",
+      "support": "Ballal",
+      "celebrate": "Mawnin",
+      "insightful": "Gonɗum",
+      "sad": "Wumɗo"
+    },
+    "actionCounts": {
+      "likes": "{count} Jaɓi",
+      "comments": "{count} Wiɗtooji",
+      "saves": "{count} Danndi"
+    },
+    "editComment": "Taƴto wiɗto",
+    "deleteComment": "Momtu wiɗto",
+    "cancel": "Haaytu",
+    "commentUpdated": "Wiɗto hesɗitinaama",
+    "commentDeleted": "Wiɗto momtaama",
+    "commentUpdateFailed": "Dañii hesɗitinde wiɗto",
+    "commentDeleteFailed": "Dañii momtude wiɗto"
+  },
+  "FeedComposer": {
+    "title": "Mah blaŋto",
+    "placeholder": "Yeɗit huunde e kuurdu...",
+    "quickActions": {
+      "text": "Binndi",
+      "image": "Nate",
+      "event": "ɗewal",
+      "photo": "Foto",
+      "memory": "Jikku",
+      "idea": "Miijo"
+    },
+    "composerTitle": "Yeɗit hesɗitine e kuurdu maa",
+    "form": {
+      "title": "Hoore",
+      "content": "Ko waɗi? Ko eɓɓo nguɗatnoɗaa?",
+      "mediaUrl": "URL media (suɓaare)",
+      "selectCategory": "Suɓo cate",
+      "publish": "Firta"
+    },
+    "cancel": "Haaytu",
+    "post": "Firta",
+    "posting": "No firttoo...",
+    "socialPrompt": "Ko kesum woni e Nuwaadibu?",
+    "editTitle": "Taƴto blaŋto",
+    "save": "Danndu",
+    "saving": "No danndoo...",
+    "notFound": "Blaŋto tawaaka",
+    "notFoundDescription": "Blaŋto ngo eɗaa etoo taƴtude alaa.",
+    "errors": {
+      "submitFailed": "Firtde blaŋto waawaa. Eɗen mballu en, eto kadi.",
+      "postFailed": "Firtde blaŋto waawaa. Eɗen mballu en, eto kadi."
+    }
+  },
+  "Memory": {
+    "title": "Mbangiyawol Jikku",
+    "description": "Musee dijital daarti kuurdu, nate, e yowre taariika.",
+    "openTimeline": "Uddit Laawol Wakkati",
+    "submitNew": "Yeɗ jikku keso",
+    "contributedBy": "Tawtike e juuɗe {name}",
+    "relatedMemories": "Jikkuuji Jokkondirɗi",
+    "noImage": "Alaa nate",
+    "unknownContributor": "Tawtuɗo anndaa",
+    "share": "Yeɗit",
+    "linkCopied": "Jokkorgal jikku ngal jattinaama",
+    "shareFailed": "Yeɗitde waawaa",
+    "edit": "Taƴto jikku",
+    "delete": "Momtu jikku",
+    "confirmDelete": "Momtu",
+    "confirmDeleteTitle": "Momtu jikku",
+    "deleteConfirm": "ɗaɗɗii aɗa yiɗi momtude jikku ɗoo?",
+    "memoryDeleted": "Jikku momtaama",
+    "cancel": "Haaytu",
+    "storyMemory": "Jikku Daartol",
+    "verification": {
+      "pending": "No ƴeewte",
+      "approved": "Jaɓaama",
+      "rejected": "Yeppaama",
+      "needsMoreInfo": "Haajeji ɓeydi heɓde"
+    },
+    "memoryShared": "Jikku yeɗitaama no moƴƴi",
+    "memoryUpdated": "Jikku hesɗitinaama",
+    "memorySaved": "Jikku danndaama",
+    "memoryUnsaved": "Jikku ittaama e danndiiji"
+  },
+  "MemoryReactions": {
+    "love": "Yiɗi",
+    "respect": "Teddungal",
+    "nostalgia": "Sikke",
+    "important": "Himɗe",
+    "failed": "Jaabital dañii"
+  },
+  "MemoryForm": {
+    "title": "Yeɗ jikku kuurdu",
+    "editTitle": "Taƴto jikku",
+    "update": "Hesɗitin jikku",
+    "ready": "Jikku maa no maraama ngam yeɗitde.",
+    "imageHelper": "Ɓeydu foto si aɗa mari. Jikkuuji mbaawi kadi yeɗitde no daarti.",
+    "fields": {
+      "title": "Hoore jikku",
+      "story": "Yeɗit daartol e yowre",
+      "category": "Suɓo cate",
+      "eraLabel": "Jamanu (suɓaare)",
+      "location": "Nokku (suɓaare)"
+    },
+    "errors": {
+      "title": "Eɗen mballu en naatnu hoore jooɗunde.",
+      "story": "Eɗen mballu en yeɗit kuumɗi daartol keewɗi.",
+      "category": "Eɗen mballu en suɓo cate."
+    },
+    "submitting": "No neldoo...",
+    "submit": "Yeɗ jikku",
+    "cancel": "Haaytu",
+    "successMessage": "Jikku yeɗitaama no moƴƴi"
+  },
+  "Ideas": {
+    "title": "Miijooji Kuurdu",
+    "description": "Suɓo eɓɓooji kuuɓtuɗi balluɗo e sifaade ko adii ngam Nuwaadibu.",
+    "voteLabel": "Suɓo",
+    "voteLabelVoted": "Suɓaama",
+    "supportPercent": "{percent}% ballal",
+    "top10PopularIdeas": "Miijooji 10 ɓurɗi lantde",
+    "showAll": "Hollu fof ({count})",
+    "badgeNewIdea": "Miijo Keso",
+    "badgeGrowingSupport": "Ballal No Ɓeydoo",
+    "badgePopular": "Jaaɓii",
+    "badgeCommunityPriority": "Ko Adii e Kuurdu",
+    "badgeTopPriority": "Ko Adii Fof",
+    "share": "Yeɗit",
+    "linkCopied": "Jokkorgal miijo ngal jattinaama",
+    "unknownAuthor": "Anndaa",
+    "voteFailed": "Suɓo dañii",
+    "commentsWithCount": "Wiɗtooji ({count})",
+    "commentPlaceholder": "Winndu wiɗto...",
+    "noCommentsYet": "Alaa wiɗtooji haa jooni. Warna aɗa wiɗta.",
+    "loginToComment": "Naatu ngam wiɗtde",
+    "commentFailed": "Ɓeydude wiɗto dañii",
+    "commentDeleteFailed": "Momtude wiɗto dañii",
+    "delete": "Momtu",
+    "shareAnother": "Yeɗit miijo goo",
+    "edit": "Taƴto",
+    "deleteConfirm": "ɗaɗɗii aɗa yiɗi momtude miijo ɗoo?",
+    "confirmDelete": "Momtu",
+    "confirmDeleteTitle": "Momtu miijo",
+    "cancel": "Haaytu",
+    "ideaUpdated": "Miijo hesɗitinaama no moƴƴi",
+    "ideaDeleted": "Miijo momtaama no moƴƴi",
+    "showMore": "Hollu ko ɓuri",
+    "showLess": "Hollu ko ɓuri famɗi",
+    "editIdea": "Taƴto miijo",
+    "deleteIdea": "Momtu miijo",
+    "allIdeas": "Miijooji Fuu",
+    "status": {
+      "submitted": "Yeɗaama",
+      "underReview": "No Ƴeewte",
+      "accepted": "Jaɓaama",
+      "inProgress": "No Golloo",
+      "completed": "Timmaama",
+      "rejected": "Yeppaama"
+    },
+    "editComment": "Taƴto wiɗto",
+    "deleteComment": "Momtu wiɗto",
+    "save": "Danndu",
+    "commentUpdated": "Wiɗto hesɗitinaama",
+    "commentDeleted": "Wiɗto momtaama",
+    "commentUpdateFailed": "Dañii hesɗitinde wiɗto"
+  },
+  "IdeaForm": {
+    "title": "Yeɗ miijo siwil",
+    "editTitle": "Taƴto miijo maa",
+    "update": "Hesɗitin miijo",
+    "ready": "Miijo maa no maraama ngam yeɗitde.",
+    "fields": {
+      "title": "Hoore miijo",
+      "description": "Sifor miijo, nafaaji, e kuuje garoje",
+      "category": "Suɓo cate",
+      "others": "Goo"
+    },
+    "errors": {
+      "title": "Eɗen mballu en naatnu hoore miijo jooɗunde.",
+      "description": "Eɗen mballu en sifor miijo maa no laaɓiri.",
+      "category": "Eɗen mballu en suɓo cate.",
+      "submitFailed": "Yeɗitde miijo waawaa. Eɗen mballu en, eto kadi."
+    },
+    "submitting": "No neldoo...",
+    "submit": "Yeɗ miijo",
+    "cancel": "Haaytu",
+    "successMessage": "Miijo yeɗitaama no moƴƴi"
+  },
+  "Events": {
+    "title": "ɗewte Kuurdu",
+    "description": "Yiylo ɗewte garooje e tawtude darnde nokkuuje.",
+    "rsvp": "No Tawtaami"
+  },
+  "Projects": {
+    "title": "Proje Kuurdu",
+    "description": "Rew ɓamtaare, gollotooɓe, e nafuuda e proje siwil.",
+    "progress": "ɓamtaare",
+    "volunteers": "{count} gollotooɓe sakkitiŋɓe",
+    "status": {
+      "planning": "No Eɓɓe",
+      "inProgress": "No Golloo",
+      "recruiting": "No ɗaɓɓi"
+    }
+  },
+  "Polls": {
+    "title": "Nootorgal Kuurdu",
+    "description": "Nootorgal weeɓngal ngam ballondirde e fasluuji mahooji e tawtiiɗi.",
+    "totalVotes": "{count} nootiral fuu",
+    "voteButton": "Suɓo"
+  },
+  "Timeline": {
+    "title": "Laawol Wakkati Nuwaadibu"
+  },
+  "Profile": {
+    "bio": "Golloowo kuurdu, daartoowo, e balloowo sukaaɓe.",
+    "location": "Nuwaadibu, Gànnaar",
+    "stats": {
+      "posts": "Blaŋtooji",
+      "memories": "Jikkuuji",
+      "ideas": "Miijooji",
+      "comments": "Wiɗtooji"
+    },
+    "editProfile": "Taƴto profil",
+    "changeAvatar": "Taƴto Foto",
+    "changeCover": "Taƴto Suddude",
+    "shareProfile": "Yeɗit profil",
+    "tabsTitle": "Caate Profil",
+    "tabs": {
+      "posts": "Blaŋtooji",
+      "memories": "Jikkuuji",
+      "ideas": "Miijooji",
+      "shares": "Yeɗitine",
+      "about": "Ko woni"
+    },
+    "joined": "Tawtike",
+    "role": {
+      "admin": "Njuɓɓuɗo",
+      "moderator": "Wasiya"
+    },
+    "recentMemories": "Jikkuuji Haa Jooni",
+    "save": "Danndu taƴtooji",
+    "saving": "No danndoo...",
+    "updated": "Profil hesɗitinaama no moƴƴi",
+    "cancel": "Haaytu",
+    "noBio": "Alaa nguurndam haa jooni.",
+    "noBioYet": "Alaa nguurndam haa jooni.",
+    "uploading": "No loowoo...",
+    "photoUpdated": "Foto profil hesɗitinaama",
+    "coverUpdated": "Suddude foto hesɗitinaama",
+    "uploadFailed": "Loowde foto dañii",
+    "noCity": "Alaa saare.",
+    "createPost": "Mah blaŋto",
+    "noPostsYet": "Alaa blaŋtooji haa jooni. Yeɗit kesɗitine maa arandeere.",
+    "fields": {
+      "username": "Innde huutorteende",
+      "fullName": "Innde timmunde",
+      "bio": "Nguurndam",
+      "city": "Saare",
+      "languagePreference": "Ɗemngal (ff, ar, fr, en, snk, wo)",
+      "avatarUrl": "Foto",
+      "coverImage": "Suddude foto",
+      "role": "Darnde",
+      "memberSince": "Tergal gila"
+    },
+    "contributionScore": "Kiredi ballondiral",
+    "contributionRanks": {
+      "member": "Tergal",
+      "contributor": "Tawtuɗo",
+      "communityBuilder": "Mahooɗo Kuurdu",
+      "communityLeader": "Ardoowo Kuurdu",
+      "ndbChampion": "Mbadi NDB"
+    }
+  },
+  "Follow": {
+    "follow": "Rew",
+    "following": "No Rewaa",
+    "unfollow": "Accit rewde",
+    "followers": "Rewotooɓe",
+    "followingCount": "No Rewaa",
+    "followedToast": "Aɗa rewa jooni profil ɗoo",
+    "unfollowedToast": "A accitii rewde profil ɗoo",
+    "loginToFollow": "Naatu ngam rewde yimɓe",
+    "failed": "Taƴtirde darnde rewde waawaa"
+  },
+  "ProfileCard": {
+    "bio": "Daartoowo kuurdu no winda jikkuuji, miijooji, e proje nokkuuje.",
+    "location": "Daqlat Nuwaadibu",
+    "stats": {
+      "posts": "Blaŋtooji",
+      "memories": "Jikkuuji",
+      "ideas": "Miijooji"
+    },
+    "badges": {
+      "contributor": "Tawtuɗo",
+      "historian": "Taariikowo"
+    }
+  },
+  "Admin": {
+    "stats": {
+      "postsToday": "Blaŋtooji hannde",
+      "pendingMemories": "Jikkuuji no ƴeewte",
+      "openIdeas": "Miijooji udditiiɗi",
+      "reportsQueue": "Jeŋle jeertine"
+    },
+    "moderationQueue": "Jeŋle ƴeewtu",
+    "noPendingReports": "Alaa jeertine no ƴeewte.",
+    "targetType": {
+      "memory": "Jikku",
+      "post": "Blaŋto"
+    },
+    "status": {
+      "pending": "No Ƴeewte"
+    },
+    "reasons": {
+      "yearConfirmation": "Haaje tabitingol ndunngu firte",
+      "respectfulTone": "Ƴeewto binndi ngam teddingal"
+    },
+    "commandCenter": "Markazi INDB",
+    "nouadhibouSignal": "Nafigo Nuwaadibu",
+    "eyebrow": "Markazi Ardungal Kuurdu",
+    "signedInLabel": "Naatuɗo no",
+    "signedInAs": "Njuɓɓuɗo: {name}",
+    "hero": {
+      "title": "Nuwaadibu no wuuri. Ngoo ko nafigo mum.",
+      "description": "Rew yimɓe, miijooji, jikkuuji, e darnde no mahata INDB. Ngoo nokku ko ngam ardude kuurdu wuuru, wonaa ngam njuɓɓude database."
+    },
+    "nav": {
+      "dashboard": "Lindowal",
+      "users": "Huutortooɓe",
+      "content": "Fin-ñiiwa",
+      "credits": "Kiredi",
+      "analytics": "Analytik",
+      "settings": "Mbaydi"
+    },
+    "sections": {
+      "overview": "Njiylawu",
+      "users": "Huutortooɓe",
+      "credits": "Kiredi",
+      "content": "Fin-ñiiwa"
+    },
+    "health": {
+      "eyebrow": "Cellal Kuurdu",
+      "title": "Ko Wonata Jooni",
+      "members": "Terɗe",
+      "posts": "Blaŋtooji",
+      "ideas": "Miijooji",
+      "memories": "Jikkuuji",
+      "activeToday": "Gollotooɗe hannde",
+      "newToday": "+{count} hannde",
+      "today": "+{count} hannde",
+      "activeSignal": "nafigo wuuru",
+      "totalComments": "{count} wiɗtooji"
+    },
+    "pulse": {
+      "eyebrow": "Nafigo Kuurdu",
+      "title": "Yeewte No Dimmbagu Saare",
+      "noPreview": "Alaa préfiguration haa jooni.",
+      "type": {
+        "post": "Yeewtal ɓurngal gollude",
+        "idea": "Miijo ɓurngo gollude",
+        "memory": "Jikku teeŋtuɗo",
+        "member": "Tergal keso"
+      }
+    },
+    "newMembers": {
+      "eyebrow": "Ardiiɓe Kesɓe",
+      "title": "Terɗe Kesɓe"
+    },
+    "contributors": {
+      "eyebrow": "Tawtuɓe ɓurɓe tawtude",
+      "title": "Yimɓe No Mahata Kuurdu",
+      "rank": {
+        "member": "Tergal",
+        "contributor": "Tawtuɗo",
+        "communityBuilder": "Mahooɗo Kuurdu",
+        "communityLeader": "Ardoowo Kuurdu",
+        "ndbChampion": "Mbadi NDB"
+      }
+    },
+    "actions": {
+      "eyebrow": "Markazi Golle",
+      "title": "Dimmbu Kuurdu Yaaso",
+      "awardCredits": "Yeɗ Kiredi",
+      "awardCreditsDescription": "Anndir terɗe ballooje.",
+      "reviewReports": "Ƴeewto Jeertine",
+      "reviewReportsDescription": "Ƴeewto ko haaje yiɗe.",
+      "viewUsers": "Yiylo Huutortooɓe",
+      "viewUsersDescription": "Yiylo terɗe e taƴto darndeeji.",
+      "analytics": "Analytik Kuurdu",
+      "analyticsDescription": "Janngu nafigo e golle."
+    },
+    "overview": {
+      "totalUsers": "Huutortooɓe",
+      "totalPosts": "Blaŋtooji",
+      "totalIdeas": "Miijooji",
+      "totalMemories": "Jikkuuji",
+      "totalComments": "Wiɗtooji"
+    },
+    "users": {
+      "eyebrow": "Yimɓe Kuurdu",
+      "title": "Njuɓɓudi Terɗe",
+      "description": "Huutortooɓe poti wonde terɗe. Njuɓɓuɗo waawi momtude huunde si haaje.",
+      "search": "ɗaɓɓit huutortooɓe",
+      "searchButton": "ɗaɓɓit",
+      "user": "Huutortooɗo",
+      "email": "Iimeel",
+      "role": "Darnde",
+      "score": "Kiredi ballondiral",
+      "award": "Yeɗ kiredi",
+      "noUsername": "Alaa innde huutorteende",
+      "emailUnavailable": "Alaa",
+      "updateRole": "Hesɗitin",
+      "selfRoleProtected": "Huunde maa njuɓɓudi no reenaa",
+      "deleteUser": "Momtu huunde",
+      "deleteConfirm": "Momtu huunde huutortooɗo ɗoo e kuurdu? Ngal waawaa taƴtireede e lindowal."
+    },
+    "roles": {
+      "member": "Tergal",
+      "admin": "Njuɓɓuɗo"
+    },
+    "credits": {
+      "eyebrow": "Kiredi ballondiral",
+      "title": "Njoddu nafuuda kuurdu",
+      "description": "Yeɗ kiredi ballondiral e danndu daartol.",
+      "user": "Huutortooɗo",
+      "points": "Kiredi",
+      "reason": "Sabu",
+      "note": "Maande",
+      "notePlaceholder": "Maande suɓaare",
+      "award": "Yeɗ kiredi",
+      "recent": "Kiredi haa jooni",
+      "empty": "Alaa kiredi yeɗaama haa jooni."
+    },
+    "creditReasons": {
+      "helpedCommunity": "Ballike kuurdu",
+      "sharedValuableMemory": "Yeɗitike jikku himmɗo",
+      "proposedUsefulIdea": "Eɓɓi miijo nafoore",
+      "volunteerWork": "Gollal sakkitiŋgal",
+      "cityImprovementAction": "Gollal ɓeyngu saare",
+      "other": "Goo"
+    },
+    "content": {
+      "eyebrow": "Njiylawu fin-ñiiwa",
+      "title": "Blaŋtooji, miijooji, e jikkuuji haa jooni",
+      "description": "ƒewto blaŋtooji, miijooji, e jikkuuji haa jooni.",
+      "by": "e juuɗe {name}",
+      "view": "Yeru",
+      "delete": "Momtu",
+      "type": {
+        "post": "Blaŋto",
+        "idea": "Miijo",
+        "memory": "Jikku"
+      }
+    },
+    "activity": {
+      "eyebrow": "Gollegol Haa Jooni",
+      "title": "Laawol wakkati kuurdu",
+      "type": {
+        "post": "{name} yeɗitike blaŋto: {title}",
+        "idea": "{name} eɓɓi miijo: {title}",
+        "memory": "{name} yeɗitike jikku: {title}",
+        "credit": "{name} heɓi kiredi {title}",
+        "member": "{title} tawtike kuurdu"
+      }
+    },
+    "identity": {
+      "eyebrow": "Jeyngu Kuurdu",
+      "title": "Hiɗa mah galle dijital Nuwaadibu.",
+      "description": "Kiredi kala, ƴeewto, e taƴto darnde poti wallude yimɓe yi'de no kawrirta, nafooɓe, e jokkondirta e saare.",
+      "settingsNote": "Mbaydi e analytik ɓurɗi teewde mbaɗataa caggal. MVP fawii ko yimɓe e darnde."
+    },
+    "statusMessage": {
+      "roleUpdated": "Darnde hesɗitinaama no moƴƴi.",
+      "creditsAwarded": "Kiredi yeɗaama no moƴƴi.",
+      "contentDeleted": "Fin-ñiiwa momtaama no moƴƴi.",
+      "invalid": "Gollal njuɓɓudi moƴɗaa.",
+      "roleError": "Hesɗitinde darnde waawaa.",
+      "creditError": "Kiredi yeɗde waawaa. Tabitin Supabase migration no huutoraa.",
+      "deleteError": "Fin-ñiiwa momtude waawaa.",
+      "selfRoleBlocked": "A waawaa ittude darnde maa njuɓɓudi e ngoo hello.",
+      "userDeleted": "Huunde huutortooɗo ittaama e kuurdu.",
+      "userDeleteError": "Momtude huunde huutortooɗo waawaa. Ƴeewto Supabase service role permissions, ɗeen eto kadi.",
+      "selfDeleteBlocked": "A waawaa momtude huunde maa njuɓɓudi e ngoo hello.",
+      "userDeleteConfigError": "Suppu Supabase service role majjii. Ɓeydu SUPABASE_SERVICE_ROLE_KEY e Vercel arano."
+    },
+    "sidebar": {
+      "backToSite": "Rutto e jaygol",
+      "close": "Nappu sidebar",
+      "collapse": "Hoor sidebar",
+      "expand": "Uddit sidebar"
+    }
+  },
+  "Categories": {
+    "memory": {
+      "history": "Taariiha",
+      "railway": "Laawol njamndi",
+      "fishing": "Liwki",
+      "culture": "Pinal"
+    },
+    "idea": {
+      "education": "Jaŋde",
+      "environment": "Taara",
+      "youth": "Sukaaɓe",
+      "culture": "Pinal"
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "Naatu",
+      "emailConfirmation": "Winnditde timmii. Eɗen mballu en ƴeewto iimeel maa ngam tabitingol huunde maa yeeso naatde.",
+      "done": "Gollal naatgol timmii.",
+      "email": "Iimeel",
+      "password": "Finnde wowre",
+      "submit": "Naatu",
+      "submitting": "No naatata...",
+      "forgotPassword": "Finnde wowre maayii?",
+      "noAccount": "Alaa huunde?",
+      "register": "Mah huunde",
+      "showPassword": "Hollu finnde wowre",
+      "hidePassword": "Suud finnde wowre"
+    },
+    "register": {
+      "title": "Mah huunde maa",
+      "done": "Gollal mahu huunde timmii.",
+      "username": "Innde huutorteende",
+      "email": "Iimeel",
+      "password": "Finnde wowre",
+      "confirmPassword": "Tabitin finnde wowre",
+      "submit": "Mah huunde",
+      "submitting": "No mahata huunde...",
+      "hasAccount": "Aɗa mari huunde tawon?",
+      "login": "Naatu",
+      "showPassword": "Hollu finnde wowre",
+      "hidePassword": "Suud finnde wowre"
+    },
+    "forgotPassword": {
+      "title": "Fuɗɗor finnde wowre",
+      "email": "Adres iimeel",
+      "submit": "Nel jokkorgal fuɗɗorde",
+      "submitting": "No neldoo...",
+      "sent": "Ƴeewto iimeel maa ngam jokkorgal fuɗɗorde finnde wowre.",
+      "backToLogin": "Rutto e naatgol"
+    }
+  },
+  "Toasts": {
+    "postCreated": "Blaŋto mahaa",
+    "postUpdated": "Blaŋto hesɗitinaama",
+    "commentAdded": "Wiɗto ɓeydaama",
+    "commentDeleted": "Wiɗto momtaama",
+    "postDeleted": "Blaŋto momtaama",
+    "postSaved": "Blaŋto danndaama",
+    "memorySubmitted": "Jikku yeɗitaama no moƴƴi",
+    "ideaSubmitted": "Miijo yeɗitaama no moƴƴi",
+    "voteAdded": "Suɓo ɓeydaama",
+    "updated": "Profil hesɗitinaama",
+    "linkCopied": "Jokkorgal blaŋto ngal jattinaama",
+    "emailSent": "Ƴeewto iimeel maa ngam jokkorgal fuɗɗorde",
+    "comingSoon": "No ara"
+  },
+  "Errors": {
+    "invalidInput": "Naatgol moƴƴaŋngal",
+    "invalidPost": "Blaŋto moƴƴaŋngal",
+    "invalidProfile": "Profil moƴƴaŋngal",
+    "invalidMemory": "Jikku moƴƴaŋngal",
+    "invalidIdea": "Miijo moƴƴaŋngal",
+    "saveFailed": "Dannde dañii",
+    "reactionFailed": "Hesɗitirde jaabital dañii",
+    "titleRequired": "Hoore haaje",
+    "descriptionRequired": "Sifor haaje",
+    "titleTooShort": "Hoore haa ɓuri 4 binndi",
+    "descriptionTooShort": "Sifor haa ɓuri 10 binndi",
+    "submitFailed": "Huunde waɗii e nder yeɗitde"
+  },
+  "ImageUpload": {
+    "tooLarge": "Faylo ɓuri mawnude. Eɗen mballu en suɓo faylo famɗuɗo.",
+    "videoTooLarge": "Vidiyo ɓuri mawnude. Ɓurngal mawnude ko 50MB.",
+    "videoTooLong": "Vidiyo ɓuri juutde. Ɓurngal juutde ko 60 seconds.",
+    "imagesOrVideo": "A waawi loowde nate walla vidiyo gooto, wonaa ɗiɗi fof.",
+    "invalidType": "Eɗen mballu en suɓo faylo moƴƴo (JPG, PNG, WebP, MP4, WebM, MOV).",
+    "uploading": "No loowoo...",
+    "success": "Lowtaama no moƴƴi.",
+    "chooseImage": "Ɓeydu nate",
+    "chooseVideo": "Ɓeydu vidiyo",
+    "replace": "Lomu nate",
+    "remove": "Ittu nate",
+    "failed": "Loowde dañii.",
+    "compressionFailed": "Tappirde nate ngam loowde dañii.",
+    "notAuthenticated": "Eɗen mballu en naatu yeeso loowde.",
+    "noFile": "Eɗen mballu en suɓo faylo ngam loowde."
+  },
+  "Brand": {
+    "title": "INDB Community OS",
+    "subtitle": "I love NDB",
+    "alt": "Maande logo INDB"
+  },
+  "Common": {
+    "seeTranslation": "Yiylo firo",
+    "seeOriginal": "Yiylo asli",
+    "translating": "No firoo...",
+    "translationUnavailable": "Firo alaa"
+  },
+  "EmptyStates": {
+    "posts": {
+      "title": "Alaa blaŋtooji haa jooni",
+      "description": "Warna aɗa yeɗitit huunde e kuurdu.",
+      "cta": "Mah blaŋto"
+    },
+    "memories": {
+      "title": "Alaa jikkuuji haa jooni",
+      "description": "Ballu reende ngalu nokkuwal e yeɗitde jikku kuurdu aranndu.",
+      "cta": "Yeɗ jikku"
+    },
+    "ideas": {
+      "title": "Alaa miijooji haa jooni",
+      "description": "Fuɗɗo yeewtal e miijo kuuɓtuɗo ngam Nuwaadibu.",
+      "cta": "Yeɗ miijo"
+    },
+    "fadla": {
+      "title": "Alaa yeɗitine haa jooni",
+      "description": "Yeɗit huunde nafoore njiɗaa koo ndu heddii e juuɗe maa wallita galle goo.",
+      "cta": "Uddit Fadla"
+    },
+    "events": {
+      "title": "Alaa ɗewte haa jooni",
+      "description": "Mah ɗewal aranndu ngam tawtindir yimɓe e gollal nokkuwal.",
+      "cta": "Yiylo kesɗitine"
+    },
+    "profile": {
+      "title": "Alaa blaŋtooji haa jooni",
+      "description": "Yeɗit kesɗitine maa arandeere.",
+      "cta": "Mah blaŋto"
+    },
+    "polls": {
+      "title": "Alaa nootorgal haa jooni",
+      "description": "Mah nootorgal aranndu ngam heɓde miijooji kuurdu.",
+      "cta": "Yiylo kesɗitine"
+    },
+    "projects": {
+      "title": "Alaa proje haa jooni",
+      "description": "Fuɗɗo proje siwil ngam tawtindir kuurdu e gollal nokkuwal.",
+      "cta": "Yiylo kesɗitine"
+    }
+  },
+  "Fadla": {
+    "title": "Fadla",
+    "eyebrow": "Yeɗitine kuurdu",
+    "description": "Yeɗit ko njiɗaa koo ko heddii e juuɗe maa ngam heɓooɓe ɗum en. Paɗi lootere, ɓeydu tiiɗndiral, Nuwaadibu ɓurngu.",
+    "notMarketplace": "Alaa coggu. Alaa njoɓdi. Ko yeɗitde e ballondirde tan.",
+    "shareButton": "Yeɗit Huunde",
+    "searchPlaceholder": "ɗaɓɓit e yeɗitine",
+    "allCategories": "Cate fuu",
+    "unknownOwner": "Tergal kuurdu",
+    "sharedForHelp": "Yeɗitaama ngam ballal",
+    "imagePlaceholder": "Huunde nafoore",
+    "needThis": "Meŋa yiɗi ɗum",
+    "requested": "Ƴamaama",
+    "alreadyGiven": "Yeɗaama tawon",
+    "categories": {
+      "food": "ɲaamri",
+      "clothes": "Colte",
+      "furniture": "Koyɗi saare",
+      "electronics": "Elektronik",
+      "school_supplies": "Koyɗi jannde",
+      "books": "Defte",
+      "services": "Golle",
+      "other": "Goo"
+    },
+    "status": {
+      "available": "No tawi",
+      "reserved": "Marƴaama",
+      "given": "Yeɗaama"
+    },
+    "actions": {
+      "edit": "Taƴto huunde",
+      "delete": "Momtu huunde",
+      "mark": {
+        "available": "Waɗu no tawi",
+        "reserved": "Waɗu marƴaama",
+        "given": "Waɗu yeɗaama"
+      }
+    },
+    "form": {
+      "createTitle": "Yeɗit huunde nafoore",
+      "editTitle": "Taƴto yeɗitine",
+      "helper": "Danndu moƴƴa e weeɓi. Alaa coggu e njoɓdi.",
+      "title": "Hoore",
+      "description": "Sifor",
+      "condition": "Mbaydi",
+      "location": "Nokku",
+      "cancel": "Haaytu",
+      "submit": "Yeɗit",
+      "update": "Hesɗitin"
+    },
+    "toasts": {
+      "created": "Huunde yeɗitaama no moƴƴi",
+      "updated": "Yeɗitine hesɗitinaama",
+      "deleted": "Yeɗitine momtaama",
+      "requested": "Ƴamle neldii e jom huunde"
+    },
+    "errors": {
+      "saveFailed": "Dannde yeɗitine waawaa",
+      "actionFailed": "Gollal ɗoo waawaa timminde"
+    },
+    "empty": {
+      "title": "Alaa yeɗitine haa jooni",
+      "description": "Warna aɗa yeɗitit huunde nafoore e kuurdu."
+    }
+  },
+  "ConfirmDialog": {
+    "title": "Accit taƴtooji?",
+    "message": "Taƴtooji maa danndataake.",
+    "keepEditing": "Jokku taƴtude",
+    "discard": "Accu"
+  }
+}

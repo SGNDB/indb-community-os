@@ -4,7 +4,9 @@ import {AnimatePresence, motion} from "framer-motion";
 import {
   Bell,
   BellRing,
+  Award,
   Bookmark,
+  Gift,
   Heart,
   MessageCircle,
   UserPlus,
@@ -54,6 +56,10 @@ function getNotificationIcon(type: string) {
       return MessageCircle;
     case "save":
       return Bookmark;
+    case "credit":
+      return Award;
+    case "community_share_request":
+      return Gift;
     default:
       return Bell;
   }
@@ -244,6 +250,12 @@ export function NotificationDropdown({locale}: {locale: string}) {
         case "idea":
           router.push(`/ideas?idea=${n.entity_id}&comments=1#idea-comments-${n.entity_id}`);
           return;
+        case "credit":
+          router.push("/profile");
+          return;
+        case "community_share":
+          router.push(`/fadla#fadla-${n.entity_id}`);
+          return;
         case "project":
           router.push("/projects");
           return;
@@ -295,6 +307,10 @@ export function NotificationDropdown({locale}: {locale: string}) {
           return t("commentedOnPost", {actorName});
         case "idea_comment":
           return t("commentedOnYourIdea", {actorName});
+        case "credit":
+          return t("creditAwarded", {points: n.message ?? ""});
+        case "community_share_request":
+          return t("communityShareRequested", {actorName});
         default:
           return n.message ?? "";
       }

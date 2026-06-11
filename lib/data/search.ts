@@ -1,6 +1,6 @@
 import {createClient} from "@/lib/supabase/server";
 
-export type SearchResultType = "post" | "idea" | "memory" | "profile";
+export type SearchResultType = "post" | "idea" | "memory" | "profile" | "fadla";
 
 export interface SearchResultItem {
   id: string;
@@ -17,6 +17,7 @@ export interface GlobalSearchResults {
   posts: SearchResultItem[];
   ideas: SearchResultItem[];
   memories: SearchResultItem[];
+  fadla: SearchResultItem[];
   profiles: SearchResultItem[];
 }
 
@@ -40,11 +41,23 @@ type CategorySummary = {
   name_ar: string;
 };
 
+const communityShareCategoryLabels: Record<string, string[]> = {
+  food: ["food", "nourriture", "طعام"],
+  clothes: ["clothes", "vêtements", "vetements", "ملابس"],
+  furniture: ["furniture", "meubles", "أثاث"],
+  electronics: ["electronics", "électronique", "electronique", "إلكترونيات"],
+  school_supplies: ["school supplies", "fournitures scolaires", "مستلزمات مدرسية"],
+  books: ["books", "livres", "كتب"],
+  services: ["services", "خدمات"],
+  other: ["other", "autre", "أخرى"],
+};
+
 function emptyResults(): GlobalSearchResults {
   return {
     posts: [],
     ideas: [],
     memories: [],
+    fadla: [],
     profiles: [],
   };
 }
@@ -77,6 +90,13 @@ function categoryName(category: CategorySummary | null | undefined, locale: stri
   if (locale === "ar") return category.name_ar;
   if (locale === "en") return category.name_en;
   return category.name_fr;
+}
+
+function matchingCommunityShareCategories(query: string) {
+  const normalized = cleanQuery(query).toLowerCase();
+  return Object.entries(communityShareCategoryLabels)
+    .filter(([key, labels]) => key.includes(normalized) || labels.some((label) => label.toLowerCase().includes(normalized)))
+    .map(([key]) => key);
 }
 
 function firstRelation<T>(relation: T | T[] | null | undefined): T | null {
@@ -147,8 +167,12 @@ export async function globalSearch(
   const categoryFilter = matchingCategoryIds.length > 0
     ? `category_id.in.(${matchingCategoryIds.join(",")})`
     : "";
+  const shareCategoryKeys = matchingCommunityShareCategories(normalized);
+  const shareCategoryFilter = shareCategoryKeys.length > 0
+    ? `category.in.(${shareCategoryKeys.join(",")})`
+    : "";
 
-  const [postsResult, ideasResult, memoriesResult, profilesResult] = await Promise.all([
+  const [postsResult, ideasResult, memoriesResult, fadlaResult, profilesResult] = await Promise.all([
     supabase
       .from("posts")
       .select(`
@@ -198,6 +222,25 @@ export async function globalSearch(
         `description.ilike.${pattern}`,
         `location.ilike.${pattern}`,
         contributorFilter,
+      ]))
+      .order("created_at", {ascending: false})
+      .limit(limit),
+    supabase
+      .from("community_shares")
+      .select(`
+        id,
+        title,
+        description,
+        category,
+        location,
+        owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)
+      `)
+      .or(joinOr([
+        `title.ilike.${pattern}`,
+        `description.ilike.${pattern}`,
+        `category.ilike.${pattern}`,
+        `location.ilike.${pattern}`,
+        shareCategoryFilter,
       ]))
       .order("created_at", {ascending: false})
       .limit(limit),
@@ -275,6 +318,27 @@ export async function globalSearch(
     };
   });
 
+  const fadla = ((fadlaResult.data ?? []) as unknown as Array<{
+    id: string;
+    title: string;
+    description: string;
+    category: string;
+    location: string | null;
+    owner: ProfileSummary | ProfileSummary[] | null;
+  }>).map((share) => {
+    const owner = firstRelation(share.owner);
+    return {
+      id: share.id,
+      type: "fadla" as const,
+      title: share.title,
+      snippet: truncateSnippet([share.location, share.category, share.description].filter(Boolean).join(" â€¢ ")),
+      href: `/fadla#fadla-${share.id}`,
+      avatarUrl: owner?.avatar_url,
+      authorName: nameForProfile(owner),
+      username: owner?.username,
+    };
+  });
+
   const profiles = ((profilesResult.data ?? []) as ProfileSummary[]).map((profile) => ({
     id: profile.id,
     type: "profile" as const,
@@ -290,10 +354,11 @@ export async function globalSearch(
     posts,
     ideas,
     memories,
+    fadla,
     profiles,
   };
 }
 
 export function countSearchResults(results: GlobalSearchResults) {
-  return results.posts.length + results.ideas.length + results.memories.length + results.profiles.length;
+  return results.posts.length + results.ideas.length + results.memories.length + results.fadla.length + results.profiles.length;
 }

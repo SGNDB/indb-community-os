@@ -1,6 +1,6 @@
 "use client";
 
-import {Archive, Lightbulb, Loader2, Newspaper, Search, UserRound, X} from "lucide-react";
+import {Archive, Gift, Lightbulb, Loader2, Newspaper, Search, UserRound, X} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
 import {useEffect, useMemo, useRef, useState} from "react";
 
@@ -12,6 +12,7 @@ const resultIcons: Record<SearchResultType, typeof Newspaper> = {
   post: Newspaper,
   idea: Lightbulb,
   memory: Archive,
+  fadla: Gift,
   profile: UserRound,
 };
 

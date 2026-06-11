@@ -51,4 +51,12 @@ export const ideaSchema = z.object({
   categoryId: z.coerce.number().int().positive().optional(),
 });
 
+export const communityShareSchema = z.object({
+  title: z.string().min(2).max(140),
+  description: z.string().min(2).max(2500),
+  category: z.enum(["food", "clothes", "furniture", "electronics", "school_supplies", "books", "services", "other"]),
+  condition: z.string().max(120).optional().or(z.literal("")),
+  location: z.string().max(120).optional().or(z.literal("")),
+});
+
 

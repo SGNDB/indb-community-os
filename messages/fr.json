@@ -40,7 +40,7 @@
     },
     "admin": {
       "title": "Tableau de bord admin",
-      "description": "Supervisez la modération et les indicateurs de la plateforme."
+      "description": "G?rez les utilisateurs, les cr?dits et les contenus r?cents."
     },
     "memorySubmit": {
       "title": "Soumettre un souvenir",
@@ -57,6 +57,10 @@
     "postEdit": {
       "title": "Modifier la publication",
       "description": "Mettez à jour votre publication."
+    },
+    "fadla": {
+      "title": "Fadla",
+      "description": "Partagez les objets utiles dont vous n'avez plus besoin avec celles et ceux qui en ont besoin."
     }
   },
   "LanguageSwitcher": {
@@ -103,6 +107,10 @@
       "profile": {
         "label": "Profil",
         "short": "Profil"
+      },
+      "fadla": {
+        "label": "Fadla",
+        "short": "Fadla"
       }
     }
   },
@@ -123,13 +131,15 @@
       "posts": "Publications",
       "ideas": "Idées",
       "memories": "Souvenirs",
-      "people": "Personnes"
+      "people": "Personnes",
+      "fadla": "Fadla"
     },
     "types": {
       "post": "Publication",
       "idea": "Idée",
       "memory": "Souvenir",
-      "profile": "Personne"
+      "profile": "Personne",
+      "fadla": "Objet partage"
     }
   },
   "Notifications": {
@@ -147,7 +157,9 @@
     "reactedToMemory": "{actorName} a réagi à votre souvenir",
     "commentedOnYourMemory": "{actorName} a commenté votre souvenir",
     "sharedYourMemory": "{actorName} a partagé votre souvenir",
-    "someone": "Quelqu'un"
+    "creditAwarded": "Vous avez reçu {points} points de contribution",
+    "someone": "Quelqu'un",
+    "communityShareRequested": "Quelqu'un souhaite recevoir l'objet que vous avez partage"
   },
   "RightSidebar": {
     "trendingTopics": "Sujets tendance",
@@ -422,16 +434,13 @@
       "posts": "Publications",
       "memories": "Souvenirs",
       "ideas": "Idées",
-      "about": "À propos"
+      "about": "À propos",
+      "shares": "Fadla"
     },
     "joined": "Membre depuis",
     "role": {
-      "member": "Membre",
-      "contributor": "Contributeur",
-      "historian": "Historien",
-      "volunteer": "Bénévole",
-      "diaspora": "Diaspora",
-      "organization": "Organisation"
+      "admin": "Admin",
+      "moderator": "Modérateur"
     },
     "recentMemories": "Souvenirs récents",
     "save": "Enregistrer",
@@ -457,6 +466,14 @@
       "coverImage": "Image de couverture",
       "role": "Rôle",
       "memberSince": "Membre depuis"
+    },
+    "contributionScore": "Score de contribution",
+    "contributionRanks": {
+      "member": "Membre",
+      "contributor": "Contributeur",
+      "communityBuilder": "Bâtisseur communautaire",
+      "communityLeader": "Leader communautaire",
+      "ndbChampion": "Champion NDB"
     }
   },
   "Follow": {
@@ -487,21 +504,195 @@
     "stats": {
       "postsToday": "Publications du jour",
       "pendingMemories": "Souvenirs en attente",
-      "openIdeas": "Idées ouvertes",
+      "openIdeas": "Id?es ouvertes",
       "reportsQueue": "File des signalements"
     },
-    "moderationQueue": "File de modération",
+    "moderationQueue": "File de mod?ration",
     "noPendingReports": "Aucun signalement en attente.",
     "targetType": {
-      "memory": "Souvenir",
-      "post": "Publication"
+      "memory": "M?moire",
+      "post": "Post"
     },
     "status": {
       "pending": "En attente"
     },
     "reasons": {
-      "yearConfirmation": "Année de publication à confirmer",
-      "respectfulTone": "Vérifier la formulation pour un ton respectueux"
+      "yearConfirmation": "Ann?e de publication ? confirmer",
+      "respectfulTone": "V?rifier la formulation pour un ton respectueux"
+    },
+    "commandCenter": "Centre INDB",
+    "nouadhibouSignal": "Signal de Nouadhibou",
+    "eyebrow": "Centre de commande communautaire",
+    "signedInLabel": "Connect? en tant que",
+    "signedInAs": "Admin : {name}",
+    "hero": {
+      "title": "Nouadhibou est vivante. Voici son pouls.",
+      "description": "Suivez les personnes, les id?es, les m?moires et les contributions qui fa?onnent INDB. Cet espace sert ? guider une communaut? vivante, pas ? g?rer une base de donn?es."
+    },
+    "nav": {
+      "dashboard": "Tableau",
+      "users": "Utilisateurs",
+      "content": "Contenu",
+      "credits": "Cr?dits",
+      "analytics": "Analytique",
+      "settings": "Réglages"
+    },
+    "sections": {
+      "overview": "Vue d?ensemble",
+      "users": "Utilisateurs",
+      "credits": "Cr?dits",
+      "content": "Contenu"
+    },
+    "health": {
+      "eyebrow": "Sant? communautaire",
+      "title": "Ce qui se passe maintenant",
+      "members": "Membres",
+      "posts": "Posts",
+      "ideas": "Id?es",
+      "memories": "M?moires",
+      "activeToday": "Actifs aujourd?hui",
+      "newToday": "+{count} aujourd?hui",
+      "today": "+{count} aujourd?hui",
+      "activeSignal": "signal vivant",
+      "totalComments": "{count} commentaires"
+    },
+    "pulse": {
+      "eyebrow": "Pouls communautaire",
+      "title": "Les conversations qui font bouger la ville",
+      "noPreview": "Aucun aper?u disponible.",
+      "type": {
+        "post": "Discussion la plus active",
+        "idea": "Id?e la plus active",
+        "memory": "M?moire ? d?couvrir",
+        "member": "Nouveau membre"
+      }
+    },
+    "newMembers": {
+      "eyebrow": "Nouvelles arriv?es",
+      "title": "Nouveaux membres"
+    },
+    "contributors": {
+      "eyebrow": "Meilleurs contributeurs",
+      "title": "Celles et ceux qui construisent la communaut?",
+      "rank": {
+        "member": "Membre",
+        "contributor": "Contributeur",
+        "communityBuilder": "Bâtisseur communautaire",
+        "communityLeader": "Leader communautaire",
+        "ndbChampion": "Champion NDB"
+      }
+    },
+    "actions": {
+      "eyebrow": "Centre d?action",
+      "title": "Faire avancer la communaut?",
+      "awardCredits": "Attribuer des cr?dits",
+      "awardCreditsDescription": "Reconna?tre les membres utiles.",
+      "reviewReports": "Examiner les signalements",
+      "reviewReportsDescription": "Voir ce qui demande attention.",
+      "viewUsers": "Voir les utilisateurs",
+      "viewUsersDescription": "Trouver les membres et g?rer les r?les.",
+      "analytics": "Analytique communautaire",
+      "analyticsDescription": "Lire le pouls et l?activit?."
+    },
+    "overview": {
+      "totalUsers": "Utilisateurs",
+      "totalPosts": "Posts",
+      "totalIdeas": "Id?es",
+      "totalMemories": "M?moires",
+      "totalComments": "Commentaires"
+    },
+    "users": {
+      "eyebrow": "Personnes de la communaut?",
+      "title": "Gestion des membres",
+      "description": "Les utilisateurs restent membres. L?admin peut supprimer les comptes si n?cessaire.",
+      "search": "Rechercher des utilisateurs",
+      "searchButton": "Rechercher",
+      "user": "Utilisateur",
+      "email": "Email",
+      "role": "R?le",
+      "score": "Score de contribution",
+      "award": "Attribuer des cr?dits",
+      "noUsername": "Aucun nom d?utilisateur",
+      "emailUnavailable": "Non disponible",
+      "updateRole": "Mettre ? jour",
+      "selfRoleProtected": "Votre compte admin est prot?g?",
+      "deleteUser": "Supprimer le compte",
+      "deleteConfirm": "Supprimer ce compte utilisateur de la communaut? ? Cette action ne peut pas ?tre annul?e depuis le tableau de bord."
+    },
+    "roles": {
+      "member": "Membre",
+      "admin": "Admin"
+    },
+    "credits": {
+      "eyebrow": "Cr?dits de contribution",
+      "title": "R?compenser l?impact communautaire",
+      "description": "Attribuez des points de contribution et conservez l?historique.",
+      "user": "Utilisateur",
+      "points": "Points",
+      "reason": "Raison",
+      "note": "Note",
+      "notePlaceholder": "Note facultative",
+      "award": "Attribuer des cr?dits",
+      "recent": "Cr?dits r?cents",
+      "empty": "Aucun cr?dit attribu? pour le moment."
+    },
+    "creditReasons": {
+      "helpedCommunity": "A aid? la communaut?",
+      "sharedValuableMemory": "A partag? une m?moire pr?cieuse",
+      "proposedUsefulIdea": "A propos? une id?e utile",
+      "volunteerWork": "Travail b?n?vole",
+      "cityImprovementAction": "Action d?am?lioration de la ville",
+      "other": "Autre"
+    },
+    "content": {
+      "eyebrow": "Veille contenu",
+      "title": "Posts, id?es et m?moires r?cents",
+      "description": "V?rifiez les posts, id?es et m?moires r?cents.",
+      "by": "Par {name}",
+      "view": "Voir",
+      "delete": "Supprimer",
+      "type": {
+        "post": "Post",
+        "idea": "Id?e",
+        "memory": "M?moire"
+      }
+    },
+    "activity": {
+      "eyebrow": "Activit? r?cente",
+      "title": "Chronologie communautaire",
+      "type": {
+        "post": "{name} a partag? un post : {title}",
+        "idea": "{name} a propos? une id?e : {title}",
+        "memory": "{name} a partag? une m?moire : {title}",
+        "credit": "{name} a gagn? {title} cr?dits",
+        "member": "{title} a rejoint la communaut?"
+      }
+    },
+    "identity": {
+      "eyebrow": "Identit? communautaire",
+      "title": "Vous construisez la maison num?rique de Nouadhibou.",
+      "description": "Chaque cr?dit, revue et r?le doit aider les personnes ? se sentir vues, utiles et reli?es ? la ville.",
+      "settingsNote": "Les r?glages et analyses avanc?es peuvent venir plus tard. Le MVP reste centr? sur les personnes et la contribution."
+    },
+    "statusMessage": {
+      "roleUpdated": "R?le mis ? jour avec succ?s.",
+      "creditsAwarded": "Cr?dits attribu?s avec succ?s.",
+      "contentDeleted": "Contenu supprim? avec succ?s.",
+      "invalid": "Action admin invalide.",
+      "roleError": "Impossible de mettre ? jour le r?le.",
+      "creditError": "Impossible d?attribuer les cr?dits. V?rifiez que la migration Supabase est appliqu?e.",
+      "deleteError": "Impossible de supprimer le contenu.",
+      "selfRoleBlocked": "Vous ne pouvez pas retirer votre propre r?le admin depuis cette page.",
+      "userDeleted": "Compte utilisateur retir? de la communaut?.",
+      "userDeleteError": "Impossible de supprimer ce compte utilisateur. V?rifiez les permissions de la cl? service role Supabase puis r?essayez.",
+      "selfDeleteBlocked": "Vous ne pouvez pas supprimer votre propre compte admin depuis cette page.",
+      "userDeleteConfigError": "La cl? service role Supabase est manquante. Ajoutez SUPABASE_SERVICE_ROLE_KEY dans Vercel d?abord."
+    },
+    "sidebar": {
+      "backToSite": "Retour au site",
+      "close": "Fermer le menu",
+      "collapse": "R?duire le menu",
+      "expand": "Ouvrir le menu"
     }
   },
   "Categories": {
@@ -529,7 +720,9 @@
       "submitting": "Connexion...",
       "forgotPassword": "Mot de passe oublié ?",
       "noAccount": "Vous n'avez pas de compte ?",
-      "register": "Créer un compte"
+      "register": "Créer un compte",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe"
     },
     "register": {
       "title": "Créer votre compte",
@@ -541,7 +734,9 @@
       "submit": "Créer le compte",
       "submitting": "Création du compte...",
       "hasAccount": "Vous avez déjà un compte ?",
-      "login": "Connexion"
+      "login": "Connexion",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe"
     },
     "forgotPassword": {
       "title": "Réinitialiser votre mot de passe",
@@ -644,6 +839,11 @@
       "title": "Aucun projet pour le moment",
       "description": "Lancez un projet citoyen et rassemblez la communauté autour d'une action locale.",
       "cta": "Explorer le fil"
+    },
+    "fadla": {
+      "title": "Aucun partage pour le moment",
+      "description": "Partagez un objet utile dont vous n'avez plus besoin et aidez une autre famille.",
+      "cta": "Ouvrir Fadla"
     }
   },
   "ConfirmDialog": {
@@ -651,5 +851,70 @@
     "message": "Vos modifications ne seront pas enregistrées.",
     "keepEditing": "Continuer la modification",
     "discard": "Ignorer"
+  },
+  "Fadla": {
+    "title": "Fadla",
+    "eyebrow": "Partage communautaire",
+    "description": "Partagez les objets utiles dont vous n'avez plus besoin avec celles et ceux qui en ont besoin. Moins de gaspillage, plus de solidarite, un Nouadhibou plus fort.",
+    "notMarketplace": "Pas de prix. Pas de paiement. Seulement le partage et l'entraide.",
+    "shareButton": "Partager un objet",
+    "searchPlaceholder": "Rechercher des objets partages",
+    "allCategories": "Toutes les categories",
+    "unknownOwner": "Membre de la communaute",
+    "sharedForHelp": "Partage pour aider",
+    "imagePlaceholder": "Objet utile",
+    "needThis": "Je le souhaite",
+    "requested": "Demande",
+    "alreadyGiven": "Deja donne",
+    "categories": {
+      "food": "Nourriture",
+      "clothes": "Vetements",
+      "furniture": "Meubles",
+      "electronics": "Electronique",
+      "school_supplies": "Fournitures scolaires",
+      "books": "Livres",
+      "services": "Services",
+      "other": "Autre"
+    },
+    "status": {
+      "available": "Disponible",
+      "reserved": "Reserve",
+      "given": "Donne"
+    },
+    "actions": {
+      "edit": "Modifier l'objet",
+      "delete": "Supprimer l'objet",
+      "mark": {
+        "available": "Marquer disponible",
+        "reserved": "Marquer reserve",
+        "given": "Marquer donne"
+      }
+    },
+    "form": {
+      "createTitle": "Partager un objet utile",
+      "editTitle": "Modifier l'objet partage",
+      "helper": "Restez simple et genereux. Pas de prix ni de paiement.",
+      "title": "Titre",
+      "description": "Description",
+      "condition": "Etat",
+      "location": "Lieu",
+      "cancel": "Annuler",
+      "submit": "Partager",
+      "update": "Mettre a jour"
+    },
+    "toasts": {
+      "created": "Objet partage avec succes",
+      "updated": "Objet partage mis a jour",
+      "deleted": "Objet partage supprime",
+      "requested": "Demande envoyee au proprietaire"
+    },
+    "errors": {
+      "saveFailed": "Impossible d'enregistrer l'objet partage",
+      "actionFailed": "Impossible de terminer cette action"
+    },
+    "empty": {
+      "title": "Aucun objet partage pour le moment",
+      "description": "Soyez la premiere personne a partager quelque chose d'utile avec la communaute."
+    }
   }
 }

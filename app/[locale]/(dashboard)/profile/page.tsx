@@ -7,6 +7,7 @@ import {getUserPosts} from "@/lib/data/posts";
 import {getProfileWithCounts} from "@/lib/data/profile";
 import {getUserMemories} from "@/lib/data/memories";
 import {getUserIdeas} from "@/lib/data/ideas";
+import {getUserCommunityShares} from "@/lib/data/fadla";
 import {redirect} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/server";
 
@@ -48,10 +49,11 @@ export default async function ProfilePage({
 
   const currentUserId = user.id;
 
-  const [allPosts, memories, ideas] = await Promise.all([
+  const [allPosts, memories, ideas, shares] = await Promise.all([
     getUserPosts(profile.id, currentUserId),
     getUserMemories(profile.id),
     getUserIdeas(profile.id),
+    getUserCommunityShares(profile.id),
   ]);
 
   const postsWithComments = await Promise.all(
@@ -67,6 +69,7 @@ export default async function ProfilePage({
       postsWithComments={postsWithComments}
       memories={memories}
       ideas={ideas}
+      shares={shares}
       currentUserId={currentUserId}
       locale={locale}
     />

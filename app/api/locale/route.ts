@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as {locale?: string};
   const locale = body.locale;
 
-  if (locale && routing.locales.includes(locale as "ar" | "fr" | "en")) {
+  if (locale && routing.locales.includes(locale as (typeof routing.locales)[number])) {
     cookieStore.set("NEXT_LOCALE", locale, {
       path: "/",
       sameSite: "lax",

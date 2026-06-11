@@ -2,6 +2,7 @@
 
 import {
   Home,
+  Gift,
   Images,
   Lightbulb,
   Newspaper,
@@ -18,6 +19,7 @@ const navItems = [
   {href: "/feed", key: "feed", icon: Newspaper},
   {href: "/memory", key: "memory", icon: Images},
   {href: "/ideas", key: "ideas", icon: Lightbulb},
+  {href: "/fadla", key: "fadla", icon: Gift},
   {href: "/profile", key: "profile", icon: UserRound},
 ] as const;
 

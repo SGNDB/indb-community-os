@@ -15,3 +15,17 @@
 }
 
 
+
+export function getSupabaseAdminEnv() {
+  const env = getSupabaseEnv();
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseServiceRoleKey) {
+    return null;
+  }
+
+  return {
+    ...env,
+    supabaseServiceRoleKey,
+  };
+}
