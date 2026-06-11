@@ -274,6 +274,7 @@
     "confirmDeleteTitle": "حذف الذكرى",
     "deleteConfirm": "هل أنت متأكد من حذف هذه الذكرى؟",
     "memoryDeleted": "تم حذف الذكرى",
+    "deleteFailed": "فشل حذف الذكرى",
     "cancel": "إلغاء",
     "storyMemory": "ذكرى مكتوبة",
     "verification": {
@@ -310,7 +311,8 @@
     "errors": {
       "title": "يرجى إدخال عنوان صحيح.",
       "story": "يرجى إضافة تفاصيل كافية للقصة.",
-      "category": "يرجى اختيار تصنيف."
+      "category": "يرجى اختيار تصنيف.",
+      "submitFailed": "حدث خطأ أثناء الإرسال"
     },
     "submitting": "جارٍ الإرسال...",
     "submit": "إرسال الذكرى",

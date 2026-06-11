@@ -274,6 +274,7 @@
     "confirmDeleteTitle": "Supprimer le souvenir",
     "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce souvenir ?",
     "memoryDeleted": "Souvenir supprimé",
+    "deleteFailed": "Échec de la suppression du souvenir",
     "cancel": "Annuler",
     "storyMemory": "Souvenir récit",
     "verification": {
@@ -310,7 +311,8 @@
     "errors": {
       "title": "Veuillez saisir un titre valide.",
       "story": "Veuillez fournir davantage de détails.",
-      "category": "Veuillez choisir une catégorie."
+      "category": "Veuillez choisir une catégorie.",
+      "submitFailed": "Une erreur est survenue lors de l'envoi"
     },
     "submitting": "Envoi...",
     "submit": "Soumettre le souvenir",

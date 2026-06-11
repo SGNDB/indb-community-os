@@ -109,12 +109,12 @@ export function MemoryUploadForm({
         return;
       }
 
-      toast.error(result.error || "Failed");
+      toast.error(result.error || t("errors.submitFailed"));
     } catch (error) {
       if (process.env.NODE_ENV === "development") {
         console.error("[MemoryUploadForm] submit error:", error);
       }
-      toast.error("Failed");
+      toast.error(t("errors.submitFailed"));
     } finally {
       setSubmitting(false);
     }

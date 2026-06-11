@@ -259,7 +259,7 @@ export function MemoryCard({
                     toast.success(t("memoryDeleted"));
                     router.refresh();
                   } else {
-                    toast.error(result.error ?? "Failed to delete");
+                    toast.error(result.error ?? t("deleteFailed"));
                   }
                 }}
               >

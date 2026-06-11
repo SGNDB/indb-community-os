@@ -274,6 +274,7 @@
     "confirmDeleteTitle": "Tun jikku",
     "deleteConfirm": "I bata a yi tun jikku nku?",
     "memoryDeleted": "Jikku tunta",
+    "deleteFailed": "Jikku tinti waayi",
     "cancel": "Fo",
     "storyMemory": "Jikku Taariixu",
     "verification": {
@@ -310,7 +311,8 @@
     "errors": {
       "title": "Siiɓu tigi boori.",
       "story": "Ntene taariixu keyiŋe.",
-      "category": "Suubu kategori."
+      "category": "Suubu kategori.",
+      "submitFailed": "Hay koo waɗi e ntentine"
     },
     "submitting": "No ntenxun...",
     "submit": "Ntene jikku",

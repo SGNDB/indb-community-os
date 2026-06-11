@@ -274,6 +274,7 @@
     "confirmDeleteTitle": "Far jikku",
     "deleteConfirm": "Nga bëgg far jikku bi?",
     "memoryDeleted": "Jikku bi far na",
+    "deleteFailed": "Jikku bi far fuñu ko",
     "cancel": "Tër",
     "storyMemory": "Jikku Taariix",
     "verification": {
@@ -310,7 +311,8 @@
     "errors": {
       "title": "Bind tit jikku bu am solo.",
       "story": "Ngalif xibaar yu yoo ci taariix bi.",
-      "category": "Tànnal kategory."
+      "category": "Tànnal kategory.",
+      "submitFailed": "Lu mënul tàmbali ci ngalifte"
     },
     "submitting": "Mungi yonne...",
     "submit": "Ngalif jikku",

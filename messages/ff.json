@@ -274,6 +274,7 @@
     "confirmDeleteTitle": "Momtu jikku",
     "deleteConfirm": "ɗaɗɗii aɗa yiɗi momtude jikku ɗoo?",
     "memoryDeleted": "Jikku momtaama",
+    "deleteFailed": "Momtugol jikku waawaano",
     "cancel": "Haaytu",
     "storyMemory": "Jikku Daartol",
     "verification": {
@@ -310,7 +311,8 @@
     "errors": {
       "title": "Eɗen mballu en naatnu hoore jooɗunde.",
       "story": "Eɗen mballu en yeɗit kuumɗi daartol keewɗi.",
-      "category": "Eɗen mballu en suɓo cate."
+      "category": "Eɗen mballu en suɓo cate.",
+      "submitFailed": "Huunde waɗii e nder yeɗitde"
     },
     "submitting": "No neldoo...",
     "submit": "Yeɗ jikku",

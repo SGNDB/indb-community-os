@@ -200,7 +200,7 @@ export function MemoryDetailsClient({
                     router.refresh();
                     router.push(`/${locale}/memory`);
                   } else {
-                    toast.error(result.error ?? "Failed to delete");
+                    toast.error(result.error ?? t("deleteFailed"));
                   }
                 }}
               >
