@@ -1,920 +1,920 @@
 {
   "Meta": {
     "siteTitle": "I love NDB",
-    "siteDescription": "Nouadhibou community platform for civic memory, participation, and local solutions.",
+    "siteDescription": "Mbootaayu Nuwadibu ngir jikku siwil, tawtital, ak njariñ ñook.",
     "home": {
-      "title": "Home",
-      "description": "Discover the INDB community platform for memory, participation, and local action."
+      "title": "Kër",
+      "description": "Gis mbootaayu INDB ngir jikku, tawtital, ak liggéey ñook."
     },
     "feed": {
-      "title": "Feed",
-      "description": "Follow community updates, stories, and constructive conversations."
+      "title": "Kesɗi",
+      "description": "Topp mbootaayu yonati, taariix, ak waxtuwaayu yërmande."
     },
     "memory": {
-      "title": "Memory Archive",
-      "description": "Explore community memories, stories, and local heritage."
+      "title": "Mbangite Jikku",
+      "description": "Wëral jikku mbootaay, taariix, ak tarakta ñook."
     },
     "events": {
-      "title": "Events",
-      "description": "Discover upcoming community events and local initiatives."
+      "title": "Jëli",
+      "description": "Gis jëli ñu kawe loxo ak mbootaayu ñook."
     },
     "projects": {
-      "title": "Projects",
-      "description": "Track civic projects, volunteer efforts, and progress."
+      "title": "Proje",
+      "description": "Topp proje siwil, liggéey mbindum ak cadde."
     },
     "polls": {
-      "title": "Polls",
-      "description": "Participate in community polls that support inclusive decisions."
+      "title": "Noot",
+      "description": "Tawtu ci noot mbootaay ngir mujj yu am solo."
     },
     "ideas": {
-      "title": "Ideas",
-      "description": "Vote and contribute to practical ideas for Nouadhibou."
+      "title": "Xalaat",
+      "description": "Tontu ak tawtu ci xalaat yu am solo ngir Nuwadibu."
     },
     "fadla": {
       "title": "Fadla",
-      "description": "Share useful things you no longer need with people who need them."
+      "description": "Ngalif ay mbariy yu gën a tàmbali ngir ñu koy soxla."
     },
     "timeline": {
-      "title": "Timeline",
-      "description": "Browse key moments from Nouadhibou's community memory."
+      "title": "Waxtu",
+      "description": "Wëral waxtu yi am solo ci jikku mbootaayu Nuwadibu."
     },
     "profile": {
-      "title": "Profile",
-      "description": "View your community profile, contributions, and activity."
+      "title": "Profil",
+      "description": "Gis profil mbootaay, liggéey, ak jëfandikukat."
     },
     "admin": {
-      "title": "Admin Dashboard",
-      "description": "Manage community users, credits, and recent content."
+      "title": "Platforme Njuɓɓte",
+      "description": "Njuɓɓte jëfandikukat, credi, ak mbariy yu bees."
     },
     "memorySubmit": {
-      "title": "Submit Memory",
-      "description": "Share a community memory with context and archival details."
+      "title": "Ngalif Jikku",
+      "description": "Ngalif jikku mbootaay ag tàggatuwu ak cosaan melax."
     },
     "ideaSubmit": {
-      "title": "Submit Idea",
-      "description": "Propose a civic idea and help shape community priorities."
+      "title": "Ngalif Xalaat",
+      "description": "Sàng xalaat siwil ak tawtu ci li gën a njëk mbootaay."
     },
     "ideaEdit": {
-      "title": "Edit Idea",
-      "description": "Update your civic idea proposal."
+      "title": "Soppi Xalaat",
+      "description": "Sagal xalaat mbootaay."
     },
     "postEdit": {
-      "title": "Edit Post",
-      "description": "Update your post."
+      "title": "Soppi Mbaal",
+      "description": "Sagal mbaal bi."
     }
   },
   "LanguageSwitcher": {
-    "label": "Language switcher",
-    "changeTo": "Switch language to {language}"
+    "label": "Soppi làkk",
+    "changeTo": "Soppi làkk ba {language}"
   },
   "Navbar": {
-    "memberAvatarLabel": "Community member profile",
-    "createAccount": "Create account",
-    "login": "Login",
-    "logout": "Log out",
-    "loggingOut": "Logging out..."
+    "memberAvatarLabel": "Profil mbindum mbootaay",
+    "createAccount": "Sos ay jikko",
+    "login": "Dugg",
+    "logout": "Génn",
+    "loggingOut": "Mungi génn..."
   },
   "Navigation": {
     "items": {
       "home": {
-        "label": "Home",
-        "short": "Home"
+        "label": "Kër",
+        "short": "Kër"
       },
       "feed": {
-        "label": "Feed",
-        "short": "Feed"
+        "label": "Kesɗi",
+        "short": "Kesɗi"
       },
       "memory": {
-        "label": "Memories",
-        "short": "Memory"
+        "label": "Jikku",
+        "short": "Jikku"
       },
       "ideas": {
-        "label": "Ideas",
-        "short": "Ideas"
+        "label": "Xalaat",
+        "short": "Xalaat"
       },
       "fadla": {
         "label": "Fadla",
-        "short": "Share"
+        "short": "Ngalif"
       },
       "polls": {
-        "label": "Polls",
-        "short": "Polls"
+        "label": "Noot",
+        "short": "Noot"
       },
       "events": {
-        "label": "Events",
-        "short": "Events"
+        "label": "Jëli",
+        "short": "Jël"
       },
       "projects": {
-        "label": "Projects",
-        "short": "Projects"
+        "label": "Proje",
+        "short": "Proje"
       },
       "profile": {
-        "label": "Profile",
-        "short": "Profile"
+        "label": "Profil",
+        "short": "Profil"
       }
     }
   },
   "Theme": {
-    "toggle": "Toggle theme"
+    "toggle": "Soppi melo"
   },
   "Search": {
-    "title": "Search",
-    "placeholder": "Search the community",
-    "clear": "Clear search",
-    "noResults": "No results found",
-    "viewAll": "View all results",
-    "searching": "Searching...",
-    "error": "Could not complete search",
-    "minLength": "Type at least 2 characters to search.",
-    "resultsFor": "Results for “{query}”",
+    "title": "Seet",
+    "placeholder": "Seet mbootaay bi",
+    "clear": "Far seet bi",
+    "noResults": "Amul li gis",
+    "viewAll": "Gis ñoom lépp",
+    "searching": "Mungi seet...",
+    "error": "Mënul mu seet",
+    "minLength": "Bind 2 i mbind biri ngir seet.",
+    "resultsFor": "Njariñ seet ngir \"{query}\"",
     "sections": {
-      "posts": "Posts",
-      "ideas": "Ideas",
-      "memories": "Memories",
-      "fadla": "Shares",
-      "people": "People"
+      "posts": "Mbaal",
+      "ideas": "Xalaat",
+      "memories": "Jikku",
+      "fadla": "Ngalif",
+      "people": "Nit"
     },
     "types": {
-      "post": "Post",
-      "idea": "Idea",
-      "memory": "Memory",
-      "fadla": "Shared item",
-      "profile": "Person"
+      "post": "Mbaal",
+      "idea": "Xalaat",
+      "memory": "Jikku",
+      "fadla": "Mbariy ngalifte",
+      "profile": "Nit"
     }
   },
   "Notifications": {
-    "button": "Notifications",
-    "title": "Notifications",
-    "empty": "No notifications yet",
-    "markAllRead": "Mark all as read",
-    "loading": "Loading...",
-    "close": "Close",
-    "startedFollowing": "{actorName} started following you",
-    "reactedToPost": "{actorName} reacted to your post",
-    "commentedOnPost": "{actorName} commented on your post",
-    "commentedOnYourIdea": "{actorName} commented on your idea",
-    "sharedYourIdea": "{actorName} shared your idea",
-    "reactedToMemory": "{actorName} reacted to your memory",
-    "commentedOnYourMemory": "{actorName} commented on your memory",
-    "sharedYourMemory": "{actorName} shared your memory",
-    "creditAwarded": "You received {points} contribution points",
-    "communityShareRequested": "Someone requested the item you shared",
-    "someone": "Someone"
+    "button": "Xibaar",
+    "title": "Xibaar",
+    "empty": "Amul xibaar ba leegi",
+    "markAllRead": "Ndànkkaaf lépp",
+    "loading": "Mungi Yeb...",
+    "close": "Tëj",
+    "startedFollowing": "{actorName} tàmbali na la topp",
+    "reactedToPost": "{actorName} jaabi na mbaal bi",
+    "commentedOnPost": "{actorName} nangu na ci mbaal bi",
+    "commentedOnYourIdea": "{actorName} nangu na ci xalaat bi",
+    "sharedYourIdea": "{actorName} ngalif na xalaat bi",
+    "reactedToMemory": "{actorName} jaabi na jikku bi",
+    "commentedOnYourMemory": "{actorName} nangu na ci jikku bi",
+    "sharedYourMemory": "{actorName} ngalif na jikku bi",
+    "creditAwarded": "Yagg nga am {points} credi tawtital",
+    "communityShareRequested": "Nit ñaari laaj na mbariy bu ngalif",
+    "someone": "Nit"
   },
   "RightSidebar": {
-    "trendingTopics": "Trending Topics",
-    "featuredMemories": "Featured Memories",
-    "activePoll": "Active Poll",
-    "votes": "{count} votes",
-    "upcomingEvents": "Upcoming Events"
+    "trendingTopics": "Topiku ñu taw",
+    "featuredMemories": "Jikku ñu tontu",
+    "activePoll": "Noot bi mungi dem",
+    "votes": "{count} tontu",
+    "upcomingEvents": "Jëli ñu kawe"
   },
   "Landing": {
-    "tagline": "Memory - Participation - Future",
-    "heroTitle": "Preserving Memory. Building the Future.",
-    "heroDescription": "A digital community platform for Dakhlet Nouadhibou.",
-    "mottoPrimary": "Nouadhibou belongs to all of us.",
-    "mottoSecondary": "Community memory powers shared progress.",
-    "joinCommunity": "Join Community",
-    "exploreMemories": "Explore Memories",
-    "latestPosts": "Latest Posts",
-    "pollPreview": "Poll Preview",
-    "featuredMemories": "Featured Memories",
-    "communityIdeas": "Community Ideas",
-    "createAccount": "Create account",
-    "login": "Login"
+    "tagline": "Jikku - Tawtital - Kanam",
+    "heroTitle": "Menn Jikku. Sos Kanam.",
+    "heroDescription": "Platforme mbootaay digitalu Daqlat Nuwadibu.",
+    "mottoPrimary": "Nuwadibu moom nanu ñépp.",
+    "mottoSecondary": "Jikku mbootaay daa xëcc njariñ mbind.",
+    "joinCommunity": "Tawtu Mbootaay",
+    "exploreMemories": "Wëral Jikku",
+    "latestPosts": "Mbaal yu bees",
+    "pollPreview": "Nataal Noot",
+    "featuredMemories": "Jikku ñu tontu",
+    "communityIdeas": "Xalaat Mbootaay",
+    "createAccount": "Sos ay jikko",
+    "login": "Dugg"
   },
   "Feed": {
-    "ago": "ago",
-    "save": "Save",
-    "saved": "Saved",
-    "comments": "Comments",
-    "share": "Share",
-    "linkCopied": "Post link copied",
-    "shareFailed": "Unable to share",
-    "deleting": "Deleting...",
-    "sending": "Sending...",
-    "commentPlaceholder": "Write a comment...",
-    "unknownAuthor": "Unknown",
-    "all": "All",
+    "ago": "bi",
+    "save": "Tank",
+    "saved": "Tank nañu",
+    "comments": "Nangu",
+    "share": "Ngalif",
+    "linkCopied": "Lien mbaal bi jaabi nañu",
+    "shareFailed": "Mënul ngalif",
+    "deleting": "Mungi far...",
+    "sending": "Mungi yonne...",
+    "commentPlaceholder": "Bind ay nangu...",
+    "unknownAuthor": "Xamul",
+    "all": "Lépp",
     "categories": {
-      "community": "Community",
-      "events": "Events",
-      "memory": "Memory",
-      "ideas": "Ideas"
+      "community": "Mbootaay",
+      "events": "Jëli",
+      "memory": "Jikku",
+      "ideas": "Xalaat"
     },
     "reactions": {
-      "like": "Like",
-      "love": "Love",
-      "support": "Support",
-      "celebrate": "Celebrate",
-      "insightful": "Insightful",
-      "sad": "Sad"
+      "like": "Bëgg",
+      "love": "Sop",
+      "support": "Doxal",
+      "celebrate": "Bës ba",
+      "insightful": "Xel",
+      "sad": "Xiff"
     },
     "actionCounts": {
-      "likes": "{count} Likes",
-      "comments": "{count} Comments",
-      "saves": "{count} Saves"
+      "likes": "{count} Bëgg",
+      "comments": "{count} Nangu",
+      "saves": "{count} Tank"
     },
-    "editComment": "Edit comment",
-    "deleteComment": "Delete comment",
-    "cancel": "Cancel",
-    "commentUpdated": "Comment updated",
-    "commentDeleted": "Comment deleted",
-    "commentUpdateFailed": "Failed to update comment",
-    "commentDeleteFailed": "Failed to delete comment"
+    "editComment": "Soppi nangu",
+    "deleteComment": "Far nangu",
+    "cancel": "Tër",
+    "commentUpdated": "Nangu bi sagal na",
+    "commentDeleted": "Nangu bi far na",
+    "commentUpdateFailed": "Mënul sagal nangu",
+    "commentDeleteFailed": "Mënul far nangu"
   },
   "FeedComposer": {
-    "title": "Create post",
-    "placeholder": "Share something with the community...",
+    "title": "Sos mbaal",
+    "placeholder": "Ngalif lu ci mbootaay bi...",
     "quickActions": {
-      "text": "Text",
-      "image": "Image",
-      "event": "Event",
-      "photo": "Photo",
-      "memory": "Memory",
-      "idea": "Idea"
+      "text": "Bind",
+      "image": "Nataal",
+      "event": "Jël",
+      "photo": "Nataal",
+      "memory": "Jikku",
+      "idea": "Xalaat"
     },
-    "composerTitle": "Share an update with your community",
+    "composerTitle": "Ngalif sagal ci mbootaay bi",
     "form": {
-      "title": "Title",
-      "content": "What happened? What solution do you suggest?",
-      "mediaUrl": "Optional media URL",
-      "selectCategory": "Select a category",
-      "publish": "Publish"
+      "title": "Tit",
+      "content": "Lu sos? Looy tànnal?",
+      "mediaUrl": "URL média (suññaayu)",
+      "selectCategory": "Tànnal kategory",
+      "publish": "Sàkk"
     },
-    "cancel": "Cancel",
-    "post": "Post",
-    "posting": "Posting...",
-    "socialPrompt": "What's happening in Nouadhibou?",
-    "editTitle": "Edit post",
-    "save": "Save",
-    "saving": "Saving...",
-    "notFound": "Post not found",
-    "notFoundDescription": "The post you are trying to edit does not exist.",
+    "cancel": "Tër",
+    "post": "Sàkk",
+    "posting": "Mungi sàkk...",
+    "socialPrompt": "Lu bees ci Nuwadibu?",
+    "editTitle": "Soppi mbaal",
+    "save": "Tank",
+    "saving": "Mungi tank...",
+    "notFound": "Mbaal bi amul",
+    "notFoundDescription": "Mbaal bi nga bëgg soppi amul.",
     "errors": {
-      "submitFailed": "Could not publish post. Please try again.",
-      "postFailed": "Could not publish post. Please try again."
+      "submitFailed": "Mënul sàkk mbaal. Tànnal cat.",
+      "postFailed": "Mënul sàkk mbaal. Tànnal cat."
     }
   },
   "Memory": {
-    "title": "Memory Archive",
-    "description": "A digital museum of community stories, photos, and historical context.",
-    "openTimeline": "Open Timeline",
-    "submitNew": "Submit new memory",
-    "contributedBy": "Contributed by {name}",
-    "relatedMemories": "Related Memories",
-    "noImage": "No image available",
-    "unknownContributor": "Unknown contributor",
-    "share": "Share",
-    "linkCopied": "Memory link copied",
-    "shareFailed": "Unable to share",
-    "edit": "Edit memory",
-    "delete": "Delete memory",
-    "confirmDelete": "Delete",
-    "confirmDeleteTitle": "Delete memory",
-    "deleteConfirm": "Are you sure you want to delete this memory?",
-    "memoryDeleted": "Memory deleted",
-    "cancel": "Cancel",
-    "storyMemory": "Story Memory",
+    "title": "Mbangite Jikku",
+    "description": "Musée digitalu taariix mbootaay, nataal, ak cosaan.",
+    "openTimeline": "Ubbi Waxtu",
+    "submitNew": "Ngalif jikku bees",
+    "contributedBy": "Tawtute ci {name}",
+    "relatedMemories": "Jikku mu mel",
+    "noImage": "Amul nataal",
+    "unknownContributor": "Tawtukat xamul",
+    "share": "Ngalif",
+    "linkCopied": "Lien jikku bi jaabi nañu",
+    "shareFailed": "Mënul ngalif",
+    "edit": "Soppi jikku",
+    "delete": "Far jikku",
+    "confirmDelete": "Far",
+    "confirmDeleteTitle": "Far jikku",
+    "deleteConfirm": "Nga bëgg far jikku bi?",
+    "memoryDeleted": "Jikku bi far na",
+    "cancel": "Tër",
+    "storyMemory": "Jikku Taariix",
     "verification": {
-      "pending": "Pending review",
-      "approved": "Approved",
-      "rejected": "Rejected",
-      "needsMoreInfo": "Needs more info"
+      "pending": "Mungi xame",
+      "approved": "Nangu nañu ko",
+      "rejected": "Taggi nañu ko",
+      "needsMoreInfo": "Soxla ay xibaar yu yoo"
     },
-    "memoryShared": "Memory shared successfully",
-    "memoryUpdated": "Memory updated",
-    "memorySaved": "Memory saved",
-    "memoryUnsaved": "Memory removed from saved"
+    "memoryShared": "Jikku ngalif nañu kon",
+    "memoryUpdated": "Jikku sagal na",
+    "memorySaved": "Jikku tank nañu ko",
+    "memoryUnsaved": "Jikku génn na ci tank"
   },
   "MemoryReactions": {
-    "love": "Love",
-    "respect": "Respect",
-    "nostalgia": "Nostalgia",
-    "important": "Important",
-    "failed": "Reaction failed"
+    "love": "Sop",
+    "respect": "Ngor",
+    "nostalgia": "Jikku",
+    "important": "Am solo",
+    "failed": "Jaabi mënul"
   },
   "MemoryForm": {
-    "title": "Submit a community memory",
-    "editTitle": "Edit memory",
-    "update": "Update memory",
-    "ready": "Your memory is ready to submit.",
-    "imageHelper": "Add a photo if you have one. Memories can also be shared as stories.",
+    "title": "Ngalif jikku mbootaay",
+    "editTitle": "Soppi jikku",
+    "update": "Sagal jikku",
+    "ready": "Jikku bi am na ngir ngalifte.",
+    "imageHelper": "Nangul nataal su la am. Jikku manuñu ngalif koom taariix.",
     "fields": {
-      "title": "Memory title",
-      "story": "Share the story and context",
-      "category": "Select a category",
-      "eraLabel": "Era (optional)",
-      "location": "Location (optional)"
+      "title": "Tit jikku",
+      "story": "Ngalif taariix ak cosaan",
+      "category": "Tànnal kategory",
+      "eraLabel": "Jamono (suññaay)",
+      "location": "Fexe (suññaay)"
     },
     "errors": {
-      "title": "Please enter a valid memory title.",
-      "story": "Please provide enough story details.",
-      "category": "Please choose a category."
+      "title": "Bind tit jikku bu am solo.",
+      "story": "Ngalif xibaar yu yoo ci taariix bi.",
+      "category": "Tànnal kategory."
     },
-    "submitting": "Submitting...",
-    "submit": "Submit memory",
-    "cancel": "Cancel",
-    "successMessage": "Memory submitted successfully"
+    "submitting": "Mungi yonne...",
+    "submit": "Ngalif jikku",
+    "cancel": "Tër",
+    "successMessage": "Jikku ngalif nañu kon"
   },
   "Ideas": {
-    "title": "Community Ideas",
-    "description": "Vote for practical proposals and help prioritize solutions for Nouadhibou.",
-    "voteLabel": "Vote",
-    "voteLabelVoted": "Voted",
-    "supportPercent": "{percent}% support",
-    "top10PopularIdeas": "Top 10 Popular Ideas",
-    "showAll": "Show all ({count})",
-    "badgeNewIdea": "New Idea",
-    "badgeGrowingSupport": "Growing Support",
-    "badgePopular": "Popular",
-    "badgeCommunityPriority": "Community Priority",
-    "badgeTopPriority": "Top Priority",
-    "share": "Share",
-    "linkCopied": "Idea link copied",
-    "unknownAuthor": "Unknown",
-    "voteFailed": "Vote failed",
-    "commentsWithCount": "Comments ({count})",
-    "commentPlaceholder": "Write a comment...",
-    "noCommentsYet": "No comments yet. Be the first to comment.",
-    "loginToComment": "Log in to comment",
-    "commentFailed": "Failed to add comment",
-    "commentDeleteFailed": "Failed to delete comment",
-    "delete": "Delete",
-    "shareAnother": "Share another idea",
-    "edit": "Edit",
-    "deleteConfirm": "Are you sure you want to delete this idea?",
-    "confirmDelete": "Delete",
-    "confirmDeleteTitle": "Delete idea",
-    "cancel": "Cancel",
-    "ideaUpdated": "Idea updated successfully",
-    "ideaDeleted": "Idea deleted successfully",
-    "showMore": "Show more",
-    "showLess": "Show less",
-    "editIdea": "Edit idea",
-    "deleteIdea": "Delete idea",
-    "allIdeas": "All Ideas",
+    "title": "Xalaat Mbootaay",
+    "description": "Tontu xalaat yu am solo ak tawtu ci ndimbalu Nuwadibu.",
+    "voteLabel": "Tontu",
+    "voteLabelVoted": "Tontu nañu",
+    "supportPercent": "{percent}% ndimbal",
+    "top10PopularIdeas": "10 xalaat yi gën a taw",
+    "showAll": "Wone lépp ({count})",
+    "badgeNewIdea": "Xalaat Bees",
+    "badgeGrowingSupport": "Ndimbal Mungi Bare",
+    "badgePopular": "Taw",
+    "badgeCommunityPriority": "Njëk Mbootaay",
+    "badgeTopPriority": "Mbégte Njëk",
+    "share": "Ngalif",
+    "linkCopied": "Lien xalaat bi jaabi nañu",
+    "unknownAuthor": "Xamul",
+    "voteFailed": "Tontu mënul",
+    "commentsWithCount": "Nangu ({count})",
+    "commentPlaceholder": "Bind ay nangu...",
+    "noCommentsYet": "Amul nangu ba leegi. Ngay jëk nangu.",
+    "loginToComment": "Dugg ngir nangu",
+    "commentFailed": "Nangul mënul",
+    "commentDeleteFailed": "Far nangu mënul",
+    "delete": "Far",
+    "shareAnother": "Ngalif xalaat buñoom",
+    "edit": "Soppi",
+    "deleteConfirm": "Nga bëgg far xalaat bi?",
+    "confirmDelete": "Far",
+    "confirmDeleteTitle": "Far xalaat",
+    "cancel": "Tër",
+    "ideaUpdated": "Xalaat sagal nañu kon",
+    "ideaDeleted": "Xalaat far nañu kon",
+    "showMore": "Wone ya",
+    "showLess": "Wone tuuti",
+    "editIdea": "Soppi xalaat",
+    "deleteIdea": "Far xalaat",
+    "allIdeas": "Xalaat Lépp",
     "status": {
-      "submitted": "Submitted",
-      "underReview": "Under Review",
-      "accepted": "Accepted",
-      "inProgress": "In Progress",
-      "completed": "Completed",
-      "rejected": "Rejected"
+      "submitted": "Ngalif nañu",
+      "underReview": "Mungi xame",
+      "accepted": "Nangu nañu ko",
+      "inProgress": "Mungi dem",
+      "completed": "Mukk na",
+      "rejected": "Taggi nañu ko"
     },
-    "editComment": "Edit comment",
-    "deleteComment": "Delete comment",
-    "save": "Save",
-    "commentUpdated": "Comment updated",
-    "commentDeleted": "Comment deleted",
-    "commentUpdateFailed": "Failed to update comment"
+    "editComment": "Soppi nangu",
+    "deleteComment": "Far nangu",
+    "save": "Tank",
+    "commentUpdated": "Nangu sagal na",
+    "commentDeleted": "Nangu far na",
+    "commentUpdateFailed": "Mënul sagal nangu"
   },
   "IdeaForm": {
-    "title": "Submit a civic idea",
-    "editTitle": "Edit your idea",
-    "update": "Update idea",
-    "ready": "Your idea is ready to submit.",
+    "title": "Ngalif xalaat siwil",
+    "editTitle": "Soppi xalaat bi",
+    "update": "Sagal xalaat",
+    "ready": "Xalaat bi am na ngir ngalifte.",
     "fields": {
-      "title": "Idea title",
-      "description": "Describe the idea, benefits and next steps",
-      "category": "Select a category",
-      "others": "Others"
+      "title": "Tit xalaat",
+      "description": "Nangul xalaat bi, njariñam, ak cat yi",
+      "category": "Tànnal kategory",
+      "others": "Ayeneen"
     },
     "errors": {
-      "title": "Please enter a valid idea title.",
-      "description": "Please describe the idea clearly.",
-      "category": "Please choose a category.",
-      "submitFailed": "Could not submit idea. Please try again."
+      "title": "Bind tit xalaat bu am solo.",
+      "description": "Nangul xalaat bi ba xereñ.",
+      "category": "Tànnal kategory.",
+      "submitFailed": "Mënul ngalif xalaat. Tànnal cat."
     },
-    "submitting": "Submitting...",
-    "submit": "Submit idea",
-    "cancel": "Cancel",
-    "successMessage": "Idea submitted successfully"
+    "submitting": "Mungi yonne...",
+    "submit": "Ngalif xalaat",
+    "cancel": "Tër",
+    "successMessage": "Xalaat ngalif nañu kon"
   },
   "Events": {
-    "title": "Community Events",
-    "description": "Discover upcoming events and join local initiatives.",
-    "rsvp": "RSVP"
+    "title": "Jëli Mbootaay",
+    "description": "Gis jëli ñu kawe ak tawtu ci ndoorte ñook.",
+    "rsvp": "Mangi Tawtu"
   },
   "Projects": {
-    "title": "Community Projects",
-    "description": "Track progress, volunteers, and impact across civic projects.",
-    "progress": "Progress",
-    "volunteers": "{count} volunteers",
+    "title": "Proje Mbootaay",
+    "description": "Topp cadde, mbindum ak njariñ ci proje siwil.",
+    "progress": "Cadde",
+    "volunteers": "{count} mbindum",
     "status": {
-      "planning": "Planning",
-      "inProgress": "In Progress",
-      "recruiting": "Recruiting"
+      "planning": "Mungi xatal",
+      "inProgress": "Mungi dem",
+      "recruiting": "Mungi seet"
     }
   },
   "Polls": {
-    "title": "Community Polls",
-    "description": "Simple community polls to support constructive and inclusive decisions.",
-    "totalVotes": "{count} total votes",
-    "voteButton": "Vote"
+    "title": "Noot Mbootaay",
+    "description": "Noot yu werente ngir ndimbal mujj yu am solo ak tawtital.",
+    "totalVotes": "{count} tontu lépp",
+    "voteButton": "Tontu"
   },
   "Timeline": {
-    "title": "Nouadhibou Timeline"
+    "title": "Waxtu Nuwadibu"
   },
   "Profile": {
-    "bio": "Community volunteer, storyteller, and youth mentorship advocate.",
-    "location": "Nouadhibou, Mauritania",
+    "bio": "Mbindum mbootaay, taariixkat ak ndimbal mbaañaana.",
+    "location": "Nuwadibu, Gànnaar",
     "stats": {
-      "posts": "Posts",
-      "memories": "Memories",
-      "ideas": "Ideas",
-      "comments": "Comments"
+      "posts": "Mbaal",
+      "memories": "Jikku",
+      "ideas": "Xalaat",
+      "comments": "Nangu"
     },
-    "editProfile": "Edit profile",
-    "changeAvatar": "Change Avatar",
-    "changeCover": "Change Cover",
-    "shareProfile": "Share profile",
-    "tabsTitle": "Profile Tabs",
+    "editProfile": "Soppi profil",
+    "changeAvatar": "Soppi Nataal",
+    "changeCover": "Soppi Lendu",
+    "shareProfile": "Ngalif profil",
+    "tabsTitle": "Pɔrɔ Profil",
     "tabs": {
-      "posts": "Posts",
-      "memories": "Memories",
-      "ideas": "Ideas",
-      "shares": "Shares",
-      "about": "About"
+      "posts": "Mbaal",
+      "memories": "Jikku",
+      "ideas": "Xalaat",
+      "shares": "Ngalif",
+      "about": "Ci bi"
     },
-    "joined": "Joined",
+    "joined": "Tawtu na",
     "role": {
-      "admin": "Admin",
-      "moderator": "Moderator"
+      "admin": "Njuɓɓkat",
+      "moderator": "Kàddu gi"
     },
-    "recentMemories": "Recent Memories",
-    "save": "Save changes",
-    "saving": "Saving...",
-    "updated": "Profile updated successfully",
-    "cancel": "Cancel",
-    "noBio": "No bio yet.",
-    "noBioYet": "No bio yet.",
-    "uploading": "Uploading...",
-    "photoUpdated": "Profile photo updated",
-    "coverUpdated": "Cover photo updated",
-    "uploadFailed": "Failed to upload image",
-    "noCity": "No city set.",
-    "createPost": "Create post",
-    "noPostsYet": "No posts yet. Share your first update.",
+    "recentMemories": "Jikku bu bees",
+    "save": "Tank soppi",
+    "saving": "Mungi tank...",
+    "updated": "Profil sagal nañu kon",
+    "cancel": "Tër",
+    "noBio": "Amul ba leegi.",
+    "noBioYet": "Amul ba leegi.",
+    "uploading": "Mungi yeb...",
+    "photoUpdated": "Nataal profil sagal na",
+    "coverUpdated": "Lendu sagal na",
+    "uploadFailed": "Mënul yeb nataal",
+    "noCity": "Amul dëkku b.",
+    "createPost": "Sos mbaal",
+    "noPostsYet": "Amul mbaal ba leegi. Ngalif sagal bu jëk.",
     "fields": {
-      "username": "Username",
-      "fullName": "Full name",
-      "bio": "Bio",
-      "city": "City",
-      "languagePreference": "Language (en, fr, ar)",
-      "avatarUrl": "Avatar",
-      "coverImage": "Cover image",
-      "role": "Role",
-      "memberSince": "Member since"
+      "username": "Tur jëfandiku",
+      "fullName": "Tur full",
+      "bio": "Taariix",
+      "city": "Dëkku",
+      "languagePreference": "Làkk (wo, ar, fr, en, ff, snk)",
+      "avatarUrl": "Nataal",
+      "coverImage": "Nataal lendu",
+      "role": "Jikko",
+      "memberSince": "Mbind ganna"
     },
-    "contributionScore": "Contribution Score",
+    "contributionScore": "Credi tawtital",
     "contributionRanks": {
-      "member": "Member",
-      "contributor": "Contributor",
-      "communityBuilder": "Community Builder",
-      "communityLeader": "Community Leader",
-      "ndbChampion": "NDB Champion"
+      "member": "Mbind",
+      "contributor": "Tawtukat",
+      "communityBuilder": "Soskat Mbootaay",
+      "communityLeader": "Jitkat Mbootaay",
+      "ndbChampion": "Mbadi NDB"
     }
   },
   "Follow": {
-    "follow": "Follow",
-    "following": "Following",
-    "unfollow": "Unfollow",
-    "followers": "Followers",
-    "followingCount": "Following",
-    "followedToast": "You are now following this profile",
-    "unfollowedToast": "You unfollowed this profile",
-    "loginToFollow": "Login to follow users",
-    "failed": "Unable to update follow status"
+    "follow": "Topp",
+    "following": "Mungi topp",
+    "unfollow": "Bàyyi topp",
+    "followers": "Ñu koy topp",
+    "followingCount": "Mungi topp",
+    "followedToast": "Nga topp profil bi ba leegi",
+    "unfollowedToast": "Nga bàyyi topp profil bi",
+    "loginToFollow": "Dugg ngir topp nit",
+    "failed": "Mënul soppi daraja topp"
   },
   "ProfileCard": {
-    "bio": "Community storyteller documenting memories, ideas, and local projects.",
-    "location": "Dakhlet Nouadhibou",
+    "bio": "Taariixkat mbootaay mungi bind jikku, xalaat ak proje ñook.",
+    "location": "Daqlat Nuwadibu",
     "stats": {
-      "posts": "Posts",
-      "memories": "Memories",
-      "ideas": "Ideas"
+      "posts": "Mbaal",
+      "memories": "Jikku",
+      "ideas": "Xalaat"
     },
     "badges": {
-      "contributor": "Contributor",
-      "historian": "Historian"
+      "contributor": "Tawtukat",
+      "historian": "Taariixkat"
     }
   },
   "Admin": {
     "stats": {
-      "postsToday": "Posts today",
-      "pendingMemories": "Pending memories",
-      "openIdeas": "Open ideas",
-      "reportsQueue": "Reports queue"
+      "postsToday": "Mbaal bii",
+      "pendingMemories": "Jikku mungi xame",
+      "openIdeas": "Xalaat ubbi",
+      "reportsQueue": "Limu jaar-jaar"
     },
-    "moderationQueue": "Moderation queue",
-    "noPendingReports": "No pending reports.",
+    "moderationQueue": "Limu xame",
+    "noPendingReports": "Amul jaar-jaar ba leegi.",
     "targetType": {
-      "memory": "Memory",
-      "post": "Post"
+      "memory": "Jikku",
+      "post": "Mbaal"
     },
     "status": {
-      "pending": "Pending"
+      "pending": "Mungi xame"
     },
     "reasons": {
-      "yearConfirmation": "Needs publication year confirmation",
-      "respectfulTone": "Review wording for respectful tone"
+      "yearConfirmation": "Soxla tabiti at sàkku",
+      "respectfulTone": "Xame bind bi ngir ngor"
     },
-    "commandCenter": "INDB Center",
-    "nouadhibouSignal": "Nouadhibou signal",
-    "eyebrow": "Community Command Center",
-    "signedInLabel": "Signed in as",
-    "signedInAs": "Admin: {name}",
+    "commandCenter": "Centre INDB",
+    "nouadhibouSignal": "Xeex Nuwadibu",
+    "eyebrow": "Centre Jite Mbootaay",
+    "signedInLabel": "Dugge",
+    "signedInAs": "Njuɓɓkat: {name}",
     "hero": {
-      "title": "Nouadhibou is alive. Here is its pulse.",
-      "description": "Watch the people, ideas, memories, and contributions shaping INDB. This space is for guiding a living community, not managing a database."
+      "title": "Nuwadibu mungi wuuru. Bi xeexam.",
+      "description": "Topp nit, xalaat, jikku, ak ndimbal ñu koy sos INDB. Bi nàpp ngir jite mbootaay bu wuuru, du ngir njuɓɓte database."
     },
     "nav": {
-      "dashboard": "Dashboard",
-      "users": "Users",
-      "content": "Content",
-      "credits": "Credits",
-      "analytics": "Analytics",
-      "settings": "Settings"
+      "dashboard": "Platforme",
+      "users": "Jëfandikukat",
+      "content": "Mbariy",
+      "credits": "Credi",
+      "analytics": "Analytik",
+      "settings": "Sagal"
     },
     "sections": {
-      "overview": "Overview",
-      "users": "Users",
-      "credits": "Credits",
-      "content": "Content"
+      "overview": "Wone lépp",
+      "users": "Jëfandikukat",
+      "credits": "Credi",
+      "content": "Mbariy"
     },
     "health": {
-      "eyebrow": "Community health",
-      "title": "What is happening now",
-      "members": "Members",
-      "posts": "Posts",
-      "ideas": "Ideas",
-      "memories": "Memories",
-      "activeToday": "Active today",
-      "newToday": "+{count} today",
-      "today": "+{count} today",
-      "activeSignal": "live signal",
-      "totalComments": "{count} comments"
+      "eyebrow": "Wér gi Mbootaay",
+      "title": "Lu Mungi Dem Ba Leegi",
+      "members": "Mbind",
+      "posts": "Mbaal",
+      "ideas": "Xalaat",
+      "memories": "Jikku",
+      "activeToday": "Mungi liggéey bii",
+      "newToday": "+{count} bii",
+      "today": "+{count} bii",
+      "activeSignal": "xeex wuuru",
+      "totalComments": "{count} nangu"
     },
     "pulse": {
-      "eyebrow": "Community pulse",
-      "title": "The conversations moving the city",
-      "noPreview": "No preview available yet.",
+      "eyebrow": "Xeex Mbootaay",
+      "title": "Waxtuwaayu ñu koy dindi dëkku bi",
+      "noPreview": "Amul nataal ba leegi.",
       "type": {
-        "post": "Most active discussion",
-        "idea": "Most active idea",
-        "memory": "Memory spotlight",
-        "member": "Newest member"
+        "post": "Waxtuwaay bi gën liggéey",
+        "idea": "Xalaat bi gën liggéey",
+        "memory": "Jikku bi gën solo",
+        "member": "Mbind bees"
       }
     },
     "newMembers": {
-      "eyebrow": "New arrivals",
-      "title": "Newest members"
+      "eyebrow": "Mbindu Bees",
+      "title": "Mbind yu Bees"
     },
     "contributors": {
-      "eyebrow": "Top contributors",
-      "title": "People building the community",
+      "eyebrow": "Ñu gën Tawtu",
+      "title": "Nit ñi koy sos mbootaay bi",
       "rank": {
-        "member": "Member",
-        "contributor": "Contributor",
-        "communityBuilder": "Community Builder",
-        "communityLeader": "Community Leader",
-        "ndbChampion": "NDB Champion"
+        "member": "Mbind",
+        "contributor": "Tawtukat",
+        "communityBuilder": "Soskat Mbootaay",
+        "communityLeader": "Jitkat Mbootaay",
+        "ndbChampion": "Mbadi NDB"
       }
     },
     "actions": {
-      "eyebrow": "Action center",
-      "title": "Move the community forward",
-      "awardCredits": "Award Credits",
-      "awardCreditsDescription": "Recognize helpful members.",
-      "reviewReports": "Review Reports",
-      "reviewReportsDescription": "Check content that needs attention.",
-      "viewUsers": "View Users",
-      "viewUsersDescription": "Find members and update roles.",
-      "analytics": "Community Analytics",
-      "analyticsDescription": "Read the pulse and activity."
+      "eyebrow": "Centre Liggéey",
+      "title": "Dindi Mbootaay Bi Kawe",
+      "awardCredits": "Ngalif Credi",
+      "awardCreditsDescription": "Tontu mbind yu dimbali.",
+      "reviewReports": "Xame Jaar-jaar",
+      "reviewReportsDescription": "Xame lu soxla tigi.",
+      "viewUsers": "Gis Jëfandikukat",
+      "viewUsersDescription": "Gis mbind ak soppi daraja.",
+      "analytics": "Analytik Mbootaay",
+      "analyticsDescription": "Jàng xeex ak liggéey."
     },
     "overview": {
-      "totalUsers": "Total users",
-      "totalPosts": "Total posts",
-      "totalIdeas": "Total ideas",
-      "totalMemories": "Total memories",
-      "totalComments": "Total comments"
+      "totalUsers": "Jëfandikukat",
+      "totalPosts": "Mbaal",
+      "totalIdeas": "Xalaat",
+      "totalMemories": "Jikku",
+      "totalComments": "Nangu"
     },
     "users": {
-      "eyebrow": "Community people",
-      "title": "Member management",
-      "description": "Users stay as members. Admin can remove accounts when needed.",
-      "search": "Search users",
-      "searchButton": "Search",
-      "user": "User",
-      "email": "Email",
-      "role": "Role",
-      "score": "Contribution score",
-      "award": "Award credits",
-      "noUsername": "No username",
-      "emailUnavailable": "Not available",
-      "updateRole": "Update",
-      "selfRoleProtected": "Your admin account is protected",
-      "deleteUser": "Delete account",
-      "deleteConfirm": "Delete this user account from the community? This cannot be undone from the dashboard."
+      "eyebrow": "Nit Mbootaay",
+      "title": "Jite Mbind",
+      "description": "Jëfandikukat ñaan nañu mbind. Njuɓɓkat mën na far jikko bañ xaaj.",
+      "search": "Seet jëfandikukat",
+      "searchButton": "Seet",
+      "user": "Jëfandikukat",
+      "email": "Imel",
+      "role": "Jikko",
+      "score": "Credi tawtital",
+      "award": "Ngalif credi",
+      "noUsername": "Amul tur jëfandiku",
+      "emailUnavailable": "Amul",
+      "updateRole": "Sagal",
+      "selfRoleProtected": "Jikko bi njuɓɓkat aar nañu ko",
+      "deleteUser": "Far jikko",
+      "deleteConfirm": "Far jikko jëfandikukat bi ci mbootaay bi? Bi mënul dindi ci platforme."
     },
     "roles": {
-      "member": "Member",
-      "admin": "Admin"
+      "member": "Mbind",
+      "admin": "Njuɓɓkat"
     },
     "credits": {
-      "eyebrow": "Contribution credits",
-      "title": "Reward community impact",
-      "description": "Award community contribution points and keep history.",
-      "user": "User",
-      "points": "Points",
-      "reason": "Reason",
-      "note": "Note",
-      "notePlaceholder": "Optional note",
-      "award": "Award credits",
-      "recent": "Recent credits",
-      "empty": "No credits awarded yet."
+      "eyebrow": "Credi tawtital",
+      "title": "Tontu njariñ mbootaay",
+      "description": "Ngalif credi tawtital ak tank taariix.",
+      "user": "Jëfandikukat",
+      "points": "Credi",
+      "reason": "Ngelaw",
+      "note": "Bind",
+      "notePlaceholder": "Bind suññaay",
+      "award": "Ngalif credi",
+      "recent": "Credi yu bees",
+      "empty": "Amul credi ngalif ba leegi."
     },
     "creditReasons": {
-      "helpedCommunity": "Helped the community",
-      "sharedValuableMemory": "Shared valuable memory",
-      "proposedUsefulIdea": "Proposed useful idea",
-      "volunteerWork": "Volunteer work",
-      "cityImprovementAction": "City improvement action",
-      "other": "Other"
+      "helpedCommunity": "Dimbali na mbootaay bi",
+      "sharedValuableMemory": "Ngalif na jikku bu am solo",
+      "proposedUsefulIdea": "Sàng na xalaat bu am solo",
+      "volunteerWork": "Liggeey mbindum",
+      "cityImprovementAction": "Liggeey dindi dëkku bi kawe",
+      "other": "Ayeneen"
     },
     "content": {
-      "eyebrow": "Content watch",
-      "title": "Recent posts, ideas, and memories",
-      "description": "Review recent posts, ideas, and memories.",
-      "by": "By {name}",
-      "view": "View",
-      "delete": "Delete",
+      "eyebrow": "Xame mbariy",
+      "title": "Mbaal, xalaat, ak jikku yu bees",
+      "description": "Xame mbaal, xalaat, ak jikku yu bees.",
+      "by": "ci {name}",
+      "view": "Gis",
+      "delete": "Far",
       "type": {
-        "post": "Post",
-        "idea": "Idea",
-        "memory": "Memory"
+        "post": "Mbaal",
+        "idea": "Xalaat",
+        "memory": "Jikku"
       }
     },
     "activity": {
-      "eyebrow": "Recent activity",
-      "title": "Community timeline",
+      "eyebrow": "Liggeey Bu Bees",
+      "title": "Waxtu mbootaay",
       "type": {
-        "post": "{name} shared a post: {title}",
-        "idea": "{name} proposed an idea: {title}",
-        "memory": "{name} shared a memory: {title}",
-        "credit": "{name} gained {title} credits",
-        "member": "{title} joined the community"
+        "post": "{name} ngalif na mbaal: {title}",
+        "idea": "{name} sàng na xalaat: {title}",
+        "memory": "{name} ngalif na jikku: {title}",
+        "credit": "{name} am na {title} credi",
+        "member": "{title} tawtu na mbootaay bi"
       }
     },
     "identity": {
-      "eyebrow": "Community identity",
-      "title": "You are building Nouadhibou?s digital home.",
-      "description": "Every credit, review, and role update should help people feel seen, useful, and connected to the city.",
-      "settingsNote": "Settings and deeper analytics can come later. The MVP stays focused on people and contribution."
+      "eyebrow": "Sifa Mbootaay",
+      "title": "Nga sos kër digitalu Nuwadibu.",
+      "description": "Credi bu nekk, xame, ak sagal daraja war nañu dimbali nit yi gis nu, am njariñ ak jëm ci dëkku bi.",
+      "settingsNote": "Sagal ak analytik yu xóot manuñu kawe. MVP mungi faw ci nit ak tawtital."
     },
     "statusMessage": {
-      "roleUpdated": "Role updated successfully.",
-      "creditsAwarded": "Credits awarded successfully.",
-      "contentDeleted": "Content deleted successfully.",
-      "invalid": "Invalid admin action.",
-      "roleError": "Could not update role.",
-      "creditError": "Could not award credits. Make sure the Supabase migration is applied.",
-      "deleteError": "Could not delete content.",
-      "selfRoleBlocked": "You cannot remove your own admin role from this page.",
-      "userDeleted": "User account removed from the community.",
-      "userDeleteError": "Could not delete this user account. Check Supabase service role permissions and try again.",
-      "selfDeleteBlocked": "You cannot delete your own admin account from this page.",
-      "userDeleteConfigError": "Supabase service role key is missing. Add SUPABASE_SERVICE_ROLE_KEY in Vercel first."
+      "roleUpdated": "Daraja sagal nañu kon.",
+      "creditsAwarded": "Credi ngalif nañu kon.",
+      "contentDeleted": "Mbariy far nañu kon.",
+      "invalid": "Liggeey njuɓɓkat bu baaxul.",
+      "roleError": "Mënul sagal daraja.",
+      "creditError": "Mënul ngalif credi. Xame Supabase migration bi mungi dem.",
+      "deleteError": "Mënul far mbariy.",
+      "selfRoleBlocked": "Mënul génn sa daraja njuɓɓkat ci xët wi.",
+      "userDeleted": "Jikko jëfandikukat génn na ci mbootaay bi.",
+      "userDeleteError": "Mënul far jikko jëfandikukat. Xame Supabase service role permissions, tànnal cat.",
+      "selfDeleteBlocked": "Mënul far sa jikko njuɓɓkat ci xët wi.",
+      "userDeleteConfigError": "Suppu Supabase service role amul. Nangul SUPABASE_SERVICE_ROLE_KEY ci Vercel jëk."
     },
     "sidebar": {
-      "backToSite": "Back to site",
-      "close": "Close sidebar",
-      "collapse": "Collapse sidebar",
-      "expand": "Expand sidebar"
+      "backToSite": "Dindi ci site",
+      "close": "Tëj sidebar",
+      "collapse": "Làq sidebar",
+      "expand": "Ubbi sidebar"
     }
   },
   "Categories": {
     "memory": {
-      "history": "History",
-      "railway": "Railway",
-      "fishing": "Fishing",
-      "culture": "Culture"
+      "history": "Taariix",
+      "railway": "Pàp",
+      "fishing": "Fis",
+      "culture": "Melo"
     },
     "idea": {
-      "education": "Education",
-      "environment": "Environment",
-      "youth": "Youth",
-      "culture": "Culture"
+      "education": "Jàng",
+      "environment": "Mbootaay",
+      "youth": "Mbaañaana",
+      "culture": "Melo"
     }
   },
   "Auth": {
     "login": {
-      "title": "Sign in",
-      "emailConfirmation": "Registration complete. Please check your email to confirm your account before logging in.",
-      "done": "Login interaction completed.",
-      "email": "Email",
-      "password": "Password",
-      "submit": "Sign in",
-      "submitting": "Signing in...",
-      "forgotPassword": "Forgot password?",
-      "noAccount": "Don't have an account?",
-      "register": "Create one",
-      "showPassword": "Show password",
-      "hidePassword": "Hide password"
+      "title": "Dugg",
+      "emailConfirmation": "Sos na mukk. Xame sa imel ngir tabiti sa jikko jëk dugg.",
+      "done": "Dugg mukk na.",
+      "email": "Imel",
+      "password": "Sàmm",
+      "submit": "Dugg",
+      "submitting": "Mungi dugg...",
+      "forgotPassword": "Sàmm bi fátu?",
+      "noAccount": "Amul jikko?",
+      "register": "Sos ay jikko",
+      "showPassword": "Wone sàmm",
+      "hidePassword": "Nàcc sàmm"
     },
     "register": {
-      "title": "Create your account",
-      "done": "Account creation interaction completed.",
-      "username": "Username",
-      "email": "Email",
-      "password": "Password",
-      "confirmPassword": "Confirm password",
-      "submit": "Create account",
-      "submitting": "Creating account...",
-      "hasAccount": "Already have an account?",
-      "login": "Sign in",
-      "showPassword": "Show password",
-      "hidePassword": "Hide password"
+      "title": "Sos sa jikko",
+      "done": "Sos jikko mukk na.",
+      "username": "Tur jëfandiku",
+      "email": "Imel",
+      "password": "Sàmm",
+      "confirmPassword": "Tabiti sàmm",
+      "submit": "Sos jikko",
+      "submitting": "Mungi sos jikko...",
+      "hasAccount": "Am na jikko?",
+      "login": "Dugg",
+      "showPassword": "Wone sàmm",
+      "hidePassword": "Nàcc sàmm"
     },
     "forgotPassword": {
-      "title": "Reset your password",
-      "email": "Email address",
-      "submit": "Send reset link",
-      "submitting": "Sending...",
-      "sent": "Check your email for a password reset link.",
-      "backToLogin": "Back to login"
+      "title": "Sagal sàmm",
+      "email": "Adres imel",
+      "submit": "Yonne lien sagal",
+      "submitting": "Mungi yonne...",
+      "sent": "Xame sa imel ngir lien sagal sàmm.",
+      "backToLogin": "Dindi ci dugg"
     }
   },
   "Toasts": {
-    "postCreated": "Post created",
-    "postUpdated": "Post updated",
-    "commentAdded": "Comment added",
-    "commentDeleted": "Comment deleted",
-    "postDeleted": "Post deleted",
-    "postSaved": "Post saved",
-    "memorySubmitted": "Memory shared successfully",
-    "ideaSubmitted": "Idea submitted successfully",
-    "voteAdded": "Vote added",
-    "updated": "Profile updated",
-    "linkCopied": "Post link copied",
-    "emailSent": "Check your email for the reset link",
-    "comingSoon": "Coming soon"
+    "postCreated": "Mbaal sos na",
+    "postUpdated": "Mbaal sagal na",
+    "commentAdded": "Nangu nangul nañu ko",
+    "commentDeleted": "Nangu far na",
+    "postDeleted": "Mbaal far na",
+    "postSaved": "Mbaal tank nañu ko",
+    "memorySubmitted": "Jikku ngalif nañu kon",
+    "ideaSubmitted": "Xalaat ngalif nañu kon",
+    "voteAdded": "Tontu nangul nañu ko",
+    "updated": "Profil sagal na",
+    "linkCopied": "Lien mbaal jaabi nañu",
+    "emailSent": "Xame sa imel ngir lien sagal sàmm",
+    "comingSoon": "Mungi Kawe"
   },
   "Errors": {
-    "invalidInput": "Invalid input",
-    "invalidPost": "Invalid post",
-    "invalidProfile": "Invalid profile",
-    "invalidMemory": "Invalid memory",
-    "invalidIdea": "Invalid idea",
-    "saveFailed": "Save failed",
-    "reactionFailed": "Reaction update failed",
-    "titleRequired": "Title is required",
-    "descriptionRequired": "Description is required",
-    "titleTooShort": "Title must be at least 4 characters",
-    "descriptionTooShort": "Description must be at least 10 characters",
-    "submitFailed": "Something went wrong while submitting"
+    "invalidInput": "Dugg bu baaxul",
+    "invalidPost": "Mbaal bu baaxul",
+    "invalidProfile": "Profil bu baaxul",
+    "invalidMemory": "Jikku bu baaxul",
+    "invalidIdea": "Xalaat bu baaxul",
+    "saveFailed": "Tank mënul",
+    "reactionFailed": "Jaabi sagal mënul",
+    "titleRequired": "Tit soxla na",
+    "descriptionRequired": "Nangul soxla na",
+    "titleTooShort": "Tit war na am 4 i mbind biri",
+    "descriptionTooShort": "Nangul war na am 10 i mbind biri",
+    "submitFailed": "Lu mënul tàmbali ci ngalifte"
   },
   "ImageUpload": {
-    "tooLarge": "File is too large. Please choose a smaller file.",
-    "videoTooLarge": "Video is too large. Maximum size is 50MB.",
-    "videoTooLong": "Video is too long. Maximum duration is 60 seconds.",
-    "imagesOrVideo": "You can upload either images or one video, not both.",
-    "invalidType": "Please choose a valid file (JPG, PNG, WebP, MP4, WebM, MOV).",
-    "uploading": "Uploading...",
-    "success": "Uploaded successfully.",
-    "chooseImage": "Add photos",
-    "chooseVideo": "Add video",
-    "replace": "Replace image",
-    "remove": "Remove image",
-    "failed": "Failed to upload.",
-    "compressionFailed": "Failed to prepare image for upload.",
-    "notAuthenticated": "Please log in before uploading.",
-    "noFile": "Please choose a file to upload."
+    "tooLarge": "Faylo bi mag na. Tànnal faylo bu tuuti.",
+    "videoTooLarge": "Vidiyo bi mag na. Ñu gën mën 50MB.",
+    "videoTooLong": "Vidiyo bi guddi na. Ñu gën mën 60 second.",
+    "imagesOrVideo": "Mën nga yeb nataal walla vidiyo benn, du ñaari.",
+    "invalidType": "Tànnal faylo bu baax (JPG, PNG, WebP, MP4, WebM, MOV).",
+    "uploading": "Mungi yeb...",
+    "success": "Yeb nañu kon.",
+    "chooseImage": "Nangul nataal",
+    "chooseVideo": "Nangul vidiyo",
+    "replace": "Lanc nataal",
+    "remove": "Génn nataal",
+    "failed": "Mënul yeb.",
+    "compressionFailed": "Mënul tapir nataal ngir yeb.",
+    "notAuthenticated": "Dugg jëk yeb.",
+    "noFile": "Tànnal faylo ngir yeb."
   },
   "Brand": {
     "title": "INDB Community OS",
     "subtitle": "I love NDB",
-    "alt": "INDB logo mark"
+    "alt": "Maande logo INDB"
   },
   "Common": {
-    "seeTranslation": "See translation",
-    "seeOriginal": "See original",
-    "translating": "Translating...",
-    "translationUnavailable": "Translation unavailable"
+    "seeTranslation": "Gis fir",
+    "seeOriginal": "Gis cosaan",
+    "translating": "Mungi fir...",
+    "translationUnavailable": "Fir amul"
   },
   "EmptyStates": {
     "posts": {
-      "title": "No posts yet",
-      "description": "Be the first person to share something with the community.",
-      "cta": "Create a post"
+      "title": "Amul mbaal ba leegi",
+      "description": "Ngay jëk ngalif lu ci mbootaay bi.",
+      "cta": "Sos mbaal"
     },
     "memories": {
-      "title": "No memories yet",
-      "description": "Help preserve local heritage by sharing the first community memory.",
-      "cta": "Submit memory"
+      "title": "Amul jikku ba leegi",
+      "description": "Dimbali aar tarakta ñook ngir ngalif jikku mbootaay bu jëk.",
+      "cta": "Ngalif jikku"
     },
     "ideas": {
-      "title": "No ideas yet",
-      "description": "Start the conversation with a practical idea for Nouadhibou.",
-      "cta": "Submit idea"
+      "title": "Amul xalaat ba leegi",
+      "description": "Tàmbali waxtuwaay ag xalaat bu am solo ngir Nuwadibu.",
+      "cta": "Ngalif xalaat"
     },
     "fadla": {
-      "title": "No shared items yet",
-      "description": "Share something useful you no longer need and help another family.",
-      "cta": "Open Fadla"
+      "title": "Amul ngalifte ba leegi",
+      "description": "Ngalif lu am solo nga bàyyi ak dimbali kër buñoom.",
+      "cta": "Ubbi Fadla"
     },
     "events": {
-      "title": "No events yet",
-      "description": "Create the first event and bring people together around local action.",
-      "cta": "Explore feed"
+      "title": "Amul jël ba leegi",
+      "description": "Sos jël bu jëk ngir mbootaay nit ak liggéey ñook.",
+      "cta": "Wëral kesɗi"
     },
     "profile": {
-      "title": "No posts yet",
-      "description": "Share your first update.",
-      "cta": "Create post"
+      "title": "Amul mbaal ba leegi",
+      "description": "Ngalif sagal bu jëk.",
+      "cta": "Sos mbaal"
     },
     "polls": {
-      "title": "No polls yet",
-      "description": "Create the first poll to gather community input.",
-      "cta": "Explore feed"
+      "title": "Amul noot ba leegi",
+      "description": "Sos noot bu jëk ngir gis li mbootaay bi xalaat.",
+      "cta": "Wëral kesɗi"
     },
     "projects": {
-      "title": "No projects yet",
-      "description": "Start a citizen project and bring the community together around local action.",
-      "cta": "Explore feed"
+      "title": "Amul proje ba leegi",
+      "description": "Tàmbali proje siwil ngir mbootaay nit ak liggéey ñook.",
+      "cta": "Wëral kesɗi"
     }
   },
   "Fadla": {
-    "title": "الفظلة",
-    "eyebrow": "Community sharing",
-    "description": "Share useful things you no longer need with people who need them. Less waste, more solidarity, stronger Nouadhibou.",
-    "notMarketplace": "No prices. No payments. Only sharing and helping.",
-    "shareButton": "Share Something",
-    "searchPlaceholder": "Search shared items",
-    "allCategories": "All categories",
-    "unknownOwner": "Community member",
-    "sharedForHelp": "Shared to help",
-    "imagePlaceholder": "Useful item",
-    "needThis": "I Need This",
-    "requested": "Requested",
-    "alreadyGiven": "Already Given",
+    "title": "Fadla",
+    "eyebrow": "Ngalifte mbootaay",
+    "description": "Ngalif lu am solo nga bàyyi ngir ñu koy soxla. Ménu taari, yoo dimbali, Nuwadibu bu mag.",
+    "notMarketplace": "Amul ñaata. Amul fecc. Ngalifte ak dimbali rekk.",
+    "shareButton": "Ngalif Luy",
+    "searchPlaceholder": "Seet ngalifte",
+    "allCategories": "Kategory lépp",
+    "unknownOwner": "Mbind mbootaay",
+    "sharedForHelp": "Ngalif ngir dimbali",
+    "imagePlaceholder": "Mbariy bu am solo",
+    "needThis": "Mangi Soxla",
+    "requested": "Laaj nañu ko",
+    "alreadyGiven": "Ngalif nañu ko tawon",
     "categories": {
-      "food": "Food",
-      "clothes": "Clothes",
-      "furniture": "Furniture",
-      "electronics": "Electronics",
-      "school_supplies": "School Supplies",
-      "books": "Books",
-      "services": "Services",
-      "other": "Other"
+      "food": "Lekk",
+      "clothes": "Yére",
+      "furniture": "Penc",
+      "electronics": "Electronik",
+      "school_supplies": "Jàng mbariy",
+      "books": "Téere",
+      "services": "Liggeey",
+      "other": "Ayeneen"
     },
     "status": {
-      "available": "Available",
-      "reserved": "Reserved",
-      "given": "Given"
+      "available": "Am na",
+      "reserved": "Tank nañu ko",
+      "given": "Ngalif nañu ko"
     },
     "actions": {
-      "edit": "Edit item",
-      "delete": "Delete item",
+      "edit": "Soppi mbariy",
+      "delete": "Far mbariy",
       "mark": {
-        "available": "Mark Available",
-        "reserved": "Mark Reserved",
-        "given": "Mark Given"
+        "available": "Wone am na",
+        "reserved": "Wone tank nañu ko",
+        "given": "Wone ngalif nañu ko"
       }
     },
     "form": {
-      "createTitle": "Share something useful",
-      "editTitle": "Edit shared item",
-      "helper": "Keep it generous and simple. No prices or payments.",
-      "title": "Title",
-      "description": "Description",
-      "condition": "Condition",
-      "location": "Location",
-      "cancel": "Cancel",
-      "submit": "Share",
-      "update": "Update"
+      "createTitle": "Ngalif lu am solo",
+      "editTitle": "Soppi ngalifte",
+      "helper": "Tank yërmande ak wér. Amul ñaata ak fecc.",
+      "title": "Tit",
+      "description": "Nangul",
+      "condition": "Melo",
+      "location": "Fexe",
+      "cancel": "Tër",
+      "submit": "Ngalif",
+      "update": "Sagal"
     },
     "toasts": {
-      "created": "Item shared successfully",
-      "updated": "Shared item updated",
-      "deleted": "Shared item deleted",
-      "requested": "Request sent to the owner"
+      "created": "Mbariy ngalif nañu kon",
+      "updated": "Ngalifte sagal nañu",
+      "deleted": "Ngalifte far na",
+      "requested": "Laaj yonne nañu jom mbariy"
     },
     "errors": {
-      "saveFailed": "Could not save shared item",
-      "actionFailed": "Could not complete this action"
+      "saveFailed": "Mënul tank ngalifte",
+      "actionFailed": "Mënul mukk liggeey bi"
     },
     "empty": {
-      "title": "Nothing shared yet",
-      "description": "Be the first to share something useful with the community."
+      "title": "Amul ngalifte ba leegi",
+      "description": "Ngay jëk ngalif lu am solo ci mbootaay bi."
     }
   },
   "ConfirmDialog": {
-    "title": "Discard changes?",
-    "message": "Your changes will not be saved.",
-    "keepEditing": "Keep editing",
-    "discard": "Discard"
+    "title": "Soppi bi far?",
+    "message": "Soppi bi tankul.",
+    "keepEditing": "Jokko soppi",
+    "discard": "Far"
   }
 }
