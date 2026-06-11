@@ -56,36 +56,63 @@ function hashText(text: string): string {
 
 const GOOGLE_SUPPORTED_LANGS = new Set(["ar", "bg", "bn", "ca", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "gu", "he", "hi", "hr", "hu", "id", "it", "ja", "kn", "ko", "lt", "lv", "ml", "mr", "ms", "nl", "no", "pl", "pt", "ro", "ru", "sk", "sl", "sr", "sv", "sw", "ta", "te", "th", "tl", "tr", "uk", "ur", "vi", "zh"]);
 
-async function callTranslationApi(
-  text: string,
-  _sourceLang: string,
-  targetLang: string,
-): Promise<string | null> {
-  if (!GOOGLE_SUPPORTED_LANGS.has(targetLang)) {
-    console.error("translateContentAction: Google Translate does not support", targetLang);
+function parseGoogleTranslate(data: unknown): string | null {
+  try {
+    const parts = data as unknown[][];
+    const translated: string = (parts?.[0] ?? [])
+      .map((part: unknown) => Array.isArray(part) ? String(part[0] ?? "") : "")
+      .filter(Boolean)
+      .join("");
+    return translated || null;
+  } catch {
     return null;
   }
+}
+
+async function callGoogleTranslate(text: string, targetLang: string): Promise<string | null> {
+  if (!GOOGLE_SUPPORTED_LANGS.has(targetLang)) return null;
   try {
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t`;
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
     const res = await fetch(url, {
-      method: "POST",
-      headers: {"Content-Type": "application/x-www-form-urlencoded"},
-      body: new URLSearchParams({q: text}),
+      headers: {"User-Agent": "Mozilla/5.0 (compatible; GoogleTranslate/1.0)"},
     });
     if (!res.ok) {
       console.error("translateContentAction: Google Translate returned", res.status);
       return null;
     }
-    const data = await res.json();
-    const translated: string = (data?.[0] ?? [])
-      .map((part: unknown) => Array.isArray(part) ? part[0] : "")
-      .filter(Boolean)
-      .join("");
-    return translated || null;
+    return parseGoogleTranslate(await res.json());
   } catch (e) {
-    console.error("translateContentAction: API call failed", e);
+    console.error("translateContentAction: Google Translate failed", e);
     return null;
   }
+}
+
+async function callMyMemoryTranslate(text: string, targetLang: string): Promise<string | null> {
+  try {
+    const langPair = `en|${targetLang}`;
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langPair}`;
+    const res = await fetch(url, {
+      headers: {"User-Agent": "Mozilla/5.0"},
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const translated: string = data?.responseData?.translatedText ?? "";
+    return translated || null;
+  } catch (e) {
+    console.error("translateContentAction: MyMemory failed", e);
+    return null;
+  }
+}
+
+async function callTranslationApi(
+  text: string,
+  _sourceLang: string,
+  targetLang: string,
+): Promise<string | null> {
+  const result = await callGoogleTranslate(text, targetLang);
+  if (result) return result;
+  console.error("translateContentAction: Google failed, trying MyMemory fallback");
+  return callMyMemoryTranslate(text, targetLang);
 }
 
 export interface TranslateResult {
