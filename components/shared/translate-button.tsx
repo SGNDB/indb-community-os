@@ -58,9 +58,9 @@ export function TranslateButton({text, contentType, contentId, className = ""}: 
 
   if (error) {
     return (
-      <div className={className}>
+      <div className={className + " border border-destructive/30 rounded-lg p-2"}>
         <span className="text-xs text-destructive">{translatingT("unavailable")}</span>
-        <span className="block text-[10px] text-muted-foreground">{error}</span>
+        <span className="block text-xs text-destructive/70 mt-1 font-mono">{error}</span>
       </div>
     );
   }

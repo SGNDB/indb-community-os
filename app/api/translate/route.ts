@@ -98,9 +98,26 @@ async function saveTranslation(
   }
 }
 
+export async function GET(req: NextRequest) {
+  const text = req.nextUrl.searchParams.get("text") || "Good morning";
+  const targetLang = req.nextUrl.searchParams.get("target") || "ar";
+  const contentType = req.nextUrl.searchParams.get("type") || "test";
+  const contentId = req.nextUrl.searchParams.get("id") || "test-1";
+  return handleTranslate(text, targetLang, contentType, contentId);
+}
+
 export async function POST(req: NextRequest) {
   try {
     const {contentType, contentId, text, targetLang} = await req.json();
+    return handleTranslate(text, targetLang, contentType, contentId);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({error: msg}, {status: 500});
+  }
+}
+
+async function handleTranslate(text: string, targetLang: string, contentType: string, contentId: string) {
+  try {
 
     if (!text || !targetLang || !contentType || !contentId) {
       return NextResponse.json({error: "Missing required fields"}, {status: 400});
