@@ -5,6 +5,8 @@ import {getTranslations} from "next-intl/server";
 
 import {PostCard} from "@/components/feed/post-card";
 import {FadlaCard} from "@/components/fadla/fadla-card";
+import {ProfileAbout} from "@/components/profile/profile-about";
+import {ProfileCompleteness} from "@/components/profile/profile-completeness";
 import {FollowSummary} from "@/components/profile/follow-summary";
 import {MemoryCard} from "@/components/memory/memory-card";
 import {IdeaCard} from "@/components/ideas/idea-card";
@@ -13,6 +15,7 @@ import {Badge} from "@/components/ui/badge";
 import {Card, CardContent} from "@/components/ui/card";
 import {getCommentsByPost} from "@/lib/data/comments";
 import {getContributionRankKey} from "@/lib/contribution";
+import {getFullProfileDetails} from "@/lib/data/profile-details";
 import {getFollowStats, isFollowing} from "@/lib/data/follows";
 import {getUserPosts} from "@/lib/data/posts";
 import {getProfileByUsername} from "@/lib/data/profile";
@@ -69,13 +72,14 @@ export default async function PublicProfilePage({
   const {data: {user}} = await supabase.auth.getUser();
   const currentUserId = user?.id ?? null;
 
-  const [allPosts, memories, ideas, shares, followStats, currentUserIsFollowing] = await Promise.all([
+  const [allPosts, memories, ideas, shares, followStats, currentUserIsFollowing, profileDetails] = await Promise.all([
     getUserPosts(profile.id, currentUserId),
     getUserMemories(profile.id),
     getUserIdeas(profile.id),
     getUserCommunityShares(profile.id),
     getFollowStats(profile.id),
     isFollowing(currentUserId, profile.id),
+    getFullProfileDetails(profile.id),
   ]);
 
   const displayName = profile.full_name ?? profile.username ?? "?";
@@ -214,6 +218,19 @@ export default async function PublicProfilePage({
         </CardContent>
       </Card>
 
+      {currentUserId === profile.id && (
+        <ProfileCompleteness
+          hasAvatar={!!profile.avatar_url}
+          hasCover={!!profile.cover_image_url}
+          hasBio={!!profile.bio}
+          hasCity={!!profile.city}
+          hasWork={profileDetails.work.length > 0}
+          hasEducation={profileDetails.education.length > 0}
+          hasInterests={profileDetails.interests.length > 0}
+          hasLinks={profileDetails.links.length > 0}
+        />
+      )}
+
       <div className="flex gap-1 overflow-x-auto rounded-2xl border border-border/70 bg-card p-1 shadow-[0_8px_24px_rgba(8,33,56,0.06)]">
         {tabs.map((tab) => (
           <Link
@@ -322,40 +339,27 @@ export default async function PublicProfilePage({
       ) : null}
 
       {currentTab === "about" ? (
-        <Card className="border-border/70 shadow-[0_8px_24px_rgba(8,33,56,0.06)]">
-          <CardContent className="space-y-4 p-5 sm:p-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("fields.fullName")}</p>
-                <p className="mt-1 text-sm">{profile.full_name ?? "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("fields.username")}</p>
-                <p className="mt-1 text-sm">{profile.username ? `@${profile.username}` : "—"}</p>
-              </div>
-              <div className="sm:col-span-2">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("fields.bio")}</p>
-                <p className="mt-1 text-sm">{profile.bio ?? t("noBio")}</p>
-              </div>
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("fields.city")}</p>
-                <p className="mt-1 text-sm">{profile.city ?? t("noCity")}</p>
-              </div>
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("fields.role")}</p>
-                <p className="mt-1 text-sm">{t(`role.${profile.role}`)}</p>
-              </div>
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("contributionScore")}</p>
-                <p className="mt-1 text-sm">{contributionScore} • {t(`contributionRanks.${contributionRank}`)}</p>
-              </div>
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("fields.memberSince")}</p>
-                <p className="mt-1 text-sm">{joinDate}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ProfileAbout
+          profile={{
+            id: profile.id,
+            full_name: profile.full_name,
+            username: profile.username,
+            avatar_url: profile.avatar_url,
+            bio: profile.bio,
+            city: profile.city,
+            hometown: profile.hometown ?? null,
+            languages_spoken: profile.languages_spoken ?? [],
+            contribution_score: contributionScore,
+            created_at: profile.created_at,
+          }}
+          work={profileDetails.work}
+          education={profileDetails.education}
+          interests={profileDetails.interests}
+          hobbies={profileDetails.hobbies}
+          links={profileDetails.links}
+          travel={profileDetails.travel}
+          isOwnProfile={currentUserId === profile.id}
+        />
       ) : null}
     </div>
   );

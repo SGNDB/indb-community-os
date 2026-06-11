@@ -22,10 +22,13 @@ import {MemoryCard} from "@/components/memory/memory-card";
 import {EmptyState} from "@/components/shared/empty-state";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
-import {Card, CardContent} from "@/components/ui/card";
+
 import {getContributionRankKey} from "@/lib/contribution";
 import {Link} from "@/lib/i18n/routing";
-import type {CommentWithAuthor, CommunityShareWithOwner, IdeaWithAuthor, MemoryWithContributor, PostWithAuthor, ProfileWithCounts} from "@/types/database";
+import type {CommentWithAuthor, CommunityShareWithOwner, IdeaWithAuthor, MemoryWithContributor, PostWithAuthor, ProfileEducationRow, ProfileHobbyRow, ProfileInterestRow, ProfileLinkRow, ProfileTravelRow, ProfileWorkRow, ProfileWithCounts} from "@/types/database";
+
+import {ProfileAbout} from "./profile-about";
+import {ProfileCompleteness} from "./profile-completeness";
 
 import {EditProfileModal} from "./edit-profile-modal";
 import {FollowSummary} from "./follow-summary";
@@ -68,6 +71,12 @@ interface ProfileClientProps {
   memories: MemoryWithContributor[];
   ideas: IdeaWithAuthor[];
   shares: CommunityShareWithOwner[];
+  work: ProfileWorkRow[];
+  education: ProfileEducationRow[];
+  interests: ProfileInterestRow[];
+  hobbies: ProfileHobbyRow[];
+  links: ProfileLinkRow[];
+  travel: ProfileTravelRow[];
   currentUserId: string;
   locale: string;
 }
@@ -78,6 +87,12 @@ export function ProfileClient({
   memories,
   ideas,
   shares,
+  work,
+  education,
+  interests,
+  hobbies,
+  links,
+  travel,
   currentUserId,
   locale,
 }: ProfileClientProps) {
@@ -268,6 +283,22 @@ export function ProfileClient({
             </div>
           </div>
 
+          {/* Profile Completeness */}
+          {currentUserId === profile.id && (
+            <div className="mt-4">
+              <ProfileCompleteness
+                hasAvatar={!!profile.avatar_url}
+                hasCover={!!profile.cover_image_url}
+                hasBio={!!profile.bio}
+                hasCity={!!profile.city}
+                hasWork={work.length > 0}
+                hasEducation={education.length > 0}
+                hasInterests={interests.length > 0}
+                hasLinks={links.length > 0}
+              />
+            </div>
+          )}
+
           {/* Tabs */}
           <div className="mt-4 flex gap-1 overflow-x-auto rounded-2xl border border-border/70 bg-card p-1">
             {tabs.map((tab) => (
@@ -377,44 +408,27 @@ export function ProfileClient({
             ) : null}
 
             {currentTab === "about" ? (
-              <Card className="border-border/70">
-                <CardContent className="space-y-4 p-5 sm:p-6">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">{t("fields.fullName")}</p>
-                      <p className="mt-1 text-base">{profile.full_name ?? "—"}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">{t("fields.username")}</p>
-                      <p className="mt-1 text-base">{profile.username ? `@${profile.username}` : "—"}</p>
-                    </div>
-                    <div className="sm:col-span-2">
-                      <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">{t("fields.bio")}</p>
-                      <p className="mt-1 text-base">{profile.bio ?? t("noBioYet")}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">{t("fields.city")}</p>
-                      <p className="mt-1 text-base">{profile.city ?? "—"}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">{t("fields.languagePreference")}</p>
-                      <p className="mt-1 text-base">{profile.language_preference ?? "—"}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">{t("fields.role")}</p>
-                      <p className="mt-1 text-base">{t(`role.${profile.role}`)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">{t("contributionScore")}</p>
-                      <p className="mt-1 text-base">{contributionScore} • {t(`contributionRanks.${contributionRank}`)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">{t("fields.memberSince")}</p>
-                      <p className="mt-1 text-base">{joinDate}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <ProfileAbout
+                profile={{
+                  id: profile.id,
+                  full_name: profile.full_name,
+                  username: profile.username,
+                  avatar_url: profile.avatar_url,
+                  bio: profile.bio,
+                  city: profile.city,
+                  hometown: profile.hometown ?? null,
+                  languages_spoken: profile.languages_spoken ?? [],
+                  contribution_score: contributionScore,
+                  created_at: profile.created_at,
+                }}
+                work={work}
+                education={education}
+                interests={interests}
+                hobbies={hobbies}
+                links={links}
+                travel={travel}
+                isOwnProfile={true}
+              />
             ) : null}
           </div>
         </div>

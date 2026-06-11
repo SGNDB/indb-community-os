@@ -31,6 +31,8 @@ export interface ProfileRow {
   cover_image_url: string | null;
   bio: string | null;
   city: string | null;
+  hometown: string | null;
+  languages_spoken: string[];
   role: CommunityRole;
   contribution_score: number;
   language_preference: string;
@@ -394,6 +396,78 @@ export interface ProfileWithCounts extends ProfileRow {
   shares_count?: number;
   followers_count: number;
   following_count: number;
+}
+
+export type LinkPlatform = "phone" | "email" | "whatsapp" | "facebook" | "instagram" | "linkedin" | "telegram" | "website" | "portfolio" | "youtube" | "github" | "tiktok";
+export type VisibilityLevel = "public" | "followers" | "only_me";
+
+export interface ProfileWorkRow {
+  id: string;
+  profile_id: string;
+  company: string;
+  position: string;
+  start_year: number;
+  end_year: number | null;
+  is_current: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProfileEducationRow {
+  id: string;
+  profile_id: string;
+  school: string;
+  degree: string | null;
+  field_of_study: string | null;
+  start_year: number;
+  end_year: number | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProfileInterestRow {
+  id: string;
+  profile_id: string;
+  name: string;
+  created_at: string;
+}
+
+export interface ProfileHobbyRow {
+  id: string;
+  profile_id: string;
+  name: string;
+  created_at: string;
+}
+
+export interface ProfileLinkRow {
+  id: string;
+  profile_id: string;
+  platform: string;
+  label: string | null;
+  value: string;
+  visibility: string;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface ProfileTravelRow {
+  id: string;
+  profile_id: string;
+  country: string;
+  created_at: string;
+}
+
+export interface ProfileWithDetails extends ProfileWithCounts {
+  hometown: string | null;
+  languages_spoken: string[];
+  work: ProfileWorkRow[];
+  education: ProfileEducationRow[];
+  interests: ProfileInterestRow[];
+  hobbies: ProfileHobbyRow[];
+  links: ProfileLinkRow[];
+  travel: ProfileTravelRow[];
 }
 
 export interface EventWithCreator extends EventRow {

@@ -3,6 +3,7 @@ import {getTranslations} from "next-intl/server";
 
 import {ProfileClient} from "@/components/profile/profile-client";
 import {getCommentsByPost} from "@/lib/data/comments";
+import {getFullProfileDetails} from "@/lib/data/profile-details";
 import {getUserPosts} from "@/lib/data/posts";
 import {getProfileWithCounts} from "@/lib/data/profile";
 import {getUserMemories} from "@/lib/data/memories";
@@ -49,11 +50,12 @@ export default async function ProfilePage({
 
   const currentUserId = user.id;
 
-  const [allPosts, memories, ideas, shares] = await Promise.all([
+  const [allPosts, memories, ideas, shares, profileDetails] = await Promise.all([
     getUserPosts(profile.id, currentUserId),
     getUserMemories(profile.id),
     getUserIdeas(profile.id),
     getUserCommunityShares(profile.id),
+    getFullProfileDetails(profile.id),
   ]);
 
   const postsWithComments = await Promise.all(
@@ -70,6 +72,12 @@ export default async function ProfilePage({
       memories={memories}
       ideas={ideas}
       shares={shares}
+      work={profileDetails.work}
+      education={profileDetails.education}
+      interests={profileDetails.interests}
+      hobbies={profileDetails.hobbies}
+      links={profileDetails.links}
+      travel={profileDetails.travel}
       currentUserId={currentUserId}
       locale={locale}
     />
