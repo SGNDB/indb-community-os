@@ -19,6 +19,7 @@ export function MemoryActions({
   userReaction,
   onReactionCountsChange,
   onUserReactionChange,
+  defaultCommentsOpen = false,
 }: {
   memoryId: string;
   locale: string;
@@ -27,14 +28,21 @@ export function MemoryActions({
   userReaction: MemoryReactionType | null;
   onReactionCountsChange: (counts: Record<string, number>) => void;
   onUserReactionChange: (reaction: MemoryReactionType | null) => void;
+  defaultCommentsOpen?: boolean;
 }) {
   const memoryT = useTranslations("Memory");
   const feed = useTranslations("Feed");
   const [saved, setSaved] = useState(false);
   const [savePending, setSavePending] = useState(false);
-  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(defaultCommentsOpen);
   const [commentCount, setCommentCount] = useState(0);
   const supabase = createClient();
+
+  useEffect(() => {
+    if (defaultCommentsOpen) {
+      setCommentsOpen(true);
+    }
+  }, [defaultCommentsOpen]);
 
   useEffect(() => {
     supabase.auth.getUser().then(({data: {user}}) => {

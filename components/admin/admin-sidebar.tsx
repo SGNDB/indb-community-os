@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {useEffect, useState} from "react";
 import {
   Award,
@@ -90,7 +91,7 @@ export function AdminSidebar({
       )}
     >
       <div className="flex items-center gap-3 rounded-2xl bg-muted/50 p-2">
-        <img src="/images/logondb.jpeg" alt="INDB" className="h-10 w-10 rounded-xl object-cover" />
+        <Image src="/images/logondb.jpeg" alt="INDB" width={40} height={40} className="h-10 w-10 rounded-xl object-cover" />
         {!collapsed ? (
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-black">{commandCenter}</p>
@@ -181,7 +182,7 @@ export function AdminSidebar({
     <>
       <div className="sticky top-3 z-20 mb-3 flex items-center justify-between rounded-2xl border border-border/80 bg-card p-2 shadow-[0_8px_24px_rgba(12,31,44,0.07)] lg:hidden">
         <div className="flex items-center gap-2">
-          <img src="/images/logondb.jpeg" alt="INDB" className="h-9 w-9 rounded-xl object-cover" />
+          <Image src="/images/logondb.jpeg" alt="INDB" width={36} height={36} className="h-9 w-9 rounded-xl object-cover" />
           <div>
             <p className="text-sm font-black">{commandCenter}</p>
             <p className="text-xs text-muted-foreground">{nouadhibouSignal}</p>

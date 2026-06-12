@@ -86,7 +86,18 @@ export async function getProfileByUsername(username: string): Promise<ProfileRow
     .from("profiles")
     .select("*")
     .eq("username", username)
-    .single();
+    .maybeSingle();
 
-  return data as ProfileRow | null;
+  if (data) return data as ProfileRow;
+
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuidPattern.test(username)) return null;
+
+  const {data: profileById} = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", username)
+    .maybeSingle();
+
+  return profileById as ProfileRow | null;
 }

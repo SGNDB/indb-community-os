@@ -2,6 +2,7 @@
 
 import {motion} from "framer-motion";
 import {CalendarDays, ChevronDown, ChevronUp, Lightbulb, Loader2, MoreHorizontal, Share2, Trash2, X} from "lucide-react";
+import Image from "next/image";
 import {useLocale, useTranslations} from "next-intl";
 import {useEffect, useRef, useState} from "react";
 import {toast} from "sonner";
@@ -47,9 +48,11 @@ function AuthorAvatar({author}: {author: IdeaWithAuthor["author"]}) {
 
   if (author.avatar_url) {
     return (
-      <img
+      <Image
         src={author.avatar_url}
         alt=""
+        width={40}
+        height={40}
         className="size-6 rounded-full object-cover shrink-0"
       />
     );

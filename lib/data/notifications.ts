@@ -56,6 +56,7 @@ type CreateNotificationParams = {
   entityId: string;
   title: string;
   message?: string;
+  metadata?: Record<string, unknown>;
 };
 
 export async function createNotification(
@@ -65,7 +66,7 @@ export async function createNotification(
 
   const supabase = await createClient();
 
-  const {error} = await supabase.from("notifications").insert({
+  const payload = {
     user_id: params.userId,
     actor_id: params.actorId,
     type: params.type,
@@ -73,7 +74,17 @@ export async function createNotification(
     entity_id: params.entityId,
     title: params.title,
     message: params.message ?? null,
-  });
+    metadata: params.metadata ?? {},
+  };
+
+  let {error} = await supabase.from("notifications").insert(payload);
+
+  if (error && error.code === "PGRST204") {
+    const legacyPayload = {...payload};
+    delete (legacyPayload as Partial<typeof payload>).metadata;
+    const retry = await supabase.from("notifications").insert(legacyPayload);
+    error = retry.error;
+  }
 
   if (error) console.error("createNotification error:", error);
 }
@@ -164,22 +175,19 @@ export async function createIdeaCommentNotification(
   ideaAuthorId: string,
   actorId: string,
   ideaId: string,
+  commentId?: string,
 ): Promise<void> {
   if (ideaAuthorId === actorId) return;
 
-  const supabase = await createClient();
-
-  const {error} = await supabase.from("notifications").insert({
-    user_id: ideaAuthorId,
-    actor_id: actorId,
+  await createNotification({
+    userId: ideaAuthorId,
+    actorId,
     type: "idea_comment",
-    entity_type: "idea",
-    entity_id: ideaId,
+    entityType: "idea",
+    entityId: ideaId,
     title: "New comment on your idea",
-    message: null,
+    metadata: commentId ? {commentId} : {},
   });
-
-  if (error) console.error("createIdeaCommentNotification error:", error);
 }
 
 export async function upsertMemoryReactionNotification(
@@ -225,42 +233,36 @@ export async function createMemoryCommentNotification(
   memoryContributorId: string,
   actorId: string,
   memoryId: string,
+  commentId?: string,
 ): Promise<void> {
   if (memoryContributorId === actorId) return;
 
-  const supabase = await createClient();
-
-  const {error} = await supabase.from("notifications").insert({
-    user_id: memoryContributorId,
-    actor_id: actorId,
+  await createNotification({
+    userId: memoryContributorId,
+    actorId,
     type: "memory_comment",
-    entity_type: "memory",
-    entity_id: memoryId,
+    entityType: "memory",
+    entityId: memoryId,
     title: "New comment on your memory",
-    message: null,
+    metadata: commentId ? {commentId} : {},
   });
-
-  if (error) console.error("createMemoryCommentNotification error:", error);
 }
 
 export async function createCommentNotification(
   postAuthorId: string,
   actorId: string,
   postId: string,
+  commentId?: string,
 ): Promise<void> {
   if (postAuthorId === actorId) return;
 
-  const supabase = await createClient();
-
-  const {error} = await supabase.from("notifications").insert({
-    user_id: postAuthorId,
-    actor_id: actorId,
+  await createNotification({
+    userId: postAuthorId,
+    actorId,
     type: "comment",
-    entity_type: "post",
-    entity_id: postId,
+    entityType: "post",
+    entityId: postId,
     title: "New comment",
-    message: null,
+    metadata: commentId ? {commentId} : {},
   });
-
-  if (error) console.error("createCommentNotification error:", error);
 }

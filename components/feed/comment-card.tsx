@@ -9,12 +9,15 @@ import {UserAvatar} from "@/components/layout/user-avatar";
 import {Button} from "@/components/ui/button";
 import {TranslateButton} from "@/components/shared/translate-button";
 import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
+import {Link} from "@/lib/i18n/routing";
 import {deletePostCommentAction, updatePostCommentAction} from "@/app/[locale]/server-actions";
 import type {CommentWithAuthor} from "@/types/database";
 
 export function CommentCard({
   commentId,
   author,
+  authorId,
+  authorUsername,
   authorAvatarUrl,
   content,
   timeAgo,
@@ -25,6 +28,8 @@ export function CommentCard({
 }: {
   commentId: string;
   author: string;
+  authorId?: string | null;
+  authorUsername?: string | null;
   authorAvatarUrl?: string | null;
   content: string;
   timeAgo: string;
@@ -45,6 +50,7 @@ export function CommentCard({
   const [isPending, startTransition] = useTransition();
   const menuRef = useRef<HTMLDivElement>(null);
   const canShowMenu = canEdit || canDelete;
+  const authorHref = authorUsername ? `/profile/${authorUsername}` : authorId ? `/profile/${authorId}` : null;
 
   useEffect(() => {
     setEditValue(content);
@@ -120,11 +126,23 @@ export function CommentCard({
   }
 
   return (
-    <div className="flex items-start gap-2 rounded-xl bg-muted/60 p-3">
-      <UserAvatar className="h-7 w-7 shrink-0" label={author} avatarUrl={authorAvatarUrl} />
+    <div id={`comment-${commentId}`} className="flex scroll-mt-28 items-start gap-2 rounded-xl bg-muted/60 p-3 target:ring-2 target:ring-primary/40">
+      {authorHref ? (
+        <Link href={authorHref} className="shrink-0 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/40">
+          <UserAvatar className="h-7 w-7 shrink-0" label={author} avatarUrl={authorAvatarUrl} />
+        </Link>
+      ) : (
+        <UserAvatar className="h-7 w-7 shrink-0" label={author} avatarUrl={authorAvatarUrl} />
+      )}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className="text-xs font-semibold">{author}</p>
+          {authorHref ? (
+            <Link href={authorHref} className="text-xs font-semibold transition hover:text-primary hover:underline">
+              {author}
+            </Link>
+          ) : (
+            <p className="text-xs font-semibold">{author}</p>
+          )}
           <p className="text-xs text-muted-foreground">{timeAgo}</p>
         </div>
         {editing ? (

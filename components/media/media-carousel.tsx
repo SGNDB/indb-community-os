@@ -1,6 +1,7 @@
 "use client";
 
 import {ChevronLeft, ChevronRight, ImageOff} from "lucide-react";
+import Image from "next/image";
 import {useLocale} from "next-intl";
 import {useMemo, useRef, useState} from "react";
 
@@ -118,12 +119,14 @@ export function MediaCarousel({
               className="block h-full w-full cursor-zoom-in text-start"
               aria-label="Open image"
             >
-              <img
+              <Image
                 src={currentItem.url}
                 alt={currentItem.alt ?? alt}
+                fill
+                sizes="(max-width: 768px) 100vw, 720px"
                 loading="lazy"
                 draggable={false}
-                className="h-full w-full select-none object-cover transition duration-300 hover:scale-[1.015]"
+                className="select-none object-cover transition duration-300 hover:scale-[1.015]"
                 onLoad={() => {
                   setLoadedIndexes((previous) => new Set(previous).add(index));
                 }}

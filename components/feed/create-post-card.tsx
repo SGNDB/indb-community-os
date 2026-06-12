@@ -42,6 +42,7 @@ function SubmitButton({label, loading, pending}: {label: string; loading: string
 export function CreatePostCard({avatarUrl, profileName}: {avatarUrl?: string | null; profileName?: string}) {
   const t = useTranslations("FeedComposer");
   const toastT = useTranslations("Toasts");
+  const imageUploadT = useTranslations("ImageUpload");
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
@@ -50,6 +51,7 @@ export function CreatePostCard({avatarUrl, profileName}: {avatarUrl?: string | n
   const [removedMediaPaths, setRemovedMediaPaths] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const returnPath = pathname || "/feed";
+  const mediaUploading = mediaItems.some((item) => item.uploading);
 
   const placeholder = PLACEHOLDER[locale] ?? PLACEHOLDER.en;
   const links = SECONDARY_LINKS[locale] ?? SECONDARY_LINKS.en;
@@ -61,6 +63,10 @@ export function CreatePostCard({avatarUrl, profileName}: {avatarUrl?: string | n
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (mediaUploading) {
+      toast.error(t("errors.uploading"));
+      return;
+    }
     setSubmitting(true);
 
     const formData = new FormData(e.currentTarget);
@@ -187,7 +193,7 @@ export function CreatePostCard({avatarUrl, profileName}: {avatarUrl?: string | n
               <Button type="button" variant="ghost" onClick={() => setShowForm(false)} className="min-h-10" disabled={submitting}>
                 {t("cancel")}
               </Button>
-              <SubmitButton label={t("post")} loading={t("posting")} pending={submitting} />
+              <SubmitButton label={t("post")} loading={mediaUploading ? imageUploadT("uploading") : t("posting")} pending={submitting || mediaUploading} />
             </div>
           </div>
         </form>

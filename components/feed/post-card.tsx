@@ -73,10 +73,12 @@ export function PostCard({
   post,
   comments: postComments,
   currentUserId,
+  autoOpenComments = false,
 }: {
   post: PostWithAuthor;
   comments: CommentWithAuthor[];
   currentUserId?: string | null;
+  autoOpenComments?: boolean;
 }) {
   const t = useTranslations("Feed");
   const common = useTranslations("Common");
@@ -130,6 +132,13 @@ export function PostCard({
     setIsSaved(post.user_saved ?? false);
     setSavesCount(post.saves_count);
   }, [post.user_saved, post.saves_count]);
+
+  useEffect(() => {
+    if (autoOpenComments) {
+      setShowCommentInput(true);
+      window.setTimeout(() => commentInputRef.current?.focus(), 150);
+    }
+  }, [autoOpenComments]);
 
   async function handleCommentSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -419,6 +428,8 @@ export function PostCard({
                      key={comment.id}
                      commentId={comment.id}
                      author={commentAuthor}
+                     authorId={comment.author?.id ?? comment.author_id}
+                     authorUsername={comment.author?.username}
                      authorAvatarUrl={comment.author?.avatar_url}
                      content={comment.content}
                      timeAgo={timeAgo(comment.created_at, locale)}

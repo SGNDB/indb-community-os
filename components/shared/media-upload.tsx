@@ -1,6 +1,7 @@
 "use client";
 
 import {CheckCircle2, Film, ImagePlus, Loader2, RefreshCw, X} from "lucide-react";
+import Image from "next/image";
 import {useTranslations} from "next-intl";
 import {useCallback, useRef, useState} from "react";
 import {toast} from "sonner";
@@ -44,6 +45,7 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind, allowVide
   const [newItems, setNewItems] = useState<MediaItem[]>([]);
   const [removedExisting, setRemovedExisting] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{type: "image" | "video"; completed: number; total: number} | null>(null);
   const [replaceTarget, setReplaceTarget] = useState<
     | {kind: "existing"; storagePath: string}
     | {kind: "new"; id: string}
@@ -127,6 +129,7 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind, allowVide
     }
 
     setUploading(true);
+    setUploadProgress({type: "image", completed: 0, total: files.length});
 
     const placeholders: MediaItem[] = files.map(() => ({
       id: `new-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
@@ -140,20 +143,15 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind, allowVide
     setNewItems(currentItems);
     notifyChange(currentItems);
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const placeholderId = placeholders[i].id;
-
+    const uploadOne = async (file: File, placeholderId: string) => {
       try {
         const result = await uploadMediaItem(file, uploadKind);
 
         currentItems = currentItems.map((item) =>
-            item.id === placeholderId
-              ? {...item, url: result.url, storagePath: result.storagePath, mimeType: result.mimeType, uploading: false}
-              : item,
+          item.id === placeholderId
+            ? {...item, url: result.url, storagePath: result.storagePath, mimeType: result.mimeType, uploading: false}
+            : item,
         );
-        setNewItems(currentItems);
-        notifyChange(currentItems);
       } catch (error) {
         const msg = error instanceof ImageUploadError ? t(error.code) : t("failed");
         toast.error(msg);
@@ -161,13 +159,33 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind, allowVide
         currentItems = currentItems.map((item) =>
           item.id === placeholderId ? {...item, uploading: false, failed: true} : item,
         );
+      } finally {
         setNewItems(currentItems);
         notifyChange(currentItems);
+        setUploadProgress((progress) => progress ? {
+          ...progress,
+          completed: Math.min(progress.total, progress.completed + 1),
+        } : progress);
       }
-    }
+    };
 
-    setUploading(false);
-    e.target.value = "";
+    try {
+      const concurrency = Math.min(3, files.length);
+      let nextIndex = 0;
+      await Promise.all(
+        Array.from({length: concurrency}, async () => {
+          while (nextIndex < files.length) {
+            const index = nextIndex;
+            nextIndex += 1;
+            await uploadOne(files[index], placeholders[index].id);
+          }
+        }),
+      );
+    } finally {
+      setUploading(false);
+      setUploadProgress(null);
+      e.target.value = "";
+    }
   }
 
   function startReplace(target: {kind: "existing"; storagePath: string} | {kind: "new"; id: string}) {
@@ -186,6 +204,7 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind, allowVide
       : `new-${replaceTarget.id}`;
 
     setUploading(true);
+    setUploadProgress({type: "image", completed: 0, total: 1});
     setReplacingKey(key);
 
     try {
@@ -219,6 +238,7 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind, allowVide
       toast.error(msg);
     } finally {
       setUploading(false);
+      setUploadProgress(null);
       setReplacingKey(null);
       setReplaceTarget(null);
     }
@@ -229,6 +249,12 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind, allowVide
     if (!file) return;
 
     if (hasImage) {
+      toast.error(t("imagesOrVideo"));
+      e.target.value = "";
+      return;
+    }
+
+    if (hasVideo) {
       toast.error(t("imagesOrVideo"));
       e.target.value = "";
       return;
@@ -265,6 +291,8 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind, allowVide
     let currentItems = [...filtered, placeholder];
     setNewItems(currentItems);
     notifyChange(currentItems);
+    setUploading(true);
+    setUploadProgress({type: "video", completed: 0, total: 1});
 
     try {
       const result = await uploadMediaItem(file, uploadKind);
@@ -284,6 +312,10 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind, allowVide
       );
       setNewItems(currentItems);
       notifyChange(currentItems);
+    }
+    finally {
+      setUploading(false);
+      setUploadProgress(null);
     }
 
     e.target.value = "";
@@ -314,7 +346,7 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind, allowVide
             accept={ACCEPTED_IMAGE_EXTENSIONS}
             multiple
             className="hidden"
-            disabled={uploading || hasVideo}
+            disabled={uploading}
             onChange={(e) => void handleImageSelect(e)}
           />
         </label>
@@ -336,7 +368,7 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind, allowVide
               type="file"
               accept={ACCEPTED_VIDEO_EXTENSIONS}
               className="hidden"
-              disabled={uploading || hasImage || newItems.some((f) => f.type === "video")}
+              disabled={uploading}
               onChange={(e) => void handleVideoSelect(e)}
             />
           </label>
@@ -345,7 +377,12 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind, allowVide
         {uploading ? (
           <span className="flex items-center gap-1 text-sm text-muted-foreground">
             <Loader2 size={14} className="animate-spin" />
-            {t("uploading")}
+            {uploadProgress?.type === "image" && uploadProgress.total > 1
+              ? t("uploadingImagesProgress", {
+                  current: Math.min(uploadProgress.total, uploadProgress.completed + 1),
+                  total: uploadProgress.total,
+                })
+              : t("uploading")}
           </span>
         ) : null}
       </div>
@@ -362,7 +399,7 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind, allowVide
               ) : item.type === "video" ? (
                 <video src={item.url} controls playsInline preload="metadata" className="h-full w-full object-cover" />
               ) : (
-                <img src={item.url} alt="" className="h-full w-full object-cover" />
+                <Image src={item.url} alt="" fill sizes="160px" className="object-cover" />
               )}
               {replacingKey !== `existing-${item.storagePath}` ? (
                 <div className="absolute end-1.5 top-1.5 flex gap-1 opacity-0 transition group-hover:opacity-100">
@@ -408,7 +445,7 @@ export function MediaUpload({existingMedia, onMediaChange, uploadKind, allowVide
               ) : item.type === "video" ? (
                 <video src={item.url} controls playsInline preload="metadata" className="h-full w-full object-cover" />
               ) : (
-                <img src={item.url} alt="" className="h-full w-full object-cover" />
+                <Image src={item.url} alt="" fill sizes="160px" className="object-cover" />
               )}
               {!item.uploading && !item.failed ? (
                 <div className="absolute end-1.5 top-1.5 flex gap-1">

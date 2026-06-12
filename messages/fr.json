@@ -155,11 +155,12 @@
     "commentedOnYourIdea": "{actorName} a commenté votre idée",
     "sharedYourIdea": "{actorName} a partagé votre idée",
     "reactedToMemory": "{actorName} a réagi à votre souvenir",
-    "commentedOnYourMemory": "{actorName} a commenté votre souvenir",
+    "commentedOnYourMemory": "{actorName} a commenté votre mémoire",
     "sharedYourMemory": "{actorName} a partagé votre souvenir",
     "creditAwarded": "Vous avez reçu {points} points de contribution",
     "someone": "Quelqu'un",
-    "communityShareRequested": "Quelqu'un souhaite recevoir l'objet que vous avez partage"
+    "communityShareRequested": "Quelqu'un souhaite recevoir l'objet que vous avez partage",
+    "loadMore": "Charger plus"
   },
   "RightSidebar": {
     "trendingTopics": "Sujets tendance",
@@ -253,7 +254,8 @@
     "notFoundDescription": "La publication que vous essayez de modifier n'existe pas.",
     "errors": {
       "submitFailed": "Impossible de publier la publication. Veuillez réessayer.",
-      "postFailed": "Impossible de publier la publication. Veuillez réessayer."
+      "postFailed": "Impossible de publier la publication. Veuillez réessayer.",
+      "uploading": "Veuillez attendre la fin du téléversement des médias."
     }
   },
   "Memory": {
@@ -793,7 +795,8 @@
     "failed": "Échec du téléversement.",
     "compressionFailed": "Échec de la préparation de l'image.",
     "notAuthenticated": "Veuillez vous connecter avant de téléverser.",
-    "noFile": "Veuillez choisir un fichier à téléverser."
+    "noFile": "Veuillez choisir un fichier à téléverser.",
+    "uploadingImagesProgress": "Téléversement des images {current} sur {total}..."
   },
   "Brand": {
     "title": "INDB Community OS",
@@ -811,18 +814,18 @@
   "EmptyStates": {
     "posts": {
       "title": "Aucune publication pour le moment",
-      "description": "Soyez la première personne à partager quelque chose avec la communauté.",
+      "description": "Soyez le premier à partager ce qui se passe à Nouadhibou.",
       "cta": "Créer une publication"
     },
     "memories": {
-      "title": "Aucune archive pour le moment",
-      "description": "Aidez à préserver le patrimoine local en partageant le premier souvenir communautaire.",
-      "cta": "Soumettre un souvenir"
+      "title": "Aucun souvenir pour le moment",
+      "description": "Préservez une histoire, une photo ou un moment de Nouadhibou.",
+      "cta": "Partager un souvenir"
     },
     "ideas": {
       "title": "Aucune idée pour le moment",
-      "description": "Lancez la discussion avec une idée concrète pour Nouadhibou.",
-      "cta": "Soumettre une idée"
+      "description": "Lancez la prochaine idée utile pour la communauté.",
+      "cta": "Partager une idée"
     },
     "events": {
       "title": "Aucun événement pour le moment",
@@ -846,8 +849,8 @@
     },
     "fadla": {
       "title": "Aucun partage pour le moment",
-      "description": "Partagez un objet utile dont vous n'avez plus besoin et aidez une autre famille.",
-      "cta": "Ouvrir Fadla"
+      "description": "Partagez un objet utile dont vous n’avez plus besoin pour aider un voisin.",
+      "cta": "Partager un objet"
     }
   },
   "ConfirmDialog": {

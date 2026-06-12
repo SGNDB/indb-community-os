@@ -155,11 +155,12 @@
     "commentedOnYourIdea": "{actorName} siiwu miijo maa",
     "sharedYourIdea": "{actorName} ntenxinti miijo maa",
     "reactedToMemory": "{actorName} jaabinta jikku maa",
-    "commentedOnYourMemory": "{actorName} siiwu jikku maa",
+    "commentedOnYourMemory": "{actorName} commented on your memory",
     "sharedYourMemory": "{actorName} ntenxinti jikku maa",
     "creditAwarded": "I sera {points} keredi tawtital",
     "communityShareRequested": "Nkunto sera ntene no i ntinxinin.",
-    "someone": "Nkunto"
+    "someone": "Nkunto",
+    "loadMore": "Load more"
   },
   "RightSidebar": {
     "trendingTopics": "Jeli No Mberlin",
@@ -253,7 +254,8 @@
     "notFoundDescription": "Keyiŋe no yidi taƴtu sanya.",
     "errors": {
       "submitFailed": "Firinta keyiŋe wa. Fo i kote.",
-      "postFailed": "Firinta keyiŋe wa. Fo i kote."
+      "postFailed": "Firinta keyiŋe wa. Fo i kote.",
+      "uploading": "Please wait until media upload finishes."
     }
   },
   "Memory": {
@@ -793,7 +795,8 @@
     "failed": "Ɲarxi wa.",
     "compressionFailed": "Tapir nta ga ɲarxi wa.",
     "notAuthenticated": "Don yinta ɲarxi.",
-    "noFile": "Suubu faylo ga ɲarxi."
+    "noFile": "Suubu faylo ga ɲarxi.",
+    "uploadingImagesProgress": "Uploading images {current} of {total}..."
   },
   "Brand": {
     "title": "INDB Community OS",
@@ -810,24 +813,24 @@
   },
   "EmptyStates": {
     "posts": {
-      "title": "Keyiŋe sanya haa saati",
-      "description": "I tamma ntene no ma jamasiye.",
-      "cta": "Mah keyiŋe"
+      "title": "No community stories yet",
+      "description": "Be the first to share what is happening in Nouadhibou.",
+      "cta": "Create a post"
     },
     "memories": {
-      "title": "Jikku sanya haa saati",
-      "description": "Detem mar alaaman nokku e ntentine jikku jamasiye tamma.",
-      "cta": "Ntene jikku"
+      "title": "No memories yet",
+      "description": "Preserve a story, photo, or moment from Nouadhibou.",
+      "cta": "Share a memory"
     },
     "ideas": {
-      "title": "Miiji sanya haa saati",
-      "description": "Tun yeewtal e miijo goy ga Nuwaadibu.",
-      "cta": "Ntene miijo"
+      "title": "No ideas yet",
+      "description": "Start the next community improvement idea.",
+      "cta": "Share an idea"
     },
     "fadla": {
-      "title": "Ntentine sanya haa saati",
-      "description": "Ntene no ma sugu no ma hampa e detem kore nto.",
-      "cta": "Fen Fadla"
+      "title": "No shares yet",
+      "description": "Share something useful you no longer need and help a neighbor.",
+      "cta": "Share something"
     },
     "events": {
       "title": "Kaabutin sanya haa saati",

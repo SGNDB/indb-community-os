@@ -155,11 +155,12 @@
     "commentedOnYourIdea": "{actorName} wiɗtii miijo maa",
     "sharedYourIdea": "{actorName} yeɗitike miijo maa",
     "reactedToMemory": "{actorName} jaabitike jikku maa",
-    "commentedOnYourMemory": "{actorName} wiɗtii jikku maa",
+    "commentedOnYourMemory": "{actorName} commented on your memory",
     "sharedYourMemory": "{actorName} yeɗitike jikku maa",
     "creditAwarded": "Heɓii {points} kiredi ballondiral",
     "communityShareRequested": "Goɗɗo ƴami huunde nde yeɗuɗaa",
-    "someone": "Goɗɗo"
+    "someone": "Goɗɗo",
+    "loadMore": "Load more"
   },
   "RightSidebar": {
     "trendingTopics": "Toɓɓe No Mberlaa",
@@ -253,7 +254,8 @@
     "notFoundDescription": "Blaŋto ngo eɗaa etoo taƴtude alaa.",
     "errors": {
       "submitFailed": "Firtde blaŋto waawaa. Eɗen mballu en, eto kadi.",
-      "postFailed": "Firtde blaŋto waawaa. Eɗen mballu en, eto kadi."
+      "postFailed": "Firtde blaŋto waawaa. Eɗen mballu en, eto kadi.",
+      "uploading": "Please wait until media upload finishes."
     }
   },
   "Memory": {
@@ -793,7 +795,8 @@
     "failed": "Loowde dañii.",
     "compressionFailed": "Tappirde nate ngam loowde dañii.",
     "notAuthenticated": "Eɗen mballu en naatu yeeso loowde.",
-    "noFile": "Eɗen mballu en suɓo faylo ngam loowde."
+    "noFile": "Eɗen mballu en suɓo faylo ngam loowde.",
+    "uploadingImagesProgress": "Uploading images {current} of {total}..."
   },
   "Brand": {
     "title": "INDB Community OS",
@@ -810,24 +813,24 @@
   },
   "EmptyStates": {
     "posts": {
-      "title": "Alaa blaŋtooji haa jooni",
-      "description": "Warna aɗa yeɗitit huunde e kuurdu.",
-      "cta": "Mah blaŋto"
+      "title": "No community stories yet",
+      "description": "Be the first to share what is happening in Nouadhibou.",
+      "cta": "Create a post"
     },
     "memories": {
-      "title": "Alaa jikkuuji haa jooni",
-      "description": "Ballu reende ngalu nokkuwal e yeɗitde jikku kuurdu aranndu.",
-      "cta": "Yeɗ jikku"
+      "title": "No memories yet",
+      "description": "Preserve a story, photo, or moment from Nouadhibou.",
+      "cta": "Share a memory"
     },
     "ideas": {
-      "title": "Alaa miijooji haa jooni",
-      "description": "Fuɗɗo yeewtal e miijo kuuɓtuɗo ngam Nuwaadibu.",
-      "cta": "Yeɗ miijo"
+      "title": "No ideas yet",
+      "description": "Start the next community improvement idea.",
+      "cta": "Share an idea"
     },
     "fadla": {
-      "title": "Alaa yeɗitine haa jooni",
-      "description": "Yeɗit huunde nafoore njiɗaa koo ndu heddii e juuɗe maa wallita galle goo.",
-      "cta": "Uddit Fadla"
+      "title": "No shares yet",
+      "description": "Share something useful you no longer need and help a neighbor.",
+      "cta": "Share something"
     },
     "events": {
       "title": "Alaa ɗewte haa jooni",

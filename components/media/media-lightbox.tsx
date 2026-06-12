@@ -2,6 +2,7 @@
 
 import {useCallback, useEffect, useRef, useState} from "react";
 import {ChevronLeft, ChevronRight, X} from "lucide-react";
+import Image from "next/image";
 import {useLocale} from "next-intl";
 
 import type {MediaCarouselItem} from "@/components/media/media-carousel";
@@ -149,12 +150,16 @@ export function MediaLightbox({items, initialIndex, open, onOpenChange}: MediaLi
               className="max-h-[90vh] max-w-[95vw] object-contain"
             />
           ) : (
-            <img
-              src={currentItem.url}
-              alt={currentItem.alt ?? ""}
-              className="max-h-[90vh] max-w-[95vw] select-none object-contain"
-              draggable={false}
-            />
+            <div className="relative h-[90vh] w-[95vw]">
+              <Image
+                src={currentItem.url}
+                alt={currentItem.alt ?? ""}
+                fill
+                sizes="95vw"
+                className="select-none object-contain"
+                draggable={false}
+              />
+            </div>
           )}
         </div>
       </div>

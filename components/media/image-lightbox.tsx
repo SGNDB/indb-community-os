@@ -2,6 +2,7 @@
 
 import {useCallback, useEffect, useRef, useState} from "react";
 import {ChevronLeft, ChevronRight, X} from "lucide-react";
+import Image from "next/image";
 import {useLocale} from "next-intl";
 
 interface ImageLightboxProps {
@@ -114,13 +115,16 @@ export function ImageLightbox({images, initialIndex, open, onOpenChange}: ImageL
           <X size={24} />
         </button>
 
-        <img
-          src={images[index]}
-          alt=""
-          className="max-h-[90vh] max-w-[95vw] object-contain select-none"
-          onClick={(e) => e.stopPropagation()}
-          draggable={false}
-        />
+        <div className="relative h-[90vh] w-[95vw]" onClick={(e) => e.stopPropagation()}>
+          <Image
+            src={images[index]}
+            alt=""
+            fill
+            sizes="95vw"
+            className="object-contain select-none"
+            draggable={false}
+          />
+        </div>
       </div>
 
       {images.length > 1 ? (

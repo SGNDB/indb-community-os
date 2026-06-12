@@ -10,6 +10,7 @@ import {addMemoryCommentAction, deleteMemoryCommentAction, updateMemoryCommentAc
 import {TranslateButton} from "@/components/shared/translate-button";
 import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
 import {UserAvatar} from "@/components/layout/user-avatar";
+import {Link} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/client";
 import type {MemoryCommentWithAuthor} from "@/types/database";
 
@@ -118,6 +119,17 @@ export function MemoryComments({
     fetchComments();
     return () => { cancelled = true; };
   }, [open, memoryId, onCommentCountChange, supabase]);
+
+  useEffect(() => {
+    if (!open || loading || comments.length === 0 || typeof window === "undefined") return;
+
+    const hash = window.location.hash;
+    if (!hash.startsWith("#comment-")) return;
+
+    window.setTimeout(() => {
+      document.getElementById(hash.slice(1))?.scrollIntoView({behavior: "smooth", block: "center"});
+    }, 100);
+  }, [comments.length, loading, open]);
 
   async function handleSubmit() {
     const trimmed = input.trim();
@@ -272,17 +284,38 @@ export function MemoryComments({
                     const isEditing = editingCommentId === comment.id;
                     const isDeleting = deletingCommentId === comment.id;
                     const isUpdating = updatingCommentId === comment.id;
+                    const authorHref = comment.author?.username
+                      ? `/profile/${comment.author.username}`
+                      : comment.author?.id
+                        ? `/profile/${comment.author.id}`
+                        : null;
                     return (
-                      <div key={comment.id} className="flex gap-2.5">
-                        <UserAvatar
-                          label={commentAuthorName}
-                          avatarUrl={comment.author?.avatar_url}
-                          className="mt-0.5 h-7 w-7 shrink-0"
-                        />
+                      <div key={comment.id} id={`comment-${comment.id}`} className="flex scroll-mt-28 gap-2.5 target:rounded-xl target:ring-2 target:ring-primary/40">
+                        {authorHref ? (
+                          <Link href={authorHref} className="mt-0.5 shrink-0 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/40">
+                            <UserAvatar
+                              label={commentAuthorName}
+                              avatarUrl={comment.author?.avatar_url}
+                              className="h-7 w-7 shrink-0"
+                            />
+                          </Link>
+                        ) : (
+                          <UserAvatar
+                            label={commentAuthorName}
+                            avatarUrl={comment.author?.avatar_url}
+                            className="mt-0.5 h-7 w-7 shrink-0"
+                          />
+                        )}
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-col gap-0.5">
                             <div className="flex items-baseline gap-2">
-                              <span className="text-xs font-medium">{commentAuthorName}</span>
+                              {authorHref ? (
+                                <Link href={authorHref} className="text-xs font-medium transition hover:text-primary hover:underline">
+                                  {commentAuthorName}
+                                </Link>
+                              ) : (
+                                <span className="text-xs font-medium">{commentAuthorName}</span>
+                              )}
                               <span className="text-xs text-muted-foreground">
                                 {timeAgo(comment.created_at, locale)}
                               </span>

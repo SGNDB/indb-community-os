@@ -238,6 +238,7 @@ export interface NotificationRow {
   title: string;
   message: string | null;
   read: boolean;
+  metadata: Record<string, unknown> | null;
   created_at: string;
 }
 

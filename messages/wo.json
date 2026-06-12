@@ -155,11 +155,12 @@
     "commentedOnYourIdea": "{actorName} nangu na ci xalaat bi",
     "sharedYourIdea": "{actorName} ngalif na xalaat bi",
     "reactedToMemory": "{actorName} jaabi na jikku bi",
-    "commentedOnYourMemory": "{actorName} nangu na ci jikku bi",
+    "commentedOnYourMemory": "{actorName} commented on your memory",
     "sharedYourMemory": "{actorName} ngalif na jikku bi",
     "creditAwarded": "Yagg nga am {points} credi tawtital",
     "communityShareRequested": "Nit ñaari laaj na mbariy bu ngalif",
-    "someone": "Nit"
+    "someone": "Nit",
+    "loadMore": "Load more"
   },
   "RightSidebar": {
     "trendingTopics": "Topiku ñu taw",
@@ -253,7 +254,8 @@
     "notFoundDescription": "Mbaal bi nga bëgg soppi amul.",
     "errors": {
       "submitFailed": "Mënul sàkk mbaal. Tànnal cat.",
-      "postFailed": "Mënul sàkk mbaal. Tànnal cat."
+      "postFailed": "Mënul sàkk mbaal. Tànnal cat.",
+      "uploading": "Please wait until media upload finishes."
     }
   },
   "Memory": {
@@ -793,7 +795,8 @@
     "failed": "Mënul yeb.",
     "compressionFailed": "Mënul tapir nataal ngir yeb.",
     "notAuthenticated": "Dugg jëk yeb.",
-    "noFile": "Tànnal faylo ngir yeb."
+    "noFile": "Tànnal faylo ngir yeb.",
+    "uploadingImagesProgress": "Uploading images {current} of {total}..."
   },
   "Brand": {
     "title": "INDB Community OS",
@@ -810,24 +813,24 @@
   },
   "EmptyStates": {
     "posts": {
-      "title": "Amul mbaal ba leegi",
-      "description": "Ngay jëk ngalif lu ci mbootaay bi.",
-      "cta": "Sos mbaal"
+      "title": "No community stories yet",
+      "description": "Be the first to share what is happening in Nouadhibou.",
+      "cta": "Create a post"
     },
     "memories": {
-      "title": "Amul jikku ba leegi",
-      "description": "Dimbali aar tarakta ñook ngir ngalif jikku mbootaay bu jëk.",
-      "cta": "Ngalif jikku"
+      "title": "No memories yet",
+      "description": "Preserve a story, photo, or moment from Nouadhibou.",
+      "cta": "Share a memory"
     },
     "ideas": {
-      "title": "Amul xalaat ba leegi",
-      "description": "Tàmbali waxtuwaay ag xalaat bu am solo ngir Nuwadibu.",
-      "cta": "Ngalif xalaat"
+      "title": "No ideas yet",
+      "description": "Start the next community improvement idea.",
+      "cta": "Share an idea"
     },
     "fadla": {
-      "title": "Amul ngalifte ba leegi",
-      "description": "Ngalif lu am solo nga bàyyi ak dimbali kër buñoom.",
-      "cta": "Ubbi Fadla"
+      "title": "No shares yet",
+      "description": "Share something useful you no longer need and help a neighbor.",
+      "cta": "Share something"
     },
     "events": {
       "title": "Amul jël ba leegi",

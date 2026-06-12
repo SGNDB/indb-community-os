@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {useMemo, useState} from "react";
 
 import {awardCommunityCreditsAction} from "@/app/[locale]/server-actions";
@@ -104,7 +105,7 @@ export function CreditAwardForm({
                   )}
                 >
                   {user.avatar_url ? (
-                    <img src={user.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover" />
+                    <Image src={user.avatar_url} alt="" width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
                   ) : (
                     <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted font-black">
                       {initials(name)}

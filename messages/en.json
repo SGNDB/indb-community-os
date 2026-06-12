@@ -159,7 +159,8 @@
     "sharedYourMemory": "{actorName} shared your memory",
     "creditAwarded": "You received {points} contribution points",
     "communityShareRequested": "Someone requested the item you shared",
-    "someone": "Someone"
+    "someone": "Someone",
+    "loadMore": "Load more"
   },
   "RightSidebar": {
     "trendingTopics": "Trending Topics",
@@ -253,7 +254,8 @@
     "notFoundDescription": "The post you are trying to edit does not exist.",
     "errors": {
       "submitFailed": "Could not publish post. Please try again.",
-      "postFailed": "Could not publish post. Please try again."
+      "postFailed": "Could not publish post. Please try again.",
+      "uploading": "Please wait until media upload finishes."
     }
   },
   "Memory": {
@@ -793,7 +795,8 @@
     "failed": "Failed to upload.",
     "compressionFailed": "Failed to prepare image for upload.",
     "notAuthenticated": "Please log in before uploading.",
-    "noFile": "Please choose a file to upload."
+    "noFile": "Please choose a file to upload.",
+    "uploadingImagesProgress": "Uploading images {current} of {total}..."
   },
   "Brand": {
     "title": "INDB Community OS",
@@ -810,24 +813,24 @@
   },
   "EmptyStates": {
     "posts": {
-      "title": "No posts yet",
-      "description": "Be the first person to share something with the community.",
+      "title": "No community stories yet",
+      "description": "Be the first to share what is happening in Nouadhibou.",
       "cta": "Create a post"
     },
     "memories": {
       "title": "No memories yet",
-      "description": "Help preserve local heritage by sharing the first community memory.",
-      "cta": "Submit memory"
+      "description": "Preserve a story, photo, or moment from Nouadhibou.",
+      "cta": "Share a memory"
     },
     "ideas": {
       "title": "No ideas yet",
-      "description": "Start the conversation with a practical idea for Nouadhibou.",
-      "cta": "Submit idea"
+      "description": "Start the next community improvement idea.",
+      "cta": "Share an idea"
     },
     "fadla": {
-      "title": "No shared items yet",
-      "description": "Share something useful you no longer need and help another family.",
-      "cta": "Open Fadla"
+      "title": "No shares yet",
+      "description": "Share something useful you no longer need and help a neighbor.",
+      "cta": "Share something"
     },
     "events": {
       "title": "No events yet",

@@ -155,11 +155,12 @@
     "commentedOnYourIdea": "علّق {actorName} على فكرتك",
     "sharedYourIdea": "شارك {actorName} فكرتك",
     "reactedToMemory": "تفاعل {actorName} مع ذاكرتك",
-    "commentedOnYourMemory": "علّق {actorName} على ذاكرتك",
+    "commentedOnYourMemory": "علّق {actorName} على ذكراك",
     "sharedYourMemory": "شارك {actorName} ذاكرتك",
     "creditAwarded": "لقد حصلت على {points} نقاط مساهمة",
     "someone": "شخص ما",
-    "communityShareRequested": "طلب شخص الاستفادة من العنصر الذي شاركته"
+    "communityShareRequested": "طلب شخص الاستفادة من العنصر الذي شاركته",
+    "loadMore": "عرض المزيد"
   },
   "RightSidebar": {
     "trendingTopics": "المواضيع الرائجة",
@@ -253,7 +254,8 @@
     "notFoundDescription": "المنشور الذي تحاول تعديله غير موجود.",
     "errors": {
       "submitFailed": "تعذر نشر المنشور. يرجى المحاولة مرة أخرى.",
-      "postFailed": "تعذر نشر المنشور. يرجى المحاولة مرة أخرى."
+      "postFailed": "تعذر نشر المنشور. يرجى المحاولة مرة أخرى.",
+      "uploading": "يرجى الانتظار حتى يكتمل رفع الوسائط."
     }
   },
   "Memory": {
@@ -793,7 +795,8 @@
     "failed": "فشل الرفع.",
     "compressionFailed": "فشل تجهيز الصورة للرفع.",
     "notAuthenticated": "يرجى تسجيل الدخول قبل الرفع.",
-    "noFile": "يرجى اختيار ملف لرفعه."
+    "noFile": "يرجى اختيار ملف لرفعه.",
+    "uploadingImagesProgress": "جارٍ رفع الصور {current} من {total}..."
   },
   "Brand": {
     "title": "INDB Community OS",
@@ -811,18 +814,18 @@
   "EmptyStates": {
     "posts": {
       "title": "لا توجد منشورات بعد",
-      "description": "كن أول من يشارك محتوى مع المجتمع.",
+      "description": "كن أول من يشارك ما يحدث في نواذيبو.",
       "cta": "أنشئ منشورًا"
     },
     "memories": {
       "title": "لا توجد ذكريات بعد",
-      "description": "ساعد في حفظ التراث المحلي عبر مشاركة أول ذكرى مجتمعية.",
-      "cta": "إرسال ذكرى"
+      "description": "احفظ قصة أو صورة أو لحظة من نواذيبو.",
+      "cta": "شارك ذكرى"
     },
     "ideas": {
       "title": "لا توجد أفكار بعد",
-      "description": "ابدأ النقاش بفكرة عملية لخدمة نواذيبو.",
-      "cta": "إرسال فكرة"
+      "description": "ابدأ فكرة جديدة تفيد المجتمع.",
+      "cta": "شارك فكرة"
     },
     "events": {
       "title": "لا توجد فعاليات بعد",
@@ -845,9 +848,9 @@
       "cta": "استكشف المنشورات"
     },
     "fadla": {
-      "title": "لا توجد عناصر مشاركة بعد",
-      "description": "شارك شيئًا مفيدًا لم تعد تحتاجه وساعد عائلة أخرى.",
-      "cta": "افتح الفظلة"
+      "title": "لا توجد مشاركات بعد",
+      "description": "شارك شيئًا مفيدًا لم تعد تحتاجه وساعد جارًا.",
+      "cta": "شارك شيئًا"
     }
   },
   "ConfirmDialog": {

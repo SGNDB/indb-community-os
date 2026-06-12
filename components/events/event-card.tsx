@@ -2,6 +2,7 @@
 
 import {motion} from "framer-motion";
 import {CalendarDays, MapPin} from "lucide-react";
+import Image from "next/image";
 import {useTranslations} from "next-intl";
 import {toast} from "sonner";
 
@@ -22,7 +23,9 @@ export function EventCard({event}: {event: EventWithCreator}) {
     >
       <Card className="overflow-hidden border-border/70">
         {event.image_url ? (
-          <img src={event.image_url} alt={event.title} className="h-40 w-full object-cover sm:h-44" />
+          <div className="relative h-40 w-full sm:h-44">
+            <Image src={event.image_url} alt={event.title} fill sizes="(max-width: 768px) 100vw, 360px" className="object-cover" />
+          </div>
         ) : (
           <div className="flex h-40 w-full items-center justify-center bg-muted sm:h-44">
             <CalendarDays size={32} className="text-muted-foreground/40" />

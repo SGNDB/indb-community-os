@@ -3,6 +3,7 @@
 import {useRef, useState} from "react";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
+import Image from "next/image";
 import {useTranslations} from "next-intl";
 import {Camera, Loader2, X} from "lucide-react";
 import {z} from "zod";
@@ -189,7 +190,7 @@ export function EditProfileModal({
               onClick={() => coverInputRef.current?.click()}
             >
               {coverPreview ? (
-                <img src={coverPreview} alt="" className="h-full w-full object-cover" />
+                <Image src={coverPreview} alt="" fill sizes="(max-width: 768px) 100vw, 640px" unoptimized={coverPreview.startsWith("blob:") || coverPreview.startsWith("data:")} className="object-cover" />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20">
                   <Camera size={32} className="text-muted-foreground" />
@@ -218,7 +219,7 @@ export function EditProfileModal({
                 onClick={() => avatarInputRef.current?.click()}
               >
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt="" className="h-full w-full object-cover" />
+                  <Image src={avatarPreview} alt="" fill sizes="96px" unoptimized={avatarPreview.startsWith("blob:") || avatarPreview.startsWith("data:")} className="object-cover" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center">
                     <Camera size={28} className="text-muted-foreground" />

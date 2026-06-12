@@ -2,6 +2,7 @@
 
 import {useState} from "react";
 import {useSearchParams} from "next/navigation";
+import Image from "next/image";
 import {useTranslations} from "next-intl";
 import {
   CalendarDays,
@@ -128,18 +129,22 @@ export function ProfileClient({
         {/* Cover Image */}
         <div className="relative h-48 overflow-hidden rounded-2xl sm:h-56 md:h-64">
           {profile.cover_image_url ? (
-            <img
+            <Image
               src={profile.cover_image_url}
               alt=""
-              className="h-full w-full object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, 896px"
+              className="object-cover"
             />
           ) : (
             <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-card">
               <div className="absolute inset-0 flex items-center justify-center opacity-[0.07] dark:opacity-[0.04]">
-                <img
+                <Image
                   src="/images/logondb.jpeg"
                   alt=""
-                  className="h-2/3 w-2/3 object-contain"
+                  fill
+                  sizes="400px"
+                  className="object-contain p-12"
                 />
               </div>
               <span className="relative select-none text-5xl font-bold tracking-wider text-primary/10 dark:text-primary/[0.07] sm:text-7xl">
@@ -166,18 +171,22 @@ export function ProfileClient({
                 className="group relative inline-block"
               >
                 {profile.avatar_url ? (
-                  <img
+                  <Image
                     src={profile.avatar_url}
                     alt={displayName}
+                    width={144}
+                    height={144}
                     className="h-28 w-28 rounded-full border-4 border-card object-cover sm:h-36 sm:w-36"
                   />
                 ) : (
                   <div className="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-4 border-card bg-muted sm:h-36 sm:w-36">
                     <div className="absolute inset-0 flex items-center justify-center opacity-[0.08] dark:opacity-[0.05]">
-                      <img
+                      <Image
                         src="/images/logondb.jpeg"
                         alt=""
-                        className="h-3/4 w-3/4 object-contain"
+                        fill
+                        sizes="120px"
+                        className="object-contain p-5"
                       />
                     </div>
                     <span className="relative select-none text-3xl font-bold tracking-wider text-primary/20 dark:text-primary/[0.12] sm:text-4xl">

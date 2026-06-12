@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import {cn} from "@/lib/utils/cn";
 
 function getInitials(name: string): string {
@@ -17,9 +19,12 @@ export function UserAvatar({
 }) {
   if (avatarUrl) {
     return (
-      <img
+      <Image
         src={avatarUrl}
         alt={label}
+        width={80}
+        height={80}
+        unoptimized={avatarUrl.startsWith("blob:") || avatarUrl.startsWith("data:")}
         className={cn("rounded-full object-cover", className ?? "h-10 w-10")}
         title={label}
       />

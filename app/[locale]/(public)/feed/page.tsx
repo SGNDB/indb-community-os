@@ -6,7 +6,7 @@ import {CreatePostCard} from "@/components/feed/create-post-card";
 import {PostCard} from "@/components/feed/post-card";
 import {EmptyState} from "@/components/shared/empty-state";
 import {PaginationControls} from "@/components/shared/pagination-controls";
-import {getCommentsByPost} from "@/lib/data/comments";
+import {getCommentsForPosts} from "@/lib/data/comments";
 import {getPostsPage} from "@/lib/data/posts";
 import {getCurrentProfile} from "@/lib/data/profile";
 import {createClient} from "@/lib/supabase/server";
@@ -30,7 +30,7 @@ export default async function FeedPage({
   searchParams,
 }: {
   params: Promise<{locale: string}>;
-  searchParams: Promise<{page?: string}>;
+  searchParams: Promise<{page?: string; post?: string; comment?: string}>;
 }) {
   const {locale} = await params;
   const sp = await searchParams;
@@ -45,6 +45,7 @@ export default async function FeedPage({
 
   const postsPage = await getPostsPage({currentUserId, page});
   const posts = postsPage.items;
+  const commentsByPost = await getCommentsForPosts(posts.map((post) => post.id));
 
   const profileName = profile?.full_name ?? profile?.username ?? user?.email ?? "?";
 
@@ -54,12 +55,15 @@ export default async function FeedPage({
 
       {posts.length > 0 ? (
         <div className="space-y-3 sm:space-y-4">
-          {await Promise.all(
-            posts.map(async (post) => {
-              const comments = await getCommentsByPost(post.id);
-              return <PostCard key={post.id} post={post} comments={comments} currentUserId={currentUserId} />;
-            }),
-          )}
+          {posts.map((post) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              comments={commentsByPost[post.id] ?? []}
+              currentUserId={currentUserId}
+              autoOpenComments={sp.post === post.id || !!commentsByPost[post.id]?.some((comment) => comment.id === sp.comment)}
+            />
+          ))}
         </div>
       ) : (
         <EmptyState

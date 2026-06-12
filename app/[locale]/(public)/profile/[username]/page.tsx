@@ -1,5 +1,6 @@
 import {CalendarDays, Heart, MapPin, UserRound} from "lucide-react";
 import type {Metadata} from "next";
+import Image from "next/image";
 import {notFound} from "next/navigation";
 import {getTranslations} from "next-intl/server";
 
@@ -123,9 +124,11 @@ export default async function PublicProfilePage({
           <div className="flex flex-col sm:flex-row sm:items-end sm:gap-5">
             <div className="-mt-16 sm:-mt-20 z-10 flex shrink-0 justify-center sm:justify-start">
               {profile.avatar_url ? (
-                <img
+                <Image
                   src={profile.avatar_url}
                   alt={displayName}
+                  width={160}
+                  height={160}
                   className="h-32 w-32 rounded-full border-4 border-card object-cover sm:h-40 sm:w-40"
                 />
               ) : (

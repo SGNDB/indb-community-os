@@ -23,10 +23,13 @@ export async function generateMetadata({
 
 export default async function MemoryDetailsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{locale: string; slug: string}>;
+  searchParams: Promise<{comment?: string; notification?: string}>;
 }) {
   const {locale, slug} = await params;
+  const sp = await searchParams;
   const t = await getTranslations({locale, namespace: "Memory"});
   const memory = await getMemoryById(slug);
 
@@ -39,7 +42,7 @@ export default async function MemoryDetailsPage({
 
   return (
     <div className="space-y-5">
-      <MemoryDetailsClient memory={memory} locale={locale} />
+      <MemoryDetailsClient memory={memory} locale={locale} defaultCommentsOpen={!!sp.comment || !!sp.notification} />
 
       {related.length > 0 ? (
         <section>
@@ -54,5 +57,4 @@ export default async function MemoryDetailsPage({
     </div>
   );
 }
-
 

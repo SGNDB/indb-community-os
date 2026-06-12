@@ -23,6 +23,8 @@ import {createClient} from "@/lib/supabase/client";
 import {useRouter} from "@/lib/i18n/routing";
 import type {NotificationWithActor} from "@/types/database";
 
+const PAGE_SIZE = 20;
+
 function timeAgo(dateStr: string, locale: string): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
@@ -53,6 +55,7 @@ function getNotificationIcon(type: string) {
       return Heart;
     case "comment":
     case "idea_comment":
+    case "memory_comment":
       return MessageCircle;
     case "save":
       return Bookmark;
@@ -73,6 +76,8 @@ export function NotificationDropdown({locale}: {locale: string}) {
   const [notifications, setNotifications] = useState<NotificationWithActor[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
   const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobilePanelRef = useRef<HTMLDivElement>(null);
@@ -120,19 +125,20 @@ export function NotificationDropdown({locale}: {locale: string}) {
         .select("*, actor:profiles!actor_id(id, username, full_name, avatar_url)")
         .eq("user_id", user.id)
         .order("created_at", {ascending: false})
-        .limit(20);
-
-      const {count} = await supabase
-        .from("notifications")
-        .select("*", {count: "exact", head: true})
-        .eq("user_id", user.id)
-        .eq("read", false);
+        .limit(PAGE_SIZE + 1);
 
       if (cancelled) return;
       if (!error) {
-        setNotifications((data as unknown as NotificationWithActor[]) ?? []);
+        const rows = ((data as unknown as NotificationWithActor[]) ?? []);
+        setNotifications(rows.slice(0, PAGE_SIZE).map((notification) => ({...notification, read: true})));
+        setHasMore(rows.length > PAGE_SIZE);
       }
-      setUnreadCount(count ?? 0);
+      await supabase
+        .from("notifications")
+        .update({read: true})
+        .eq("user_id", user.id)
+        .eq("read", false);
+      setUnreadCount(0);
       setLoading(false);
     }
 
@@ -173,8 +179,6 @@ export function NotificationDropdown({locale}: {locale: string}) {
             filter: `user_id=eq.${user.id}`,
           },
           async (payload) => {
-            setUnreadCount((c) => c + 1);
-
             if (openRef.current) {
               const {data} = await supabase
                 .from("notifications")
@@ -183,10 +187,11 @@ export function NotificationDropdown({locale}: {locale: string}) {
                 .single();
 
               if (data) {
-                setNotifications(
-                  (prev) => [data as unknown as NotificationWithActor, ...prev].slice(0, 20),
-                );
+                await supabase.from("notifications").update({read: true}).eq("id", payload.new.id);
+                setNotifications((prev) => [{...(data as unknown as NotificationWithActor), read: true}, ...prev].slice(0, PAGE_SIZE));
               }
+            } else {
+              setUnreadCount((c) => c + 1);
             }
           },
         )
@@ -240,21 +245,23 @@ export function NotificationDropdown({locale}: {locale: string}) {
     setOpen(false);
 
     if (n.entity_type && n.entity_id) {
+      const metadata = (n.metadata ?? {}) as {commentId?: string};
+      const commentQuery = metadata.commentId ? `&comment=${encodeURIComponent(metadata.commentId)}` : "";
       switch (n.entity_type) {
         case "memory":
-          router.push(`/memory/${n.entity_id}`);
+          router.push(`/memory/${n.entity_id}?notification=${n.id}${commentQuery}${metadata.commentId ? `#comment-${metadata.commentId}` : `#memory-${n.entity_id}`}`);
           return;
         case "post":
-          router.push(`/feed#post-${n.entity_id}`);
+          router.push(`/feed?post=${n.entity_id}&notification=${n.id}${commentQuery}#post-${n.entity_id}`);
           return;
         case "idea":
-          router.push(`/ideas?idea=${n.entity_id}&comments=1#idea-comments-${n.entity_id}`);
+          router.push(`/ideas?idea=${n.entity_id}&comments=1&notification=${n.id}${commentQuery}${metadata.commentId ? `#comment-${metadata.commentId}` : `#idea-${n.entity_id}`}`);
           return;
         case "credit":
           router.push("/profile");
           return;
         case "community_share":
-          router.push(`/fadla#fadla-${n.entity_id}`);
+          router.push(`/fadla?item=${n.entity_id}&notification=${n.id}#fadla-${n.entity_id}`);
           return;
         case "project":
           router.push("/projects");
@@ -274,6 +281,33 @@ export function NotificationDropdown({locale}: {locale: string}) {
     } else {
       router.push("/feed");
     }
+  }
+
+  async function handleLoadMore() {
+    if (loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+    const {data: {user}} = await supabase.auth.getUser();
+    if (!user) {
+      setLoadingMore(false);
+      return;
+    }
+
+    const from = notifications.length;
+    const to = from + PAGE_SIZE;
+    const {data, error} = await supabase
+      .from("notifications")
+      .select("*, actor:profiles!actor_id(id, username, full_name, avatar_url)")
+      .eq("user_id", user.id)
+      .order("created_at", {ascending: false})
+      .range(from, to);
+
+    if (!error) {
+      const rows = ((data as unknown as NotificationWithActor[]) ?? []);
+      setNotifications((prev) => [...prev, ...rows.slice(0, PAGE_SIZE).map((notification) => ({...notification, read: true}))]);
+      setHasMore(rows.length > PAGE_SIZE);
+    }
+    setLoadingMore(false);
   }
 
   async function handleMarkAllRead() {
@@ -307,6 +341,8 @@ export function NotificationDropdown({locale}: {locale: string}) {
           return t("commentedOnPost", {actorName});
         case "idea_comment":
           return t("commentedOnYourIdea", {actorName});
+        case "memory_comment":
+          return t("commentedOnYourMemory", {actorName});
         case "credit":
           return t("creditAwarded", {points: n.message ?? ""});
         case "community_share_request":
@@ -407,7 +443,16 @@ export function NotificationDropdown({locale}: {locale: string}) {
                 <p className="text-sm">{t("empty")}</p>
               </div>
             ) : (
-              notifications.map(renderNotificationItem)
+              <>
+                {notifications.map(renderNotificationItem)}
+                {hasMore ? (
+                  <div className="px-4 py-3">
+                    <Button type="button" variant="outline" className="w-full" onClick={handleLoadMore} disabled={loadingMore}>
+                      {loadingMore ? t("loading") : t("loadMore")}
+                    </Button>
+                  </div>
+                ) : null}
+              </>
             )}
           </div>
         </div>,
@@ -451,7 +496,16 @@ export function NotificationDropdown({locale}: {locale: string}) {
                     <p className="text-xs">{t("empty")}</p>
                   </div>
                 ) : (
-                  notifications.map(renderNotificationItem)
+                  <>
+                    {notifications.map(renderNotificationItem)}
+                    {hasMore ? (
+                      <div className="px-4 py-3">
+                        <Button type="button" variant="outline" className="w-full" onClick={handleLoadMore} disabled={loadingMore}>
+                          {loadingMore ? t("loading") : t("loadMore")}
+                        </Button>
+                      </div>
+                    ) : null}
+                  </>
                 )}
               </div>
             </div>

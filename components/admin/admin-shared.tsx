@@ -6,6 +6,7 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
+import Image from "next/image";
 import type {ReactNode} from "react";
 
 import type {AdminActivityItem, AdminContentType} from "@/lib/data/admin";
@@ -68,7 +69,7 @@ export function Avatar({
 }) {
   const name = displayName(profile);
   if (profile?.avatar_url) {
-    return <img src={profile.avatar_url} alt="" className={`${className} rounded-full object-cover ring-2 ring-white/70 dark:ring-white/10`} />;
+    return <Image src={profile.avatar_url} alt="" width={80} height={80} className={`${className} rounded-full object-cover ring-2 ring-white/70 dark:ring-white/10`} />;
   }
 
   return (

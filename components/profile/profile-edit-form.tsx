@@ -3,6 +3,7 @@
 import {useRef, useState} from "react";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
+import Image from "next/image";
 import {useTranslations} from "next-intl";
 import {Camera, Loader2, Upload, X} from "lucide-react";
 import {z} from "zod";
@@ -205,7 +206,7 @@ export function ProfileEditForm({profile, locale}: {profile: ProfileRow; locale:
             <div className="flex items-center gap-3">
               <div className="group relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt="" className="h-full w-full object-cover" />
+                  <Image src={avatarPreview} alt="" fill sizes="64px" unoptimized={avatarPreview.startsWith("blob:") || avatarPreview.startsWith("data:")} className="object-cover" />
                 ) : (
                   <Camera size={20} className="text-muted-foreground" />
                 )}
@@ -250,7 +251,7 @@ export function ProfileEditForm({profile, locale}: {profile: ProfileRow; locale:
             <label className="text-xs font-medium text-muted-foreground">{t("fields.coverImage")}</label>
             {coverPreview ? (
               <div className="group relative h-32 w-full overflow-hidden rounded-xl bg-muted">
-                <img src={coverPreview} alt="" className="h-full w-full object-cover" />
+                <Image src={coverPreview} alt="" fill sizes="(max-width: 768px) 100vw, 640px" unoptimized={coverPreview.startsWith("blob:") || coverPreview.startsWith("data:")} className="object-cover" />
                 <button
                   type="button"
                   onClick={() => {

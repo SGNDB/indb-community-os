@@ -489,18 +489,22 @@ export async function addCommentAction(formData: FormData) {
     redirect(toPath(locale, appendParam(returnPath, "error", "post_not_found")));
   }
 
-  const {error: insertError} = await supabase.from("comments").insert({
-    post_id: postId,
-    author_id: user.id,
-    content: parsed.data.content,
-  });
+  const {data: insertedComment, error: insertError} = await supabase
+    .from("comments")
+    .insert({
+      post_id: postId,
+      author_id: user.id,
+      content: parsed.data.content,
+    })
+    .select("id")
+    .single();
 
   if (insertError) {
     redirect(toPath(locale, appendParam(returnPath, "error", "comment_failed")));
   }
 
   if (postForNotify.author_id !== user.id) {
-    await createCommentNotification(postForNotify.author_id, user.id, postId);
+    await createCommentNotification(postForNotify.author_id, user.id, postId, insertedComment?.id);
   }
 
   revalidatePath(toPath(locale, returnPath));
@@ -548,7 +552,7 @@ export async function submitCommentAction(
   if (insertError || !newComment) return {success: false, error: "insert_failed"};
 
   if (postForNotify.author_id !== user.id) {
-    await createCommentNotification(postForNotify.author_id, user.id, postId);
+    await createCommentNotification(postForNotify.author_id, user.id, postId, newComment.id);
   }
 
   return {success: true, comment: newComment as unknown as CommentWithAuthor};
@@ -1437,7 +1441,7 @@ export async function addIdeaCommentAction(
   }
 
   if (idea.author_id !== user.id) {
-    await createIdeaCommentNotification(idea.author_id, user.id, ideaId);
+    await createIdeaCommentNotification(idea.author_id, user.id, ideaId, newComment.id);
   }
 
   return {success: true, comment: newComment as unknown as IdeaCommentWithAuthor};
@@ -1733,7 +1737,7 @@ export async function addMemoryCommentAction(
   }
 
   if (memory.contributor_id !== user.id) {
-    await createMemoryCommentNotification(memory.contributor_id ?? "", user.id, memoryId);
+    await createMemoryCommentNotification(memory.contributor_id ?? "", user.id, memoryId, newComment.id);
   }
 
   return {success: true, comment: newComment as unknown as MemoryCommentWithAuthor};

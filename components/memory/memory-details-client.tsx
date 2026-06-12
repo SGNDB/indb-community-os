@@ -21,9 +21,11 @@ import {MediaCarousel} from "@/components/media/media-carousel";
 export function MemoryDetailsClient({
   memory,
   locale,
+  defaultCommentsOpen = false,
 }: {
   memory: MemoryWithContributor;
   locale: string;
+  defaultCommentsOpen?: boolean;
 }) {
   const t = useTranslations("Memory");
   const router = useRouter();
@@ -176,6 +178,7 @@ export function MemoryDetailsClient({
               userReaction={userReaction}
               onReactionCountsChange={setReactionCounts}
               onUserReactionChange={setUserReaction}
+              defaultCommentsOpen={defaultCommentsOpen}
             />
           </div>
         </CardContent>

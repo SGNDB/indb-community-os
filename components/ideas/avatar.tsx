@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
+
 type AuthorSummary = {avatar_url?: string | null; full_name?: string | null; username?: string | null} | null;
 
 export function Avatar({author}: {author: AuthorSummary}) {
   if (!author) return null;
   if (author.avatar_url) {
-    return <img src={author.avatar_url} alt="" className="size-5 rounded-full object-cover shrink-0" />;
+    return <Image src={author.avatar_url} alt="" width={32} height={32} className="size-5 rounded-full object-cover shrink-0" />;
   }
   const initial = (author.full_name ?? author.username ?? "?").charAt(0).toUpperCase();
   return (

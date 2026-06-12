@@ -1,4 +1,5 @@
 import {MapPin} from "lucide-react";
+import Image from "next/image";
 import {getTranslations} from "next-intl/server";
 
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
@@ -21,7 +22,7 @@ export async function UserProfileCard() {
       <CardHeader className="-mt-12">
         <div className="mb-3 flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-4 border-card bg-muted">
           {profile.avatar_url ? (
-            <img src={profile.avatar_url} alt={displayName} className="h-full w-full object-cover" />
+            <Image src={profile.avatar_url} alt={displayName} width={80} height={80} className="h-full w-full object-cover" />
           ) : (
             <span className="text-xl font-semibold">
               {displayName.split(/\s+/).map((n) => n[0]).join("").toUpperCase().slice(0, 2)}

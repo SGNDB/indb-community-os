@@ -32,6 +32,8 @@ export function MemoryUploadForm({
   const [showConfirm, setShowConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const imageUploadT = useTranslations("ImageUpload");
+  const mediaUploading = mediaItems.some((item) => item.uploading);
 
   const [titleError, setTitleError] = useState<string | null>(null);
   const [descError, setDescError] = useState<string | null>(null);
@@ -55,7 +57,7 @@ export function MemoryUploadForm({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (submitting) return;
+    if (submitting || mediaUploading) return;
 
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -234,20 +236,20 @@ export function MemoryUploadForm({
                 type="button"
                 variant="outline"
                 onClick={handleCancel}
-                disabled={submitting}
+                disabled={submitting || mediaUploading}
                 className="w-full sm:w-auto"
               >
                 {t("cancel")}
               </Button>
               <Button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || mediaUploading}
                 className="w-full sm:w-auto"
               >
-                {submitting ? (
+                {submitting || mediaUploading ? (
                   <>
                     <Loader2 size={16} className="animate-spin" />
-                    {t("submitting")}
+                    {mediaUploading ? imageUploadT("uploading") : t("submitting")}
                   </>
                 ) : (
                   isEditing ? t("update") : t("submit")
