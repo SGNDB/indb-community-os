@@ -9,6 +9,7 @@ import {toast} from "sonner";
 
 import {MemoryActions} from "@/components/memory/memory-actions";
 import {UserAvatar} from "@/components/layout/user-avatar";
+import {useContentScroll} from "@/hooks/use-content-scroll";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
@@ -60,7 +61,6 @@ export function MemoryCard({
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [highlight, setHighlight] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const articleRef = useRef<HTMLDivElement>(null);
 
@@ -74,38 +74,14 @@ export function MemoryCard({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Scroll-to and highlight on notification deep-link
-  useEffect(() => {
-    const targetMemoryId = searchParams.get("memory");
-    const focus = searchParams.get("focus");
-    const commentId = searchParams.get("comment");
-
-    if (targetMemoryId !== memory.id) return;
-
-    const timer = window.setTimeout(() => {
-      if (focus === "reactions") {
-        const reactionsEl = document.getElementById(`memory-${memory.id}-reactions`);
-        reactionsEl?.scrollIntoView({behavior: "smooth", block: "center"});
-      } else if (focus === "comments" || commentId) {
-        window.setTimeout(() => {
-          if (commentId) {
-            const commentEl = document.getElementById(`memory-comment-${commentId}`);
-            if (commentEl) {
-              commentEl.scrollIntoView({behavior: "smooth", block: "center"});
-              return;
-            }
-          }
-        }, 200);
-      } else {
-        articleRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
-      }
-
-      setHighlight(true);
-      window.setTimeout(() => setHighlight(false), 1500);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchParams, memory.id]);
+  const {highlight} = useContentScroll({
+    searchParams,
+    paramName: "memory",
+    domIdPrefix: "memory",
+    contentId: memory.id,
+    articleRef,
+    commentDomIdPrefix: "memory",
+  });
 
   useEffect(() => {
     async function load() {

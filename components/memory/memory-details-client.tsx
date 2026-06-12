@@ -14,6 +14,7 @@ import {TranslateButton} from "@/components/shared/translate-button";
 import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
 import {deleteMemoryAction} from "@/app/[locale]/server-actions";
 import {useCurrentUser} from "@/hooks/use-current-user";
+import {useContentScroll} from "@/hooks/use-content-scroll";
 import {Link, useRouter} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/client";
 import type {MemoryReactionType, MemoryWithContributor} from "@/types/database";
@@ -37,36 +38,17 @@ export function MemoryDetailsClient({
   const [userReaction, setUserReaction] = useState<MemoryReactionType | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [highlight, setHighlight] = useState(false);
 
-  useEffect(() => {
-    const focus = searchParams.get("focus");
-    const commentId = searchParams.get("comment");
+  const cardRef = useRef<HTMLDivElement>(null);
 
-    const timer = window.setTimeout(() => {
-      if (focus === "reactions") {
-        const reactionsEl = document.getElementById(`memory-${memory.id}-reactions`);
-        reactionsEl?.scrollIntoView({behavior: "smooth", block: "center"});
-      } else if (focus === "comments" || commentId) {
-        window.setTimeout(() => {
-          if (commentId) {
-            const commentEl = document.getElementById(`memory-comment-${commentId}`);
-            if (commentEl) {
-              commentEl.scrollIntoView({behavior: "smooth", block: "center"});
-              return;
-            }
-          }
-        }, 200);
-      } else {
-        document.getElementById(`memory-${memory.id}`)?.scrollIntoView({behavior: "smooth", block: "center"});
-      }
-
-      setHighlight(true);
-      window.setTimeout(() => setHighlight(false), 1500);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchParams, memory.id]);
+  const {highlight} = useContentScroll({
+    searchParams,
+    paramName: "memory",
+    domIdPrefix: "memory",
+    contentId: memory.id,
+    articleRef: cardRef,
+    commentDomIdPrefix: "memory",
+  });
 
   useEffect(() => {
     async function load() {
@@ -109,7 +91,7 @@ export function MemoryDetailsClient({
       : [];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5" ref={cardRef}>
       <Card
         id={`memory-${memory.id}`}
         className={`overflow-hidden border-border/70 shadow-[0_16px_38px_rgba(8,33,56,0.12)] transition-all duration-500 ${

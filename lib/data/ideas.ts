@@ -160,3 +160,36 @@ export async function getIdeasCount(): Promise<number> {
     .not("author_id", "is", null);
   return count ?? 0;
 }
+
+export async function getIdeaVoteDetails(ideaId: string, limit = 50, offset = 0) {
+  const supabase = await createClient();
+
+  const {count} = await supabase
+    .from("idea_votes")
+    .select("id", {count: "exact", head: true})
+    .eq("idea_id", ideaId);
+
+  const {data: voters} = await supabase
+    .from("idea_votes")
+    .select(`
+      user_id,
+      created_at,
+      profile:profiles(full_name, username, avatar_url)
+    `)
+    .eq("idea_id", ideaId)
+    .order("created_at", {ascending: false})
+    .range(offset, offset + limit - 1);
+
+  return {
+    totalCount: count ?? 0,
+    voters: (voters ?? []).map((v) => ({
+      user_id: v.user_id,
+      created_at: v.created_at,
+      profile: v.profile as unknown as {
+        full_name: string | null;
+        username: string | null;
+        avatar_url: string | null;
+      } | null,
+    })),
+  };
+}

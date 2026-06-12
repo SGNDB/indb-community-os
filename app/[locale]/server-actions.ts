@@ -24,6 +24,7 @@ import {
   createMemoryCommentNotification,
 } from "@/lib/data/notifications";
 import {toggleReaction, getPostReactionDetails} from "@/lib/data/reactions";
+import {getIdeaVoteDetails} from "@/lib/data/ideas";
 import {
   commentSchema,
   communityShareSchema,
@@ -602,6 +603,10 @@ export async function toggleReactionAction(formData: FormData) {
 
 export async function getPostReactionDetailsAction(postId: string, limit = 50, offset = 0) {
   return getPostReactionDetails(postId, limit, offset);
+}
+
+export async function getIdeaVoteDetailsAction(ideaId: string, limit = 50, offset = 0) {
+  return getIdeaVoteDetails(ideaId, limit, offset);
 }
 
 export async function toggleSaveAction(formData: FormData) {

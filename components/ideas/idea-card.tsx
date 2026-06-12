@@ -1,7 +1,7 @@
 "use client";
 
 import {motion} from "framer-motion";
-import {CalendarDays, ChevronDown, ChevronUp, Lightbulb, Loader2, MoreHorizontal, Share2, Trash2, X} from "lucide-react";
+import {CalendarDays, ChevronDown, ChevronUp, Lightbulb, Loader2, MoreHorizontal, Share2, Trash2, X, ChevronUp as ChevronUpIcon} from "lucide-react";
 import Image from "next/image";
 import {useLocale, useTranslations} from "next-intl";
 import {useSearchParams} from "next/navigation";
@@ -10,6 +10,7 @@ import {toast} from "sonner";
 
 import {deleteIdeaAction, shareIdeaAction} from "@/app/[locale]/server-actions";
 import {IdeaComments} from "@/components/ideas/idea-comments";
+import {VotersModal} from "@/components/ideas/voters-modal";
 import {TranslateButton} from "@/components/shared/translate-button";
 import {VoteButton} from "@/components/ideas/vote-button";
 import {Button} from "@/components/ui/button";
@@ -17,6 +18,7 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {useCurrentUser} from "@/hooks/use-current-user";
 import {Link, useRouter} from "@/lib/i18n/routing";
 import {cn} from "@/lib/utils/cn";
+import {useContentScroll} from "@/hooks/use-content-scroll";
 import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
 import type {IdeaBadge, IdeaWithAuthor} from "@/types/database";
 import {MediaCarousel} from "@/components/media/media-carousel";
@@ -85,7 +87,7 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
   const [expanded, setExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [highlight, setHighlight] = useState(false);
+  const [voterModalOpen, setVoterModalOpen] = useState(false);
   const articleRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
@@ -118,38 +120,14 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
     return () => ro.disconnect();
   }, [idea.description, expanded]);
 
-  // Scroll-to and highlight on notification deep-link
-  useEffect(() => {
-    const targetIdeaId = searchParams.get("idea");
-    const focus = searchParams.get("focus");
-    const commentId = searchParams.get("comment");
-
-    if (targetIdeaId !== idea.id) return;
-
-    const timer = window.setTimeout(() => {
-      if (focus === "reactions") {
-        const reactionsEl = document.getElementById(`idea-${idea.id}-reactions`);
-        reactionsEl?.scrollIntoView({behavior: "smooth", block: "center"});
-      } else if (focus === "comments" || commentId) {
-        window.setTimeout(() => {
-          if (commentId) {
-            const commentEl = document.getElementById(`idea-comment-${commentId}`);
-            if (commentEl) {
-              commentEl.scrollIntoView({behavior: "smooth", block: "center"});
-              return;
-            }
-          }
-        }, 200);
-      } else {
-        articleRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
-      }
-
-      setHighlight(true);
-      window.setTimeout(() => setHighlight(false), 1500);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchParams, idea.id]);
+  const {highlight} = useContentScroll({
+    searchParams,
+    paramName: "idea",
+    domIdPrefix: "idea",
+    contentId: idea.id,
+    articleRef,
+    commentDomIdPrefix: "idea",
+  });
 
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
   const authorUsername = idea.author?.username;
@@ -350,6 +328,17 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
                 totalUsers={totalUsers ?? 0}
                 hideDetails
               />
+              {idea.votes_count > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setVoterModalOpen(true)}
+                  className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-border/60 px-4 py-2.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                  title={t("showSupporters") ?? "View supporters"}
+                >
+                  <ChevronUpIcon size={16} />
+                  <span className="tabular-nums">{idea.votes_count}</span>
+                </button>
+              ) : null}
               <IdeaComments
                 ideaId={idea.id}
                 contentOwnerId={idea.author_id}
@@ -408,6 +397,13 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
           </div>
         </div>
       ) : null}
+
+      <VotersModal
+        open={voterModalOpen}
+        onClose={() => setVoterModalOpen(false)}
+        ideaId={idea.id}
+        locale={locale}
+      />
     </motion.article>
   );
 }
