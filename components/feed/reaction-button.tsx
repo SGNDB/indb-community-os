@@ -11,7 +11,7 @@ import {withLocale} from "@/lib/i18n/paths";
 import {toggleReactionAction} from "@/app/[locale]/server-actions";
 import type {ReactionType} from "@/types/database";
 
-const REACTIONS: {type: ReactionType; emoji: string}[] = [
+export const REACTIONS: {type: ReactionType; emoji: string}[] = [
   {type: "like", emoji: "\u{1F44D}"},
   {type: "love", emoji: "\u2764\uFE0F"},
   {type: "support", emoji: "\u{1F91D}"},
@@ -26,12 +26,14 @@ export function ReactionButton({
   returnTo,
   currentReaction,
   likesCount,
+  onReactionChanged,
 }: {
   postId: string;
   locale: string;
   returnTo: string;
   currentReaction?: ReactionType | null;
   likesCount: number;
+  onReactionChanged?: (oldReaction: ReactionType | null, newReaction: ReactionType | null) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [localReaction, setLocalReaction] = useState<ReactionType | null>(
@@ -71,6 +73,7 @@ export function ReactionButton({
     // Optimistic update
     setLocalReaction(newReaction);
     setLocalTotal((c) => Math.max(0, c + delta));
+    onReactionChanged?.(prevReaction, newReaction);
 
     // Auth check before server call
     const supabase = createClient();
@@ -80,6 +83,7 @@ export function ReactionButton({
     if (!user) {
       setLocalReaction(prevReaction);
       setLocalTotal(prevTotal);
+      onReactionChanged?.(newReaction, prevReaction);
       router.push(withLocale(`/login?next=${encodeURIComponent(returnTo)}`, locale));
       return;
     }

@@ -3,13 +3,14 @@
 import {useEffect, useMemo, useRef, useState, useTransition} from "react";
 import {motion} from "framer-motion";
 import {Bookmark, Edit3, MessageCircle, Send, Share2, Trash2} from "lucide-react";
-import {useRouter} from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import {useLocale, useTranslations} from "next-intl";
 import {useFormStatus} from "react-dom";
 import {toast} from "sonner";
 
 import {CommentCard} from "@/components/feed/comment-card";
-import {ReactionButton} from "@/components/feed/reaction-button";
+import {ReactionButton, REACTIONS} from "@/components/feed/reaction-button";
+import {ReactionModal} from "@/components/feed/reaction-modal";
 import {UserAvatar} from "@/components/layout/user-avatar";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
@@ -86,6 +87,7 @@ export function PostCard({
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const LOCALE_TO_CONTENT_LANG: Record<string, ContentLanguage> = {
     ar: "ar",
     fr: "fr",
@@ -97,6 +99,7 @@ export function PostCard({
   const contentLanguage = useMemo(() => detectContentLanguage(post.content), [post.content]);
   const canTranslate = contentLanguage !== uiLanguage;
   const commentInputRef = useRef<HTMLInputElement>(null);
+  const articleRef = useRef<HTMLElement>(null);
   const [commentPending, startCommentTransition] = useTransition();
 
   const [isTranslated, setIsTranslated] = useState(false);
@@ -108,6 +111,12 @@ export function PostCard({
   const [commentsCount, setCommentsCount] = useState(post.comments_count);
   const [isSaved, setIsSaved] = useState(post.user_saved ?? false);
   const [savesCount, setSavesCount] = useState(post.saves_count);
+  const [reactionModalOpen, setReactionModalOpen] = useState(false);
+  const [highlight, setHighlight] = useState(false);
+  const [localReactionCounts, setLocalReactionCounts] = useState<Record<string, number>>(
+    post.reaction_counts ?? {},
+  );
+  const [reactionHighlight, setReactionHighlight] = useState(false);
 
   const authorName = post.author?.full_name ?? post.author?.username ?? t("unknownAuthor");
   const authorProfileHref = post.author?.username ? `/profile/${post.author.username}` : null;
@@ -120,6 +129,8 @@ export function PostCard({
     : post.image_url
       ? [{url: post.image_url, type: "image" as const, alt: post.content}]
       : [];
+
+  const totalReactions = Object.values(localReactionCounts).reduce((a, b) => a + b, 0);
 
   useEffect(() => {
     setIsTranslated(false);
@@ -139,6 +150,63 @@ export function PostCard({
       window.setTimeout(() => commentInputRef.current?.focus(), 150);
     }
   }, [autoOpenComments]);
+
+  // Scroll-to and highlight on notification deep-link
+  useEffect(() => {
+    const targetPostId = searchParams.get("post");
+    const focus = searchParams.get("focus");
+    const commentId = searchParams.get("comment");
+
+    if (targetPostId !== post.id) return;
+
+    // Small delay for layout to settle
+    const timer = window.setTimeout(() => {
+      if (focus === "reactions") {
+        const reactionsEl = document.getElementById(`post-${post.id}-reactions`);
+        reactionsEl?.scrollIntoView({behavior: "smooth", block: "center"});
+        setReactionHighlight(true);
+        window.setTimeout(() => setReactionHighlight(false), 1500);
+      } else if (focus === "comments" || commentId) {
+        setShowCommentInput(true);
+        window.setTimeout(() => {
+          if (commentId) {
+            const commentEl = document.getElementById(`comment-${commentId}`);
+            if (commentEl) {
+              commentEl.scrollIntoView({behavior: "smooth", block: "center"});
+              return;
+            }
+          }
+          const commentsEl = document.getElementById(`post-${post.id}-comments`);
+          commentsEl?.scrollIntoView({behavior: "smooth", block: "center"});
+        }, 200);
+      } else {
+        articleRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
+      }
+
+      // Briefly highlight post card
+      setHighlight(true);
+      window.setTimeout(() => setHighlight(false), 1500);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchParams, post.id]);
+
+  function handleReactionChanged(
+    oldReaction: import("@/types/database").ReactionType | null,
+    newReaction: import("@/types/database").ReactionType | null,
+  ) {
+    setLocalReactionCounts((prev) => {
+      const next = {...prev};
+      if (oldReaction) {
+        next[oldReaction] = Math.max(0, (next[oldReaction] ?? 0) - 1);
+        if (next[oldReaction] === 0) delete next[oldReaction];
+      }
+      if (newReaction) {
+        next[newReaction] = (next[newReaction] ?? 0) + 1;
+      }
+      return next;
+    });
+  }
 
   async function handleCommentSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -265,12 +333,13 @@ export function PostCard({
 
   return (
     <motion.article
+      ref={articleRef}
       id={`post-${post.id}`}
       initial={{opacity: 0, y: 16}}
       animate={{opacity: 1, y: 0}}
       whileHover={{y: -2}}
       transition={{duration: 0.28, ease: "easeOut"}}
-      className="rounded-2xl scroll-mt-24"
+      className={`rounded-2xl scroll-mt-24 transition-shadow duration-500 ${highlight ? "ring-2 ring-primary/40 shadow-[0_0_20px_rgba(var(--primary-rgb,59,130,246),0.15)]" : ""}`}
     >
       <Card className="border-border/70 shadow-[0_12px_32px_rgba(8,33,56,0.08)]">
         <CardHeader className="pb-2.5 sm:pb-3">
@@ -357,6 +426,37 @@ export function PostCard({
             />
           ) : null}
 
+          {/* Reaction summary row */}
+          {totalReactions > 0 ? (
+            <div
+              id={`post-${post.id}-reactions`}
+              className={`scroll-mt-24 rounded-lg transition-all duration-500 ${
+                reactionHighlight ? "ring-2 ring-primary/40 bg-primary/5" : ""
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => setReactionModalOpen(true)}
+                className="inline-flex flex-wrap items-center gap-2 rounded-lg px-2 py-1 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              >
+                {Object.entries(localReactionCounts)
+                  .sort(([, a], [, b]) => b - a)
+                  .map(([type, count]) => {
+                    const emoji = REACTIONS.find((r) => r.type === type)?.emoji;
+                    if (!emoji) return null;
+                    return (
+                      <span key={type} className="inline-flex items-center gap-1">
+                        <span className="text-base">{emoji}</span>
+                        <span className="font-medium tabular-nums">{count}</span>
+                      </span>
+                    );
+                  })}
+              </button>
+            </div>
+          ) : (
+            <div id={`post-${post.id}-reactions`} className="scroll-mt-24" />
+          )}
+
           <div className="flex items-center gap-1 border-t border-border/60 pt-2">
             <div className="flex-1">
             <ReactionButton
@@ -365,6 +465,7 @@ export function PostCard({
               returnTo={returnPath}
               currentReaction={post.user_reaction}
               likesCount={post.likes_count}
+              onReactionChanged={handleReactionChanged}
             />
             </div>
 
@@ -419,8 +520,11 @@ export function PostCard({
           ) : null}
 
           {localComments.length > 0 ? (
-            <div className="space-y-2 border-t border-border/60 pt-2">
-              {localComments.slice(0, 3).map((comment) => {
+            <div id={`post-${post.id}-comments`} className="space-y-2 border-t border-border/60 pt-2 scroll-mt-24">
+              {(searchParams.get("focus") === "comments" && searchParams.get("comment") && localComments.some((c) => c.id === searchParams.get("comment"))
+                ? localComments
+                : localComments.slice(0, 3)
+              ).map((comment) => {
                 const commentAuthor = comment.author?.full_name ?? comment.author?.username ?? t("unknownAuthor");
                 const isOwnComment = currentUserId != null && comment.author_id === currentUserId;
                 return (
@@ -441,9 +545,19 @@ export function PostCard({
                 );
               })}
             </div>
-          ) : null}
+          ) : (
+            <div id={`post-${post.id}-comments`} className="scroll-mt-24" />
+          )}
         </CardContent>
       </Card>
+
+      {/* Reaction people modal */}
+      <ReactionModal
+        open={reactionModalOpen}
+        onClose={() => setReactionModalOpen(false)}
+        postId={post.id}
+        locale={locale}
+      />
     </motion.article>
   );
 }

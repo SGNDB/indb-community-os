@@ -30,7 +30,7 @@ export default async function FeedPage({
   searchParams,
 }: {
   params: Promise<{locale: string}>;
-  searchParams: Promise<{page?: string; post?: string; comment?: string}>;
+  searchParams: Promise<{page?: string; post?: string; comment?: string; focus?: string; notification?: string}>;
 }) {
   const {locale} = await params;
   const sp = await searchParams;
@@ -49,6 +49,11 @@ export default async function FeedPage({
 
   const profileName = profile?.full_name ?? profile?.username ?? user?.email ?? "?";
 
+  // Auto-open comments only when focus=comments or a specific comment is targeted
+  const autoOpen = (pid: string) =>
+    sp.focus === "comments" && sp.post === pid ||
+    !!commentsByPost[pid]?.some((comment) => comment.id === sp.comment);
+
   return (
     <div className="space-y-3 sm:space-y-4">
       <CreatePostCard avatarUrl={profile?.avatar_url} profileName={profileName} />
@@ -61,7 +66,7 @@ export default async function FeedPage({
               post={post}
               comments={commentsByPost[post.id] ?? []}
               currentUserId={currentUserId}
-              autoOpenComments={sp.post === post.id || !!commentsByPost[post.id]?.some((comment) => comment.id === sp.comment)}
+              autoOpenComments={autoOpen(post.id)}
             />
           ))}
         </div>

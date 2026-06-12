@@ -23,7 +23,7 @@ import {
   upsertMemoryReactionNotification,
   createMemoryCommentNotification,
 } from "@/lib/data/notifications";
-import {toggleReaction} from "@/lib/data/reactions";
+import {toggleReaction, getPostReactionDetails} from "@/lib/data/reactions";
 import {
   commentSchema,
   communityShareSchema,
@@ -598,6 +598,10 @@ export async function toggleReactionAction(formData: FormData) {
   if (result.action !== "deleted" && postForNotify && postForNotify.author_id !== user.id) {
     await upsertReactionNotification(postForNotify.author_id, user.id, postId);
   }
+}
+
+export async function getPostReactionDetailsAction(postId: string, limit = 50, offset = 0) {
+  return getPostReactionDetails(postId, limit, offset);
 }
 
 export async function toggleSaveAction(formData: FormData) {

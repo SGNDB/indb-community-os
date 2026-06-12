@@ -255,9 +255,17 @@ export function NotificationDropdown({
         case "memory":
           router.push(`/memory/${n.entity_id}?notification=${n.id}${commentQuery}${metadata.commentId ? `#comment-${metadata.commentId}` : `#memory-${n.entity_id}`}`);
           return;
-        case "post":
-          router.push(`/feed?post=${n.entity_id}&notification=${n.id}${commentQuery}#post-${n.entity_id}`);
+        case "post": {
+          const focusParam = n.type === "reaction" ? "reactions" : n.type === "comment" ? "comments" : "";
+          const focusQuery = focusParam ? `&focus=${focusParam}` : "";
+          const hashTarget = focusParam === "reactions" 
+            ? `#post-${n.entity_id}-reactions` 
+            : metadata.commentId 
+              ? `#comment-${metadata.commentId}` 
+              : `#post-${n.entity_id}-comments`;
+          router.push(`/feed?post=${n.entity_id}&notification=${n.id}${commentQuery}${focusQuery}${hashTarget}`);
           return;
+        }
         case "idea":
           router.push(`/ideas?idea=${n.entity_id}&comments=1&notification=${n.id}${commentQuery}${metadata.commentId ? `#comment-${metadata.commentId}` : `#idea-${n.entity_id}`}`);
           return;
