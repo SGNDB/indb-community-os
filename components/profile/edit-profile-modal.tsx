@@ -113,7 +113,10 @@ function FieldRow({
   }
 
   return (
-    <div className="group flex items-center gap-3 border-b border-border/30 py-2.5 last:border-0">
+    <div
+      className="flex cursor-pointer items-center gap-3 border-b border-border/30 py-2.5 last:border-0 hover:bg-muted/30"
+      onClick={onEdit}
+    >
       <span className="shrink-0 text-muted-foreground">{icon}</span>
       <div className="min-w-0 flex-1">
         <p className="text-xs text-muted-foreground">{label}</p>
@@ -121,13 +124,9 @@ function FieldRow({
           {value || "Not set"}
         </p>
       </div>
-      <button
-        type="button"
-        onClick={onEdit}
-        className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 transition hover:bg-muted hover:text-foreground group-hover:opacity-100"
-      >
+      <span className="shrink-0 rounded-lg p-1.5 text-muted-foreground">
         <Pencil size={14} />
-      </button>
+      </span>
     </div>
   );
 }
@@ -1198,7 +1197,8 @@ export function EditProfileModal({
                     return (
                       <div
                         key={link.id}
-                        className="group flex items-center justify-between rounded-xl border border-border/60 bg-card p-3 transition hover:border-primary/30"
+                        className="flex cursor-pointer items-center justify-between rounded-xl border border-border/60 bg-card p-3 transition hover:border-primary/30 hover:bg-muted/30"
+                        onClick={() => setEditingLinkId(link.id)}
                       >
                         <div className="flex min-w-0 flex-1 items-center gap-3">
                           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -1211,13 +1211,9 @@ export function EditProfileModal({
                             <p className="truncate text-xs text-muted-foreground">{link.value}</p>
                           </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setEditingLinkId(link.id)}
-                          className="ml-2 shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 transition hover:bg-muted hover:text-foreground group-hover:opacity-100"
-                        >
+                        <span className="ml-2 shrink-0 rounded-lg p-1.5 text-muted-foreground">
                           <Pencil size={14} />
-                        </button>
+                        </span>
                       </div>
                     );
                   })}
@@ -1324,7 +1320,10 @@ function WorkEntry({
   }
 
   return (
-    <div className="group flex items-start gap-3 rounded-xl border border-border/60 bg-card p-3 transition hover:border-primary/30">
+    <div
+      className="flex cursor-pointer items-start gap-3 rounded-xl border border-border/60 bg-card p-3 transition hover:border-primary/30 hover:bg-muted/30"
+      onClick={onEdit}
+    >
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
         <Building2 size={16} />
       </div>
@@ -1335,13 +1334,9 @@ function WorkEntry({
           {formatYearRange(entry.start_year, entry.end_year, entry.is_current)}
         </p>
       </div>
-      <button
-        type="button"
-        onClick={onEdit}
-        className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 transition hover:bg-muted hover:text-foreground group-hover:opacity-100"
-      >
+      <span className="shrink-0 rounded-lg p-1.5 text-muted-foreground">
         <Pencil size={14} />
-      </button>
+      </span>
     </div>
   );
 }
@@ -1420,7 +1415,10 @@ function EducationEntry({
   }
 
   return (
-    <div className="group flex items-start gap-3 rounded-xl border border-border/60 bg-card p-3 transition hover:border-primary/30">
+    <div
+      className="flex cursor-pointer items-start gap-3 rounded-xl border border-border/60 bg-card p-3 transition hover:border-primary/30 hover:bg-muted/30"
+      onClick={onEdit}
+    >
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
         <GraduationCap size={16} />
       </div>
@@ -1434,13 +1432,9 @@ function EducationEntry({
           {formatYearRange(entry.start_year, entry.end_year, false)}
         </p>
       </div>
-      <button
-        type="button"
-        onClick={onEdit}
-        className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 transition hover:bg-muted hover:text-foreground group-hover:opacity-100"
-      >
+      <span className="shrink-0 rounded-lg p-1.5 text-muted-foreground">
         <Pencil size={14} />
-      </button>
+      </span>
     </div>
   );
 }
@@ -1497,7 +1491,10 @@ function ContactLinkRow({
   }
 
   return (
-    <div className="group flex items-center gap-3 rounded-xl bg-muted/30 p-3 mb-2">
+    <div
+      className="flex cursor-pointer items-center gap-3 rounded-xl bg-muted/30 p-3 mb-2 hover:bg-muted/50"
+      onClick={onEdit}
+    >
       {link.platform === "email" ? (
         <Mail size={16} className="shrink-0 text-primary" />
       ) : (
@@ -1509,13 +1506,9 @@ function ContactLinkRow({
         </p>
         <p className="text-sm font-medium">{link.value}</p>
       </div>
-      <button
-        type="button"
-        onClick={onEdit}
-        className="shrink-0 rounded-lg p-1.5 text-muted-foreground opacity-0 transition hover:bg-muted hover:text-foreground group-hover:opacity-100"
-      >
+      <span className="shrink-0 rounded-lg p-1.5 text-muted-foreground">
         <Pencil size={14} />
-      </button>
+      </span>
     </div>
   );
 }
