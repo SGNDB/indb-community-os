@@ -2,7 +2,9 @@
 
 import {Gift, Loader2, MapPin, PackageCheck, Pencil, Trash2} from "lucide-react";
 import {useTranslations} from "next-intl";
+import {useSearchParams} from "next/navigation";
 import type {ReactNode} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useFormStatus} from "react-dom";
 
 import {
@@ -59,6 +61,31 @@ export function FadlaCard({
   compact?: boolean;
 }) {
   const t = useTranslations("Fadla");
+  const searchParams = useSearchParams();
+  const [highlight, setHighlight] = useState(false);
+  const articleRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const targetItem = searchParams.get("item");
+    const focus = searchParams.get("focus");
+
+    if (targetItem !== share.id) return;
+
+    const timer = window.setTimeout(() => {
+      if (focus === "requests") {
+        const requestsEl = document.getElementById(`fadla-${share.id}-requests`);
+        requestsEl?.scrollIntoView({behavior: "smooth", block: "center"});
+      } else {
+        articleRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
+      }
+
+      setHighlight(true);
+      window.setTimeout(() => setHighlight(false), 1500);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchParams, share.id]);
+
   const isOwner = currentUserId === share.owner_id;
   const ownerName = share.owner?.full_name ?? share.owner?.username ?? t("unknownOwner");
   const LOCALE_TO_CONTENT_LANG: Record<string, ContentLanguage> = {ar:"ar",fr:"fr",wo:"wo",ff:"ff",snk:"snk"};
@@ -72,8 +99,11 @@ export function FadlaCard({
 
   return (
     <article
+      ref={articleRef}
       id={`fadla-${share.id}`}
-      className="overflow-hidden rounded-[1.75rem] border border-border/70 bg-card shadow-[0_18px_45px_rgba(8,33,56,0.08)]"
+      className={`overflow-hidden rounded-[1.75rem] border border-border/70 bg-card shadow-[0_18px_45px_rgba(8,33,56,0.08)] transition-all duration-500 ${
+        highlight ? "ring-2 ring-primary/40 bg-primary/5" : ""
+      }`}
     >
       {share.images.length > 0 ? (
         <MediaCarousel
@@ -129,7 +159,7 @@ export function FadlaCard({
           ) : null}
         </div>
 
-        <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-4">
+        <div id={`fadla-${share.id}-requests`} className="scroll-mt-24 flex items-center justify-between gap-3 border-t border-border/60 pt-4">
           <Link href={share.owner?.username ? `/profile/${share.owner.username}` : "/profile"} className="flex min-w-0 items-center gap-2">
             <UserAvatar label={ownerName} avatarUrl={share.owner?.avatar_url} className="h-10 w-10 shrink-0 text-xs" />
             <span className="min-w-0">

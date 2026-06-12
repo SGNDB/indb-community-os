@@ -3,6 +3,7 @@
 import {motion} from "framer-motion";
 import {Archive, Loader2, MoreHorizontal, Pencil, Trash2, X} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
+import {useSearchParams} from "next/navigation";
 import {useEffect, useRef, useState} from "react";
 import {toast} from "sonner";
 
@@ -53,12 +54,15 @@ export function MemoryCard({
   const router = useRouter();
   const {userId: clientUserId, loading: userLoading} = useCurrentUser();
   const supabase = useRef(createClient()).current;
+  const searchParams = useSearchParams();
   const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
   const [userReaction, setUserReaction] = useState<MemoryReactionType | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [highlight, setHighlight] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const articleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -69,6 +73,39 @@ export function MemoryCard({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Scroll-to and highlight on notification deep-link
+  useEffect(() => {
+    const targetMemoryId = searchParams.get("memory");
+    const focus = searchParams.get("focus");
+    const commentId = searchParams.get("comment");
+
+    if (targetMemoryId !== memory.id) return;
+
+    const timer = window.setTimeout(() => {
+      if (focus === "reactions") {
+        const reactionsEl = document.getElementById(`memory-${memory.id}-reactions`);
+        reactionsEl?.scrollIntoView({behavior: "smooth", block: "center"});
+      } else if (focus === "comments" || commentId) {
+        window.setTimeout(() => {
+          if (commentId) {
+            const commentEl = document.getElementById(`memory-comment-${commentId}`);
+            if (commentEl) {
+              commentEl.scrollIntoView({behavior: "smooth", block: "center"});
+              return;
+            }
+          }
+        }, 200);
+      } else {
+        articleRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
+      }
+
+      setHighlight(true);
+      window.setTimeout(() => setHighlight(false), 1500);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchParams, memory.id]);
 
   useEffect(() => {
     async function load() {
@@ -97,6 +134,8 @@ export function MemoryCard({
     load();
   }, [memory.id, supabase]);
 
+  const defaultCommentsOpen = searchParams.get("focus") === "comments" && searchParams.get("memory") === memory.id
+    || !!searchParams.get("comment");
   const contributorName = memory.contributor?.full_name ?? memory.contributor?.username ?? t("unknownContributor");
   const authorProfileHref = memory.contributor?.username ? `/profile/${memory.contributor.username}` : null;
   const isOwner = !!clientUserId && !!memory.contributor_id && clientUserId === memory.contributor_id;
@@ -113,11 +152,15 @@ export function MemoryCard({
 
   return (
     <motion.article
+      ref={articleRef}
+      id={`memory-${memory.id}`}
       initial={{opacity: 0, y: 14}}
       animate={{opacity: 1, y: 0}}
       whileHover={{y: -3}}
       transition={{duration: 0.28, ease: "easeOut"}}
-      className="h-full min-w-0"
+      className={`h-full min-w-0 transition-all duration-500 ${
+        highlight ? "ring-2 ring-primary/40 bg-primary/5 rounded-2xl" : ""
+      }`}
     >
       <Card className="flex h-full min-w-0 flex-col overflow-visible border-border/70 shadow-[0_16px_36px_rgba(8,33,56,0.10)]">
         <div className="relative">
@@ -228,7 +271,7 @@ export function MemoryCard({
             <TranslateButton text={memory.description ?? memory.title} contentType="memory" contentId={memory.id} className="mt-1" />
           ) : null}
 
-          <div className="mt-auto border-t border-border/60 pt-3">
+          <div id={`memory-${memory.id}-reactions`} className="scroll-mt-24 mt-auto border-t border-border/60 pt-3">
             <MemoryActions
               memoryId={memory.id}
               locale={locale}
@@ -237,6 +280,7 @@ export function MemoryCard({
               userReaction={userReaction}
               onReactionCountsChange={setReactionCounts}
               onUserReactionChange={setUserReaction}
+              defaultCommentsOpen={defaultCommentsOpen}
             />
           </div>
         </CardContent>

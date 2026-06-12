@@ -31,6 +31,9 @@ export default async function FadlaPage({
     shareDeleted?: string;
     shareRequested?: string;
     shareError?: string;
+    item?: string;
+    focus?: string;
+    notification?: string;
     page?: string;
   }>;
 }) {

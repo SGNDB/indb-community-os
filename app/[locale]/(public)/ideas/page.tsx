@@ -51,6 +51,9 @@ export default async function IdeasPage({
   searchParams: Promise<{
     idea?: string;
     comments?: string;
+    focus?: string;
+    notification?: string;
+    comment?: string;
     ideaSubmitted?: string;
     ideaUpdated?: string;
     ideaDeleted?: string;
@@ -131,7 +134,7 @@ export default async function IdeasPage({
               idea={idea}
               totalUsers={totalUsers}
               currentUserId={serverCurrentUserId}
-              autoOpenComments={sp.comments === "1" && sp.idea === idea.id}
+              autoOpenComments={(sp.focus === "comments" || sp.comments === "1") && sp.idea === idea.id}
             />
           ))}
         </div>

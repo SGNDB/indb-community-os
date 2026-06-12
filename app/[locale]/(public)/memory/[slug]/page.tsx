@@ -26,7 +26,7 @@ export default async function MemoryDetailsPage({
   searchParams,
 }: {
   params: Promise<{locale: string; slug: string}>;
-  searchParams: Promise<{comment?: string; notification?: string}>;
+  searchParams: Promise<{comment?: string; notification?: string; focus?: string}>;
 }) {
   const {locale, slug} = await params;
   const sp = await searchParams;
@@ -42,7 +42,7 @@ export default async function MemoryDetailsPage({
 
   return (
     <div className="space-y-5">
-      <MemoryDetailsClient memory={memory} locale={locale} defaultCommentsOpen={!!sp.comment || !!sp.notification} />
+      <MemoryDetailsClient memory={memory} locale={locale} defaultCommentsOpen={!!sp.comment || sp.focus === "comments"} />
 
       {related.length > 0 ? (
         <section>

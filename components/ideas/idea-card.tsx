@@ -4,6 +4,7 @@ import {motion} from "framer-motion";
 import {CalendarDays, ChevronDown, ChevronUp, Lightbulb, Loader2, MoreHorizontal, Share2, Trash2, X} from "lucide-react";
 import Image from "next/image";
 import {useLocale, useTranslations} from "next-intl";
+import {useSearchParams} from "next/navigation";
 import {useEffect, useRef, useState} from "react";
 import {toast} from "sonner";
 
@@ -78,11 +79,14 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
   const t = useTranslations("Ideas");
   const locale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [highlight, setHighlight] = useState(false);
+  const articleRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
 
@@ -113,6 +117,39 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
 
     return () => ro.disconnect();
   }, [idea.description, expanded]);
+
+  // Scroll-to and highlight on notification deep-link
+  useEffect(() => {
+    const targetIdeaId = searchParams.get("idea");
+    const focus = searchParams.get("focus");
+    const commentId = searchParams.get("comment");
+
+    if (targetIdeaId !== idea.id) return;
+
+    const timer = window.setTimeout(() => {
+      if (focus === "reactions") {
+        const reactionsEl = document.getElementById(`idea-${idea.id}-reactions`);
+        reactionsEl?.scrollIntoView({behavior: "smooth", block: "center"});
+      } else if (focus === "comments" || commentId) {
+        window.setTimeout(() => {
+          if (commentId) {
+            const commentEl = document.getElementById(`idea-comment-${commentId}`);
+            if (commentEl) {
+              commentEl.scrollIntoView({behavior: "smooth", block: "center"});
+              return;
+            }
+          }
+        }, 200);
+      } else {
+        articleRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
+      }
+
+      setHighlight(true);
+      window.setTimeout(() => setHighlight(false), 1500);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchParams, idea.id]);
 
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
   const authorUsername = idea.author?.username;
@@ -198,9 +235,12 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
 
   return (
     <motion.article
+      ref={articleRef}
       id={`idea-${idea.id}`}
       data-idea-id={idea.id}
-      className="scroll-mt-28 md:scroll-mt-24"
+      className={`scroll-mt-28 md:scroll-mt-24 transition-all duration-500 ${
+        highlight ? "ring-2 ring-primary/40 bg-primary/5 rounded-2xl" : ""
+      }`}
       initial={{opacity: 0, y: 14}}
       animate={{opacity: 1, y: 0}}
       transition={{duration: 0.28, ease: "easeOut"}}

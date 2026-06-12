@@ -252,9 +252,17 @@ export function NotificationDropdown({
       const metadata = (n.metadata ?? {}) as {commentId?: string};
       const commentQuery = metadata.commentId ? `&comment=${encodeURIComponent(metadata.commentId)}` : "";
       switch (n.entity_type) {
-        case "memory":
-          router.push(`/memory/${n.entity_id}?notification=${n.id}${commentQuery}${metadata.commentId ? `#comment-${metadata.commentId}` : `#memory-${n.entity_id}`}`);
+        case "memory": {
+          const memoryFocus = n.type === "reaction" ? "reactions" : n.type === "memory_comment" ? "comments" : "";
+          const memoryFocusQuery = memoryFocus ? `&focus=${memoryFocus}` : "";
+          const memoryHash = memoryFocus === "reactions"
+            ? `#memory-${n.entity_id}-reactions`
+            : metadata.commentId
+              ? `#comment-${metadata.commentId}`
+              : `#memory-${n.entity_id}`;
+          router.push(`/memory/${n.entity_id}?notification=${n.id}${commentQuery}${memoryFocusQuery}${memoryHash}`);
           return;
+        }
         case "post": {
           const focusParam = n.type === "reaction" ? "reactions" : n.type === "comment" ? "comments" : "";
           const focusQuery = focusParam ? `&focus=${focusParam}` : "";
@@ -266,15 +274,24 @@ export function NotificationDropdown({
           router.push(`/feed?post=${n.entity_id}&notification=${n.id}${commentQuery}${focusQuery}${hashTarget}`);
           return;
         }
-        case "idea":
-          router.push(`/ideas?idea=${n.entity_id}&comments=1&notification=${n.id}${commentQuery}${metadata.commentId ? `#comment-${metadata.commentId}` : `#idea-${n.entity_id}`}`);
+        case "idea": {
+          const ideaFocus = n.type === "idea_comment" ? "comments" : n.type === "share" ? "reactions" : "";
+          const ideaFocusQuery = ideaFocus ? `&focus=${ideaFocus}` : "";
+          const ideaHash = ideaFocus === "comments" && metadata.commentId
+            ? `#comment-${metadata.commentId}`
+            : `#idea-${n.entity_id}`;
+          router.push(`/ideas?idea=${n.entity_id}&notification=${n.id}${commentQuery}${ideaFocusQuery}${ideaHash}`);
           return;
+        }
         case "credit":
           router.push("/profile");
           return;
-        case "community_share":
-          router.push(`/fadla?item=${n.entity_id}&notification=${n.id}#fadla-${n.entity_id}`);
+        case "community_share": {
+          const shareFocus = n.type === "community_share_request" ? "requests" : "";
+          const shareFocusQuery = shareFocus ? `&focus=${shareFocus}` : "";
+          router.push(`/fadla?item=${n.entity_id}&notification=${n.id}${shareFocusQuery}#fadla-${n.entity_id}`);
           return;
+        }
         case "project":
           router.push("/projects");
           return;

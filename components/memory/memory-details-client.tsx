@@ -2,6 +2,7 @@
 
 import {Archive, CalendarDays, Loader2, MapPin, Pencil, Tag, Trash2, UserRound, X} from "lucide-react";
 import {useTranslations} from "next-intl";
+import {useSearchParams} from "next/navigation";
 import {useEffect, useRef, useState} from "react";
 import {toast} from "sonner";
 
@@ -31,10 +32,41 @@ export function MemoryDetailsClient({
   const router = useRouter();
   const {userId: clientUserId, loading: userLoading} = useCurrentUser();
   const supabase = useRef(createClient()).current;
+  const searchParams = useSearchParams();
   const [reactionCounts, setReactionCounts] = useState<Record<string, number>>({});
   const [userReaction, setUserReaction] = useState<MemoryReactionType | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [highlight, setHighlight] = useState(false);
+
+  useEffect(() => {
+    const focus = searchParams.get("focus");
+    const commentId = searchParams.get("comment");
+
+    const timer = window.setTimeout(() => {
+      if (focus === "reactions") {
+        const reactionsEl = document.getElementById(`memory-${memory.id}-reactions`);
+        reactionsEl?.scrollIntoView({behavior: "smooth", block: "center"});
+      } else if (focus === "comments" || commentId) {
+        window.setTimeout(() => {
+          if (commentId) {
+            const commentEl = document.getElementById(`memory-comment-${commentId}`);
+            if (commentEl) {
+              commentEl.scrollIntoView({behavior: "smooth", block: "center"});
+              return;
+            }
+          }
+        }, 200);
+      } else {
+        document.getElementById(`memory-${memory.id}`)?.scrollIntoView({behavior: "smooth", block: "center"});
+      }
+
+      setHighlight(true);
+      window.setTimeout(() => setHighlight(false), 1500);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchParams, memory.id]);
 
   useEffect(() => {
     async function load() {
@@ -78,7 +110,12 @@ export function MemoryDetailsClient({
 
   return (
     <div className="space-y-5">
-      <Card className="overflow-hidden border-border/70 shadow-[0_16px_38px_rgba(8,33,56,0.12)]">
+      <Card
+        id={`memory-${memory.id}`}
+        className={`overflow-hidden border-border/70 shadow-[0_16px_38px_rgba(8,33,56,0.12)] transition-all duration-500 ${
+          highlight ? "ring-2 ring-primary/40 bg-primary/5" : ""
+        }`}
+      >
         {mediaItems.length > 0 ? (
           <MediaCarousel
             items={mediaItems}
@@ -169,7 +206,7 @@ export function MemoryDetailsClient({
             </div>
           ) : null}
 
-          <div className="border-t border-border/60 pt-3">
+          <div id={`memory-${memory.id}-reactions`} className="scroll-mt-24 border-t border-border/60 pt-3">
             <MemoryActions
               memoryId={memory.id}
               locale={locale}
