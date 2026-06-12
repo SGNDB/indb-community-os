@@ -5,12 +5,10 @@ import {Link} from "@/lib/i18n/routing";
 import type {YearSummary} from "@/lib/data/memory-timeline";
 
 export function TimelineYears({
-  decade,
   years,
   memoryCountLabel,
   backLabel,
 }: {
-  decade: string;
   years: YearSummary[];
   memoryCountLabel: string;
   backLabel: string;

@@ -34,7 +34,6 @@ export default async function DecadePage({params}: Props) {
 
       {years.length > 0 ? (
         <TimelineYears
-          decade={decade}
           years={years}
           memoryCountLabel={t("memoryCount")}
           backLabel={t("backToTimeline")}
