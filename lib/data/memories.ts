@@ -144,6 +144,15 @@ export async function getMemoryCommentCount(memoryId: string): Promise<number> {
   return count ?? 0;
 }
 
+export async function getUserMemoriesCount(userId: string): Promise<number> {
+  const supabase = await createClient();
+  const {count} = await supabase
+    .from("memories")
+    .select("*", {count: "exact", head: true})
+    .eq("contributor_id", userId);
+  return count ?? 0;
+}
+
 export async function getUserMemories(userId: string): Promise<MemoryWithContributor[]> {
   const supabase = await createClient();
 

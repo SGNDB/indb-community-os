@@ -91,6 +91,15 @@ export async function getIdeasPage({
   };
 }
 
+export async function getUserIdeasCount(userId: string): Promise<number> {
+  const supabase = await createClient();
+  const {count} = await supabase
+    .from("ideas")
+    .select("*", {count: "exact", head: true})
+    .eq("author_id", userId);
+  return count ?? 0;
+}
+
 export async function getUserIdeas(userId: string): Promise<IdeaWithAuthor[]> {
   const supabase = await createClient();
 

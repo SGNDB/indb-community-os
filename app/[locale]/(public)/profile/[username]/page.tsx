@@ -1,3 +1,4 @@
+import {Suspense} from "react";
 import {CalendarDays, Heart, MapPin} from "lucide-react";
 import type {Metadata} from "next";
 import Image from "next/image";
@@ -13,10 +14,10 @@ import {getCommentsForPosts} from "@/lib/data/comments";
 import {getContributionRankKey} from "@/lib/contribution";
 import {getFullProfileDetails} from "@/lib/data/profile-details";
 import {getFollowStats, isFollowing} from "@/lib/data/follows";
-import {getUserPosts} from "@/lib/data/posts";
+import {getUserPosts, getUserPostsCount} from "@/lib/data/posts";
 import {getProfileByUsername} from "@/lib/data/profile";
-import {getUserMemories} from "@/lib/data/memories";
-import {getUserIdeas} from "@/lib/data/ideas";
+import {getUserMemories, getUserMemoriesCount} from "@/lib/data/memories";
+import {getUserIdeas, getUserIdeasCount} from "@/lib/data/ideas";
 import {getUserCommunityShares} from "@/lib/data/fadla";
 import {Link} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/server";
@@ -51,6 +52,83 @@ function formatJoinDate(dateStr: string, locale: string): string {
   });
 }
 
+async function ProfileTabsFetcher({
+  profileId,
+  locale,
+  currentUserId,
+  initialTab,
+  profile,
+  isOwnProfile,
+}: {
+  profileId: string;
+  locale: string;
+  currentUserId: string | null;
+  initialTab: string;
+  profile: {
+    id: string;
+    full_name: string | null;
+    username: string | null;
+    avatar_url: string | null;
+    cover_image_url: string | null;
+    bio: string | null;
+    city: string | null;
+    hometown: string | null;
+    languages_spoken: string[];
+    contribution_score: number;
+    created_at: string;
+  };
+  isOwnProfile: boolean;
+}) {
+  const [allPosts, memories, ideas, shares, profileDetails] = await Promise.all([
+    getUserPosts(profileId, currentUserId),
+    getUserMemories(profileId),
+    getUserIdeas(profileId),
+    getUserCommunityShares(profileId),
+    getFullProfileDetails(profileId),
+  ]);
+
+  const commentsByPost = allPosts.length > 0 ? await getCommentsForPosts(allPosts.map((p) => p.id)) : {};
+
+  return (
+    <>
+      {isOwnProfile && (
+        <ProfileCompleteness
+          hasAvatar={!!profile.avatar_url}
+          hasCover={!!profile.cover_image_url}
+          hasBio={!!profile.bio}
+          hasCity={!!profile.city}
+          hasWork={profileDetails.work.length > 0}
+          hasEducation={profileDetails.education.length > 0}
+          hasInterests={profileDetails.interests.length > 0}
+          hasLinks={profileDetails.links.length > 0}
+        />
+      )}
+      <ProfileTabsContent
+        locale={locale}
+        currentUserId={currentUserId}
+        allPosts={allPosts}
+        memories={memories}
+        ideas={ideas}
+        shares={shares}
+        commentsByPost={commentsByPost}
+        profile={profile}
+        profileDetails={profileDetails}
+        isOwnProfile={isOwnProfile}
+        initialTab={initialTab}
+      />
+    </>
+  );
+}
+
+function ProfileTabsFallback() {
+  return (
+    <div className="space-y-4">
+      <div className="h-12 w-full animate-pulse rounded-2xl bg-muted/50" />
+      <div className="h-64 animate-pulse rounded-2xl bg-muted/50" />
+    </div>
+  );
+}
+
 export default async function PublicProfilePage({
   params,
   searchParams,
@@ -68,23 +146,32 @@ export default async function PublicProfilePage({
   const {data: {user}} = await supabase.auth.getUser();
   const currentUserId = user?.id ?? null;
 
-  const [allPosts, memories, ideas, shares, followStats, currentUserIsFollowing, profileDetails] = await Promise.all([
-    getUserPosts(profile.id, currentUserId),
-    getUserMemories(profile.id),
-    getUserIdeas(profile.id),
-    getUserCommunityShares(profile.id),
+  const [followStats, currentUserIsFollowing, postsCount, memoriesCount, ideasCount] = await Promise.all([
     getFollowStats(profile.id),
     isFollowing(currentUserId, profile.id),
-    getFullProfileDetails(profile.id),
+    getUserPostsCount(profile.id),
+    getUserMemoriesCount(profile.id),
+    getUserIdeasCount(profile.id),
   ]);
+
+  const {data: postIds} = await supabase
+    .from("posts")
+    .select("id")
+    .eq("author_id", profile.id);
+  const {count: rawComments} = postIds?.length
+    ? await supabase
+        .from("comments")
+        .select("*", {count: "exact", head: true})
+        .in("post_id", postIds.map((p) => p.id))
+        .eq("status", "published")
+    : {count: 0};
+  const commentsCount = rawComments ?? 0;
 
   const displayName = profile.full_name ?? profile.username ?? "?";
   const initials = getInitials(displayName);
   const joinDate = formatJoinDate(profile.created_at, locale);
   const contributionScore = profile.contribution_score ?? 0;
   const contributionRank = getContributionRankKey(contributionScore);
-  const commentsByPost = allPosts.length > 0 ? await getCommentsForPosts(allPosts.map((p) => p.id)) : {};
-
   const currentTab = activeTab === "posts" ? "posts" : activeTab === "memories" ? "memories" : activeTab === "ideas" ? "ideas" : activeTab === "shares" ? "shares" : "about";
 
   const t = await getTranslations({locale, namespace: "Profile"});
@@ -187,62 +274,47 @@ export default async function PublicProfilePage({
 
           <div className="mt-5 grid grid-cols-4 gap-2 rounded-2xl bg-muted/40 p-3 sm:gap-3 sm:p-4">
             <div className="text-center">
-              <p className="text-lg font-bold sm:text-xl">{allPosts.length}</p>
+              <p className="text-lg font-bold sm:text-xl">{postsCount}</p>
               <p className="text-xs text-muted-foreground">{t("stats.posts")}</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold sm:text-xl">{memories.length}</p>
+              <p className="text-lg font-bold sm:text-xl">{memoriesCount}</p>
               <p className="text-xs text-muted-foreground">{t("stats.memories")}</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold sm:text-xl">{ideas.length}</p>
+              <p className="text-lg font-bold sm:text-xl">{ideasCount}</p>
               <p className="text-xs text-muted-foreground">{t("stats.ideas")}</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold sm:text-xl">{allPosts.reduce((sum, p) => sum + (p.comments_count ?? 0), 0)}</p>
+              <p className="text-lg font-bold sm:text-xl">{commentsCount}</p>
               <p className="text-xs text-muted-foreground">{t("stats.comments")}</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {currentUserId === profile.id && (
-        <ProfileCompleteness
-          hasAvatar={!!profile.avatar_url}
-          hasCover={!!profile.cover_image_url}
-          hasBio={!!profile.bio}
-          hasCity={!!profile.city}
-          hasWork={profileDetails.work.length > 0}
-          hasEducation={profileDetails.education.length > 0}
-          hasInterests={profileDetails.interests.length > 0}
-          hasLinks={profileDetails.links.length > 0}
+      <Suspense fallback={<ProfileTabsFallback />}>
+        <ProfileTabsFetcher
+          profileId={profile.id}
+          locale={locale}
+          currentUserId={currentUserId}
+          initialTab={currentTab}
+          profile={{
+            id: profile.id,
+            full_name: profile.full_name,
+            username: profile.username,
+            avatar_url: profile.avatar_url,
+            cover_image_url: profile.cover_image_url,
+            bio: profile.bio,
+            city: profile.city,
+            hometown: profile.hometown ?? null,
+            languages_spoken: profile.languages_spoken ?? [],
+            contribution_score: contributionScore,
+            created_at: profile.created_at,
+          }}
+          isOwnProfile={currentUserId === profile.id}
         />
-      )}
-
-      <ProfileTabsContent
-        locale={locale}
-        currentUserId={currentUserId}
-        allPosts={allPosts}
-        memories={memories}
-        ideas={ideas}
-        shares={shares}
-        commentsByPost={commentsByPost}
-        profile={{
-          id: profile.id,
-          full_name: profile.full_name,
-          username: profile.username,
-          avatar_url: profile.avatar_url,
-          bio: profile.bio,
-          city: profile.city,
-          hometown: profile.hometown ?? null,
-          languages_spoken: profile.languages_spoken ?? [],
-          contribution_score: contributionScore,
-          created_at: profile.created_at,
-        }}
-        profileDetails={profileDetails}
-        isOwnProfile={currentUserId === profile.id}
-        initialTab={currentTab}
-      />
+      </Suspense>
     </div>
   );
 }

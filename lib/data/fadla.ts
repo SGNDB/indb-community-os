@@ -95,6 +95,15 @@ export async function getCommunitySharesPage({
   };
 }
 
+export async function getUserCommunitySharesCount(userId: string): Promise<number> {
+  const supabase = await createClient();
+  const {count} = await supabase
+    .from("community_shares")
+    .select("*", {count: "exact", head: true})
+    .eq("owner_id", userId);
+  return count ?? 0;
+}
+
 export async function getUserCommunityShares(userId: string): Promise<CommunityShareWithOwner[]> {
   const supabase = await createClient();
 
