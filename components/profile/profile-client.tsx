@@ -24,7 +24,6 @@ import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 
 import {getContributionRankKey} from "@/lib/contribution";
-import {Link} from "@/lib/i18n/routing";
 import type {CommentWithAuthor, CommunityShareWithOwner, IdeaWithAuthor, MemoryWithContributor, PostWithAuthor, ProfileEducationRow, ProfileHobbyRow, ProfileInterestRow, ProfileLinkRow, ProfileTravelRow, ProfileWorkRow, ProfileWithCounts} from "@/types/database";
 
 import {ProfileAbout} from "./profile-about";
