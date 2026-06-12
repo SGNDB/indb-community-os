@@ -10,8 +10,8 @@ export const metadata: Metadata = {
   description:
     "Nouadhibou community platform for civic memory, participation, and solutions.",
   icons: {
-    icon: "/images/logondb.jpeg",
-    apple: "/images/logondb.jpeg",
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
   },
   appleWebApp: {
     capable: true,
