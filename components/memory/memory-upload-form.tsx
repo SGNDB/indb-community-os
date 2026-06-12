@@ -23,6 +23,7 @@ export function MemoryUploadForm({
   existingMemory?: MemoryWithContributor | null;
 }) {
   const t = useTranslations("MemoryForm");
+  const mt = useTranslations("MemoryTimeline");
   const confirmT = useTranslations("ConfirmDialog");
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -229,7 +230,7 @@ export function MemoryUploadForm({
                 <option value="">{t("fields.category")}</option>
                 {TIMELINE_CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
-                    {cat}
+                    {mt(`categories.${cat}`)}
                   </option>
                 ))}
               </select>

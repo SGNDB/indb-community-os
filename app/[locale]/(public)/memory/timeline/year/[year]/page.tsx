@@ -84,7 +84,7 @@ export default async function YearPage({params, searchParams}: Props) {
           <span className="font-medium">{t("topCategories")}:</span>
           {yearSummary.top_categories.map((cat) => (
             <span key={cat} className="rounded-full bg-muted/60 px-2.5 py-0.5">
-              {cat}
+              {t(`categories.${cat}`)}
             </span>
           ))}
         </div>

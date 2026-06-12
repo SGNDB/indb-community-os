@@ -347,7 +347,27 @@
     "topLocations": "Nokkuuje ɓurɗe",
     "backToTimeline": "Rutto e laawol wakkati",
     "backToDecades": "Rutto e duuɓi sappo",
-    "memoryCount": "{count} jikkuuji"
+    "memoryCount": "{count} jikkuuji",
+    "categories": {
+      "port": "Port",
+      "railway": "Laawol njamndi",
+      "schools": "Duɗe",
+      "families": "Gonɗi",
+      "culture": "Pinal",
+      "sport": "Pijirlooji",
+      "market": "Luumo",
+      "beach": "Betee",
+      "oldCity": "Saaɗe ɗoyre",
+      "work": "Golle",
+      "fishing": "Liwki",
+      "migration": "Egirgol",
+      "cansado": "Kansado",
+      "snim": "SNIM",
+      "religiousEvents": "Kewu diine",
+      "nationalEvents": "Kewu ngenndi",
+      "neighborhoods": "Wurooji",
+      "other": "Goɗɗum"
+    }
   },
   "Ideas": {
     "title": "Miijooji Kuurdu",

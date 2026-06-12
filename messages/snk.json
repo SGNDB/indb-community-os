@@ -347,7 +347,27 @@
     "topLocations": "Nokku ɓuri",
     "backToTimeline": "Yinti tenburu waati",
     "backToDecades": "Yinti sanɲe",
-    "memoryCount": "{count} jikku"
+    "memoryCount": "{count} jikku",
+    "categories": {
+      "port": "Port",
+      "railway": "Fere xaranda",
+      "schools": "Karaandu",
+      "families": "Denɲe",
+      "culture": "Taarixu",
+      "sport": "Pijiranki",
+      "market": "Marche",
+      "beach": "Betee",
+      "oldCity": "Tundu kooro",
+      "work": "Baara",
+      "fishing": "Fiɲintu",
+      "migration": "Siginindi",
+      "cansado": "Kansadu",
+      "snim": "SNIM",
+      "religiousEvents": "Kibaru diina",
+      "nationalEvents": "Kibaru nasionale",
+      "neighborhoods": "Kundu",
+      "other": "Ndookti"
+    }
   },
   "Ideas": {
     "title": "Miiji Jamasiye",

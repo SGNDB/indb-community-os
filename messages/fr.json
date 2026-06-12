@@ -347,7 +347,27 @@
     "topLocations": "Lieux principaux",
     "backToTimeline": "Retour à la chronologie",
     "backToDecades": "Retour aux décennies",
-    "memoryCount": "{count} souvenirs"
+    "memoryCount": "{count} souvenirs",
+    "categories": {
+      "port": "Port",
+      "railway": "Chemin de fer",
+      "schools": "Écoles",
+      "families": "Familles",
+      "culture": "Culture",
+      "sport": "Sport",
+      "market": "Marché",
+      "beach": "Plage",
+      "oldCity": "Vieille ville",
+      "work": "Travail",
+      "fishing": "Pêche",
+      "migration": "Migration",
+      "cansado": "Cansado",
+      "snim": "SNIM",
+      "religiousEvents": "Événements religieux",
+      "nationalEvents": "Événements nationaux",
+      "neighborhoods": "Quartiers",
+      "other": "Autre"
+    }
   },
   "Ideas": {
     "title": "Idées de la communauté",

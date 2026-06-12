@@ -347,7 +347,27 @@
     "topLocations": "أفضل المواقع",
     "backToTimeline": "العودة إلى الخط الزمني",
     "backToDecades": "العودة إلى العقود",
-    "memoryCount": "{count} ذكريات"
+    "memoryCount": "{count} ذكريات",
+    "categories": {
+      "port": "الميناء",
+      "railway": "السكك الحديدية",
+      "schools": "المدارس",
+      "families": "العائلات",
+      "culture": "الثقافة",
+      "sport": "الرياضة",
+      "market": "السوق",
+      "beach": "الشاطئ",
+      "oldCity": "المدينة القديمة",
+      "work": "العمل",
+      "fishing": "الصيد",
+      "migration": "الهجرة",
+      "cansado": "كنصادو",
+      "snim": "سنيم",
+      "religiousEvents": "المناسبات الدينية",
+      "nationalEvents": "المناسبات الوطنية",
+      "neighborhoods": "الأحياء",
+      "other": "أخرى"
+    }
   },
   "Ideas": {
     "title": "أفكار المجتمع",

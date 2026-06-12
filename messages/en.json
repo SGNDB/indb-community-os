@@ -347,7 +347,27 @@
     "topLocations": "Top locations",
     "backToTimeline": "Back to timeline",
     "backToDecades": "Back to decades",
-    "memoryCount": "{count} memories"
+    "memoryCount": "{count} memories",
+    "categories": {
+      "port": "Port",
+      "railway": "Railway",
+      "schools": "Schools",
+      "families": "Families",
+      "culture": "Culture",
+      "sport": "Sport",
+      "market": "Market",
+      "beach": "Beach",
+      "oldCity": "Old City",
+      "work": "Work",
+      "fishing": "Fishing",
+      "migration": "Migration",
+      "cansado": "Cansado",
+      "snim": "SNIM",
+      "religiousEvents": "Religious Events",
+      "nationalEvents": "National Events",
+      "neighborhoods": "Neighborhoods",
+      "other": "Other"
+    }
   },
   "Ideas": {
     "title": "Community Ideas",

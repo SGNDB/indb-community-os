@@ -1,5 +1,6 @@
 "use client";
 
+import {useTranslations} from "next-intl";
 import {usePathname, useRouter} from "@/lib/i18n/routing";
 
 interface FilterBarProps {
@@ -31,6 +32,7 @@ export function TimelineFilterBar({
 }: FilterBarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations("MemoryTimeline");
 
   function updateParam(key: string, value: string) {
     const params = new URLSearchParams(window.location.search);
@@ -54,7 +56,7 @@ export function TimelineFilterBar({
         <option value="">{allCategoriesLabel}</option>
         {categories.map((cat) => (
           <option key={cat} value={cat}>
-            {cat}
+            {t(`categories.${cat}`)}
           </option>
         ))}
       </select>

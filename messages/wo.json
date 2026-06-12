@@ -347,7 +347,27 @@
     "topLocations": "Fexe ëpp",
     "backToTimeline": "Dindi ci waxtu",
     "backToDecades": "Dindi ci at",
-    "memoryCount": "{count} jikku"
+    "memoryCount": "{count} jikku",
+    "categories": {
+      "port": "Pòrt",
+      "railway": "Pènc",
+      "schools": "Ékól",
+      "families": "Wàllu",
+      "culture": "Ngàngu",
+      "sport": "Xewaru",
+      "market": "Marche",
+      "beach": "Géwél",
+      "oldCity": "Dëkk bu mag",
+      "work": "Ligéey",
+      "fishing": "Fijj",
+      "migration": "Déggi",
+      "cansado": "Kansado",
+      "snim": "SNIM",
+      "religiousEvents": "Xewar diine",
+      "nationalEvents": "Xewar réew",
+      "neighborhoods": "Këru",
+      "other": "Dig"
+    }
   },
   "Ideas": {
     "title": "Xalaat Mbootaay",
