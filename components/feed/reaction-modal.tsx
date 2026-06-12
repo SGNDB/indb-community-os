@@ -102,7 +102,6 @@ export function ReactionModal({open, onClose, postId, locale}: ReactionModalProp
               loading={loading}
               totalCount={totalCount}
               groupedCounts={groupedCounts}
-              modalTitle={modalTitle}
               loadingMore={loadingMore}
               hasMore={hasMore}
               activeTab={activeTab}
@@ -123,7 +122,6 @@ export function ReactionModal({open, onClose, postId, locale}: ReactionModalProp
           loading={loading}
           totalCount={totalCount}
           groupedCounts={groupedCounts}
-          modalTitle={modalTitle}
           loadingMore={loadingMore}
           hasMore={hasMore}
           activeTab={activeTab}
@@ -140,11 +138,11 @@ export function ReactionModal({open, onClose, postId, locale}: ReactionModalProp
 }
 
 function ReactionModalContent({
-  loading, totalCount, groupedCounts, modalTitle, loadingMore, hasMore,
+  loading, totalCount, groupedCounts, loadingMore, hasMore,
   activeTab, setActiveTab, filteredUsers, onClose, handleLoadMore, t, locale,
 }: {
   loading: boolean; totalCount: number; groupedCounts: Record<string, number>;
-  modalTitle: string; loadingMore: boolean; hasMore: boolean;
+  loadingMore: boolean; hasMore: boolean;
   activeTab: string; setActiveTab: (t: string) => void;
   filteredUsers: ReactionUser[]; onClose: () => void;
   handleLoadMore: () => Promise<void>; t: ReturnType<typeof useTranslations<"Feed">>;
