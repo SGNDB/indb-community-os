@@ -165,11 +165,8 @@
     "someone": "شخص ما",
     "communityShareRequested": "طلب شخص الاستفادة من العنصر الذي شاركته",
     "fadlaRequested": "طلب {actorName} عنصرًا تشاركه",
-    "fadlaRequestAccepted": "وافق {actorName} على طلبك",
-    "fadlaRequestDeclined": "رفض {actorName} طلبك",
-    "fadlaCollected": "استلم {actorName} العنصر",
-    "loadMore": "عرض المزيد",
-    "fadlaHandedOver": "أكد {actorName} التسليم"
+    "fadlaCompleted": "أكمل {actorName} عنصر الفظلة الخاص بك",
+    "loadMore": "عرض المزيد"
   },
   "RightSidebar": {
     "trendingTopics": "المواضيع الرائجة",
@@ -934,29 +931,12 @@
     "requestSent": "تم إرسال الطلب",
     "requestAccepted": "تم قبول طلبك",
     "qty": "العدد",
-    "confirmCollection": "تأكيد الاستلام",
     "markCompleted": "وضع كمكتمل",
-    "archive": "أرشفة إلى الملف",
     "requests": "الطلبات",
     "viewRequests": "عرض الطلبات",
     "hideRequests": "إخفاء الطلبات",
     "ownerLabel": "المالك",
     "recipientLabel": "المستلم",
-    "archiveTitle": "أرشيف الفظلة",
-    "archiveDescription": "عرض العناصر المكتملة والمؤرشفة. تتبّع أثرك المجتمعي.",
-    "completedOn": "أُكمل في",
-    "archivedOn": "أُرشِف في",
-    "backToActive": "العودة إلى المشاركات النشطة",
-    "archiveFilters": {
-      "all": "الكل",
-      "mine": "خاصتي",
-      "completed": "مكتمل",
-      "archived": "مؤرشف"
-    },
-    "archiveEmpty": {
-      "title": "لا توجد عناصر مؤرشفة بعد",
-      "description": "ستظهر هنا العناصر المكتملة والمؤرشفة."
-    },
     "categories": {
       "food": "طعام",
       "clothes": "ملابس",
@@ -977,10 +957,7 @@
     "status": {
       "published": "متاح",
       "requested": "تم الطلب",
-      "reserved": "محجوز",
-      "collected": "تم الاستلام",
-      "completed": "مكتمل",
-      "archived": "مؤرشف"
+      "completed": "مكتمل"
     },
     "actions": {
       "edit": "تعديل العنصر",
@@ -1006,10 +983,7 @@
       "requested": "تم إرسال الطلب إلى المالك",
       "accepted": "تم قبول الطلب",
       "declined": "تم رفض الطلب",
-      "collected": "تم تأكيد الاستلام",
-      "completed": "تم الإكتمال",
-      "archived": "تم أرشفة العنصر",
-      "handedOver": "تم تأكيد التسليم"
+      "completed": "تم الإكتمال"
     },
     "errors": {
       "saveFailed": "تعذر حفظ العنصر المشارك",

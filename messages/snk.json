@@ -164,12 +164,9 @@
     "creditAwarded": "I sera {points} keredi tawtital",
     "communityShareRequested": "Nkunto sera ntene no i ntinxinin.",
     "fadlaRequested": "{actorName} sera ntene no i ntinxinin",
-    "fadlaRequestAccepted": "{actorName} ntaaxu i serexe",
-    "fadlaRequestDeclined": "{actorName} nkwali i serexe",
-    "fadlaCollected": "{actorName} nkisi ntene min",
+    "fadlaCompleted": "{actorName} yantini ntene nde Fadla maa",
     "someone": "Nkunto",
-    "loadMore": "Load more",
-    "fadlaHandedOver": "{actorName} confirmed the handover"
+    "loadMore": "Load more"
   },
   "RightSidebar": {
     "trendingTopics": "Jeli No Mberlin",

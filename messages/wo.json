@@ -164,12 +164,9 @@
     "creditAwarded": "Yagg nga am {points} credi tawtital",
     "communityShareRequested": "Nit ñaari laaj na mbariy bu ngalif",
     "fadlaRequested": "{actorName} laaj na mbariy bu ngalif",
-    "fadlaRequestAccepted": "{actorName} nangu laaj bi",
-    "fadlaRequestDeclined": "{actorName} tere laaj bi",
-    "fadlaCollected": "{actorName} yóbbu na mbariy bi",
+    "fadlaCompleted": "{actorName} yees na mbariy bu Fadla bi",
     "someone": "Nit",
-    "loadMore": "Load more",
-    "fadlaHandedOver": "{actorName} confirmed the handover"
+    "loadMore": "Load more"
   },
   "RightSidebar": {
     "trendingTopics": "Topiku ñu taw",

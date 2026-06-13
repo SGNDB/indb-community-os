@@ -63,9 +63,7 @@ function getNotificationIcon(type: string) {
       return Award;
     case "community_share_request":
     case "fadla_request":
-    case "fadla_request_accepted":
-    case "fadla_request_declined":
-    case "fadla_collected":
+    case "fadla_completed":
       return Gift;
     default:
       return Bell;
@@ -380,14 +378,8 @@ export function NotificationDropdown({
         case "community_share_request":
         case "fadla_request":
           return t("fadlaRequested", {actorName});
-        case "fadla_request_accepted":
-          return t("fadlaRequestAccepted", {actorName});
-        case "fadla_request_declined":
-          return t("fadlaRequestDeclined", {actorName});
-        case "fadla_collected":
-          return t("fadlaCollected", {actorName});
-        case "fadla_handed_over":
-          return t("fadlaHandedOver", {actorName});
+        case "fadla_completed":
+          return t("fadlaCompleted", {actorName});
         default:
           return n.message ?? "";
       }

@@ -8,7 +8,7 @@ import type {
 
 const DEFAULT_PAGE_SIZE = 20;
 
-export type FadlaArchiveFilter = 'all' | 'mine' | 'completed' | 'archived';
+export type FadlaArchiveFilter = 'all' | 'mine' | 'completed';
 
 export type FadlaArchiveItem = FadlaWithOwner & {
   accepted_request?: FadlaRequestWithRequester | null;
@@ -145,7 +145,7 @@ export async function getPublishedItems({
   if (status && status !== 'all') {
     query = query.eq('status', status);
   } else {
-    query = query.in('status', ['published', 'requested', 'reserved', 'collected']);
+    query = query.in('status', ['published', 'requested', 'completed']);
   }
 
   if (category && category !== 'all') query = query.eq('category', category);
@@ -235,13 +235,7 @@ export async function getArchiveItems({
       'id, owner_id, title, description, content_language, category, condition, location, status, images, shares_count, accepted_request_id, created_at, updated_at, completed_at, archived_at, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)',
     );
 
-  if (filter === 'completed') {
-    query = query.eq('status', 'completed');
-  } else if (filter === 'archived') {
-    query = query.eq('status', 'archived');
-  } else {
-    query = query.in('status', ['completed', 'archived']);
-  }
+  query = query.eq('status', 'completed');
 
   if (filter === 'mine' && currentUserId) {
     query = query.eq('owner_id', currentUserId);

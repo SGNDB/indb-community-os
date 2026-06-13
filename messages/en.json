@@ -164,12 +164,9 @@
     "creditAwarded": "You received {points} contribution points",
     "communityShareRequested": "Someone requested the item you shared",
     "fadlaRequested": "{actorName} requested an item you shared",
-    "fadlaRequestAccepted": "{actorName} accepted your request",
-    "fadlaRequestDeclined": "{actorName} declined your request",
-    "fadlaCollected": "{actorName} collected the item",
+    "fadlaCompleted": "{actorName} completed your Fadla item",
     "someone": "Someone",
-    "loadMore": "Load more",
-    "fadlaHandedOver": "{actorName} confirmed the handover"
+    "loadMore": "Load more"
   },
   "RightSidebar": {
     "trendingTopics": "Trending Topics",
@@ -928,29 +925,12 @@
     "requestSent": "Request Sent",
     "requestAccepted": "Your request was accepted",
     "qty": "Qty",
-    "confirmCollection": "Confirm Collection",
     "markCompleted": "Mark Completed",
-    "archive": "Archive to profile",
     "requests": "Requests",
     "viewRequests": "View Requests",
     "hideRequests": "Hide Requests",
     "ownerLabel": "Owner",
     "recipientLabel": "Recipient",
-    "archiveTitle": "Fadla Archive",
-    "archiveDescription": "View completed and archived shared items. Track your community impact.",
-    "completedOn": "Completed on",
-    "archivedOn": "Archived on",
-    "backToActive": "Back to active shares",
-    "archiveFilters": {
-      "all": "All",
-      "mine": "Mine",
-      "completed": "Completed",
-      "archived": "Archived"
-    },
-    "archiveEmpty": {
-      "title": "No archived items yet",
-      "description": "Completed and archived shared items will appear here."
-    },
     "categories": {
       "food": "Food",
       "clothes": "Clothes",
@@ -971,10 +951,7 @@
     "status": {
       "published": "Available",
       "requested": "Requested",
-      "reserved": "Reserved",
-      "collected": "Collected",
-      "completed": "Completed",
-      "archived": "Archived"
+      "completed": "Completed"
     },
     "actions": {
       "edit": "Edit item",
@@ -1000,10 +977,7 @@
       "requested": "Request sent to the owner",
       "accepted": "Request accepted",
       "declined": "Request declined",
-      "collected": "Collection confirmed",
-      "completed": "Item completed",
-      "archived": "Item archived",
-      "handedOver": "Handover confirmed"
+      "completed": "Item completed"
     },
     "errors": {
       "saveFailed": "Could not save shared item",

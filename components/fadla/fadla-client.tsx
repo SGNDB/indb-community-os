@@ -225,7 +225,7 @@ export function FadlaClient({
         </select>
         <select value={status} onChange={(e) => setStatus(e.target.value)} className="h-12 rounded-full border border-border bg-card px-4 text-sm">
           <option value="all">{t("allStatus")}</option>
-          {["published", "requested", "reserved", "collected", "completed", "archived"].map((s) => (
+          {["published", "requested", "completed"].map((s) => (
             <option key={s} value={s}>{t(`status.${s}`)}</option>
           ))}
         </select>

@@ -2984,10 +2984,15 @@ export async function acceptFadlaRequestAction(
     .eq('status', 'pending')
     .neq('id', requestId);
 
-  // Update item status to reserved
+  // Complete the item immediately in the MVP flow.
   let { error: itemUpdateError } = await supabase
     .from('community_shares')
-    .update({ status: 'reserved', accepted_request_id: requestId, updated_at: now })
+    .update({
+      status: 'completed',
+      accepted_request_id: requestId,
+      completed_at: now,
+      updated_at: now,
+    })
     .eq('id', req.share_id);
 
   if (
@@ -2996,7 +3001,11 @@ export async function acceptFadlaRequestAction(
   ) {
     const retry = await supabase
       .from('community_shares')
-      .update({ status: 'reserved', updated_at: now })
+      .update({
+        status: 'completed',
+        completed_at: now,
+        updated_at: now,
+      })
       .eq('id', req.share_id);
     itemUpdateError = retry.error;
   }
@@ -3008,10 +3017,10 @@ export async function acceptFadlaRequestAction(
   await createNotification({
     userId: req.requester_id,
     actorId: user.id,
-    type: 'fadla_request_accepted',
+    type: 'fadla_completed',
     entityType: 'community_share',
     entityId: req.share_id,
-    title: 'Your Fadla request was accepted',
+    title: 'Your Fadla item is completed',
   });
 
   revalidatePath(toPath(locale, '/fadla'));
@@ -3076,234 +3085,6 @@ export async function declineFadlaRequestAction(
       .update({ status: 'published', updated_at: now })
       .eq('id', req.share_id);
   }
-
-  await createNotification({
-    userId: req.requester_id,
-    actorId: user.id,
-    type: 'fadla_request_declined',
-    entityType: 'community_share',
-    entityId: req.share_id,
-    title: 'Your Fadla request was declined',
-  });
-
-  revalidatePath(toPath(locale, '/fadla'));
-  revalidatePath(toPath(locale, '/profile'));
-  return { success: true };
-}
-
-export async function confirmFadlaCollectionAction(
-  formData: FormData,
-): Promise<{ success: true } | { success: false; error: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
-  const itemId = formData.get('shareId') || formData.get('itemId');
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const errorsT = await getTranslations({ locale, namespace: 'Errors' });
-  const fadlaT = await getTranslations({ locale, namespace: 'Fadla' });
-
-  if (!user || typeof itemId !== 'string') {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  const { data: item } = await supabase
-    .from('community_shares')
-    .select('owner_id, status')
-    .eq('id', itemId)
-    .single();
-
-  if (!item || item.status !== 'reserved') {
-    return { success: false, error: fadlaT('errors.notAvailable') };
-  }
-
-  // Verify user is the accepted requester
-  const { data: acceptedRequest } = await supabase
-    .from('community_share_requests')
-    .select('id, requester_id, collected_at')
-    .eq('share_id', itemId)
-    .eq('status', 'accepted')
-    .maybeSingle();
-
-  if (!acceptedRequest || acceptedRequest.requester_id !== user.id) {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  const adminClient = createAdminClient();
-  const statusClient = adminClient ?? supabase;
-  const { error: statusError } = await statusClient
-    .from('community_share_requests')
-    .update({
-      collected_at: acceptedRequest.collected_at ?? new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', acceptedRequest.id);
-
-  if (statusError) {
-    return { success: false, error: fadlaT('errors.actionFailed') };
-  }
-
-  await createNotification({
-    userId: item.owner_id,
-    actorId: user.id,
-    type: 'fadla_collected',
-    entityType: 'community_share',
-    entityId: itemId,
-    title: 'Item was collected',
-  });
-
-  revalidatePath(toPath(locale, '/fadla'));
-  revalidatePath(toPath(locale, '/profile'));
-  return { success: true };
-}
-
-export async function confirmFadlaHandoverAction(
-  formData: FormData,
-): Promise<{ success: true } | { success: false; error: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
-  const itemId = formData.get('shareId') || formData.get('itemId');
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const errorsT = await getTranslations({ locale, namespace: 'Errors' });
-  const fadlaT = await getTranslations({ locale, namespace: 'Fadla' });
-
-  if (!user || typeof itemId !== 'string') {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  const { data: item } = await supabase
-    .from('community_shares')
-    .select('owner_id, status')
-    .eq('id', itemId)
-    .single();
-
-  if (!item || item.owner_id !== user.id || item.status !== 'reserved') {
-    return { success: false, error: fadlaT('errors.notAvailable') };
-  }
-
-  const { data: acceptedRequest } = await supabase
-    .from('community_share_requests')
-    .select('id, requester_id, collected_at')
-    .eq('share_id', itemId)
-    .eq('status', 'accepted')
-    .maybeSingle();
-
-  if (!acceptedRequest || !acceptedRequest.collected_at) {
-    return { success: false, error: fadlaT('errors.collectionNotConfirmed') };
-  }
-
-  const now = new Date().toISOString();
-  const adminClient = createAdminClient();
-  const statusClient = adminClient ?? supabase;
-
-  const { error: requestError } = await statusClient
-    .from('community_share_requests')
-    .update({ handed_over_at: now, updated_at: now })
-    .eq('id', acceptedRequest.id);
-
-  if (requestError) {
-    return { success: false, error: fadlaT('errors.actionFailed') };
-  }
-
-  const { error: itemError } = await statusClient
-    .from('community_shares')
-    .update({ status: 'collected', updated_at: now })
-    .eq('id', itemId);
-
-  if (itemError) {
-    return { success: false, error: fadlaT('errors.actionFailed') };
-  }
-
-  await createNotification({
-    userId: acceptedRequest.requester_id,
-    actorId: user.id,
-    type: 'fadla_handed_over',
-    entityType: 'community_share',
-    entityId: itemId,
-    title: 'Fadla handover confirmed',
-  });
-
-  revalidatePath(toPath(locale, '/fadla'));
-  revalidatePath(toPath(locale, '/profile'));
-  return { success: true };
-}
-
-export async function completeFadlaItemAction(
-  formData: FormData,
-): Promise<{ success: true } | { success: false; error: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
-  const itemId = formData.get('shareId') || formData.get('itemId');
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const errorsT = await getTranslations({ locale, namespace: 'Errors' });
-  const fadlaT = await getTranslations({ locale, namespace: 'Fadla' });
-
-  if (!user || typeof itemId !== 'string') {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  const { data: item } = await supabase
-    .from('community_shares')
-    .select('owner_id, status')
-    .eq('id', itemId)
-    .single();
-
-  if (!item || item.owner_id !== user.id || item.status !== 'collected') {
-    return { success: false, error: fadlaT('errors.notAvailable') };
-  }
-
-  await supabase
-    .from('community_shares')
-    .update({
-      status: 'completed',
-      completed_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', itemId);
-
-  revalidatePath(toPath(locale, '/fadla'));
-  revalidatePath(toPath(locale, '/profile'));
-  return { success: true };
-}
-
-export async function archiveFadlaItemAction(
-  formData: FormData,
-): Promise<{ success: true } | { success: false; error: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
-  const itemId = formData.get('shareId') || formData.get('itemId');
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const errorsT = await getTranslations({ locale, namespace: 'Errors' });
-  const fadlaT = await getTranslations({ locale, namespace: 'Fadla' });
-
-  if (!user || typeof itemId !== 'string') {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  const { data: item } = await supabase
-    .from('community_shares')
-    .select('owner_id, status')
-    .eq('id', itemId)
-    .single();
-
-  if (!item || item.owner_id !== user.id || item.status !== 'completed') {
-    return { success: false, error: fadlaT('errors.notAvailable') };
-  }
-
-  await supabase
-    .from('community_shares')
-    .update({
-      status: 'archived',
-      archived_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', itemId);
 
   revalidatePath(toPath(locale, '/fadla'));
   revalidatePath(toPath(locale, '/profile'));

@@ -165,11 +165,8 @@
     "someone": "Quelqu'un",
     "communityShareRequested": "Quelqu'un souhaite recevoir l'objet que vous avez partage",
     "fadlaRequested": "{actorName} a demande l'objet que vous partagez",
-    "fadlaRequestAccepted": "{actorName} a accepte votre demande",
-    "fadlaRequestDeclined": "{actorName} a decline votre demande",
-    "fadlaCollected": "{actorName} a recupere l'objet",
-    "loadMore": "Charger plus",
-    "fadlaHandedOver": "{actorName} a confirm? la remise"
+    "fadlaCompleted": "{actorName} a termine votre objet Fadla",
+    "loadMore": "Charger plus"
   },
   "RightSidebar": {
     "trendingTopics": "Sujets tendance",
@@ -934,29 +931,12 @@
     "requestSent": "Demande envoyée",
     "requestAccepted": "Votre demande a été acceptée",
     "qty": "Qté",
-    "confirmCollection": "Confirmer la collecte",
     "markCompleted": "Marquer termine",
-    "archive": "Archiver au profil",
     "requests": "Demandes",
     "viewRequests": "Voir les demandes",
     "hideRequests": "Masquer les demandes",
     "ownerLabel": "Propriétaire",
     "recipientLabel": "Bénéficiaire",
-    "archiveTitle": "Archives Fadla",
-    "archiveDescription": "Consultez les objets termines et archivés. Suivez votre impact communautaire.",
-    "completedOn": "Termine le",
-    "archivedOn": "Archive le",
-    "backToActive": "Retour aux partages actifs",
-    "archiveFilters": {
-      "all": "Tous",
-      "mine": "Les miens",
-      "completed": "Terminés",
-      "archived": "Archivés"
-    },
-    "archiveEmpty": {
-      "title": "Aucun objet archive pour le moment",
-      "description": "Les objets termines et archivés apparaitront ici."
-    },
     "categories": {
       "food": "Nourriture",
       "clothes": "Vetements",
@@ -977,10 +957,7 @@
     "status": {
       "published": "Disponible",
       "requested": "Demandé",
-      "reserved": "Réservé",
-      "collected": "Collecté",
-      "completed": "Terminé",
-      "archived": "Archivé"
+      "completed": "Terminé"
     },
     "actions": {
       "edit": "Modifier l'objet",
@@ -1006,10 +983,7 @@
       "requested": "Demande envoyee au proprietaire",
       "accepted": "Demande acceptee",
       "declined": "Demand refuse",
-      "collected": "Collecte confirme",
-      "completed": "Objet termine",
-      "archived": "Element archive",
-      "handedOver": "Remise confirm?e"
+      "completed": "Objet termine"
     },
     "errors": {
       "saveFailed": "Impossible d'enregistrer l'objet partage",

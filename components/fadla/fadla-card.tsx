@@ -19,10 +19,6 @@ import { toast } from 'sonner';
 
 import {
   acceptFadlaRequestAction,
-  archiveFadlaItemAction,
-  completeFadlaItemAction,
-  confirmFadlaCollectionAction,
-  confirmFadlaHandoverAction,
   declineFadlaRequestAction,
   deleteFadlaItemAction,
   requestFadlaItemAction,
@@ -54,14 +50,8 @@ const STATUS_STYLE: Record<string, string> = {
     'bg-gray-50 text-gray-700 border-gray-300 dark:bg-gray-800/50 dark:text-gray-300 dark:border-gray-600',
   requested:
     'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800/50',
-  reserved:
-    'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/30 dark:text-orange-300 dark:border-orange-800/50',
-  collected:
-    'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-800/50',
   completed:
     'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-300 dark:border-green-800/50',
-  archived:
-    'bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700',
 };
 
 const REQUEST_STATUS_STYLE: Record<string, string> = {
@@ -141,8 +131,6 @@ export function FadlaCard({
     acceptedRequest?.requester?.username ??
     t('unknownOwner');
   const isRecipient = acceptedRequest?.requester_id === currentUserId;
-  const recipientConfirmedCollection = Boolean(acceptedRequest?.collected_at);
-  const ownerConfirmedHandover = Boolean(acceptedRequest?.handed_over_at);
   const isRequestLoading = requestState === 'loading';
   const hasRequestSent = requestState === 'requested' || Boolean(item.requested_by_current_user);
 
@@ -196,70 +184,6 @@ export function FadlaCard({
     const result = await declineFadlaRequestAction(formData);
     if (result.success) {
       toast.success(t('toasts.declined'));
-      router.refresh();
-    } else {
-      toast.error(result.error);
-    }
-    setActionLoading(null);
-  }
-
-  async function handleConfirmCollection() {
-    if (actionLoading) return;
-    setActionLoading('confirmCollection');
-    const formData = new FormData();
-    formData.set('locale', locale);
-    formData.set('shareId', item.id);
-    const result = await confirmFadlaCollectionAction(formData);
-    if (result.success) {
-      toast.success(t('toasts.collected'));
-      router.refresh();
-    } else {
-      toast.error(result.error);
-    }
-    setActionLoading(null);
-  }
-
-  async function handleConfirmHandover() {
-    if (actionLoading) return;
-    setActionLoading('confirmHandover');
-    const formData = new FormData();
-    formData.set('locale', locale);
-    formData.set('shareId', item.id);
-    const result = await confirmFadlaHandoverAction(formData);
-    if (result.success) {
-      toast.success(t('toasts.handedOver'));
-      router.refresh();
-    } else {
-      toast.error(result.error);
-    }
-    setActionLoading(null);
-  }
-
-  async function handleComplete() {
-    if (actionLoading) return;
-    setActionLoading('complete');
-    const formData = new FormData();
-    formData.set('locale', locale);
-    formData.set('shareId', item.id);
-    const result = await completeFadlaItemAction(formData);
-    if (result.success) {
-      toast.success(t('toasts.completed'));
-      router.refresh();
-    } else {
-      toast.error(result.error);
-    }
-    setActionLoading(null);
-  }
-
-  async function handleArchive() {
-    if (actionLoading) return;
-    setActionLoading('archive');
-    const formData = new FormData();
-    formData.set('locale', locale);
-    formData.set('shareId', item.id);
-    const result = await archiveFadlaItemAction(formData);
-    if (result.success) {
-      toast.success(t('toasts.archived'));
       router.refresh();
     } else {
       toast.error(result.error);
@@ -378,49 +302,12 @@ export function FadlaCard({
             </span>
           )}
 
-          {!isOwner &&
-            isRecipient &&
-            item.status === 'reserved' &&
-            !recipientConfirmedCollection && (
-              <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
-                <span className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-medium text-green-700 dark:border-green-800/50 dark:bg-green-950/30 dark:text-green-300">
-                  <Check size={16} />
-                  {t('requestAccepted')}
-                </span>
-                <Button
-                  type="button"
-                  disabled={actionLoading === 'confirmCollection'}
-                  onClick={handleConfirmCollection}
-                  className={cn('min-h-11 rounded-full px-5', PRIMARY_ACTION_CLASS)}
-                >
-                  {actionLoading === 'confirmCollection' ? (
-                    <Loader2 size={17} className="animate-spin" />
-                  ) : (
-                    <Check size={17} />
-                  )}
-                  {t('confirmCollection')}
-                </Button>
-              </div>
-            )}
-
-          {!isOwner &&
-            isRecipient &&
-            item.status === 'reserved' &&
-            recipientConfirmedCollection && (
-              <span className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:border-blue-800/50 dark:bg-blue-950/30 dark:text-blue-300">
-                <Check size={16} />
-                {t('waitingHandover')}
-              </span>
-            )}
-
-          {!isOwner &&
-            isRecipient &&
-            (item.status === 'collected' || item.status === 'archived') && (
-              <span className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-medium text-green-700 dark:border-green-800/50 dark:bg-green-950/30 dark:text-green-300">
-                <Check size={16} />
-                {t(item.status === 'archived' ? 'status.archived' : 'status.collected')}
-              </span>
-            )}
+          {!isOwner && isRecipient && item.status === 'completed' && (
+            <span className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-medium text-green-700 dark:border-green-800/50 dark:bg-green-950/30 dark:text-green-300">
+              <Check size={16} />
+              {t('requestAccepted')}
+            </span>
+          )}
         </div>
 
         {isOwner && (
@@ -526,8 +413,8 @@ export function FadlaCard({
               </div>
             )}
 
-            {item.status === 'reserved' && acceptedRequest && (
-              <div className="rounded-2xl border border-orange-200 bg-orange-50/70 p-3 text-sm dark:border-orange-900/50 dark:bg-orange-950/20">
+            {item.status === 'completed' && acceptedRequest && (
+              <div className="rounded-2xl border border-green-200 bg-green-50/70 p-3 text-sm dark:border-green-900/50 dark:bg-green-950/20">
                 <div className="flex items-center gap-2.5">
                   <UserAvatar
                     label={acceptedRequesterName}
@@ -535,65 +422,17 @@ export function FadlaCard({
                     className="h-9 w-9 shrink-0 text-[10px]"
                   />
                   <div className="min-w-0">
-                    <p className="truncate font-semibold text-orange-900 dark:text-orange-100">
-                      {t('reservedFor', { name: acceptedRequesterName })}
+                    <p className="truncate font-semibold text-green-900 dark:text-green-100">
+                      {t('requestAccepted')}
                     </p>
-                    <p className="truncate text-xs text-orange-800/70 dark:text-orange-200/70">
+                    <p className="truncate text-xs text-green-800/70 dark:text-green-200/70">
                       {acceptedRequest.requester?.username
                         ? `@${acceptedRequest.requester.username}`
                         : t('unknownOwner')}
                     </p>
                   </div>
                 </div>
-                <p className="mt-2 text-orange-900/80 dark:text-orange-100/80">
-                  {recipientConfirmedCollection ? t('recipientConfirmed') : t('waitingCollection')}
-                </p>
-                {recipientConfirmedCollection && !ownerConfirmedHandover && (
-                  <Button
-                    type="button"
-                    disabled={actionLoading === 'confirmHandover'}
-                    onClick={handleConfirmHandover}
-                    className={cn('mt-3 w-full rounded-full', PRIMARY_ACTION_CLASS)}
-                  >
-                    {actionLoading === 'confirmHandover' ? (
-                      <Loader2 size={17} className="animate-spin" />
-                    ) : (
-                      <Check size={17} />
-                    )}
-                    {t('markHandedOver')}
-                  </Button>
-                )}
               </div>
-            )}
-
-            {item.status === 'collected' && (
-              <Button
-                type="button"
-                disabled={actionLoading === 'complete'}
-                onClick={handleComplete}
-                className={cn('w-full rounded-full', PRIMARY_ACTION_CLASS)}
-              >
-                {actionLoading === 'complete' ? (
-                  <Loader2 size={17} className="animate-spin" />
-                ) : (
-                  <Check size={17} />
-                )}
-                {t('markCompleted')}
-              </Button>
-            )}
-
-            {item.status === 'completed' && (
-              <Button
-                type="button"
-                disabled={actionLoading === 'archive'}
-                onClick={handleArchive}
-                className={cn('w-full rounded-full', DANGER_OUTLINE_ACTION_CLASS)}
-              >
-                {actionLoading === 'archive' ? (
-                  <Loader2 size={17} className="animate-spin" />
-                ) : null}
-                {t('archive')}
-              </Button>
             )}
 
             {item.status === 'published' && (
