@@ -66,9 +66,11 @@ const REQUEST_STATUS_STYLE: Record<string, string> = {
 };
 
 const PRIMARY_ACTION_CLASS =
-  'bg-[#ED2124] text-white shadow-sm hover:bg-[#d81e21] hover:text-white border border-[#ED2124]';
+  'bg-[#22c55e] text-white shadow-sm hover:bg-[#16a34a] hover:text-white border border-[#22c55e]';
+const SECONDARY_ACTION_CLASS =
+  'bg-[#3b82f6] text-white shadow-sm hover:bg-[#2563eb] hover:text-white border border-[#3b82f6]';
 const DANGER_OUTLINE_ACTION_CLASS =
-  'border border-[#ED2124]/40 bg-transparent text-[#ED2124] hover:bg-[#ED2124]/10 hover:text-[#c91d20]';
+  'border border-[#64748b]/40 bg-transparent text-[#64748b] hover:bg-[#64748b]/10 hover:text-[#475569]';
 const OUTLINE_ACTION_CLASS =
   'border border-border bg-card text-foreground hover:bg-muted hover:text-foreground';
 
@@ -284,7 +286,7 @@ export function FadlaCard({
               type="button"
               disabled={isRequestLoading}
               onClick={handleRequest}
-              className={cn('min-h-11 rounded-full px-5', PRIMARY_ACTION_CLASS)}
+              className={cn('min-h-11 rounded-full px-5', SECONDARY_ACTION_CLASS)}
             >
               {isRequestLoading ? (
                 <Loader2 size={17} className="animate-spin" />
