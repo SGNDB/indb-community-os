@@ -1,6 +1,17 @@
 'use client';
 
-import { Check, Gift, HandHeart, Loader2, MapPin, Pencil, Share2, Trash2, X } from 'lucide-react';
+import {
+  Check,
+  Gift,
+  HandHeart,
+  Loader2,
+  ListFilter,
+  MapPin,
+  Pencil,
+  Share2,
+  Trash2,
+  X,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -38,15 +49,6 @@ const CATEGORY_EMOJI: Record<string, string> = {
   other: '📦',
 };
 
-const URGENCY_STYLE: Record<string, string> = {
-  urgent:
-    'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-900/50',
-  this_week:
-    'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-900/50',
-  no_urgency:
-    'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-900/50',
-};
-
 const STATUS_STYLE: Record<string, string> = {
   published:
     'bg-gray-50 text-gray-700 border-gray-300 dark:bg-gray-800/50 dark:text-gray-300 dark:border-gray-600',
@@ -75,9 +77,10 @@ const REQUEST_STATUS_STYLE: Record<string, string> = {
 
 const PRIMARY_ACTION_CLASS =
   'bg-[#ED2124] text-white shadow-sm hover:bg-[#d81e21] hover:text-white border border-[#ED2124]';
-
 const DANGER_OUTLINE_ACTION_CLASS =
   'border border-[#ED2124]/40 bg-transparent text-[#ED2124] hover:bg-[#ED2124]/10 hover:text-[#c91d20]';
+const OUTLINE_ACTION_CLASS =
+  'border border-border bg-card text-foreground hover:bg-muted hover:text-foreground';
 
 export function FadlaCard({
   item,
@@ -96,10 +99,14 @@ export function FadlaCard({
   const feed = useTranslations('Feed');
   const router = useRouter();
   const searchParams = useSearchParams();
+
   const [highlight, setHighlight] = useState(false);
   const [sharesCount, setSharesCount] = useState(item.shares_count ?? 0);
-  const [requestState, setRequestState] = useState<'idle' | 'loading' | 'requested'>('idle');
+  const [requestState, setRequestState] = useState<'idle' | 'loading' | 'requested'>(
+    item.requested_by_current_user ? 'requested' : 'idle',
+  );
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [showRequests, setShowRequests] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -113,8 +120,43 @@ export function FadlaCard({
     return () => clearTimeout(timer);
   }, [searchParams, item.id]);
 
+  const isOwner = currentUserId === item.owner_id;
+  const ownerName = item.owner?.full_name ?? item.owner?.username ?? t('unknownOwner');
+  const categoryEmoji = CATEGORY_EMOJI[item.category] ?? '📦';
+  const createdAt = new Date(item.created_at).toLocaleDateString(
+    locale === 'ar' ? 'ar-SA' : locale === 'fr' ? 'fr-FR' : 'en-US',
+    { month: 'short', day: 'numeric' },
+  );
+  const formatRequestDate = (dateValue: string) =>
+    new Date(dateValue).toLocaleDateString(
+      locale === 'ar' ? 'ar-SA' : locale === 'fr' ? 'fr-FR' : 'en-US',
+      { month: 'short', day: 'numeric' },
+    );
+
+  const pendingRequests = (item.requests ?? []).filter((request) => request.status === 'pending');
+  const acceptedRequest =
+    (item.requests ?? []).find((request) => request.status === 'accepted') ?? null;
+  const acceptedRequesterName =
+    acceptedRequest?.requester?.full_name ??
+    acceptedRequest?.requester?.username ??
+    t('unknownOwner');
+  const isRecipient = acceptedRequest?.requester_id === currentUserId;
+  const recipientConfirmedCollection = Boolean(acceptedRequest?.collected_at);
+  const ownerConfirmedHandover = Boolean(acceptedRequest?.handed_over_at);
+  const isRequestLoading = requestState === 'loading';
+  const hasRequestSent = requestState === 'requested' || Boolean(item.requested_by_current_user);
+
+  const canRequest =
+    (item.status === 'published' || item.status === 'requested') && !isOwner && !hasRequestSent;
+  const requestSent = !isOwner && hasRequestSent;
+  const ownerCanViewRequests = isOwner && item.status === 'requested' && pendingRequests.length > 0;
+  const ownerCanManageRequests =
+    isOwner &&
+    pendingRequests.length > 0 &&
+    (item.status === 'published' || item.status === 'requested');
+
   async function handleRequest() {
-    if (requestState !== 'idle') return;
+    if (!canRequest) return;
     setRequestState('loading');
     const formData = new FormData();
     formData.set('locale', locale);
@@ -225,38 +267,6 @@ export function FadlaCard({
     setActionLoading(null);
   }
 
-  const isOwner = currentUserId === item.owner_id;
-  const ownerName = item.owner?.full_name ?? item.owner?.username ?? t('unknownOwner');
-  const createdAt = new Date(item.created_at).toLocaleDateString(
-    locale === 'ar' ? 'ar-SA' : locale === 'fr' ? 'fr-FR' : 'en-US',
-    { month: 'short', day: 'numeric' },
-  );
-  const formatRequestDate = (dateValue: string) =>
-    new Date(dateValue).toLocaleDateString(
-      locale === 'ar' ? 'ar-SA' : locale === 'fr' ? 'fr-FR' : 'en-US',
-      { month: 'short', day: 'numeric' },
-    );
-  const categoryEmoji = CATEGORY_EMOJI[item.category] ?? '📦';
-  const canBeRequested =
-    (item.status === 'published' || item.status === 'requested') &&
-    !isOwner &&
-    !item.requested_by_current_user &&
-    requestState !== 'requested';
-  const hasPendingRequest = item.requested_by_current_user || requestState === 'requested';
-  const acceptedRequest = (item.requests ?? []).find((r) => r.status === 'accepted');
-  const acceptedRequesterName =
-    acceptedRequest?.requester?.full_name ??
-    acceptedRequest?.requester?.username ??
-    t('unknownOwner');
-  const isRecipient = acceptedRequest?.requester_id === currentUserId;
-  const recipientConfirmedCollection = Boolean(acceptedRequest?.collected_at);
-  const ownerConfirmedHandover = Boolean(acceptedRequest?.handed_over_at);
-  const pendingRequests = (item.requests ?? []).filter((r) => r.status === 'pending');
-  const ownerCanManageRequests =
-    isOwner &&
-    pendingRequests.length > 0 &&
-    (item.status === 'published' || item.status === 'requested');
-
   return (
     <article
       ref={articleRef}
@@ -298,11 +308,6 @@ export function FadlaCard({
               <Badge className="rounded-full bg-primary/10 px-3 py-1 text-primary hover:bg-primary/10">
                 {categoryEmoji} {t(`categories.${item.category}`)}
               </Badge>
-              {item.urgency_level !== 'no_urgency' && (
-                <Badge className={cn('rounded-full px-3 py-1', URGENCY_STYLE[item.urgency_level])}>
-                  {t(`urgency.${item.urgency_level}`)}
-                </Badge>
-              )}
               <Badge
                 className={cn(
                   'rounded-full border px-3 py-1 text-[14px] font-medium leading-none',
@@ -337,7 +342,6 @@ export function FadlaCard({
           )}
         </div>
 
-        {/* Owner + request/action area */}
         <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-4">
           <div className="flex min-w-0 items-center gap-2">
             <UserAvatar
@@ -351,14 +355,14 @@ export function FadlaCard({
             </span>
           </div>
 
-          {!isOwner && canBeRequested && (
+          {!isOwner && canRequest && (
             <Button
               type="button"
-              disabled={requestState === 'loading'}
+              disabled={isRequestLoading}
               onClick={handleRequest}
               className={cn('min-h-11 rounded-full px-5', PRIMARY_ACTION_CLASS)}
             >
-              {requestState === 'loading' ? (
+              {isRequestLoading ? (
                 <Loader2 size={17} className="animate-spin" />
               ) : (
                 <HandHeart size={17} />
@@ -367,10 +371,10 @@ export function FadlaCard({
             </Button>
           )}
 
-          {!isOwner && hasPendingRequest && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
+          {!isOwner && requestSent && (
+            <span className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:border-blue-800/50 dark:bg-blue-950/30 dark:text-blue-300">
               <Check size={16} />
-              {t('requested')}
+              {t('requestSent')}
             </span>
           )}
 
@@ -378,19 +382,25 @@ export function FadlaCard({
             isRecipient &&
             item.status === 'reserved' &&
             !recipientConfirmedCollection && (
-              <Button
-                type="button"
-                disabled={actionLoading === 'confirmCollection'}
-                onClick={handleConfirmCollection}
-                className={cn('min-h-11 rounded-full px-5', PRIMARY_ACTION_CLASS)}
-              >
-                {actionLoading === 'confirmCollection' ? (
-                  <Loader2 size={17} className="animate-spin" />
-                ) : (
-                  <Check size={17} />
-                )}
-                {t('confirmCollection')}
-              </Button>
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+                <span className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-medium text-green-700 dark:border-green-800/50 dark:bg-green-950/30 dark:text-green-300">
+                  <Check size={16} />
+                  {t('requestAccepted')}
+                </span>
+                <Button
+                  type="button"
+                  disabled={actionLoading === 'confirmCollection'}
+                  onClick={handleConfirmCollection}
+                  className={cn('min-h-11 rounded-full px-5', PRIMARY_ACTION_CLASS)}
+                >
+                  {actionLoading === 'confirmCollection' ? (
+                    <Loader2 size={17} className="animate-spin" />
+                  ) : (
+                    <Check size={17} />
+                  )}
+                  {t('confirmCollection')}
+                </Button>
+              </div>
             )}
 
           {!isOwner &&
@@ -413,65 +423,83 @@ export function FadlaCard({
             )}
         </div>
 
-        {/* Owner actions */}
         {isOwner && (
           <div className="space-y-3 border-t border-border/60 pt-4">
-            {/* Request management */}
-            {ownerCanManageRequests && (
+            {ownerCanViewRequests && !showRequests && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowRequests(true)}
+                className={cn('min-h-11 w-full rounded-full', OUTLINE_ACTION_CLASS)}
+              >
+                <ListFilter size={16} />
+                {t('viewRequests')}
+              </Button>
+            )}
+
+            {ownerCanManageRequests && showRequests && (
               <div className="space-y-2">
                 <p className="text-sm font-semibold text-muted-foreground">
                   {t('requests')} ({pendingRequests.length})
                 </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setShowRequests(false)}
+                  className="min-h-10 w-full justify-start rounded-xl px-3 text-sm text-muted-foreground"
+                >
+                  {t('hideRequests')}
+                </Button>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {pendingRequests.map((req) => (
+                  {pendingRequests.map((request) => (
                     <div
-                      key={req.id}
+                      key={request.id}
                       className="space-y-3 rounded-2xl border border-border/70 bg-card p-3 shadow-sm"
                     >
                       <div className="flex items-start gap-3">
                         <UserAvatar
-                          label={req.requester?.full_name ?? req.requester?.username ?? '?'}
-                          avatarUrl={req.requester?.avatar_url}
+                          label={request.requester?.full_name ?? request.requester?.username ?? '?'}
+                          avatarUrl={request.requester?.avatar_url}
                           className="h-10 w-10 shrink-0 text-[10px]"
                         />
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
                             <p className="min-w-0 truncate text-sm font-semibold text-foreground">
-                              {req.requester?.full_name ??
-                                req.requester?.username ??
+                              {request.requester?.full_name ??
+                                request.requester?.username ??
                                 t('unknownOwner')}
                             </p>
                             <Badge
                               className={cn(
                                 'rounded-full border px-2.5 py-1 text-[14px] font-medium leading-none',
-                                REQUEST_STATUS_STYLE[req.status],
+                                REQUEST_STATUS_STYLE[request.status],
                               )}
                             >
-                              {t(`requestStatus.${req.status}`)}
+                              {t(`requestStatus.${request.status}`)}
                             </Badge>
                           </div>
                           <p className="mt-1 text-xs text-muted-foreground">
-                            {formatRequestDate(req.created_at)}
-                            {req.requester?.username ? ` · @${req.requester.username}` : ''}
+                            {formatRequestDate(request.created_at)}
+                            {request.requester?.username ? ` · @${request.requester.username}` : ''}
                           </p>
                         </div>
                       </div>
-                      {req.message && (
+                      {request.message && (
                         <p
                           className="whitespace-pre-wrap wrap-break-word rounded-xl bg-muted/50 px-3 py-2 text-sm leading-6 text-foreground/85"
                           dir="auto"
                         >
-                          {req.message}
+                          {request.message}
                         </p>
                       )}
                       <div className="grid gap-2 sm:grid-cols-2">
                         <Button
                           type="button"
-                          disabled={actionLoading === `accept-${req.id}`}
-                          onClick={() => handleAccept(req.id)}
+                          disabled={actionLoading === `accept-${request.id}`}
+                          onClick={() => handleAccept(request.id)}
                           className={cn('min-h-11 rounded-full px-4', PRIMARY_ACTION_CLASS)}
                         >
-                          {actionLoading === `accept-${req.id}` ? (
+                          {actionLoading === `accept-${request.id}` ? (
                             <Loader2 size={15} className="animate-spin" />
                           ) : (
                             <Check size={15} />
@@ -480,11 +508,11 @@ export function FadlaCard({
                         </Button>
                         <Button
                           type="button"
-                          disabled={actionLoading === `decline-${req.id}`}
-                          onClick={() => handleDecline(req.id)}
+                          disabled={actionLoading === `decline-${request.id}`}
+                          onClick={() => handleDecline(request.id)}
                           className={cn('min-h-11 rounded-full px-4', DANGER_OUTLINE_ACTION_CLASS)}
                         >
-                          {actionLoading === `decline-${req.id}` ? (
+                          {actionLoading === `decline-${request.id}` ? (
                             <Loader2 size={15} className="animate-spin" />
                           ) : (
                             <X size={15} />
@@ -498,7 +526,6 @@ export function FadlaCard({
               </div>
             )}
 
-            {/* Collected → Complete */}
             {item.status === 'reserved' && acceptedRequest && (
               <div className="rounded-2xl border border-orange-200 bg-orange-50/70 p-3 text-sm dark:border-orange-900/50 dark:bg-orange-950/20">
                 <div className="flex items-center gap-2.5">
@@ -538,6 +565,7 @@ export function FadlaCard({
                 )}
               </div>
             )}
+
             {item.status === 'collected' && (
               <Button
                 type="button"
@@ -554,7 +582,6 @@ export function FadlaCard({
               </Button>
             )}
 
-            {/* Completed → Archive */}
             {item.status === 'completed' && (
               <Button
                 type="button"
@@ -569,7 +596,6 @@ export function FadlaCard({
               </Button>
             )}
 
-            {/* Edit / Delete (only for published items) */}
             {item.status === 'published' && (
               <div className="grid gap-2 sm:grid-cols-2">
                 <Button
@@ -604,7 +630,6 @@ export function FadlaCard({
           </div>
         )}
 
-        {/* Share */}
         <div className="flex border-t border-border/60 pt-4">
           <button
             type="button"
@@ -628,12 +653,12 @@ export function FadlaCard({
                   return;
                 }
               }
-              setSharesCount((c) => c + 1);
+              setSharesCount((count) => count + 1);
               const formData = new FormData();
               formData.set('shareId', item.id);
               const result = await shareCommunityShareAction(formData);
               if (!result.success && result.error === 'unauthorized') {
-                setSharesCount((c) => Math.max(0, c - 1));
+                setSharesCount((count) => Math.max(0, count - 1));
               }
             }}
             className="inline-flex w-full items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"

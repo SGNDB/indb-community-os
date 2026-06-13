@@ -925,16 +925,28 @@
     "imagePlaceholder": "Useful item",
     "needThis": "I Need This",
     "requested": "Requested",
+    "requestSent": "Request Sent",
+    "requestAccepted": "Your request was accepted",
     "qty": "Qty",
     "confirmCollection": "Confirm Collection",
     "markCompleted": "Mark Completed",
     "archive": "Archive to profile",
     "requests": "Requests",
+    "viewRequests": "View Requests",
+    "hideRequests": "Hide Requests",
+    "ownerLabel": "Owner",
+    "recipientLabel": "Recipient",
     "archiveTitle": "Fadla Archive",
     "archiveDescription": "View completed and archived shared items. Track your community impact.",
     "completedOn": "Completed on",
     "archivedOn": "Archived on",
     "backToActive": "Back to active shares",
+    "archiveFilters": {
+      "all": "All",
+      "mine": "Mine",
+      "completed": "Completed",
+      "archived": "Archived"
+    },
     "archiveEmpty": {
       "title": "No archived items yet",
       "description": "Completed and archived shared items will appear here."
@@ -957,7 +969,7 @@
       "no_urgency": "No urgency"
     },
     "status": {
-      "published": "Published",
+      "published": "Available",
       "requested": "Requested",
       "reserved": "Reserved",
       "collected": "Collected",

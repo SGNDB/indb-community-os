@@ -931,16 +931,28 @@
     "imagePlaceholder": "عنصر مفيد",
     "needThis": "أحتاجه",
     "requested": "تم الطلب",
+    "requestSent": "تم إرسال الطلب",
+    "requestAccepted": "تم قبول طلبك",
     "qty": "العدد",
     "confirmCollection": "تأكيد الاستلام",
     "markCompleted": "وضع كمكتمل",
     "archive": "أرشفة إلى الملف",
     "requests": "الطلبات",
+    "viewRequests": "عرض الطلبات",
+    "hideRequests": "إخفاء الطلبات",
+    "ownerLabel": "المالك",
+    "recipientLabel": "المستلم",
     "archiveTitle": "أرشيف الفظلة",
     "archiveDescription": "عرض العناصر المكتملة والمؤرشفة. تتبّع أثرك المجتمعي.",
     "completedOn": "أُكمل في",
     "archivedOn": "أُرشِف في",
     "backToActive": "العودة إلى المشاركات النشطة",
+    "archiveFilters": {
+      "all": "الكل",
+      "mine": "خاصتي",
+      "completed": "مكتمل",
+      "archived": "مؤرشف"
+    },
     "archiveEmpty": {
       "title": "لا توجد عناصر مؤرشفة بعد",
       "description": "ستظهر هنا العناصر المكتملة والمؤرشفة."
@@ -963,8 +975,8 @@
       "no_urgency": "بدون استعجال"
     },
     "status": {
-      "published": "منشور",
-      "requested": "مطلوب",
+      "published": "متاح",
+      "requested": "تم الطلب",
       "reserved": "محجوز",
       "collected": "تم الاستلام",
       "completed": "مكتمل",

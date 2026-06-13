@@ -930,17 +930,29 @@
     "sharedForHelp": "Partage pour aider",
     "imagePlaceholder": "Objet utile",
     "needThis": "Je le souhaite",
-    "requested": "Demande",
+    "requested": "Demandé",
+    "requestSent": "Demande envoyée",
+    "requestAccepted": "Votre demande a été acceptée",
     "qty": "Qté",
     "confirmCollection": "Confirmer la collecte",
     "markCompleted": "Marquer termine",
     "archive": "Archiver au profil",
     "requests": "Demandes",
+    "viewRequests": "Voir les demandes",
+    "hideRequests": "Masquer les demandes",
+    "ownerLabel": "Propriétaire",
+    "recipientLabel": "Bénéficiaire",
     "archiveTitle": "Archives Fadla",
     "archiveDescription": "Consultez les objets termines et archivés. Suivez votre impact communautaire.",
     "completedOn": "Termine le",
     "archivedOn": "Archive le",
     "backToActive": "Retour aux partages actifs",
+    "archiveFilters": {
+      "all": "Tous",
+      "mine": "Les miens",
+      "completed": "Terminés",
+      "archived": "Archivés"
+    },
     "archiveEmpty": {
       "title": "Aucun objet archive pour le moment",
       "description": "Les objets termines et archivés apparaitront ici."
@@ -963,12 +975,12 @@
       "no_urgency": "Pas d'urgence"
     },
     "status": {
-      "published": "Publie",
-      "requested": "Demande",
-      "reserved": "Reserve",
-      "collected": "Collecte",
-      "completed": "Termine",
-      "archived": "Archive"
+      "published": "Disponible",
+      "requested": "Demandé",
+      "reserved": "Réservé",
+      "collected": "Collecté",
+      "completed": "Terminé",
+      "archived": "Archivé"
     },
     "actions": {
       "edit": "Modifier l'objet",

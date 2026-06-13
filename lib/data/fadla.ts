@@ -1,29 +1,48 @@
-import {createClient} from "@/lib/supabase/server";
-import type {CommunityShareImage, FadlaImpact, FadlaRequestWithRequester, FadlaWithOwner} from "@/types/database";
+import { createClient } from '@/lib/supabase/server';
+import type {
+  CommunityShareImage,
+  FadlaImpact,
+  FadlaRequestWithRequester,
+  FadlaWithOwner,
+} from '@/types/database';
 
 const DEFAULT_PAGE_SIZE = 20;
+
+export type FadlaArchiveFilter = 'all' | 'mine' | 'completed' | 'archived';
+
+export type FadlaArchiveItem = FadlaWithOwner & {
+  accepted_request?: FadlaRequestWithRequester | null;
+};
 
 function normalizeImages(value: unknown): CommunityShareImage[] {
   if (!Array.isArray(value)) return [];
   return value
     .map((item) => {
-      if (!item || typeof item !== "object") return null;
+      if (!item || typeof item !== 'object') return null;
       const image = item as Partial<CommunityShareImage>;
-      if (typeof image.url !== "string" || typeof image.storagePath !== "string") return null;
-      return {url: image.url, storagePath: image.storagePath, type: "image" as const, mimeType: typeof image.mimeType === "string" ? image.mimeType : undefined};
+      if (typeof image.url !== 'string' || typeof image.storagePath !== 'string') return null;
+      return {
+        url: image.url,
+        storagePath: image.storagePath,
+        type: 'image' as const,
+        mimeType: typeof image.mimeType === 'string' ? image.mimeType : undefined,
+      };
     })
     .filter(Boolean) as CommunityShareImage[];
 }
 
-async function hydrateItems(items: FadlaWithOwner[], currentUserId?: string | null): Promise<FadlaWithOwner[]> {
+async function hydrateItems(
+  items: FadlaWithOwner[],
+  currentUserId?: string | null,
+): Promise<FadlaWithOwner[]> {
   if (items.length === 0) return items;
   const supabase = await createClient();
   const itemIds = items.map((i) => i.id);
 
-  const {data: requests} = await supabase
-    .from("community_share_requests")
-    .select("share_id, requester_id, status")
-    .in("share_id", itemIds);
+  const { data: requests } = await supabase
+    .from('community_share_requests')
+    .select('share_id, requester_id, status')
+    .in('share_id', itemIds);
 
   const countMap = new Map<string, number>();
   const requestedByCurrent = new Set<string>();
@@ -32,7 +51,7 @@ async function hydrateItems(items: FadlaWithOwner[], currentUserId?: string | nu
   for (const req of requests ?? []) {
     countMap.set(req.share_id, (countMap.get(req.share_id) ?? 0) + 1);
     if (currentUserId && req.requester_id === currentUserId) {
-      if (req.status === "pending") {
+      if (req.status === 'pending') {
         requestedByCurrent.add(req.share_id);
       }
       itemsWithParticipant.add(req.share_id);
@@ -53,11 +72,13 @@ async function hydrateItems(items: FadlaWithOwner[], currentUserId?: string | nu
 
   const fullRequestsMap: Map<string, FadlaRequestWithRequester[]> = new Map();
   if (needFullRequests.size > 0) {
-    const {data: fullRequests} = await supabase
-      .from("community_share_requests")
-      .select("*, requester:profiles!community_share_requests_requester_id_fkey(id, username, full_name, avatar_url)")
-      .in("share_id", [...needFullRequests])
-      .order("created_at", {ascending: true});
+    const { data: fullRequests } = await supabase
+      .from('community_share_requests')
+      .select(
+        '*, requester:profiles!community_share_requests_requester_id_fkey(id, username, full_name, avatar_url)',
+      )
+      .in('share_id', [...needFullRequests])
+      .order('created_at', { ascending: true });
 
     for (const req of fullRequests ?? []) {
       const shareId = req.share_id;
@@ -78,11 +99,13 @@ async function hydrateItems(items: FadlaWithOwner[], currentUserId?: string | nu
 
 async function hydrateRequests(shareId: string): Promise<FadlaRequestWithRequester[]> {
   const supabase = await createClient();
-  const {data} = await supabase
-    .from("community_share_requests")
-    .select("*, requester:profiles!community_share_requests_requester_id_fkey(id, username, full_name, avatar_url)")
-    .eq("share_id", shareId)
-    .order("created_at", {ascending: true});
+  const { data } = await supabase
+    .from('community_share_requests')
+    .select(
+      '*, requester:profiles!community_share_requests_requester_id_fkey(id, username, full_name, avatar_url)',
+    )
+    .eq('share_id', shareId)
+    .order('created_at', { ascending: true });
 
   return (data ?? []) as unknown as FadlaRequestWithRequester[];
 }
@@ -114,21 +137,23 @@ export async function getPublishedItems({
   const to = from + safePageSize;
 
   let query = supabase
-    .from("community_shares")
-    .select("*, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)");
+    .from('community_shares')
+    .select(
+      '*, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)',
+    );
 
-  if (status && status !== "all") {
-    query = query.eq("status", status);
+  if (status && status !== 'all') {
+    query = query.eq('status', status);
   } else {
-    query = query.in("status", ["published", "requested", "reserved", "collected"]);
+    query = query.in('status', ['published', 'requested', 'reserved', 'collected']);
   }
 
-  if (category && category !== "all") query = query.eq("category", category);
-  if (urgency && urgency !== "all") query = query.eq("urgency_level", urgency);
+  if (category && category !== 'all') query = query.eq('category', category);
+  if (urgency && urgency !== 'all') query = query.eq('urgency_level', urgency);
 
-  query = query.order("created_at", {ascending: false}).range(from, to);
+  query = query.order('created_at', { ascending: false }).range(from, to);
 
-  const {data} = await query;
+  const { data } = await query;
   const rows = (data ?? []) as unknown as FadlaWithOwner[];
   const items = await hydrateItems(rows.slice(0, safePageSize), currentUserId);
 
@@ -140,49 +165,56 @@ export async function getPublishedItems({
   };
 }
 
-export async function getItemById(id: string, currentUserId?: string | null): Promise<FadlaWithOwner | null> {
+export async function getItemById(
+  id: string,
+  currentUserId?: string | null,
+): Promise<FadlaWithOwner | null> {
   const supabase = await createClient();
-  const {data} = await supabase
-    .from("community_shares")
-    .select("*, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)")
-    .eq("id", id)
+  const { data } = await supabase
+    .from('community_shares')
+    .select('*, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)')
+    .eq('id', id)
     .maybeSingle();
 
   if (!data) return null;
   const [item] = await hydrateItems([data as unknown as FadlaWithOwner], currentUserId);
   if (!item) return null;
   const requests = await hydrateRequests(id);
-  return {...item, requests};
+  return { ...item, requests };
 }
 
 export async function getUserItems(userId: string): Promise<FadlaWithOwner[]> {
   const supabase = await createClient();
-  const {data} = await supabase
-    .from("community_shares")
-    .select("*, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)")
-    .eq("owner_id", userId)
-    .order("created_at", {ascending: false});
+  const { data } = await supabase
+    .from('community_shares')
+    .select('*, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)')
+    .eq('owner_id', userId)
+    .order('created_at', { ascending: false });
 
   return hydrateItems((data ?? []) as unknown as FadlaWithOwner[], userId);
 }
 
 export async function getUserItemsCount(userId: string): Promise<number> {
   const supabase = await createClient();
-  const {count} = await supabase
-    .from("community_shares")
-    .select("*", {count: "exact", head: true})
-    .eq("owner_id", userId);
+  const { count } = await supabase
+    .from('community_shares')
+    .select('*', { count: 'exact', head: true })
+    .eq('owner_id', userId);
   return count ?? 0;
 }
 
 export async function getArchiveItems({
   page = 1,
   pageSize = DEFAULT_PAGE_SIZE,
+  currentUserId,
+  filter = 'all',
 }: {
   page?: number;
   pageSize?: number;
+  currentUserId?: string | null;
+  filter?: FadlaArchiveFilter;
 } = {}): Promise<{
-  items: FadlaWithOwner[];
+  items: FadlaArchiveItem[];
   page: number;
   pageSize: number;
   hasNextPage: boolean;
@@ -193,16 +225,59 @@ export async function getArchiveItems({
   const from = (safePage - 1) * safePageSize;
   const to = from + safePageSize;
 
-  const {data} = await supabase
-    .from("community_shares")
-    .select("*, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)")
-    .in("status", ["completed", "archived"])
-    .order("updated_at", {ascending: false})
-    .range(from, to);
+  if (filter === 'mine' && !currentUserId) {
+    return { items: [], page: safePage, pageSize: safePageSize, hasNextPage: false };
+  }
 
-  const rows = (data ?? []) as unknown as FadlaWithOwner[];
-  const items = await hydrateItems(rows.slice(0, safePageSize));
-  return {items, page: safePage, pageSize: safePageSize, hasNextPage: rows.length > safePageSize};
+  let query = supabase
+    .from('community_shares')
+    .select(
+      'id, owner_id, title, description, content_language, category, condition, location, status, images, shares_count, accepted_request_id, created_at, updated_at, completed_at, archived_at, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)',
+    );
+
+  if (filter === 'completed') {
+    query = query.eq('status', 'completed');
+  } else if (filter === 'archived') {
+    query = query.eq('status', 'archived');
+  } else {
+    query = query.in('status', ['completed', 'archived']);
+  }
+
+  if (filter === 'mine' && currentUserId) {
+    query = query.eq('owner_id', currentUserId);
+  }
+
+  const { data } = await query.order('updated_at', { ascending: false }).range(from, to);
+
+  const rows = (data ?? []) as unknown as FadlaArchiveItem[];
+  const acceptedRequestIds = rows
+    .map((item) => item.accepted_request_id)
+    .filter(
+      (requestId): requestId is string => typeof requestId === 'string' && requestId.length > 0,
+    );
+
+  const requestMap = new Map<string, FadlaRequestWithRequester>();
+  if (acceptedRequestIds.length > 0) {
+    const { data: requests } = await supabase
+      .from('community_share_requests')
+      .select(
+        'id, share_id, requester_id, message, status, collected_at, handed_over_at, created_at, updated_at, requester:profiles!community_share_requests_requester_id_fkey(id, username, full_name, avatar_url)',
+      )
+      .in('id', acceptedRequestIds);
+
+    for (const request of (requests ?? []) as unknown as FadlaRequestWithRequester[]) {
+      requestMap.set(request.id, request);
+    }
+  }
+
+  const items = rows.slice(0, safePageSize).map((item) => ({
+    ...item,
+    accepted_request: item.accepted_request_id
+      ? (requestMap.get(item.accepted_request_id) ?? null)
+      : null,
+  }));
+
+  return { items, page: safePage, pageSize: safePageSize, hasNextPage: rows.length > safePageSize };
 }
 
 // ---- Backward-compatible aliases ----
@@ -213,7 +288,7 @@ export const getUserCommunitySharesCount = getUserItemsCount;
 
 export async function getUserImpact(userId: string): Promise<FadlaImpact> {
   const supabase = await createClient();
-  const {data} = await supabase.rpc("get_fadla_impact", {p_user_id: userId});
+  const { data } = await supabase.rpc('get_fadla_impact', { p_user_id: userId });
   const result = (data ?? {}) as FadlaImpact;
   return {
     people_helped: Number(result.people_helped) || 0,
