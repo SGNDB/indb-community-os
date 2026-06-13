@@ -1,4 +1,63 @@
 {
+  "Onboarding": {
+    "title": "Nangal ci INDB",
+    "subtitle": "Sama suqal",
+    "back": "Dindi",
+    "next": "Ci kanam",
+    "skip": "Tere fi te",
+    "getStarted": "Fayu",
+    "step1": {
+      "title": "Waxal ay bind ci mbooloo mi",
+      "subtitle": "Waxal ci sa bopp (optional)",
+      "fullName": "Tudd bu mat",
+      "fullNamePlaceholder": "Duggal sa tudd bu mat",
+      "bio": "Bio",
+      "bioPlaceholder": "Bind bio bu gudd ci sa bopp",
+      "city": "Dëkk",
+      "cityPlaceholder": "Duggal sa dëkk",
+      "languages": "Làkk yi",
+      "saveAndContinue": "Denc ak dem",
+      "saving": "Nana denc..."
+    },
+    "step2": {
+      "title": "INDB mooy ki la?",
+      "subtitle": "Gis li mbooloo mi def ko yees",
+      "whatIsINDB": "INDB mooy ab mbooloo ci Nouadhibou, dajale nit ñi ci bind, jikku, yoon, dimbali.",
+      "skip": "Tere fi te",
+      "next": "Ci kanam",
+      "features": {
+        "home": {
+          "title": "Kër",
+          "description": "Waxtu ak yoon bu bees ci mbooloo mi."
+        },
+        "community": {
+          "title": "Mbooloo",
+          "description": "Bind bind, nataal, wax, ak baax."
+        },
+        "memory": {
+          "title": "Jikku",
+          "description": "Denc waxtaan, nataal, ak taariixu Nouadhibou."
+        },
+        "ideas": {
+          "title": "Yoon",
+          "description": "Waxal yoon ngam dëkk dëpp ak dox."
+        },
+        "fadla": {
+          "title": "Fadla",
+          "description": "Bind lu am solo nga doon def tey ak ñi ko soxla."
+        },
+        "profile": {
+          "title": "Profiil",
+          "description": "Waxal nga ki nga jëkk ak sa liggeey."
+        }
+      }
+    },
+    "step3": {
+      "title": "Nangal ci mbooloo gi ci Nouadhibou",
+      "message": "Fii, nanu denc jikku, nanu bind lu baax, nanu def dëkk ak ñépp.",
+      "getStarted": "Fayu"
+    }
+  },
   "Meta": {
     "siteTitle": "I love NDB",
     "siteDescription": "Mbootaayu Nuwadibu ngir jikku siwil, tawtital, ak njariñ ñook.",

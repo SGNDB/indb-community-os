@@ -1,4 +1,63 @@
 {
+  "Onboarding": {
+    "title": "A jaɓɓo e INDB",
+    "subtitle": "Men yahda nde",
+    "back": "Rutto",
+    "next": "Ɓennuɗo",
+    "skip": "Salti e jooni",
+    "getStarted": "Fuuɗo",
+    "step1": {
+      "title": "Hollu kuurdu ɗam",
+      "subtitle": "Wi'tan min tawo e ɗum (optionnel)",
+      "fullName": "Innde timmuɗo",
+      "fullNamePlaceholder": "Naatnu innde maa timmuɗo",
+      "bio": "Bio",
+      "bioPlaceholder": "Winndu bio ngal haala e ma",
+      "city": "Wuro",
+      "cityPlaceholder": "Naatnu wuro maa",
+      "languages": "Ɗemɗe",
+      "saveAndContinue": "Dow e ɓennu",
+      "saving": "Nana dow..."
+    },
+    "step2": {
+      "title": "INDB ko honngo?",
+      "subtitle": "Hiiɗo ko kuurdu maa ɓuri",
+      "whatIsINDB": "INDB woni laawol kuurdu ngal Nouadhibou, waɗɓe yimɓe ender pos, jikku, baawo e ballondir.",
+      "skip": "Salti e jooni",
+      "next": "Ɓennuɗo",
+      "features": {
+        "home": {
+          "title": "Jaɓɓo",
+          "description": "Kesum cuɓe e kuurdu."
+        },
+        "community": {
+          "title": "Kuurdu",
+          "description": "Yel pos, nate, wi'ɗe e baawo."
+        },
+        "memory": {
+          "title": "Jikku",
+          "description": "Dowta hibe, nate e taariha Nouadhibou."
+        },
+        "ideas": {
+          "title": "Baawo",
+          "description": "Wattin baawo ngam yahude wuro ngam e dooɓe."
+        },
+        "fadla": {
+          "title": "Fadla",
+          "description": "Yel huɗe goɗɗe nde aɗa waɗii e yimɓe nde ɓe haaɓii."
+        },
+        "profile": {
+          "title": "Profil",
+          "description": "Hollu ko a woni e ballondir maa."
+        }
+      }
+    },
+    "step3": {
+      "title": "A jaɓɓo e kuurdu Nouadhibou",
+      "message": "Nde, men dowta jikku, yel goɗɗe, e yahdu kature e ɓam.",
+      "getStarted": "Fuuɗo"
+    }
+  },
   "Meta": {
     "siteTitle": "I love NDB",
     "siteDescription": "Kuurdu Nuwaadibu : jikku siwil, tawtital, e fasluuji nokkuuje.",

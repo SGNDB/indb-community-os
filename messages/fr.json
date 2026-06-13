@@ -1,4 +1,63 @@
 {
+  "Onboarding": {
+    "title": "Bienvenue sur INDB",
+    "subtitle": "Commençons par vous configurer",
+    "back": "Retour",
+    "next": "Suivant",
+    "skip": "Passer pour l'instant",
+    "getStarted": "Commencer",
+    "step1": {
+      "title": "Présentez-vous à la communauté",
+      "subtitle": "Parlez-nous un peu de vous (optionnel)",
+      "fullName": "Nom complet",
+      "fullNamePlaceholder": "Entrez votre nom complet",
+      "bio": "Bio",
+      "bioPlaceholder": "Écrivez une courte bio sur vous",
+      "city": "Ville",
+      "cityPlaceholder": "Entrez votre ville",
+      "languages": "Langues",
+      "saveAndContinue": "Enregistrer et continuer",
+      "saving": "Enregistrement..."
+    },
+    "step2": {
+      "title": "Qu'est-ce que INDB ?",
+      "subtitle": "Découvrez ce qui rend notre communauté spéciale",
+      "whatIsINDB": "INDB est une plateforme communautaire pour Nouadhibou, réunissant les habitants autour des publications, souvenirs, idées et entraide.",
+      "skip": "Passer pour l'instant",
+      "next": "Suivant",
+      "features": {
+        "home": {
+          "title": "Accueil",
+          "description": "Dernières mises à jour et activité de la communauté."
+        },
+        "community": {
+          "title": "Communauté",
+          "description": "Partagez des publications, photos, commentaires et réactions."
+        },
+        "memory": {
+          "title": "Souvenirs",
+          "description": "Préservez les histoires, photos et l'histoire de Nouadhibou."
+        },
+        "ideas": {
+          "title": "Idées",
+          "description": "Suggérez des idées pour améliorer la ville et votez pour elles."
+        },
+        "fadla": {
+          "title": "Fadla",
+          "description": "Partagez des choses utiles dont vous n'avez plus besoin avec ceux qui en ont besoin."
+        },
+        "profile": {
+          "title": "Profil",
+          "description": "Montrez qui vous êtes et vos contributions."
+        }
+      }
+    },
+    "step3": {
+      "title": "Bienvenue dans la communauté de Nouadhibou",
+      "message": "Ici, nous préservons la mémoire, partageons le bien et construisons l'avenir ensemble.",
+      "getStarted": "Commencer"
+    }
+  },
   "Meta": {
     "siteTitle": "I love NDB",
     "siteDescription": "Plateforme communautaire de Nouadhibou pour la mémoire civique, la participation et les solutions locales.",

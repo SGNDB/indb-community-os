@@ -1,0 +1,157 @@
+"use client";
+
+import {useState} from "react";
+import {useTranslations} from "next-intl";
+import {Camera, MapPin, Languages} from "lucide-react";
+
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {Textarea} from "@/components/ui/textarea";
+import {updateOnboardingProfileAction} from "@/app/[locale]/server-actions";
+
+interface OnboardingStep1Props {
+  onSave: (data: {full_name: string; bio: string; city: string; languages: string[]}) => void;
+  onSkip: () => void;
+  initialData?: {full_name: string; bio: string; city: string; languages: string[]};
+}
+
+export function OnboardingStep1({onSave, onSkip, initialData}: OnboardingStep1Props) {
+  const t = useTranslations("Onboarding.step1");
+  const [fullName, setFullName] = useState(initialData?.full_name || "");
+  const [bio, setBio] = useState(initialData?.bio || "");
+  const [city, setCity] = useState(initialData?.city || "");
+  const [languages, setLanguages] = useState<string[]>(initialData?.languages || []);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const commonLanguages = [
+    {code: "ar", name: "العربية"},
+    {code: "fr", name: "Français"},
+    {code: "en", name: "English"},
+    {code: "ff", name: "Pulaar"},
+    {code: "snk", name: "Soninké"},
+    {code: "wo", name: "Wolof"},
+  ];
+
+  const toggleLanguage = (code: string) => {
+    setLanguages((prev) =>
+      prev.includes(code) ? prev.filter((l) => l !== code) : [...prev, code]
+    );
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await updateOnboardingProfileAction({
+        full_name: fullName,
+        bio,
+        city,
+        languages,
+      });
+      onSave({full_name: fullName, bio, city, languages});
+    } catch (error) {
+      console.error("Failed to save profile:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="text-center">
+        <h1 className="text-2xl font-bold text-[#ED2124] sm:text-3xl">{t("title")}</h1>
+        <p className="mt-2 text-sm text-muted-foreground sm:text-base">{t("subtitle")}</p>
+      </div>
+
+      {/* Form */}
+      <div className="space-y-4">
+        {/* Profile photo placeholder */}
+        <div className="flex justify-center">
+          <div className="relative h-24 w-24 overflow-hidden rounded-full bg-gray-100 sm:h-32 sm:w-32">
+            <div className="flex h-full w-full items-center justify-center text-gray-400">
+              <Camera size={32} className="sm:size-40" />
+            </div>
+          </div>
+        </div>
+
+        {/* Full name */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium">{t("fullName")}</label>
+          <Input
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder={t("fullNamePlaceholder")}
+            className="min-h-12"
+          />
+        </div>
+
+        {/* Bio */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium">{t("bio")}</label>
+          <Textarea
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            placeholder={t("bioPlaceholder")}
+            rows={3}
+            className="min-h-12 resize-none"
+          />
+        </div>
+
+        {/* City */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium">{t("city")}</label>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Input
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder={t("cityPlaceholder")}
+              className="min-h-12 pl-10"
+            />
+          </div>
+        </div>
+
+        {/* Languages */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium">{t("languages")}</label>
+          <div className="flex flex-wrap gap-2">
+            {commonLanguages.map((lang) => (
+              <button
+                key={lang.code}
+                type="button"
+                onClick={() => toggleLanguage(lang.code)}
+                className={`min-h-10 rounded-full border px-4 text-sm transition-colors ${
+                  languages.includes(lang.code)
+                    ? "border-[#ED2124] bg-[#ED2124] text-white"
+                    : "border-gray-200 bg-white hover:border-[#ED2124]"
+                }`}
+              >
+                {lang.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
+        <Button
+          variant="ghost"
+          onClick={onSkip}
+          className="min-h-12 w-full sm:w-auto"
+        >
+          {t("skip")}
+        </Button>
+        <Button
+          onClick={handleSave}
+          disabled={isSaving}
+          className="min-h-12 w-full bg-[#ED2124] hover:bg-[#d81e21] sm:w-auto"
+        >
+          {isSaving ? t("saving") : t("saveAndContinue")}
+        </Button>
+      </div>
+    </div>
+  );
+}

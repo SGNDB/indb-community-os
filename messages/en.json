@@ -1,4 +1,63 @@
 {
+  "Onboarding": {
+    "title": "Welcome to INDB",
+    "subtitle": "Let's get you set up",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip for now",
+    "getStarted": "Get started",
+    "step1": {
+      "title": "Introduce yourself to the community",
+      "subtitle": "Tell us a bit about yourself (optional)",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Enter your full name",
+      "bio": "Bio",
+      "bioPlaceholder": "Write a short bio about yourself",
+      "city": "City",
+      "cityPlaceholder": "Enter your city",
+      "languages": "Languages",
+      "saveAndContinue": "Save and continue",
+      "saving": "Saving..."
+    },
+    "step2": {
+      "title": "What is INDB?",
+      "subtitle": "Discover what makes our community special",
+      "whatIsINDB": "INDB is a community platform for Nouadhibou, bringing people together through posts, memories, ideas, and helping each other.",
+      "skip": "Skip for now",
+      "next": "Next",
+      "features": {
+        "home": {
+          "title": "Home",
+          "description": "Latest updates and community activity."
+        },
+        "community": {
+          "title": "Community",
+          "description": "Share posts, photos, comments, and reactions."
+        },
+        "memory": {
+          "title": "Memory",
+          "description": "Preserve stories, photos, and history of Nouadhibou."
+        },
+        "ideas": {
+          "title": "Ideas",
+          "description": "Suggest ideas to improve the city and vote on them."
+        },
+        "fadla": {
+          "title": "Fadla",
+          "description": "Share useful things you no longer need with people who need them."
+        },
+        "profile": {
+          "title": "Profile",
+          "description": "Show who you are and your contributions."
+        }
+      }
+    },
+    "step3": {
+      "title": "Welcome to Nouadhibou's community",
+      "message": "Here, we preserve memory, share good, and build the future together.",
+      "getStarted": "Get started"
+    }
+  },
   "Meta": {
     "siteTitle": "I love NDB",
     "siteDescription": "Nouadhibou community platform for civic memory, participation, and local solutions.",

@@ -132,6 +132,21 @@ export async function loginAction(formData: FormData) {
     redirect(toPath(locale, `/login?error=${encodeURIComponent(error.message)}`));
   }
 
+  // Check if user has completed onboarding
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_completed')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile?.onboarding_completed) {
+      revalidatePath('/', 'layout');
+      redirect(toPath(locale, '/onboarding'));
+    }
+  }
+
   revalidatePath('/', 'layout');
   redirect(toPath(locale, typeof next === 'string' && next ? next : '/feed'));
 }
@@ -192,8 +207,9 @@ export async function registerAction(formData: FormData) {
   const redirectPath = typeof next === 'string' && next ? next : '/feed';
 
   if (data.session) {
+    // New users should go to onboarding
     revalidatePath('/', 'layout');
-    redirect(toPath(locale, redirectPath));
+    redirect(toPath(locale, '/onboarding'));
   }
 
   redirect(toPath(locale, `/login?emailConfirmation=1&next=${encodeURIComponent(redirectPath)}`));
@@ -3141,6 +3157,61 @@ export async function shareCommunityShareAction(
     .from('community_shares')
     .update({ shares_count: (share.shares_count ?? 0) + 1 })
     .eq('id', shareId);
+
+  return { success: true };
+}
+
+export async function completeOnboardingAction(
+  userId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      onboarding_completed: true,
+      onboarding_completed_at: new Date().toISOString(),
+    })
+    .eq('id', userId);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
+}
+
+export async function updateOnboardingProfileAction(
+  profileData: {
+    full_name?: string;
+    bio?: string;
+    city?: string;
+    languages?: string[];
+  },
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'Not authenticated' };
+  }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      full_name: profileData.full_name || null,
+      bio: profileData.bio || null,
+      city: profileData.city || null,
+      languages_spoken: profileData.languages || [],
+    })
+    .eq('id', user.id);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
 
   return { success: true };
 }
