@@ -34,6 +34,10 @@
       "title": "Fadla",
       "description": "Ntene no ma sugu no ma hampa ga no ma."
     },
+    "fadlaArchive": {
+      "title": "Fadla Archive",
+      "description": "Yillen no banta e no marxi, wirin nafa maa jamasiye."
+    },
     "timeline": {
       "title": "Tenburu Waati",
       "description": "Yillen waati maŋi jikku jamasiye Nuwaadibu."
@@ -159,6 +163,10 @@
     "sharedYourMemory": "{actorName} ntenxinti jikku maa",
     "creditAwarded": "I sera {points} keredi tawtital",
     "communityShareRequested": "Nkunto sera ntene no i ntinxinin.",
+    "fadlaRequested": "{actorName} sera ntene no i ntinxinin",
+    "fadlaRequestAccepted": "{actorName} ntaaxu i serexe",
+    "fadlaRequestDeclined": "{actorName} nkwali i serexe",
+    "fadlaCollected": "{actorName} nkisi ntene min",
     "someone": "Nkunto",
     "loadMore": "Load more"
   },
@@ -909,35 +917,55 @@
     "shareButton": "Ntene Hay Koo",
     "searchPlaceholder": "Ndaxar ntentine",
     "allCategories": "Kategori fuu",
+    "allUrgency": "Acele fuu",
+    "allStatus": "Daraja fuu",
     "unknownOwner": "Tərəyə jamasiye",
     "sharedForHelp": "Ntenxinta ga detem",
     "imagePlaceholder": "Hay koo nafa",
     "needThis": "I Niiwu Nku",
     "requested": "Ƴaminta",
-    "alreadyGiven": "Ntenxinta Tawon",
+    "qty": "Nja",
+    "confirmCollection": "Tabiti sara",
+    "markCompleted": "Waɗu banta",
+    "archive": "Mar e profil",
+    "requests": "Ƴamle",
+    "archiveTitle": "Fadla Archive",
+    "archiveDescription": "Yillen no banta e no marxi, wirin nafa maa jamasiye.",
+    "completedOn": "Banta e",
+    "archivedOn": "Marxi e",
+    "backToActive": "Yinti ntentine wuuru",
+    "archiveEmpty": {
+      "title": "Ntentine marxi sanya haa saati",
+      "description": "Ntentine banta e marxi maale ɗoo."
+    },
     "categories": {
       "food": "Mii",
       "clothes": "Yerxe",
-      "furniture": "Koyi kore",
-      "electronics": "Elektronik",
-      "school_supplies": "Karan koyi",
       "books": "Xatu",
-      "services": "Goy",
+      "school_supplies": "Karan koyi",
+      "furniture": "Koyi kore",
+      "tools": "Goy koyi",
+      "electronics": "Elektronik",
+      "medical": "Fura",
+      "household": "Kore",
       "other": "Nto"
     },
+    "urgency": {
+      "urgent": "Acele",
+      "this_week": "Nku wiiyere",
+      "no_urgency": "Acele sanya"
+    },
     "status": {
-      "available": "No Mari",
+      "published": "Firinta",
+      "requested": "Ƴaminta",
       "reserved": "Marxaama",
-      "given": "Ntenxinta"
+      "collected": "Sara",
+      "completed": "Banta",
+      "archived": "Marxi"
     },
     "actions": {
       "edit": "Taƴtu hay koo",
-      "delete": "Tun hay koo",
-      "mark": {
-        "available": "Waɗu no mari",
-        "reserved": "Waɗu marxaama",
-        "given": "Waɗu ntenxinta"
-      }
+      "delete": "Tun hay koo"
     },
     "form": {
       "createTitle": "Ntene hay koo nafa",
@@ -945,6 +973,7 @@
       "helper": "Mar no boori e weeɓi. Hay koo coggu e njoɓu.",
       "title": "Tigi",
       "description": "Siifu",
+      "quantity": "Nja",
       "condition": "La",
       "location": "Nokku",
       "cancel": "Fo",

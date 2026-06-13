@@ -61,6 +61,10 @@
     "fadla": {
       "title": "الفظلة",
       "description": "شارك الأشياء المفيدة التي لم تعد تحتاجها مع من يحتاجها."
+    },
+    "fadlaArchive": {
+      "title": "أرشيف الفظلة",
+      "description": "تصفّح العناصر المكتملة والمؤرشفة وتتبّع أثرك المجتمعي."
     }
   },
   "LanguageSwitcher": {
@@ -160,6 +164,10 @@
     "creditAwarded": "لقد حصلت على {points} نقاط مساهمة",
     "someone": "شخص ما",
     "communityShareRequested": "طلب شخص الاستفادة من العنصر الذي شاركته",
+    "fadlaRequested": "طلب {actorName} عنصرًا تشاركه",
+    "fadlaRequestAccepted": "وافق {actorName} على طلبك",
+    "fadlaRequestDeclined": "رفض {actorName} طلبك",
+    "fadlaCollected": "استلم {actorName} العنصر",
     "loadMore": "عرض المزيد"
   },
   "RightSidebar": {
@@ -915,35 +923,55 @@
     "shareButton": "شارك شيئًا",
     "searchPlaceholder": "ابحث في العناصر المشاركة",
     "allCategories": "كل الفئات",
+    "allUrgency": "كل درجات الاستعجال",
+    "allStatus": "كل الحالات",
     "unknownOwner": "عضو في المجتمع",
     "sharedForHelp": "مشارك للمساعدة",
     "imagePlaceholder": "عنصر مفيد",
     "needThis": "أحتاجه",
     "requested": "تم الطلب",
-    "alreadyGiven": "تم التبرع به",
+    "qty": "العدد",
+    "confirmCollection": "تأكيد الاستلام",
+    "markCompleted": "وضع كمكتمل",
+    "archive": "أرشفة إلى الملف",
+    "requests": "الطلبات",
+    "archiveTitle": "أرشيف الفظلة",
+    "archiveDescription": "عرض العناصر المكتملة والمؤرشفة. تتبّع أثرك المجتمعي.",
+    "completedOn": "أُكمل في",
+    "archivedOn": "أُرشِف في",
+    "backToActive": "العودة إلى المشاركات النشطة",
+    "archiveEmpty": {
+      "title": "لا توجد عناصر مؤرشفة بعد",
+      "description": "ستظهر هنا العناصر المكتملة والمؤرشفة."
+    },
     "categories": {
       "food": "طعام",
       "clothes": "ملابس",
-      "furniture": "أثاث",
-      "electronics": "إلكترونيات",
-      "school_supplies": "مستلزمات مدرسية",
       "books": "كتب",
-      "services": "خدمات",
+      "school_supplies": "مستلزمات مدرسية",
+      "furniture": "أثاث",
+      "tools": "أدوات",
+      "electronics": "إلكترونيات",
+      "medical": "طبية",
+      "household": "منزلية",
       "other": "أخرى"
     },
+    "urgency": {
+      "urgent": "عاجل",
+      "this_week": "هذا الأسبوع",
+      "no_urgency": "بدون استعجال"
+    },
     "status": {
-      "available": "متاح",
+      "published": "منشور",
+      "requested": "مطلوب",
       "reserved": "محجوز",
-      "given": "تم التبرع"
+      "collected": "تم الاستلام",
+      "completed": "مكتمل",
+      "archived": "مؤرشف"
     },
     "actions": {
       "edit": "تعديل العنصر",
-      "delete": "حذف العنصر",
-      "mark": {
-        "available": "جعله متاحًا",
-        "reserved": "وضعه كمحجوز",
-        "given": "وضعه كمتبرع به"
-      }
+      "delete": "حذف العنصر"
     },
     "form": {
       "createTitle": "شارك شيئًا مفيدًا",
@@ -951,6 +979,7 @@
       "helper": "اجعلها بسيطة وكريمة. لا أسعار ولا دفع.",
       "title": "العنوان",
       "description": "الوصف",
+      "quantity": "الكمية",
       "condition": "الحالة",
       "location": "الموقع",
       "cancel": "إلغاء",

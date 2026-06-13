@@ -34,6 +34,10 @@
       "title": "Fadla",
       "description": "Yeɗ ko njiɗaa koo ko heddii e juuɗe maa, yo heɓo ɗum en ngantooɓe."
     },
+    "fadlaArchive": {
+      "title": "Fadla Archive",
+      "description": "Yiylo huɗe timmaaɗe e marƴaaɗe, rewr nafuuda maa e kuurdu."
+    },
     "timeline": {
       "title": "Laawol Wakkati",
       "description": "Yiylo sahaaji mawɗi jikku kuurdu Nuwaadibu."
@@ -159,6 +163,10 @@
     "sharedYourMemory": "{actorName} yeɗitike jikku maa",
     "creditAwarded": "Heɓii {points} kiredi ballondiral",
     "communityShareRequested": "Goɗɗo ƴami huunde nde yeɗuɗaa",
+    "fadlaRequested": "{actorName} ƴami huunde nde yeɗuɗaa",
+    "fadlaRequestAccepted": "{actorName} jaɓii ñaagol maa",
+    "fadlaRequestDeclined": "{actorName} salii ñaagol maa",
+    "fadlaCollected": "{actorName} ƴetti huunde nden",
     "someone": "Goɗɗo",
     "loadMore": "Load more"
   },
@@ -909,35 +917,55 @@
     "shareButton": "Yeɗit Huunde",
     "searchPlaceholder": "ɗaɓɓit e yeɗitine",
     "allCategories": "Cate fuu",
+    "allUrgency": "Accelel fuu",
+    "allStatus": "Darnde fuu",
     "unknownOwner": "Tergal kuurdu",
     "sharedForHelp": "Yeɗitaama ngam ballal",
     "imagePlaceholder": "Huunde nafoore",
     "needThis": "Meŋa yiɗi ɗum",
     "requested": "Ƴamaama",
-    "alreadyGiven": "Yeɗaama tawon",
+    "qty": "No foti",
+    "confirmCollection": "Tabitin heɓgol",
+    "markCompleted": "Waɗu timmude",
+    "archive": "Marƴu e profil",
+    "requests": "Ƴamle",
+    "archiveTitle": "Fadla Archive",
+    "archiveDescription": "Yiylo huɗe timmaaɗe e marƴaaɗe, rewr nafuuda maa e kuurdu.",
+    "completedOn": "Timmi e",
+    "archivedOn": "Marƴaa e",
+    "backToActive": "Rutto e yeɗitine wuuruɗe",
+    "archiveEmpty": {
+      "title": "Alaa huɗe marƴaaɗe haa jooni",
+      "description": "Huɗe timmaaɗe e marƴaaɗe maale ɗoo."
+    },
     "categories": {
       "food": "ɲaamri",
       "clothes": "Colte",
-      "furniture": "Koyɗi saare",
-      "electronics": "Elektronik",
-      "school_supplies": "Koyɗi jannde",
       "books": "Defte",
-      "services": "Golle",
+      "school_supplies": "Koyɗi jannde",
+      "furniture": "Koyɗi saare",
+      "tools": "Kuɗe gollal",
+      "electronics": "Elektronik",
+      "medical": "Cellal",
+      "household": "Suudu",
       "other": "Goo"
     },
+    "urgency": {
+      "urgent": "Acelɗum",
+      "this_week": "Ndee yontere",
+      "no_urgency": "Alaa accelel"
+    },
     "status": {
-      "available": "No tawi",
+      "published": "Firtaama",
+      "requested": "Ƴamaama",
       "reserved": "Marƴaama",
-      "given": "Yeɗaama"
+      "collected": "Heɓaama",
+      "completed": "Timmaama",
+      "archived": "Marƴaama"
     },
     "actions": {
       "edit": "Taƴto huunde",
-      "delete": "Momtu huunde",
-      "mark": {
-        "available": "Waɗu no tawi",
-        "reserved": "Waɗu marƴaama",
-        "given": "Waɗu yeɗaama"
-      }
+      "delete": "Momtu huunde"
     },
     "form": {
       "createTitle": "Yeɗit huunde nafoore",
@@ -945,6 +973,7 @@
       "helper": "Danndu moƴƴa e weeɓi. Alaa coggu e njoɓdi.",
       "title": "Hoore",
       "description": "Sifor",
+      "quantity": "No foti",
       "condition": "Mbaydi",
       "location": "Nokku",
       "cancel": "Haaytu",

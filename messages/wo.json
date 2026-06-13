@@ -34,6 +34,10 @@
       "title": "Fadla",
       "description": "Ngalif ay mbariy yu gën a tàmbali ngir ñu koy soxla."
     },
+    "fadlaArchive": {
+      "title": "Fadla Archive",
+      "description": "Gis mbariy yu mukk ak yu tank, topp sa njariñ ci mbootaay bi."
+    },
     "timeline": {
       "title": "Waxtu",
       "description": "Wëral waxtu yi am solo ci jikku mbootaayu Nuwadibu."
@@ -159,6 +163,10 @@
     "sharedYourMemory": "{actorName} ngalif na jikku bi",
     "creditAwarded": "Yagg nga am {points} credi tawtital",
     "communityShareRequested": "Nit ñaari laaj na mbariy bu ngalif",
+    "fadlaRequested": "{actorName} laaj na mbariy bu ngalif",
+    "fadlaRequestAccepted": "{actorName} nangu laaj bi",
+    "fadlaRequestDeclined": "{actorName} tere laaj bi",
+    "fadlaCollected": "{actorName} yóbbu na mbariy bi",
     "someone": "Nit",
     "loadMore": "Load more"
   },
@@ -909,35 +917,55 @@
     "shareButton": "Ngalif Luy",
     "searchPlaceholder": "Seet ngalifte",
     "allCategories": "Kategory lépp",
+    "allUrgency": "Mbegte lépp",
+    "allStatus": "Daraja lépp",
     "unknownOwner": "Mbind mbootaay",
     "sharedForHelp": "Ngalif ngir dimbali",
     "imagePlaceholder": "Mbariy bu am solo",
     "needThis": "Mangi Soxla",
     "requested": "Laaj nañu ko",
-    "alreadyGiven": "Ngalif nañu ko tawon",
+    "qty": "Ñaata",
+    "confirmCollection": "Tabiti sara",
+    "markCompleted": "Wone mukk na",
+    "archive": "Tank ci profil",
+    "requests": "Laaj",
+    "archiveTitle": "Fadla Archive",
+    "archiveDescription": "Gis mbariy yu mukk ak yu tank, topp sa njariñ ci mbootaay bi.",
+    "completedOn": "Mukk na ci",
+    "archivedOn": "Tank nañu ko ci",
+    "backToActive": "Dindi ci ngalifte yu wuuru",
+    "archiveEmpty": {
+      "title": "Amul mbariy tank ba leegi",
+      "description": "Mbariy yu mukk ak yu tank ñooñ maale fi."
+    },
     "categories": {
       "food": "Lekk",
       "clothes": "Yére",
-      "furniture": "Penc",
-      "electronics": "Electronik",
-      "school_supplies": "Jàng mbariy",
       "books": "Téere",
-      "services": "Liggeey",
+      "school_supplies": "Jàng mbariy",
+      "furniture": "Penc",
+      "tools": "Jëf mbariy",
+      "electronics": "Electronik",
+      "medical": "Faj",
+      "household": "Kër",
       "other": "Ayeneen"
     },
+    "urgency": {
+      "urgent": "Mbegte",
+      "this_week": "Bii ayi",
+      "no_urgency": "Amul mbegte"
+    },
     "status": {
-      "available": "Am na",
+      "published": "Sàkk nañu ko",
+      "requested": "Laaj nañu ko",
       "reserved": "Tank nañu ko",
-      "given": "Ngalif nañu ko"
+      "collected": "Sara nañu ko",
+      "completed": "Mukk na",
+      "archived": "Tank nañu ko"
     },
     "actions": {
       "edit": "Soppi mbariy",
-      "delete": "Far mbariy",
-      "mark": {
-        "available": "Wone am na",
-        "reserved": "Wone tank nañu ko",
-        "given": "Wone ngalif nañu ko"
-      }
+      "delete": "Far mbariy"
     },
     "form": {
       "createTitle": "Ngalif lu am solo",
@@ -945,6 +973,7 @@
       "helper": "Tank yërmande ak wér. Amul ñaata ak fecc.",
       "title": "Tit",
       "description": "Nangul",
+      "quantity": "Ñaata",
       "condition": "Melo",
       "location": "Fexe",
       "cancel": "Tër",

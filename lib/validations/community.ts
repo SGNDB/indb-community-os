@@ -62,4 +62,14 @@ export const communityShareSchema = z.object({
   location: z.string().max(120).optional().or(z.literal("")),
 });
 
+export const fadlaItemSchema = z.object({
+  title: z.string().min(2).max(140),
+  description: z.string().min(2).max(2500),
+  category: z.enum(["food", "clothes", "books", "school_supplies", "furniture", "tools", "electronics", "medical", "household", "other"]),
+  condition: z.string().max(120).optional().or(z.literal("")),
+  location: z.string().max(120).optional().or(z.literal("")),
+  quantity: z.coerce.number().int().min(1).max(9999).optional().or(z.literal("")),
+  urgency_level: z.enum(["urgent", "this_week", "no_urgency"]).optional(),
+});
+
 

@@ -31,13 +31,14 @@ import {
   commentSchema,
   communityShareSchema,
   createPostSchema,
+  fadlaItemSchema,
   ideaSchema,
   loginSchema,
   memorySchema,
   profileSchema,
   registerSchema,
 } from "@/lib/validations/community";
-import type {CommentWithAuthor, CommunityShareImage, CommunityShareStatus, IdeaCommentWithAuthor, MemoryCommentWithAuthor, MemoryReactionType, ReactionType} from "@/types/database";
+import type {CommentWithAuthor, CommunityShareImage, CommunityShareStatus, FadlaRequestStatus, IdeaCommentWithAuthor, MemoryCommentWithAuthor, MemoryReactionType, ReactionType} from "@/types/database";
 import {
   deletePostMedia,
   deleteMemoryMedia,
@@ -2602,24 +2603,24 @@ async function removeFadlaMedia(paths: string[]) {
   await supabase.storage.from("fadla-media").remove(paths);
 }
 
-export async function submitCommunityShareAction(
+export async function submitFadlaItemAction(
   formData: FormData,
 ): Promise<{success: true; id: string} | {success: false; error: string}> {
   const locale = normalizeLocale(formData.get("locale"));
   const errorsT = await getTranslations({locale, namespace: "Errors"});
   const supabase = await createClient();
-  const {
-    data: {user},
-  } = await supabase.auth.getUser();
+  const {data: {user}} = await supabase.auth.getUser();
 
   if (!user) return {success: false, error: errorsT("submitFailed")};
 
-  const parsed = communityShareSchema.safeParse({
+  const parsed = fadlaItemSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description"),
     category: formData.get("category"),
     condition: formData.get("condition"),
     location: formData.get("location"),
+    quantity: formData.get("quantity"),
+    urgency_level: formData.get("urgency_level"),
   });
 
   if (!parsed.success) return {success: false, error: errorsT("invalidInput")};
@@ -2633,7 +2634,10 @@ export async function submitCommunityShareAction(
       category: parsed.data.category,
       condition: parsed.data.condition || null,
       location: parsed.data.location || null,
+      quantity: parsed.data.quantity ? Number(parsed.data.quantity) : 1,
+      urgency_level: parsed.data.urgency_level || "no_urgency",
       images: parseShareImages(formData),
+      status: "published",
     })
     .select("id")
     .single();
@@ -2645,41 +2649,40 @@ export async function submitCommunityShareAction(
   return {success: true, id: data.id};
 }
 
-export async function updateCommunityShareAction(
+export async function updateFadlaItemAction(
   formData: FormData,
 ): Promise<{success: true} | {success: false; error: string}> {
   const locale = normalizeLocale(formData.get("locale"));
   const errorsT = await getTranslations({locale, namespace: "Errors"});
-  const shareId = formData.get("shareId");
+  const itemId = formData.get("shareId");
   const supabase = await createClient();
-  const {
-    data: {user},
-  } = await supabase.auth.getUser();
+  const {data: {user}} = await supabase.auth.getUser();
 
-  if (!user || typeof shareId !== "string") return {success: false, error: errorsT("submitFailed")};
+  if (!user || typeof itemId !== "string") return {success: false, error: errorsT("submitFailed")};
 
   const {data: existing} = await supabase
     .from("community_shares")
-    .select("owner_id, images")
-    .eq("id", shareId)
+    .select("owner_id, images, status")
+    .eq("id", itemId)
     .single();
 
   if (!existing || existing.owner_id !== user.id) return {success: false, error: errorsT("submitFailed")};
+  if (existing.status !== "published") return {success: false, error: errorsT("submitFailed")};
 
-  const parsed = communityShareSchema.safeParse({
+  const parsed = fadlaItemSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description"),
     category: formData.get("category"),
     condition: formData.get("condition"),
     location: formData.get("location"),
+    quantity: formData.get("quantity"),
+    urgency_level: formData.get("urgency_level"),
   });
 
   if (!parsed.success) return {success: false, error: errorsT("invalidInput")};
 
   const removedPaths = parseRemovedShareMedia(formData);
-  if (removedPaths.length > 0) {
-    await removeFadlaMedia(removedPaths);
-  }
+  if (removedPaths.length > 0) await removeFadlaMedia(removedPaths);
 
   const existingImages = Array.isArray(existing.images)
     ? (existing.images as CommunityShareImage[]).filter((image) => !removedPaths.includes(image.storagePath))
@@ -2694,10 +2697,12 @@ export async function updateCommunityShareAction(
       category: parsed.data.category,
       condition: parsed.data.condition || null,
       location: parsed.data.location || null,
+      quantity: parsed.data.quantity ? Number(parsed.data.quantity) : 1,
+      urgency_level: parsed.data.urgency_level || "no_urgency",
       images,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", shareId);
+    .eq("id", itemId);
 
   if (error) return {success: false, error: errorsT("submitFailed")};
 
@@ -2706,22 +2711,20 @@ export async function updateCommunityShareAction(
   return {success: true};
 }
 
-export async function deleteCommunityShareAction(formData: FormData) {
+export async function deleteFadlaItemAction(formData: FormData) {
   const locale = normalizeLocale(formData.get("locale"));
-  const shareId = formData.get("shareId");
+  const itemId = formData.get("itemId") || formData.get("shareId");
   const supabase = await createClient();
-  const {
-    data: {user},
-  } = await supabase.auth.getUser();
+  const {data: {user}} = await supabase.auth.getUser();
 
-  if (!user || typeof shareId !== "string") {
+  if (!user || typeof itemId !== "string") {
     redirect(toPath(locale, "/fadla?shareError=1"));
   }
 
   const {data: existing} = await supabase
     .from("community_shares")
     .select("owner_id, images")
-    .eq("id", shareId)
+    .eq("id", itemId)
     .single();
 
   if (!existing || existing.owner_id !== user.id) {
@@ -2730,97 +2733,286 @@ export async function deleteCommunityShareAction(formData: FormData) {
 
   const images = Array.isArray(existing.images) ? (existing.images as CommunityShareImage[]) : [];
   await removeFadlaMedia(images.map((image) => image.storagePath).filter(Boolean));
-  await supabase.from("community_shares").delete().eq("id", shareId);
+  await supabase.from("community_shares").delete().eq("id", itemId);
 
   revalidatePath(toPath(locale, "/fadla"));
   revalidatePath(toPath(locale, "/profile"));
   redirect(toPath(locale, "/fadla?shareDeleted=1"));
 }
 
-export async function updateCommunityShareStatusAction(formData: FormData) {
+export async function requestFadlaItemAction(formData: FormData) {
   const locale = normalizeLocale(formData.get("locale"));
-  const shareId = formData.get("shareId");
-  const status = formData.get("status");
-  const supabase = await createClient();
-  const {
-    data: {user},
-  } = await supabase.auth.getUser();
-
-  if (
-    !user ||
-    typeof shareId !== "string" ||
-    (status !== "available" && status !== "reserved" && status !== "given")
-  ) {
-    redirect(toPath(locale, "/fadla?shareError=1"));
-  }
-
-  const {data: existing} = await supabase
-    .from("community_shares")
-    .select("owner_id")
-    .eq("id", shareId)
-    .single();
-
-  if (!existing || existing.owner_id !== user.id) {
-    redirect(toPath(locale, "/fadla?shareError=1"));
-  }
-
-  await supabase
-    .from("community_shares")
-    .update({status: status as CommunityShareStatus, updated_at: new Date().toISOString()})
-    .eq("id", shareId);
-
-  revalidatePath(toPath(locale, "/fadla"));
-  revalidatePath(toPath(locale, "/profile"));
-  redirect(toPath(locale, `/fadla?shareStatus=${status}`));
-}
-
-export async function requestCommunityShareAction(formData: FormData) {
-  const locale = normalizeLocale(formData.get("locale"));
-  const shareId = formData.get("shareId");
+  const itemId = formData.get("shareId") || formData.get("itemId");
+  const message = formData.get("message") || "";
   const returnPath = getReturnPath(formData, "/fadla");
   const supabase = await createClient();
-  const {
-    data: {user},
-  } = await supabase.auth.getUser();
+  const {data: {user}} = await supabase.auth.getUser();
 
   if (!user) {
     redirect(toPath(locale, `/login?next=${encodeURIComponent(returnPath)}`));
   }
 
-  if (typeof shareId !== "string") {
+  if (typeof itemId !== "string") {
     redirect(toPath(locale, appendParam(returnPath, "shareError", "1")));
   }
 
-  const {data: share} = await supabase
+  const {data: item} = await supabase
     .from("community_shares")
     .select("owner_id, status")
-    .eq("id", shareId)
+    .eq("id", itemId)
     .single();
 
-  if (!share || share.owner_id === user.id || share.status !== "available") {
+  if (!item || item.owner_id === user.id || (item.status !== "published" && item.status !== "requested")) {
     redirect(toPath(locale, appendParam(returnPath, "shareError", "1")));
   }
 
   const {error} = await supabase
     .from("community_share_requests")
-    .upsert({share_id: shareId, requester_id: user.id}, {onConflict: "share_id,requester_id"});
+    .insert({
+      share_id: itemId,
+      requester_id: user.id,
+      message: typeof message === "string" && message.trim() ? message.trim() : null,
+    });
 
   if (error) {
     redirect(toPath(locale, appendParam(returnPath, "shareError", "1")));
   }
 
+  // Update status to 'requested' if it was 'published'
+  if (item.status === "published") {
+    await supabase.from("community_shares").update({status: "requested", updated_at: new Date().toISOString()}).eq("id", itemId);
+  }
+
   await createNotification({
-    userId: share.owner_id,
+    userId: item.owner_id,
     actorId: user.id,
-    type: "community_share_request",
+    type: "fadla_request",
     entityType: "community_share",
-    entityId: shareId,
-    title: "Community share request",
+    entityId: itemId,
+    title: "New Fadla request",
   });
 
   revalidatePath(toPath(locale, "/fadla"));
   redirect(toPath(locale, appendParam(returnPath, "shareRequested", "1")));
 }
+
+export async function acceptFadlaRequestAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const requestId = formData.get("requestId");
+  const supabase = await createClient();
+  const {data: {user}} = await supabase.auth.getUser();
+  const errorsT = await getTranslations({locale, namespace: "Errors"});
+
+  if (!user || typeof requestId !== "string") {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  const {data: req} = await supabase
+    .from("community_share_requests")
+    .select("id, share_id, requester_id, status")
+    .eq("id", requestId)
+    .single();
+
+  if (!req || req.status !== "pending") {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  const {data: item} = await supabase
+    .from("community_shares")
+    .select("owner_id, status")
+    .eq("id", req.share_id)
+    .single();
+
+  if (!item || item.owner_id !== user.id) {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  // Accept this request
+  await supabase.from("community_share_requests").update({status: "accepted", updated_at: new Date().toISOString()}).eq("id", requestId);
+
+  // Decline all other pending requests for this item
+  await supabase.from("community_share_requests").update({status: "declined", updated_at: new Date().toISOString()}).eq("share_id", req.share_id).eq("status", "pending").neq("id", requestId);
+
+  // Update item status to reserved
+  await supabase.from("community_shares").update({status: "reserved", updated_at: new Date().toISOString()}).eq("id", req.share_id);
+
+  await createNotification({
+    userId: req.requester_id,
+    actorId: user.id,
+    type: "fadla_request_accepted",
+    entityType: "community_share",
+    entityId: req.share_id,
+    title: "Your Fadla request was accepted",
+  });
+
+  revalidatePath(toPath(locale, "/fadla"));
+  revalidatePath(toPath(locale, "/profile"));
+  redirect(toPath(locale, `/fadla?item=${req.share_id}`));
+}
+
+export async function declineFadlaRequestAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const requestId = formData.get("requestId");
+  const supabase = await createClient();
+  const {data: {user}} = await supabase.auth.getUser();
+
+  if (!user || typeof requestId !== "string") {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  const {data: req} = await supabase
+    .from("community_share_requests")
+    .select("id, share_id, requester_id, status")
+    .eq("id", requestId)
+    .single();
+
+  if (!req || req.status !== "pending") {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  const {data: item} = await supabase
+    .from("community_shares")
+    .select("owner_id")
+    .eq("id", req.share_id)
+    .single();
+
+  if (!item || item.owner_id !== user.id) {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  await supabase.from("community_share_requests").update({status: "declined", updated_at: new Date().toISOString()}).eq("id", requestId);
+
+  await createNotification({
+    userId: req.requester_id,
+    actorId: user.id,
+    type: "fadla_request_declined",
+    entityType: "community_share",
+    entityId: req.share_id,
+    title: "Your Fadla request was declined",
+  });
+
+  revalidatePath(toPath(locale, `/fadla?item=${req.share_id}`));
+  redirect(toPath(locale, `/fadla?item=${req.share_id}`));
+}
+
+export async function confirmFadlaCollectionAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const itemId = formData.get("shareId") || formData.get("itemId");
+  const supabase = await createClient();
+  const {data: {user}} = await supabase.auth.getUser();
+
+  if (!user || typeof itemId !== "string") {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  const {data: item} = await supabase
+    .from("community_shares")
+    .select("owner_id, status")
+    .eq("id", itemId)
+    .single();
+
+  if (!item || item.status !== "reserved") {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  // Verify user is the accepted requester
+  const {data: acceptedRequest} = await supabase
+    .from("community_share_requests")
+    .select("requester_id")
+    .eq("share_id", itemId)
+    .eq("status", "accepted")
+    .maybeSingle();
+
+  if (!acceptedRequest || acceptedRequest.requester_id !== user.id) {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  await supabase.from("community_shares").update({
+    status: "collected",
+    updated_at: new Date().toISOString(),
+  }).eq("id", itemId);
+
+  await createNotification({
+    userId: item.owner_id,
+    actorId: user.id,
+    type: "fadla_collected",
+    entityType: "community_share",
+    entityId: itemId,
+    title: "Item was collected",
+  });
+
+  revalidatePath(toPath(locale, "/fadla"));
+  revalidatePath(toPath(locale, "/profile"));
+  redirect(toPath(locale, `/fadla?item=${itemId}`));
+}
+
+export async function completeFadlaItemAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const itemId = formData.get("shareId") || formData.get("itemId");
+  const supabase = await createClient();
+  const {data: {user}} = await supabase.auth.getUser();
+
+  if (!user || typeof itemId !== "string") {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  const {data: item} = await supabase
+    .from("community_shares")
+    .select("owner_id, status")
+    .eq("id", itemId)
+    .single();
+
+  if (!item || item.owner_id !== user.id || item.status !== "collected") {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  await supabase.from("community_shares").update({
+    status: "completed",
+    completed_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }).eq("id", itemId);
+
+  revalidatePath(toPath(locale, "/fadla"));
+  revalidatePath(toPath(locale, "/profile"));
+  redirect(toPath(locale, `/fadla`));
+}
+
+export async function archiveFadlaItemAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const itemId = formData.get("shareId") || formData.get("itemId");
+  const supabase = await createClient();
+  const {data: {user}} = await supabase.auth.getUser();
+
+  if (!user || typeof itemId !== "string") {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  const {data: item} = await supabase
+    .from("community_shares")
+    .select("owner_id, status")
+    .eq("id", itemId)
+    .single();
+
+  if (!item || item.owner_id !== user.id || item.status !== "completed") {
+    redirect(toPath(locale, "/fadla?shareError=1"));
+  }
+
+  await supabase.from("community_shares").update({
+    status: "archived",
+    archived_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }).eq("id", itemId);
+
+  revalidatePath(toPath(locale, "/fadla"));
+  revalidatePath(toPath(locale, "/profile"));
+  redirect(toPath(locale, "/fadla/archive"));
+}
+
+// backward-compatible aliases
+export const submitCommunityShareAction = submitFadlaItemAction;
+export const updateCommunityShareAction = updateFadlaItemAction;
+export const deleteCommunityShareAction = deleteFadlaItemAction;
+export const requestCommunityShareAction = requestFadlaItemAction;
 
 export async function shareCommunityShareAction(
   formData: FormData,

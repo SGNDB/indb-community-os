@@ -12,7 +12,7 @@ import {IdeaCard} from "@/components/ideas/idea-card";
 import {EmptyState} from "@/components/shared/empty-state";
 import type {
   CommentWithAuthor,
-  CommunityShareWithOwner,
+  FadlaWithOwner,
   IdeaWithAuthor,
   MemoryWithContributor,
   PostWithAuthor,
@@ -30,7 +30,7 @@ interface ProfileTabsContentProps {
   allPosts: PostWithAuthor[];
   memories: MemoryWithContributor[];
   ideas: IdeaWithAuthor[];
-  shares: CommunityShareWithOwner[];
+  shares: FadlaWithOwner[];
   commentsByPost: Record<string, CommentWithAuthor[]>;
   profile: {
     id: string;
@@ -191,7 +191,7 @@ export function ProfileTabsContent({
             {shares.map((share) => (
               <FadlaCard
                 key={share.id}
-                share={share}
+                item={share}
                 currentUserId={currentUserId}
                 locale={locale}
                 compact

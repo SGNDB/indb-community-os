@@ -1,76 +1,158 @@
 import {createClient} from "@/lib/supabase/server";
-import type {CommunityShareImage, CommunityShareWithOwner} from "@/types/database";
+import type {CommunityShareImage, FadlaImpact, FadlaRequestWithRequester, FadlaWithOwner} from "@/types/database";
 
 const DEFAULT_PAGE_SIZE = 20;
 
 function normalizeImages(value: unknown): CommunityShareImage[] {
   if (!Array.isArray(value)) return [];
-
   return value
     .map((item) => {
       if (!item || typeof item !== "object") return null;
       const image = item as Partial<CommunityShareImage>;
       if (typeof image.url !== "string" || typeof image.storagePath !== "string") return null;
-      return {
-        url: image.url,
-        storagePath: image.storagePath,
-        type: "image" as const,
-        mimeType: typeof image.mimeType === "string" ? image.mimeType : undefined,
-      };
+      return {url: image.url, storagePath: image.storagePath, type: "image" as const, mimeType: typeof image.mimeType === "string" ? image.mimeType : undefined};
     })
     .filter(Boolean) as CommunityShareImage[];
 }
 
-async function hydrateShares(
-  shares: CommunityShareWithOwner[],
-  currentUserId?: string | null,
-): Promise<CommunityShareWithOwner[]> {
-  if (shares.length === 0) return shares;
-
+async function hydrateItems(items: FadlaWithOwner[], currentUserId?: string | null): Promise<FadlaWithOwner[]> {
+  if (items.length === 0) return items;
   const supabase = await createClient();
-  const shareIds = shares.map((share) => share.id);
+  const itemIds = items.map((i) => i.id);
+
   const {data: requests} = await supabase
     .from("community_share_requests")
-    .select("share_id, requester_id")
-    .in("share_id", shareIds);
+    .select("share_id, requester_id, status")
+    .in("share_id", itemIds);
 
   const countMap = new Map<string, number>();
   const requestedByCurrent = new Set<string>();
 
-  for (const request of requests ?? []) {
-    countMap.set(request.share_id, (countMap.get(request.share_id) ?? 0) + 1);
-    if (currentUserId && request.requester_id === currentUserId) {
-      requestedByCurrent.add(request.share_id);
+  for (const req of requests ?? []) {
+    countMap.set(req.share_id, (countMap.get(req.share_id) ?? 0) + 1);
+    if (currentUserId && req.requester_id === currentUserId && req.status === "pending") {
+      requestedByCurrent.add(req.share_id);
     }
   }
 
-  return shares.map((share) => ({
-    ...share,
-    images: normalizeImages(share.images),
-    requests_count: countMap.get(share.id) ?? 0,
-    requested_by_current_user: requestedByCurrent.has(share.id),
+  return items.map((item) => ({
+    ...item,
+    images: normalizeImages(item.images),
+    requests_count: countMap.get(item.id) ?? 0,
+    requested_by_current_user: requestedByCurrent.has(item.id),
   }));
 }
 
-export async function getCommunityShares(currentUserId?: string | null): Promise<CommunityShareWithOwner[]> {
-  const page = await getCommunitySharesPage({currentUserId});
-  return page.items;
+async function hydrateRequests(shareId: string): Promise<FadlaRequestWithRequester[]> {
+  const supabase = await createClient();
+  const {data} = await supabase
+    .from("community_share_requests")
+    .select("*, requester:profiles!community_share_requests_requester_id_fkey(id, username, full_name, avatar_url)")
+    .eq("share_id", shareId)
+    .order("created_at", {ascending: true});
+
+  return (data ?? []) as unknown as FadlaRequestWithRequester[];
 }
 
-export async function getCommunitySharesPage({
+export async function getPublishedItems({
   currentUserId,
   page = 1,
   pageSize = DEFAULT_PAGE_SIZE,
+  category,
+  urgency,
+  status,
 }: {
   currentUserId?: string | null;
   page?: number;
   pageSize?: number;
+  category?: string;
+  urgency?: string;
+  status?: string;
 } = {}): Promise<{
-  items: CommunityShareWithOwner[];
+  items: FadlaWithOwner[];
   page: number;
   pageSize: number;
   hasNextPage: boolean;
-  hasPreviousPage: boolean;
+}> {
+  const supabase = await createClient();
+  const safePage = Math.max(1, page);
+  const safePageSize = Math.min(Math.max(1, pageSize), 50);
+  const from = (safePage - 1) * safePageSize;
+  const to = from + safePageSize;
+
+  let query = supabase
+    .from("community_shares")
+    .select("*, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)");
+
+  if (status && status !== "all") {
+    query = query.eq("status", status);
+  } else {
+    query = query.in("status", ["published", "requested", "reserved"]);
+  }
+
+  if (category && category !== "all") query = query.eq("category", category);
+  if (urgency && urgency !== "all") query = query.eq("urgency_level", urgency);
+
+  query = query.order("created_at", {ascending: false}).range(from, to);
+
+  const {data} = await query;
+  const rows = (data ?? []) as unknown as FadlaWithOwner[];
+  const items = await hydrateItems(rows.slice(0, safePageSize), currentUserId);
+
+  return {
+    items,
+    page: safePage,
+    pageSize: safePageSize,
+    hasNextPage: rows.length > safePageSize,
+  };
+}
+
+export async function getItemById(id: string): Promise<FadlaWithOwner | null> {
+  const supabase = await createClient();
+  const {data} = await supabase
+    .from("community_shares")
+    .select("*, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!data) return null;
+  const [item] = await hydrateItems([data as unknown as FadlaWithOwner]);
+  if (!item) return null;
+  const requests = await hydrateRequests(id);
+  return {...item, requests};
+}
+
+export async function getUserItems(userId: string): Promise<FadlaWithOwner[]> {
+  const supabase = await createClient();
+  const {data} = await supabase
+    .from("community_shares")
+    .select("*, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)")
+    .eq("owner_id", userId)
+    .order("created_at", {ascending: false});
+
+  return hydrateItems((data ?? []) as unknown as FadlaWithOwner[], userId);
+}
+
+export async function getUserItemsCount(userId: string): Promise<number> {
+  const supabase = await createClient();
+  const {count} = await supabase
+    .from("community_shares")
+    .select("*", {count: "exact", head: true})
+    .eq("owner_id", userId);
+  return count ?? 0;
+}
+
+export async function getArchiveItems({
+  page = 1,
+  pageSize = DEFAULT_PAGE_SIZE,
+}: {
+  page?: number;
+  pageSize?: number;
+} = {}): Promise<{
+  items: FadlaWithOwner[];
+  page: number;
+  pageSize: number;
+  hasNextPage: boolean;
 }> {
   const supabase = await createClient();
   const safePage = Math.max(1, page);
@@ -81,60 +163,28 @@ export async function getCommunitySharesPage({
   const {data} = await supabase
     .from("community_shares")
     .select("*, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)")
-    .order("created_at", {ascending: false})
+    .in("status", ["completed", "archived"])
+    .order("updated_at", {ascending: false})
     .range(from, to);
 
-  const rows = (data ?? []) as unknown as CommunityShareWithOwner[];
-  const items = await hydrateShares(rows.slice(0, safePageSize), currentUserId);
+  const rows = (data ?? []) as unknown as FadlaWithOwner[];
+  const items = await hydrateItems(rows.slice(0, safePageSize));
+  return {items, page: safePage, pageSize: safePageSize, hasNextPage: rows.length > safePageSize};
+}
+
+// ---- Backward-compatible aliases ----
+
+export const getCommunitySharesPage = getPublishedItems;
+export const getUserCommunityShares = getUserItems;
+export const getUserCommunitySharesCount = getUserItemsCount;
+
+export async function getUserImpact(userId: string): Promise<FadlaImpact> {
+  const supabase = await createClient();
+  const {data} = await supabase.rpc("get_fadla_impact", {p_user_id: userId});
+  const result = (data ?? {}) as FadlaImpact;
   return {
-    items,
-    page: safePage,
-    pageSize: safePageSize,
-    hasNextPage: rows.length > safePageSize,
-    hasPreviousPage: safePage > 1,
+    people_helped: Number(result.people_helped) || 0,
+    items_shared: Number(result.items_shared) || 0,
+    completed_shares: Number(result.completed_shares) || 0,
   };
-}
-
-export async function getUserCommunitySharesCount(userId: string): Promise<number> {
-  const supabase = await createClient();
-  const {count} = await supabase
-    .from("community_shares")
-    .select("*", {count: "exact", head: true})
-    .eq("owner_id", userId);
-  return count ?? 0;
-}
-
-export async function getUserCommunityShares(userId: string): Promise<CommunityShareWithOwner[]> {
-  const supabase = await createClient();
-
-  const {data} = await supabase
-    .from("community_shares")
-    .select("*, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)")
-    .eq("owner_id", userId)
-    .order("created_at", {ascending: false});
-
-  return hydrateShares((data ?? []) as unknown as CommunityShareWithOwner[], userId);
-}
-
-export async function getCommunityShareById(id: string): Promise<CommunityShareWithOwner | null> {
-  const supabase = await createClient();
-
-  const {data} = await supabase
-    .from("community_shares")
-    .select("*, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)")
-    .eq("id", id)
-    .maybeSingle();
-
-  if (!data) return null;
-  const [share] = await hydrateShares([data as unknown as CommunityShareWithOwner]);
-  return share ?? null;
-}
-
-export async function getCommunitySharesCount(): Promise<number> {
-  const supabase = await createClient();
-  const {count} = await supabase
-    .from("community_shares")
-    .select("*", {count: "exact", head: true});
-
-  return count ?? 0;
 }

@@ -62,6 +62,10 @@ function getNotificationIcon(type: string) {
     case "credit":
       return Award;
     case "community_share_request":
+    case "fadla_request":
+    case "fadla_request_accepted":
+    case "fadla_request_declined":
+    case "fadla_collected":
       return Gift;
     default:
       return Bell;
@@ -287,9 +291,7 @@ export function NotificationDropdown({
           router.push("/profile");
           return;
         case "community_share": {
-          const shareFocus = n.type === "community_share_request" ? "requests" : "";
-          const shareFocusQuery = shareFocus ? `&focus=${shareFocus}` : "";
-          router.push(`/fadla?item=${n.entity_id}&notification=${n.id}${shareFocusQuery}#fadla-${n.entity_id}`);
+          router.push(`/fadla?item=${n.entity_id}&notification=${n.id}#fadla-${n.entity_id}`);
           return;
         }
         case "project":
@@ -375,7 +377,14 @@ export function NotificationDropdown({
         case "credit":
           return t("creditAwarded", {points: n.message ?? ""});
         case "community_share_request":
-          return t("communityShareRequested", {actorName});
+        case "fadla_request":
+          return t("fadlaRequested", {actorName});
+        case "fadla_request_accepted":
+          return t("fadlaRequestAccepted", {actorName});
+        case "fadla_request_declined":
+          return t("fadlaRequestDeclined", {actorName});
+        case "fadla_collected":
+          return t("fadlaCollected", {actorName});
         default:
           return n.message ?? "";
       }

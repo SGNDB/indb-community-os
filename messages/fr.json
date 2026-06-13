@@ -61,6 +61,10 @@
     "fadla": {
       "title": "Fadla",
       "description": "Partagez les objets utiles dont vous n'avez plus besoin avec celles et ceux qui en ont besoin."
+    },
+    "fadlaArchive": {
+      "title": "Archives Fadla",
+      "description": "Consultez les objets terminés et archivés et suivez votre impact communautaire."
     }
   },
   "LanguageSwitcher": {
@@ -160,6 +164,10 @@
     "creditAwarded": "Vous avez reçu {points} points de contribution",
     "someone": "Quelqu'un",
     "communityShareRequested": "Quelqu'un souhaite recevoir l'objet que vous avez partage",
+    "fadlaRequested": "{actorName} a demande l'objet que vous partagez",
+    "fadlaRequestAccepted": "{actorName} a accepte votre demande",
+    "fadlaRequestDeclined": "{actorName} a decline votre demande",
+    "fadlaCollected": "{actorName} a recupere l'objet",
     "loadMore": "Charger plus"
   },
   "RightSidebar": {
@@ -915,35 +923,55 @@
     "shareButton": "Partager un objet",
     "searchPlaceholder": "Rechercher des objets partages",
     "allCategories": "Toutes les categories",
+    "allUrgency": "Toute urgence",
+    "allStatus": "Tous les statuts",
     "unknownOwner": "Membre de la communaute",
     "sharedForHelp": "Partage pour aider",
     "imagePlaceholder": "Objet utile",
     "needThis": "Je le souhaite",
     "requested": "Demande",
-    "alreadyGiven": "Deja donne",
+    "qty": "Qté",
+    "confirmCollection": "Confirmer la collecte",
+    "markCompleted": "Marquer termine",
+    "archive": "Archiver au profil",
+    "requests": "Demandes",
+    "archiveTitle": "Archives Fadla",
+    "archiveDescription": "Consultez les objets termines et archivés. Suivez votre impact communautaire.",
+    "completedOn": "Termine le",
+    "archivedOn": "Archive le",
+    "backToActive": "Retour aux partages actifs",
+    "archiveEmpty": {
+      "title": "Aucun objet archive pour le moment",
+      "description": "Les objets termines et archivés apparaitront ici."
+    },
     "categories": {
       "food": "Nourriture",
       "clothes": "Vetements",
-      "furniture": "Meubles",
-      "electronics": "Electronique",
-      "school_supplies": "Fournitures scolaires",
       "books": "Livres",
-      "services": "Services",
+      "school_supplies": "Fournitures scolaires",
+      "furniture": "Meubles",
+      "tools": "Outils",
+      "electronics": "Electronique",
+      "medical": "Medical",
+      "household": "Maison",
       "other": "Autre"
     },
+    "urgency": {
+      "urgent": "Urgent",
+      "this_week": "Cette semaine",
+      "no_urgency": "Pas d'urgence"
+    },
     "status": {
-      "available": "Disponible",
+      "published": "Publie",
+      "requested": "Demande",
       "reserved": "Reserve",
-      "given": "Donne"
+      "collected": "Collecte",
+      "completed": "Termine",
+      "archived": "Archive"
     },
     "actions": {
       "edit": "Modifier l'objet",
-      "delete": "Supprimer l'objet",
-      "mark": {
-        "available": "Marquer disponible",
-        "reserved": "Marquer reserve",
-        "given": "Marquer donne"
-      }
+      "delete": "Supprimer l'objet"
     },
     "form": {
       "createTitle": "Partager un objet utile",
@@ -951,6 +979,7 @@
       "helper": "Restez simple et genereux. Pas de prix ni de paiement.",
       "title": "Titre",
       "description": "Description",
+      "quantity": "Quantite",
       "condition": "Etat",
       "location": "Lieu",
       "cancel": "Annuler",

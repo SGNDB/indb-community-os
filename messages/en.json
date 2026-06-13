@@ -34,6 +34,10 @@
       "title": "Fadla",
       "description": "Share useful things you no longer need with people who need them."
     },
+    "fadlaArchive": {
+      "title": "Fadla Archive",
+      "description": "Browse completed and archived shared items and track community impact."
+    },
     "timeline": {
       "title": "Timeline",
       "description": "Browse key moments from Nouadhibou's community memory."
@@ -159,6 +163,10 @@
     "sharedYourMemory": "{actorName} shared your memory",
     "creditAwarded": "You received {points} contribution points",
     "communityShareRequested": "Someone requested the item you shared",
+    "fadlaRequested": "{actorName} requested an item you shared",
+    "fadlaRequestAccepted": "{actorName} accepted your request",
+    "fadlaRequestDeclined": "{actorName} declined your request",
+    "fadlaCollected": "{actorName} collected the item",
     "someone": "Someone",
     "loadMore": "Load more"
   },
@@ -902,42 +910,62 @@
     }
   },
   "Fadla": {
-    "title": "الفظلة",
+    "title": "Fadla",
     "eyebrow": "Community sharing",
     "description": "Share useful things you no longer need with people who need them. Less waste, more solidarity, stronger Nouadhibou.",
     "notMarketplace": "No prices. No payments. Only sharing and helping.",
     "shareButton": "Share Something",
     "searchPlaceholder": "Search shared items",
     "allCategories": "All categories",
+    "allUrgency": "All urgency",
+    "allStatus": "All statuses",
     "unknownOwner": "Community member",
     "sharedForHelp": "Shared to help",
     "imagePlaceholder": "Useful item",
     "needThis": "I Need This",
     "requested": "Requested",
-    "alreadyGiven": "Already Given",
+    "qty": "Qty",
+    "confirmCollection": "Confirm Collection",
+    "markCompleted": "Mark Completed",
+    "archive": "Archive to profile",
+    "requests": "Requests",
+    "archiveTitle": "Fadla Archive",
+    "archiveDescription": "View completed and archived shared items. Track your community impact.",
+    "completedOn": "Completed on",
+    "archivedOn": "Archived on",
+    "backToActive": "Back to active shares",
+    "archiveEmpty": {
+      "title": "No archived items yet",
+      "description": "Completed and archived shared items will appear here."
+    },
     "categories": {
       "food": "Food",
       "clothes": "Clothes",
-      "furniture": "Furniture",
-      "electronics": "Electronics",
-      "school_supplies": "School Supplies",
       "books": "Books",
-      "services": "Services",
+      "school_supplies": "School Supplies",
+      "furniture": "Furniture",
+      "tools": "Tools",
+      "electronics": "Electronics",
+      "medical": "Medical",
+      "household": "Household",
       "other": "Other"
     },
+    "urgency": {
+      "urgent": "Urgent",
+      "this_week": "This week",
+      "no_urgency": "No urgency"
+    },
     "status": {
-      "available": "Available",
+      "published": "Published",
+      "requested": "Requested",
       "reserved": "Reserved",
-      "given": "Given"
+      "collected": "Collected",
+      "completed": "Completed",
+      "archived": "Archived"
     },
     "actions": {
       "edit": "Edit item",
-      "delete": "Delete item",
-      "mark": {
-        "available": "Mark Available",
-        "reserved": "Mark Reserved",
-        "given": "Mark Given"
-      }
+      "delete": "Delete item"
     },
     "form": {
       "createTitle": "Share something useful",
@@ -945,6 +973,7 @@
       "helper": "Keep it generous and simple. No prices or payments.",
       "title": "Title",
       "description": "Description",
+      "quantity": "Quantity",
       "condition": "Condition",
       "location": "Location",
       "cancel": "Cancel",

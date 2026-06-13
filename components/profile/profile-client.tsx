@@ -24,7 +24,7 @@ import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 
 import {getContributionRankKey} from "@/lib/contribution";
-import type {CommentWithAuthor, CommunityShareWithOwner, IdeaWithAuthor, MemoryWithContributor, PostWithAuthor, ProfileEducationRow, ProfileHobbyRow, ProfileInterestRow, ProfileLinkRow, ProfileTravelRow, ProfileWorkRow, ProfileWithCounts} from "@/types/database";
+import type {CommentWithAuthor, FadlaWithOwner, IdeaWithAuthor, MemoryWithContributor, PostWithAuthor, ProfileEducationRow, ProfileHobbyRow, ProfileInterestRow, ProfileLinkRow, ProfileTravelRow, ProfileWorkRow, ProfileWithCounts} from "@/types/database";
 
 import {ProfileAbout} from "./profile-about";
 import {ProfileCompleteness} from "./profile-completeness";
@@ -69,7 +69,7 @@ interface ProfileClientProps {
   postsWithComments: {post: PostWithAuthor; comments: CommentWithAuthor[]}[];
   memories: MemoryWithContributor[];
   ideas: IdeaWithAuthor[];
-  shares: CommunityShareWithOwner[];
+  shares: FadlaWithOwner[];
   work: ProfileWorkRow[];
   education: ProfileEducationRow[];
   interests: ProfileInterestRow[];
@@ -394,7 +394,7 @@ export function ProfileClient({
                   {shares.map((share) => (
                     <FadlaCard
                       key={share.id}
-                      share={share}
+                      item={share}
                       currentUserId={currentUserId}
                       locale={locale}
                       compact

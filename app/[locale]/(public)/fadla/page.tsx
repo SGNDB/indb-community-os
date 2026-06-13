@@ -3,7 +3,7 @@ import {getTranslations} from "next-intl/server";
 
 import {FadlaClient} from "@/components/fadla/fadla-client";
 import {PaginationControls} from "@/components/shared/pagination-controls";
-import {getCommunitySharesPage} from "@/lib/data/fadla";
+import {getPublishedItems} from "@/lib/data/fadla";
 import {createClient} from "@/lib/supabase/server";
 
 export async function generateMetadata({
@@ -31,9 +31,10 @@ export default async function FadlaPage({
     shareDeleted?: string;
     shareRequested?: string;
     shareError?: string;
+    category?: string;
+    urgency?: string;
+    status?: string;
     item?: string;
-    focus?: string;
-    notification?: string;
     page?: string;
   }>;
 }) {
@@ -42,28 +43,25 @@ export default async function FadlaPage({
   const page = Math.max(1, Number(sp.page ?? "1") || 1);
   const common = await getTranslations({locale, namespace: "Common"});
   const supabase = await createClient();
-  const {
-    data: {user},
-  } = await supabase.auth.getUser();
-  const sharesPage = await getCommunitySharesPage({currentUserId: user?.id ?? null, page});
+  const {data: {user}} = await supabase.auth.getUser();
+  const result = await getPublishedItems({
+    currentUserId: user?.id ?? null,
+    page,
+    category: sp.category,
+    urgency: sp.urgency,
+    status: sp.status,
+  });
 
   return (
     <div className="space-y-4">
       <FadlaClient
-        shares={sharesPage.items}
+        items={result.items}
         currentUserId={user?.id ?? null}
         locale={locale}
-        toastState={{
-          created: sp.shareCreated === "1",
-          updated: sp.shareUpdated === "1",
-          deleted: sp.shareDeleted === "1",
-          requested: sp.shareRequested === "1",
-          error: sp.shareError === "1",
-        }}
       />
       <PaginationControls
-        page={sharesPage.page}
-        hasNextPage={sharesPage.hasNextPage}
+        page={result.page}
+        hasNextPage={result.hasNextPage}
         previousLabel={common("previous")}
         nextLabel={common("next")}
       />

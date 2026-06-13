@@ -13,6 +13,11 @@ export type ReactionType = "like" | "love" | "support" | "celebrate" | "insightf
 export type MemoryReactionType = ReactionType;
 export type ReportTargetType = "post" | "comment" | "memory" | "idea";
 export type ReportStatus = "pending" | "reviewed" | "resolved" | "dismissed";
+export type FadlaStatus = "published" | "requested" | "reserved" | "collected" | "completed" | "archived";
+export type FadlaRequestStatus = "pending" | "accepted" | "declined" | "cancelled";
+export type FadlaUrgency = "urgent" | "this_week" | "no_urgency";
+export type FadlaCategory = "food" | "clothes" | "books" | "school_supplies" | "furniture" | "tools" | "electronics" | "medical" | "household" | "other";
+
 export type CommunityShareStatus = "available" | "reserved" | "given";
 export type CommunityShareCategory = "food" | "clothes" | "furniture" | "electronics" | "school_supplies" | "books" | "services" | "other";
 
@@ -271,6 +276,55 @@ export interface CommunityShareRequestRow {
   share_id: string;
   requester_id: string;
   created_at: string;
+}
+
+// ---- Fadla v2 types ----
+
+export interface FadlaItemRow {
+  id: string;
+  owner_id: string;
+  title: string;
+  description: string;
+  content_language: ContentLanguage | null;
+  category: FadlaCategory;
+  condition: string | null;
+  location: string | null;
+  quantity: number;
+  urgency_level: FadlaUrgency;
+  status: FadlaStatus;
+  images: CommunityShareImage[];
+  shares_count: number;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+  archived_at: string | null;
+}
+
+export interface FadlaRequestRow {
+  id: string;
+  share_id: string;
+  requester_id: string;
+  message: string | null;
+  status: FadlaRequestStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FadlaImpact {
+  people_helped: number;
+  items_shared: number;
+  completed_shares: number;
+}
+
+export interface FadlaWithOwner extends FadlaItemRow {
+  owner: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+  requests?: FadlaRequestWithRequester[];
+  requested_by_current_user?: boolean;
+  requests_count?: number;
+}
+
+export interface FadlaRequestWithRequester extends FadlaRequestRow {
+  requester: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
 }
 
 export interface EventRow {
