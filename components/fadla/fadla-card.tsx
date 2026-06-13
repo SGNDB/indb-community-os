@@ -298,7 +298,7 @@ export function FadlaCard({
           )}
 
           {!isOwner && requestSent && (
-            <span className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 dark:border-blue-800/50 dark:bg-blue-950/30 dark:text-blue-300">
+            <span className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-[#3b82f6] bg-[#3b82f6] px-4 py-2 text-sm font-medium text-white">
               <Check size={16} />
               {t('requestSent')}
             </span>
