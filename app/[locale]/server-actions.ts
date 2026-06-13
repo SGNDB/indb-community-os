@@ -2788,6 +2788,9 @@ export async function requestFadlaItemAction(
 
   if (error) {
     if (error.code === "23505") return {success: false, error: fadlaT("errors.alreadyRequested")};
+    if (error.code === "42501" || error.code === "PGRST301") {
+      return {success: false, error: fadlaT("errors.notAvailable")};
+    }
     return {success: false, error: errorsT("submitFailed")};
   }
 
