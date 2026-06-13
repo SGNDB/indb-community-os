@@ -40,7 +40,7 @@ export default async function MemoryTimelinePage({
         <EmptyState
           icon={Archive}
           title={t("noDecades")}
-          description={empty("description")}
+          description={t("noDecadesDescription")}
           ctaLabel={empty("cta")}
           ctaHref="/memory/submit"
         />

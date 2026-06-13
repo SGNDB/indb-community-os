@@ -158,6 +158,12 @@ as $$
   order by floor(m.year / 10) * 10 desc;
 $$;
 
+-- Backfill decade for memories that have year but no decade
+update public.memories
+set decade = (floor(year / 10) * 10)::text || 's'
+where year is not null
+  and (decade is null or decade = '');
+
 create or replace function public.get_years_by_decade(p_decade text)
 returns table(year int, memory_count bigint)
 language sql
