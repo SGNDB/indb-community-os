@@ -27,35 +27,43 @@ async function hydrateItems(items: FadlaWithOwner[], currentUserId?: string | nu
 
   const countMap = new Map<string, number>();
   const requestedByCurrent = new Set<string>();
-  const ownerItemIds = new Set<string>();
+  const itemsWithParticipant = new Set<string>();
 
   for (const req of requests ?? []) {
     countMap.set(req.share_id, (countMap.get(req.share_id) ?? 0) + 1);
-    if (currentUserId && req.requester_id === currentUserId && req.status === "pending") {
-      requestedByCurrent.add(req.share_id);
+    if (currentUserId && req.requester_id === currentUserId) {
+      if (req.status === "pending") {
+        requestedByCurrent.add(req.share_id);
+      }
+      itemsWithParticipant.add(req.share_id);
     }
   }
 
-  // Identify items owned by the current user so we can load full request details
+  // Identify items where the current user is the owner or has a request
+  // so we can load full request details
+  const needFullRequests = new Set<string>();
   for (const item of items) {
     if (currentUserId && item.owner_id === currentUserId) {
-      ownerItemIds.add(item.id);
+      needFullRequests.add(item.id);
+    }
+    if (itemsWithParticipant.has(item.id)) {
+      needFullRequests.add(item.id);
     }
   }
 
-  const ownerRequests: Map<string, FadlaRequestWithRequester[]> = new Map();
-  if (ownerItemIds.size > 0) {
+  const fullRequestsMap: Map<string, FadlaRequestWithRequester[]> = new Map();
+  if (needFullRequests.size > 0) {
     const {data: fullRequests} = await supabase
       .from("community_share_requests")
       .select("*, requester:profiles!community_share_requests_requester_id_fkey(id, username, full_name, avatar_url)")
-      .in("share_id", [...ownerItemIds])
+      .in("share_id", [...needFullRequests])
       .order("created_at", {ascending: true});
 
     for (const req of fullRequests ?? []) {
       const shareId = req.share_id;
-      const existing = ownerRequests.get(shareId) ?? [];
+      const existing = fullRequestsMap.get(shareId) ?? [];
       existing.push(req as unknown as FadlaRequestWithRequester);
-      ownerRequests.set(shareId, existing);
+      fullRequestsMap.set(shareId, existing);
     }
   }
 
@@ -64,7 +72,7 @@ async function hydrateItems(items: FadlaWithOwner[], currentUserId?: string | nu
     images: normalizeImages(item.images),
     requests_count: countMap.get(item.id) ?? 0,
     requested_by_current_user: requestedByCurrent.has(item.id),
-    requests: ownerItemIds.has(item.id) ? (ownerRequests.get(item.id) ?? []) : item.requests,
+    requests: needFullRequests.has(item.id) ? (fullRequestsMap.get(item.id) ?? []) : item.requests,
   }));
 }
 
