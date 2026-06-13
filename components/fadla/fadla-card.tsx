@@ -213,7 +213,7 @@ export function FadlaCard({
       ref={articleRef}
       id={`fadla-${item.id}`}
       className={cn(
-        "overflow-hidden rounded-[1.75rem] border border-border/70 bg-card shadow-[0_18px_45px_rgba(8,33,56,0.08)] transition-all duration-500",
+        "overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-[0_20px_50px_rgba(8,33,56,0.12)] transition-all duration-500",
         highlight && "ring-2 ring-primary/40 bg-primary/5",
       )}
     >
@@ -259,7 +259,7 @@ export function FadlaCard({
           <span className="shrink-0 text-xs text-muted-foreground">{createdAt}</span>
         </div>
 
-        <p className="break-words text-sm leading-6 text-muted-foreground sm:text-base">{item.description}</p>
+        <p className="break-words text-sm leading-6 text-foreground/85 sm:text-base">{item.description}</p>
 
         <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
           {item.location ? (
