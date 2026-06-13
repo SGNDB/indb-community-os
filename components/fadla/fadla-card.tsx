@@ -305,7 +305,7 @@ export function FadlaCard({
           )}
 
           {!isOwner && isRecipient && item.status === 'completed' && (
-            <span className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-medium text-green-700 dark:border-green-800/50 dark:bg-green-950/30 dark:text-green-300">
+            <span className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-[#22c55e] bg-[#22c55e] px-4 py-2 text-sm font-medium text-white">
               <Check size={16} />
               {t('requestAccepted')}
             </span>
