@@ -2779,7 +2779,7 @@ export async function requestFadlaItemAction(
 
   const requestId = crypto.randomUUID();
 
-  const {error} = await supabase
+  const {error: insertError} = await supabase
     .from("community_share_requests")
     .insert({
       id: requestId,
@@ -2787,12 +2787,12 @@ export async function requestFadlaItemAction(
       requester_id: user.id,
     });
 
-  if (error) {
-    if (error.code === "23505") return {success: false, error: fadlaT("errors.alreadyRequested")};
-    if (error.code === "42501") {
+  if (insertError) {
+    if (insertError.code === "23505") return {success: false, error: fadlaT("errors.alreadyRequested")};
+    if (insertError.code === "42501") {
       return {success: false, error: fadlaT("errors.notAvailable")};
     }
-    return {success: false, error: errorsT("submitFailed")};
+    return {success: false, error: `${fadlaT("errors.saveFailed")} (${insertError.code})`};
   }
 
   // Update status to 'requested' if it was 'published'
