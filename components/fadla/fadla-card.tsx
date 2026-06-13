@@ -578,7 +578,7 @@ export function FadlaCard({
                 ) : (
                   <Check size={17} />
                 )}
-                {t('completeAndArchive')}
+                {t('markCompleted')}
               </Button>
             )}
 

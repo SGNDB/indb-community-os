@@ -1001,7 +1001,7 @@
       "accepted": "Request accepted",
       "declined": "Request declined",
       "collected": "Collection confirmed",
-      "completed": "Item completed and archived",
+      "completed": "Item completed",
       "archived": "Item archived",
       "handedOver": "Handover confirmed"
     },
