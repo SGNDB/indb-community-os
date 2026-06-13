@@ -2,6 +2,13 @@
 -- FADLA RLS FIX: Allow requests for 'published' OR 'requested'
 -- Multiple users should be able to request the same item.
 -- Only the first request changes status from published → requested.
+--
+-- IMPORTANT: The duplicate check (not exists on same table)
+-- is NOT in RLS because it causes infinite recursion.
+-- Duplicate protection is handled by:
+--   - unique(share_id, requester_id) constraint
+--   - server action's pending request check
+--   - server action's 23505 error handler
 -- ============================================================
 
 drop policy if exists "Authenticated users can request shares" on public.community_share_requests;
@@ -16,11 +23,5 @@ create policy "Authenticated users can request shares"
       where community_shares.id = share_id
         and community_shares.owner_id <> auth.uid()
         and community_shares.status in ('published', 'requested')
-    )
-    and not exists (
-      select 1 from public.community_share_requests existing
-      where existing.share_id = share_id
-        and existing.requester_id = auth.uid()
-        and existing.status = 'pending'
     )
   );
