@@ -957,6 +957,8 @@
       "edit": "Edit item",
       "delete": "Delete item"
     },
+    "accept": "Accept",
+    "decline": "Decline",
     "form": {
       "createTitle": "Share something useful",
       "editTitle": "Edit shared item",

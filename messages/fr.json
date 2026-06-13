@@ -963,6 +963,8 @@
       "edit": "Modifier l'objet",
       "delete": "Supprimer l'objet"
     },
+    "accept": "Accepter",
+    "decline": "Refuser",
     "form": {
       "createTitle": "Partager un objet utile",
       "editTitle": "Modifier l'objet partage",

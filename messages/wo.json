@@ -965,6 +965,8 @@
       "edit": "Soppi mbariy",
       "delete": "Far mbariy"
     },
+    "accept": "Nangu",
+    "decline": "Tere",
     "form": {
       "createTitle": "Ngalif lu am solo",
       "editTitle": "Soppi ngalifte",
