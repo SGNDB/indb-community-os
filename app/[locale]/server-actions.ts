@@ -2792,7 +2792,7 @@ export async function requestFadlaItemAction(
     if (insertError.code === "42501") {
       return {success: false, error: fadlaT("errors.notAvailable")};
     }
-    return {success: false, error: `${fadlaT("errors.saveFailed")} (${insertError.code})`};
+    return {success: false, error: `${fadlaT("errors.saveFailed")} (${insertError.code}: ${insertError.message})`};
   }
 
   // Update status to 'requested' if it was 'published'
