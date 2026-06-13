@@ -988,7 +988,11 @@
     },
     "errors": {
       "saveFailed": "Mar ntentine wa",
-      "actionFailed": "Goy nku wa banta"
+      "actionFailed": "Goy nku wa banta",
+      "alreadyRequested": "I na demaare ntene ndi",
+      "notFound": "Ntene sanya",
+      "ownItem": "I kuntan na i fa tene i ntene",
+      "notAvailable": "Ntene nku fe"
     },
     "empty": {
       "title": "Ntentine sanya haa saati",

@@ -988,7 +988,11 @@
     },
     "errors": {
       "saveFailed": "Mënul tank ngalifte",
-      "actionFailed": "Mënul mukk liggeey bi"
+      "actionFailed": "Mënul mukk liggeey bi",
+      "alreadyRequested": "Mënul tank ngalifte",
+      "notFound": "Mënul tank ngalifte",
+      "ownItem": "Mënul tank ngalifte",
+      "notAvailable": "Mënul tank ngalifte"
     },
     "empty": {
       "title": "Amul ngalifte ba leegi",

@@ -988,7 +988,11 @@
     },
     "errors": {
       "saveFailed": "Dannde yeɗitine waawaa",
-      "actionFailed": "Gollal ɗoo waawaa timminde"
+      "actionFailed": "Gollal ɗoo waawaa timminde",
+      "alreadyRequested": "Aɗa yiɗi ndee huunde fewndo fewndo",
+      "notFound": "Huunde ndeya tawaaka",
+      "ownItem": "A waawaa yiɗe huunde maa",
+      "notAvailable": "Ndee huunde heɓotaako"
     },
     "empty": {
       "title": "Alaa yeɗitine haa jooni",

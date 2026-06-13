@@ -988,7 +988,11 @@
     },
     "errors": {
       "saveFailed": "Could not save shared item",
-      "actionFailed": "Could not complete this action"
+      "actionFailed": "Could not complete this action",
+      "alreadyRequested": "You already requested this item",
+      "notFound": "Item not found",
+      "ownItem": "You cannot request your own item",
+      "notAvailable": "This item is no longer available"
     },
     "empty": {
       "title": "Nothing shared yet",

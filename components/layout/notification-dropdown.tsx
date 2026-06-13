@@ -291,7 +291,8 @@ export function NotificationDropdown({
           router.push("/profile");
           return;
         case "community_share": {
-          router.push(`/fadla?item=${n.entity_id}&notification=${n.id}#fadla-${n.entity_id}`);
+          const focusParam = n.type === "fadla_request" ? "&focus=requests" : "";
+          router.push(`/fadla?item=${n.entity_id}&notification=${n.id}${focusParam}#fadla-${n.entity_id}`);
           return;
         }
         case "project":

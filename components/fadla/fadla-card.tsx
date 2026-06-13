@@ -73,6 +73,7 @@ export function FadlaCard({
   const searchParams = useSearchParams();
   const [highlight, setHighlight] = useState(false);
   const [sharesCount, setSharesCount] = useState(item.shares_count ?? 0);
+  const [requestState, setRequestState] = useState<"idle" | "loading" | "requested">("idle");
   const articleRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -86,6 +87,22 @@ export function FadlaCard({
     return () => clearTimeout(timer);
   }, [searchParams, item.id]);
 
+  async function handleRequest() {
+    if (requestState !== "idle") return;
+    setRequestState("loading");
+    const formData = new FormData();
+    formData.set("locale", locale);
+    formData.set("shareId", item.id);
+    const result = await requestFadlaItemAction(formData);
+    if (result.success) {
+      toast.success(t("toasts.requested"));
+      setRequestState("requested");
+    } else {
+      toast.error(result.error);
+      setRequestState("idle");
+    }
+  }
+
   const isOwner = currentUserId === item.owner_id;
   const ownerName = item.owner?.full_name ?? item.owner?.username ?? t("unknownOwner");
   const createdAt = new Date(item.created_at).toLocaleDateString(
@@ -93,8 +110,8 @@ export function FadlaCard({
     {month: "short", day: "numeric"},
   );
   const categoryEmoji = CATEGORY_EMOJI[item.category] ?? "📦";
-  const canBeRequested = (item.status === "published" || item.status === "requested") && !isOwner && !item.requested_by_current_user;
-  const hasPendingRequest = item.requested_by_current_user;
+  const canBeRequested = (item.status === "published" || item.status === "requested") && !isOwner && !item.requested_by_current_user && requestState !== "requested";
+  const hasPendingRequest = item.requested_by_current_user || requestState === "requested";
   const isRecipient = item.requests?.some((r) => r.requester_id === currentUserId && r.status === "accepted");
   const pendingRequests = (item.requests ?? []).filter((r) => r.status === "pending");
 
@@ -176,14 +193,16 @@ export function FadlaCard({
           </div>
 
           {!isOwner && canBeRequested && (
-            <form action={requestFadlaItemAction}>
-              <input type="hidden" name="locale" value={locale} />
-              <input type="hidden" name="shareId" value={item.id} />
-              <SubmitButton variant="default" className="min-h-11 rounded-full px-5">
-                <HandHeart size={17} />
-                {t("needThis")}
-              </SubmitButton>
-            </form>
+            <Button
+              type="button"
+              variant="default"
+              disabled={requestState === "loading"}
+              onClick={handleRequest}
+              className="min-h-11 rounded-full px-5"
+            >
+              {requestState === "loading" ? <Loader2 size={17} className="animate-spin" /> : <HandHeart size={17} />}
+              {t("needThis")}
+            </Button>
           )}
 
           {!isOwner && hasPendingRequest && (

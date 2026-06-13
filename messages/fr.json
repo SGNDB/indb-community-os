@@ -994,7 +994,11 @@
     },
     "errors": {
       "saveFailed": "Impossible d'enregistrer l'objet partage",
-      "actionFailed": "Impossible de terminer cette action"
+      "actionFailed": "Impossible de terminer cette action",
+      "alreadyRequested": "Vous avez deja demande cet element",
+      "notFound": "Element introuvable",
+      "ownItem": "Vous ne pouvez pas demander votre propre element",
+      "notAvailable": "Cet element n'est plus disponible"
     },
     "empty": {
       "title": "Aucun objet partage pour le moment",

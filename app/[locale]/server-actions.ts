@@ -2740,21 +2740,19 @@ export async function deleteFadlaItemAction(formData: FormData) {
   redirect(toPath(locale, "/fadla?shareDeleted=1"));
 }
 
-export async function requestFadlaItemAction(formData: FormData) {
+export async function requestFadlaItemAction(
+  formData: FormData,
+): Promise<{success: true; requestId: string} | {success: false; error: string}> {
   const locale = normalizeLocale(formData.get("locale"));
-  const itemId = formData.get("shareId") || formData.get("itemId");
-  const message = formData.get("message") || "";
-  const returnPath = getReturnPath(formData, "/fadla");
+  const errorsT = await getTranslations({locale, namespace: "Errors"});
+  const fadlaT = await getTranslations({locale, namespace: "Fadla"});
   const supabase = await createClient();
   const {data: {user}} = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect(toPath(locale, `/login?next=${encodeURIComponent(returnPath)}`));
-  }
+  if (!user) return {success: false, error: errorsT("submitFailed")};
 
-  if (typeof itemId !== "string") {
-    redirect(toPath(locale, appendParam(returnPath, "shareError", "1")));
-  }
+  const itemId = formData.get("shareId") || formData.get("itemId");
+  if (typeof itemId !== "string") return {success: false, error: errorsT("invalidInput")};
 
   const {data: item} = await supabase
     .from("community_shares")
@@ -2762,20 +2760,35 @@ export async function requestFadlaItemAction(formData: FormData) {
     .eq("id", itemId)
     .single();
 
-  if (!item || item.owner_id === user.id || (item.status !== "published" && item.status !== "requested")) {
-    redirect(toPath(locale, appendParam(returnPath, "shareError", "1")));
+  if (!item) return {success: false, error: fadlaT("errors.notFound")};
+  if (item.owner_id === user.id) return {success: false, error: fadlaT("errors.ownItem")};
+  if (item.status !== "published" && item.status !== "requested") {
+    return {success: false, error: fadlaT("errors.notAvailable")};
   }
 
-  const {error} = await supabase
+  // Check for existing pending request (duplicate protection)
+  const {data: existing} = await supabase
+    .from("community_share_requests")
+    .select("id")
+    .eq("share_id", itemId)
+    .eq("requester_id", user.id)
+    .eq("status", "pending")
+    .maybeSingle();
+
+  if (existing) return {success: false, error: fadlaT("errors.alreadyRequested")};
+
+  const {data: newRequest, error} = await supabase
     .from("community_share_requests")
     .insert({
       share_id: itemId,
       requester_id: user.id,
-      message: typeof message === "string" && message.trim() ? message.trim() : null,
-    });
+    })
+    .select("id")
+    .single();
 
   if (error) {
-    redirect(toPath(locale, appendParam(returnPath, "shareError", "1")));
+    if (error.code === "23505") return {success: false, error: fadlaT("errors.alreadyRequested")};
+    return {success: false, error: errorsT("submitFailed")};
   }
 
   // Update status to 'requested' if it was 'published'
@@ -2790,10 +2803,15 @@ export async function requestFadlaItemAction(formData: FormData) {
     entityType: "community_share",
     entityId: itemId,
     title: "New Fadla request",
+    metadata: {
+      shareId: itemId,
+      requestId: newRequest.id,
+      requesterId: user.id,
+    },
   });
 
   revalidatePath(toPath(locale, "/fadla"));
-  redirect(toPath(locale, appendParam(returnPath, "shareRequested", "1")));
+  return {success: true, requestId: newRequest.id};
 }
 
 export async function acceptFadlaRequestAction(formData: FormData) {
