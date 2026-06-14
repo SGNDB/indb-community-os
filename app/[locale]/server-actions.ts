@@ -249,7 +249,7 @@ export async function registerAction(formData: FormData) {
 
   const redirectPath = typeof next === 'string' && next ? next : '/feed';
 
-  if (data.user?.email_confirmed_at) {
+  if (data.session) {
     revalidatePath('/', 'layout');
     redirect(toPath(locale, '/onboarding'));
   }
