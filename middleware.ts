@@ -7,7 +7,7 @@ import {createServerClient} from "@supabase/ssr";
 
 const handleI18nRouting = createMiddleware(routing);
 
-const protectedPaths = ["/feed", "/profile", "/ideas/submit", "/memory/submit", "/admin"];
+const protectedPaths = ["/feed", "/profile", "/ideas", "/memory", "/admin", "/events", "/fadla", "/polls", "/projects", "/search", "/timeline", "/post", "/onboarding"];
 const authPaths = ["/login", "/register", "/forgot-password"];
 
 function matchPath(pathname: string, patterns: string[]): boolean {
