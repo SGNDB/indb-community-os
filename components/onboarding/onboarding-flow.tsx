@@ -44,9 +44,10 @@ export function OnboardingFlow({locale, userId}: OnboardingFlowProps) {
     }
   };
 
-  const handleSkip = async () => {
-    await completeOnboardingAction(userId);
-    router.push("/feed");
+  const handleSkip = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
   };
 
   const handleComplete = async () => {
