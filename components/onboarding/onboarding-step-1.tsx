@@ -38,7 +38,6 @@ export const OnboardingStep1 = forwardRef<OnboardingStep1Handle, OnboardingStep1
   const [languages, setLanguages] = useState<string[]>(initialData?.languages || []);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const commonLanguages = [
@@ -69,12 +68,7 @@ export const OnboardingStep1 = forwardRef<OnboardingStep1Handle, OnboardingStep1
     }
   };
 
-  useImperativeHandle(ref, () => ({
-    save: handleSave,
-  }));
-
   const handleSave = async () => {
-    setIsSaving(true);
     try {
       let avatarUrl: string | undefined;
 
@@ -98,10 +92,12 @@ export const OnboardingStep1 = forwardRef<OnboardingStep1Handle, OnboardingStep1
       onSave({full_name: fullName, bio, city, languages, avatar_url: avatarUrl});
     } catch (error) {
       console.error("Failed to save profile:", error);
-    } finally {
-      setIsSaving(false);
     }
   };
+
+  useImperativeHandle(ref, () => ({
+    save: handleSave,
+  }));
 
   return (
     <div className="space-y-6">
