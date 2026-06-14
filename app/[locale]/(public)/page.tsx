@@ -39,11 +39,13 @@ export default async function LandingPage({
   const {data: {user}} = await supabase.auth.getUser();
   const isLoggedIn = !!user;
 
-  const [latestPosts, featuredMemories, {ideas: communityIdeas}] = await Promise.all([
-    getPosts(user?.id ?? null),
-    getApprovedMemories(),
-    getIdeas(),
-  ]);
+  const [latestPosts, featuredMemories, {ideas: communityIdeas}] = isLoggedIn
+    ? await Promise.all([
+        getPosts(user?.id ?? null),
+        getApprovedMemories(),
+        getIdeas(),
+      ])
+    : [[], [], {ideas: []}];
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -91,7 +93,7 @@ export default async function LandingPage({
         </div>
       </section>
 
-      {latestPosts.length > 0 ? (
+      {isLoggedIn && latestPosts.length > 0 ? (
         <Card>
           <CardHeader>
             <CardTitle>{t("latestPosts")}</CardTitle>
@@ -107,7 +109,7 @@ export default async function LandingPage({
         </Card>
       ) : null}
 
-      {featuredMemories.length > 0 ? (
+      {isLoggedIn && featuredMemories.length > 0 ? (
         <section>
           <h2 className="mb-3 text-xl font-semibold">{t("featuredMemories")}</h2>
           <div className="grid gap-4 md:grid-cols-2">
@@ -118,7 +120,7 @@ export default async function LandingPage({
         </section>
       ) : null}
 
-      {communityIdeas.length > 0 ? (
+      {isLoggedIn && communityIdeas.length > 0 ? (
         <section>
           <h2 className="mb-3 text-xl font-semibold">{t("communityIdeas")}</h2>
           <div className="grid gap-4 md:grid-cols-2">
