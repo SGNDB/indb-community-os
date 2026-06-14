@@ -160,11 +160,6 @@ export async function loginAction(formData: FormData) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
-    // Check if email is confirmed
-    if (!user.email_confirmed_at) {
-      redirect(toPath(locale, `/login?emailConfirmation=1&email=${encodeURIComponent(email)}`));
-    }
-
     const { data: profile } = await supabase
       .from('profiles')
       .select('onboarding_completed')
@@ -185,7 +180,6 @@ export async function loginAction(formData: FormData) {
 export async function registerAction(formData: FormData) {
   const locale = normalizeLocale(formData.get('locale'));
   const errorT = await getTranslations({ locale, namespace: 'Auth.errors' });
-  const successT = await getTranslations({ locale, namespace: 'Auth.success' });
   const next = formData.get('next');
 
   const parsed = registerSchema.safeParse({
@@ -254,13 +248,12 @@ export async function registerAction(formData: FormData) {
 
   const redirectPath = typeof next === 'string' && next ? next : '/feed';
 
-  if (data.user?.email_confirmed_at) {
+  if (data.session) {
     revalidatePath('/', 'layout');
     redirect(toPath(locale, '/onboarding'));
   }
 
-  const successMessage = encodeURIComponent(successT("auth_registered"));
-  redirect(toPath(locale, `/login?emailConfirmation=1&success=${successMessage}&next=${encodeURIComponent(redirectPath)}`));
+  redirect(toPath(locale, `/login?next=${encodeURIComponent(redirectPath)}`));
 }
 
 export async function resendVerificationAction(formData: FormData) {

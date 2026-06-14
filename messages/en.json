@@ -852,7 +852,6 @@
   "Auth": {
     "login": {
       "title": "Sign in",
-      "emailConfirmation": "Registration complete. Please check your email to confirm your account before logging in.",
       "done": "Login interaction completed.",
       "email": "Email",
       "password": "Password",
@@ -862,8 +861,7 @@
       "noAccount": "Don't have an account?",
       "register": "Create one",
       "showPassword": "Show password",
-      "hidePassword": "Hide password",
-      "resendVerification": "Resend verification email"
+      "hidePassword": "Hide password"
     },
     "register": {
       "title": "Create your account",

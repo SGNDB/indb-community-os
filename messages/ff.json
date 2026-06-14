@@ -830,7 +830,6 @@
   "Auth": {
     "login": {
       "title": "Naatu",
-      "emailConfirmation": "Winnditde timmii. Eɗen mballu en ƴeewto iimeel maa ngam tabitingol huunde maa yeeso naatde.",
       "done": "Gollal naatgol timmii.",
       "email": "Iimeel",
       "password": "Finnde wowre",
@@ -840,8 +839,7 @@
       "noAccount": "Alaa huunde?",
       "register": "Mah huunde",
       "showPassword": "Hollu finnde wowre",
-      "hidePassword": "Suud finnde wowre",
-      "resendVerification": "Nelditi iimeel ngam tabitingol"
+      "hidePassword": "Suud finnde wowre"
     },
     "register": {
       "title": "Mah huunde maa",

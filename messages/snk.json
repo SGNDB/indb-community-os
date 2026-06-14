@@ -830,7 +830,6 @@
   "Auth": {
     "login": {
       "title": "Don",
-      "emailConfirmation": "Ɲiiɓinte banta. Ƴaaxo iimeel maa ga tabiti kuun maa yinta don.",
       "done": "Goy don banta.",
       "email": "Iimeel",
       "password": "Furta",
@@ -840,8 +839,7 @@
       "noAccount": "Kuun sanya?",
       "register": "Mah kuun",
       "showPassword": "Yeru furta",
-      "hidePassword": "Noxu furta",
-      "resendVerification": "Nelu iimeelu ndax seedu"
+      "hidePassword": "Noxu furta"
     },
     "register": {
       "title": "Mah kuun maa",
