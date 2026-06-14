@@ -160,6 +160,11 @@ export async function loginAction(formData: FormData) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
+    // Check if email is confirmed
+    if (!user.email_confirmed_at) {
+      redirect(toPath(locale, `/login?emailConfirmation=1&email=${encodeURIComponent(email)}`));
+    }
+
     const { data: profile } = await supabase
       .from('profiles')
       .select('onboarding_completed')
