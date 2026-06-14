@@ -51,7 +51,11 @@ export default async function middleware(request: NextRequest) {
       return NextResponse.redirect(authUrl);
     }
 
-    if (isAuthPage && user) {
+    const isEmailConfirmation = request.nextUrl.searchParams.get("emailConfirmation") === "1"
+      || request.nextUrl.searchParams.get("emailConfirmation") === "true"
+      || request.nextUrl.searchParams.get("confirmation") === "1";
+
+    if (isAuthPage && user && !isEmailConfirmation) {
       return NextResponse.redirect(new URL(`/${locale}/feed`, request.url));
     }
   } catch {

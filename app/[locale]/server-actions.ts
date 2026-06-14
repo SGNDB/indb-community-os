@@ -249,7 +249,7 @@ export async function registerAction(formData: FormData) {
 
   const redirectPath = typeof next === 'string' && next ? next : '/feed';
 
-  if (data.session) {
+  if (data.user?.email_confirmed_at) {
     revalidatePath('/', 'layout');
     redirect(toPath(locale, '/onboarding'));
   }
@@ -265,15 +265,18 @@ export async function resendVerificationAction(formData: FormData) {
 
   const email = formData.get('email');
 
+  const emailConfirmation = formData.get('emailConfirmation');
+  const emailConfirmationParam = emailConfirmation === '1' ? '&emailConfirmation=1' : '';
+
   if (typeof email !== 'string' || !email.includes('@')) {
-    redirect(toPath(locale, `/login?error=${encodeURIComponent(errorT("auth_invalid_email"))}`));
+    redirect(toPath(locale, `/login?error=${encodeURIComponent(errorT("auth_invalid_email"))}${emailConfirmationParam}`));
   }
 
   const ip = await getClientIp();
   const rateCheck = await checkRateLimit("resendVerification", ip);
 
   if (!rateCheck.allowed) {
-    redirect(toPath(locale, `/login?error=${encodeURIComponent(errorT("auth_rate_limited"))}`));
+    redirect(toPath(locale, `/login?error=${encodeURIComponent(errorT("auth_rate_limited"))}${emailConfirmationParam}`));
   }
 
   const supabase = await createClient();
@@ -284,11 +287,11 @@ export async function resendVerificationAction(formData: FormData) {
 
   if (error) {
     const errorMessage = getLocalizedAuthError(error, errorT);
-    redirect(toPath(locale, `/login?error=${encodeURIComponent(errorMessage)}`));
+    redirect(toPath(locale, `/login?error=${encodeURIComponent(errorMessage)}${emailConfirmationParam}`));
   }
 
   const successMessage = encodeURIComponent(successT("auth_email_confirmation_sent"));
-  redirect(toPath(locale, `/login?success=${successMessage}`));
+  redirect(toPath(locale, `/login?success=${successMessage}${emailConfirmationParam}`));
 }
 
 export async function forgotPasswordAction(formData: FormData) {

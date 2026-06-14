@@ -862,7 +862,8 @@
       "noAccount": "ليس لديك حساب؟",
       "register": "إنشاء حساب",
       "showPassword": "إظهار كلمة المرور",
-      "hidePassword": "إخفاء كلمة المرور"
+      "hidePassword": "إخفاء كلمة المرور",
+      "resendVerification": "إعادة إرسال بريد التأكيد"
     },
     "register": {
       "title": "إنشاء حساب",

@@ -862,7 +862,8 @@
       "noAccount": "Vous n'avez pas de compte ?",
       "register": "Créer un compte",
       "showPassword": "Afficher le mot de passe",
-      "hidePassword": "Masquer le mot de passe"
+      "hidePassword": "Masquer le mot de passe",
+      "resendVerification": "Renvoyer l'e-mail de vérification"
     },
     "register": {
       "title": "Créer votre compte",
