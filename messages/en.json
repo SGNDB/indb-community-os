@@ -892,7 +892,7 @@
     "errors": {
       "auth_invalid_credentials": "Invalid email or password",
       "auth_email_not_confirmed": "Please confirm your email before logging in",
-      "auth_user_exists": "An account with this email already exists",
+      "auth_user_exists": "An account already exists with this email address.",
       "auth_weak_password": "Password must be at least 8 characters with letters and numbers",
       "auth_invalid_email": "Please enter a valid email address",
       "auth_link_expired": "This link has expired or is invalid",
@@ -904,7 +904,15 @@
       "password_requirements": "Password must contain at least one letter and one number",
       "password_mismatch": "Passwords do not match",
       "username_length": "Username must be between 3 and 24 characters",
-      "full_name_length": "Full name must be between 2 and 100 characters"
+      "full_name_length": "Full name must be between 2 and 100 characters",
+      "username_taken": "This username is already taken",
+      "incorrect_password": "Incorrect password",
+      "account_not_found": "No account found with this email address",
+      "email_required": "Email is required",
+      "password_required": "Password is required",
+      "username_required": "Username is required",
+      "full_name_required": "Full name is required",
+      "confirm_password_required": "Please confirm your password"
     },
     "success": {
       "auth_registered": "Registration complete! Check your email to confirm your account.",

@@ -104,6 +104,58 @@ async function getClientIp(): Promise<string> {
   return forwardedFor || realIp || "unknown-ip";
 }
 
+type AuthFieldErrors = {
+  fullName?: string;
+  username?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  general?: string;
+};
+
+async function findAuthUserByEmail(email: string) {
+  const admin = createAdminClient();
+  if (!admin) return null;
+
+  let page = 1;
+  const perPage = 1000;
+
+  while (page <= 10) {
+    const {data, error} = await admin.auth.admin.listUsers({page, perPage});
+    if (error || !data?.users?.length) return null;
+
+    const match = data.users.find((user) => user.email?.toLowerCase() === email.toLowerCase());
+    if (match) return match;
+    if (data.users.length < perPage) return null;
+    page += 1;
+  }
+
+  return null;
+}
+
+function authValidationErrors(
+  issues: Array<{path: PropertyKey[]; message: string}>,
+  values: Record<string, FormDataEntryValue | null>,
+  errorT: (key: string) => string,
+): AuthFieldErrors {
+  const errors: AuthFieldErrors = {};
+
+  for (const issue of issues) {
+    const field = String(issue.path[0] ?? "general") as keyof AuthFieldErrors;
+    const rawValue = values[field];
+    const isEmpty = typeof rawValue !== "string" || rawValue.trim().length === 0;
+
+    if (field === "fullName") errors.fullName = errorT(isEmpty ? "full_name_required" : issue.message);
+    else if (field === "username") errors.username = errorT(isEmpty ? "username_required" : issue.message);
+    else if (field === "email") errors.email = errorT(isEmpty ? "email_required" : issue.message);
+    else if (field === "password") errors.password = errorT(isEmpty ? "password_required" : issue.message);
+    else if (field === "confirmPassword") errors.confirmPassword = errorT(isEmpty ? "confirm_password_required" : issue.message);
+    else errors.general = errorT(issue.message || "auth_generic_error");
+  }
+
+  return errors;
+}
+
 export async function signOutAction(formData: FormData) {
   const locale = normalizeLocale(formData.get('locale'));
   const supabase = await createClient();
@@ -124,13 +176,12 @@ export async function loginAction(formData: FormData) {
   });
 
   if (!parsed.success) {
-    const key = parsed.error.issues[0]?.message ?? "auth_generic_error";
-    redirect(
-      toPath(
-        locale,
-        `/login?error=${encodeURIComponent(errorT(key))}`,
-      ),
-    );
+    return {
+      error: authValidationErrors(parsed.error.issues, {
+        email: formData.get('email'),
+        password: formData.get('password'),
+      }, errorT),
+    };
   }
 
   const email = parsed.data.email.trim().toLowerCase();
@@ -139,15 +190,11 @@ export async function loginAction(formData: FormData) {
   const rateCheck = await checkRateLimit("login", `${ip}:${email}`);
 
   if (!rateCheck.allowed) {
-    redirect(
-      toPath(
-        locale,
-        `/login?error=${encodeURIComponent(errorT("auth_rate_limited"))}`,
-      ),
-    );
+    return { error: { general: errorT("auth_rate_limited") } };
   }
 
   const supabase = await createClient();
+  const existingAuthUser = await findAuthUserByEmail(email);
   const { error } = await supabase.auth.signInWithPassword({
     email,
     password: parsed.data.password,
@@ -155,7 +202,17 @@ export async function loginAction(formData: FormData) {
 
   if (error) {
     const errorMessage = getLocalizedAuthError(error, errorT);
-    redirect(toPath(locale, `/login?error=${encodeURIComponent(errorMessage)}`));
+    if (error.message.includes('Invalid login credentials')) {
+      return {
+        error: existingAuthUser
+          ? { password: errorT("incorrect_password") }
+          : { email: errorT("account_not_found") },
+      };
+    }
+    if (error.message.includes('Email not confirmed')) {
+      return { error: { email: errorT("auth_email_not_confirmed") } };
+    }
+    return { error: { general: errorMessage } };
   }
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -168,13 +225,13 @@ export async function loginAction(formData: FormData) {
 
     if (!profile?.onboarding_completed) {
       revalidatePath('/', 'layout');
-      redirect(toPath(locale, '/onboarding'));
+      return { success: true, redirect: toPath(locale, '/onboarding') };
     }
   }
 
   const safeNext = sanitizeRedirectUrl(typeof next === 'string' ? next : "");
   revalidatePath('/', 'layout');
-  redirect(toPath(locale, safeNext || '/feed'));
+  return { success: true, redirect: toPath(locale, safeNext || '/feed') };
 }
 
 export async function registerAction(formData: FormData) {
@@ -191,13 +248,15 @@ export async function registerAction(formData: FormData) {
   });
 
   if (!parsed.success) {
-    const key = parsed.error.issues[0]?.message ?? "auth_generic_error";
-    redirect(
-      toPath(
-        locale,
-        `/register?error=${encodeURIComponent(errorT(key))}`,
-      ),
-    );
+    return {
+      error: authValidationErrors(parsed.error.issues, {
+        username: formData.get('username'),
+        fullName: formData.get('fullName'),
+        email: formData.get('email'),
+        password: formData.get('password'),
+        confirmPassword: formData.get('confirmPassword'),
+      }, errorT),
+    };
   }
 
   const email = parsed.data.email.trim().toLowerCase();
@@ -209,15 +268,25 @@ export async function registerAction(formData: FormData) {
   const rateCheck = await checkRateLimit("register", ip);
 
   if (!rateCheck.allowed) {
-    redirect(
-      toPath(
-        locale,
-        `/register?error=${encodeURIComponent(errorT("auth_rate_limited"))}`,
-      ),
-    );
+    return { error: { general: errorT("auth_rate_limited") } };
   }
 
   const supabase = await createClient();
+  const existingAuthUser = await findAuthUserByEmail(email);
+  if (existingAuthUser) {
+    return { error: { email: errorT("auth_user_exists") } };
+  }
+
+  const { data: existingProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('username', username)
+    .maybeSingle();
+
+  if (existingProfile) {
+    return { error: { username: errorT("username_taken") } };
+  }
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -231,7 +300,13 @@ export async function registerAction(formData: FormData) {
 
   if (error) {
     const errorMessage = getLocalizedAuthError(error, errorT);
-    redirect(toPath(locale, `/register?error=${encodeURIComponent(errorMessage)}`));
+    if (error.message.includes('User already registered')) {
+      return { error: { email: errorT("auth_user_exists") } };
+    }
+    if (error.message.toLowerCase().includes('duplicate') || error.message.toLowerCase().includes('username')) {
+      return { error: { username: errorT("username_taken") } };
+    }
+    return { error: { general: errorMessage } };
   }
 
   if (data.user?.id) {
@@ -250,10 +325,10 @@ export async function registerAction(formData: FormData) {
 
   if (data.session) {
     revalidatePath('/', 'layout');
-    redirect(toPath(locale, '/onboarding'));
+    return { success: true, redirect: toPath(locale, '/onboarding') };
   }
 
-  redirect(toPath(locale, `/login?next=${encodeURIComponent(redirectPath)}`));
+  return { success: true, redirect: toPath(locale, `/login?next=${encodeURIComponent(redirectPath)}`) };
 }
 
 export async function resendVerificationAction(formData: FormData) {

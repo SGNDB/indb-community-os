@@ -870,7 +870,7 @@
     "errors": {
       "auth_invalid_credentials": "E-mail ou mot de passe incorrect",
       "auth_email_not_confirmed": "Veuillez confirmer votre e-mail avant de vous connecter",
-      "auth_user_exists": "Un compte avec cet e-mail existe déjà",
+      "auth_user_exists": "Am na kont bu jokkook bii email.",
       "auth_weak_password": "Le mot de passe doit contenir au moins 8 caractères avec des lettres et des chiffres",
       "auth_invalid_email": "Veuillez entrer une adresse e-mail valide",
       "auth_link_expired": "Ce lien a expiré ou est invalide",
@@ -882,7 +882,15 @@
       "password_requirements": "Le mot de passe doit contenir au moins une lettre et un chiffre",
       "password_mismatch": "Les mots de passe ne correspondent pas",
       "username_length": "Le nom d'utilisateur doit contenir entre 3 et 24 caractères",
-      "full_name_length": "Le nom complet doit contenir entre 2 et 100 caractères"
+      "full_name_length": "Le nom complet doit contenir entre 2 et 100 caractères",
+      "username_taken": "Tur j?fandikukat bii am na ku ko j?l",
+      "incorrect_password": "Baatu-j?ll bi jubul",
+      "account_not_found": "Kenn amul kont ak bii email",
+      "email_required": "Email bi war na am",
+      "password_required": "Baatu-j?ll bi war na am",
+      "username_required": "Tur j?fandikukat bi war na am",
+      "full_name_required": "Tur wu mat wi war na am",
+      "confirm_password_required": "D?ggalal sa baatu-j?ll"
     },
     "success": {
       "auth_registered": "Inscription terminée ! Vérifiez votre e-mail pour confirmer votre compte.",

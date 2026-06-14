@@ -8,7 +8,7 @@ export const passwordSchema = z
 
 export const loginSchema = z.object({
   email: z.string().email("auth_invalid_email"),
-  password: z.string().min(8, "password_length"),
+  password: z.string().min(1, "password_required"),
 });
 
 export const registerSchema = z
@@ -17,7 +17,7 @@ export const registerSchema = z
     fullName: z.string().min(2, "full_name_length").max(100, "full_name_length"),
     email: z.string().email("auth_invalid_email"),
     password: passwordSchema,
-    confirmPassword: z.string().min(8, "password_length"),
+    confirmPassword: z.string().min(1, "confirm_password_required"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "password_mismatch",

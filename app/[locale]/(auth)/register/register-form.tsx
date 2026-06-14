@@ -1,22 +1,22 @@
 "use client";
 
-import {Eye, EyeOff, Loader2, Check, X} from "lucide-react";
+import {Eye, EyeOff, Loader2, Check, X, AlertCircle} from "lucide-react";
 import {useTranslations} from "next-intl";
 import {useState} from "react";
-import {useFormStatus} from "react-dom";
+import {useRouter} from "next/navigation";
 
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Link} from "@/lib/i18n/routing";
 import {registerAction} from "@/app/[locale]/server-actions";
 
-function SubmitButton({label, loading}: {label: string; loading: string}) {
-  const {pending} = useFormStatus();
-  return (
-    <Button type="submit" className="w-full bg-[#ED2124] hover:bg-[#ED2124]/90 text-white" disabled={pending}>
-      {pending ? <><Loader2 size={16} className="mr-2 inline animate-spin" />{loading}</> : label}
-    </Button>
-  );
+interface FormErrors {
+  fullName?: string;
+  username?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  general?: string;
 }
 
 function PasswordRequirement({met, label}: {met: boolean; label: string}) {
@@ -31,29 +31,155 @@ function PasswordRequirement({met, label}: {met: boolean; label: string}) {
 export function RegisterForm({locale, next}: {locale: string; next?: string}) {
   const t = useTranslations("Auth.register");
   const v = useTranslations("Auth.validation");
+  const errorT = useTranslations("Auth.errors");
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [formData, setFormData] = useState({
+    fullName: "",
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
   const hasLetter = /[a-zA-Z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
   const hasMinLen = password.length >= 8;
 
+  function updateField(field: keyof typeof formData, value: string) {
+    setFormData((current) => ({...current, [field]: value}));
+    setErrors((current) => {
+      const nextErrors = {...current};
+      delete nextErrors[field];
+      if (field === "password" || field === "confirmPassword") {
+        delete nextErrors.confirmPassword;
+      }
+      if (Object.keys(nextErrors).length === Object.keys(current).length) return current;
+      return nextErrors;
+    });
+  }
+
+  function validateForm() {
+    const nextErrors: FormErrors = {};
+    const email = formData.email.trim();
+
+    if (!formData.fullName.trim()) nextErrors.fullName = errorT("full_name_required");
+    if (!formData.username.trim()) nextErrors.username = errorT("username_required");
+    if (!email) nextErrors.email = errorT("email_required");
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) nextErrors.email = errorT("auth_invalid_email");
+    if (!formData.password) nextErrors.password = errorT("password_required");
+    else if (!hasMinLen || !hasLetter || !hasNumber) nextErrors.password = errorT("password_requirements");
+    if (!formData.confirmPassword) nextErrors.confirmPassword = errorT("confirm_password_required");
+    else if (formData.password !== formData.confirmPassword) nextErrors.confirmPassword = errorT("password_mismatch");
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrors({});
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+
+    try {
+      const formDataObj = new FormData();
+      formDataObj.append("locale", locale);
+      formDataObj.append("fullName", formData.fullName);
+      formDataObj.append("username", formData.username);
+      formDataObj.append("email", formData.email);
+      formDataObj.append("password", formData.password);
+      formDataObj.append("confirmPassword", formData.confirmPassword);
+      if (next) formDataObj.append("next", next);
+
+      const result = await registerAction(formDataObj);
+      
+      if (result?.error) {
+        setErrors(result.error);
+      } else if (result?.success) {
+        router.push(result.redirect || "/onboarding");
+        router.refresh();
+      }
+    } catch {
+      setErrors({general: errorT("auth_generic_error")});
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <form action={registerAction} className="space-y-4">
-      <input type="hidden" name="locale" value={locale} />
-      {next ? <input type="hidden" name="next" value={next} /> : null}
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground/80">{t("fullName")}</label>
-        <Input name="fullName" placeholder={t("fullNamePlaceholder")} required className="h-11 rounded-xl border-border/60 bg-background px-4 text-sm transition-colors focus-visible:border-[#ED2124] focus-visible:ring-[#ED2124]/20" autoComplete="name" />
+        <Input
+          name="fullName"
+          value={formData.fullName}
+          onChange={(e) => updateField("fullName", e.target.value)}
+          placeholder={t("fullNamePlaceholder")}
+          aria-invalid={Boolean(errors.fullName)}
+          className={`h-11 rounded-xl bg-background px-4 text-sm transition-colors focus-visible:ring-[#ED2124]/20 ${
+            errors.fullName
+              ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20"
+              : "border-border/60 focus-visible:border-[#ED2124]"
+          }`}
+          autoComplete="name"
+        />
+        {errors.fullName && (
+          <p className="flex items-center gap-1.5 text-xs text-red-600">
+            <AlertCircle size={12} />
+            {errors.fullName}
+          </p>
+        )}
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground/80">{t("username")}</label>
-        <Input name="username" placeholder={t("usernamePlaceholder")} required className="h-11 rounded-xl border-border/60 bg-background px-4 text-sm transition-colors focus-visible:border-[#ED2124] focus-visible:ring-[#ED2124]/20" autoComplete="username" />
+        <Input
+          name="username"
+          value={formData.username}
+          onChange={(e) => updateField("username", e.target.value)}
+          placeholder={t("usernamePlaceholder")}
+          aria-invalid={Boolean(errors.username)}
+          className={`h-11 rounded-xl bg-background px-4 text-sm transition-colors focus-visible:ring-[#ED2124]/20 ${
+            errors.username
+              ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20"
+              : "border-border/60 focus-visible:border-[#ED2124]"
+          }`}
+          autoComplete="username"
+        />
+        {errors.username && (
+          <p className="flex items-center gap-1.5 text-xs text-red-600">
+            <AlertCircle size={12} />
+            {errors.username}
+          </p>
+        )}
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground/80">{t("email")}</label>
-        <Input type="email" name="email" placeholder="name@example.com" required className="h-11 rounded-xl border-border/60 bg-background px-4 text-sm transition-colors focus-visible:border-[#ED2124] focus-visible:ring-[#ED2124]/20" autoComplete="email" />
+        <Input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={(e) => updateField("email", e.target.value)}
+          placeholder="name@example.com"
+          aria-invalid={Boolean(errors.email)}
+          className={`h-11 rounded-xl bg-background px-4 text-sm transition-colors focus-visible:ring-[#ED2124]/20 ${
+            errors.email
+              ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20"
+              : "border-border/60 focus-visible:border-[#ED2124]"
+          }`}
+          autoComplete="email"
+        />
+        {errors.email && (
+          <p className="flex items-center gap-1.5 text-xs text-red-600">
+            <AlertCircle size={12} />
+            {errors.email}
+          </p>
+        )}
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground/80">{t("password")}</label>
@@ -61,12 +187,19 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
           <Input
             type={showPassword ? "text" : "password"}
             name="password"
+            value={formData.password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              updateField("password", e.target.value);
+            }}
             placeholder="••••••••"
-            required
-            className="h-11 rounded-xl border-border/60 bg-background pe-12 ps-4 text-sm transition-colors focus-visible:border-[#ED2124] focus-visible:ring-[#ED2124]/20"
+              aria-invalid={Boolean(errors.password)}
+            className={`h-11 rounded-xl bg-background pe-12 ps-4 text-sm transition-colors focus-visible:ring-[#ED2124]/20 ${
+              errors.password
+                ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20"
+                : "border-border/60 focus-visible:border-[#ED2124]"
+            }`}
             autoComplete="new-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
           />
           <button
             type="button"
@@ -85,6 +218,12 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
             <PasswordRequirement met={hasNumber} label={v("password_number")} />
           </div>
         )}
+        {errors.password && (
+          <p className="flex items-center gap-1.5 text-xs text-red-600">
+            <AlertCircle size={12} />
+            {errors.password}
+          </p>
+        )}
       </div>
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground/80">{t("confirmPassword")}</label>
@@ -92,9 +231,15 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
           <Input
             type={showConfirmPassword ? "text" : "password"}
             name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={(e) => updateField("confirmPassword", e.target.value)}
             placeholder="••••••••"
-            required
-            className="h-11 rounded-xl border-border/60 bg-background pe-12 ps-4 text-sm transition-colors focus-visible:border-[#ED2124] focus-visible:ring-[#ED2124]/20"
+            aria-invalid={Boolean(errors.confirmPassword)}
+            className={`h-11 rounded-xl bg-background pe-12 ps-4 text-sm transition-colors focus-visible:ring-[#ED2124]/20 ${
+              errors.confirmPassword
+                ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20"
+                : "border-border/60 focus-visible:border-[#ED2124]"
+            }`}
             autoComplete="new-password"
           />
           <button
@@ -107,8 +252,22 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
             {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
+        {errors.confirmPassword && (
+          <p className="flex items-center gap-1.5 text-xs text-red-600">
+            <AlertCircle size={12} />
+            {errors.confirmPassword}
+          </p>
+        )}
       </div>
-      <SubmitButton label={t("submit")} loading={t("submitting")} />
+      {errors.general && (
+        <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          <AlertCircle size={16} className="shrink-0 text-red-600" />
+          <span>{errors.general}</span>
+        </div>
+      )}
+      <Button type="submit" className="w-full bg-[#ED2124] hover:bg-[#ED2124]/90 text-white" disabled={isLoading}>
+        {isLoading ? <><Loader2 size={16} className="mr-2 inline animate-spin" />{t("submitting")}</> : t("submit")}
+      </Button>
       <p className="text-center text-sm text-muted-foreground">
         {t("hasAccount")}{" "}
         <Link href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"} className="font-medium text-[#ED2124] hover:underline">{t("login")}</Link>
