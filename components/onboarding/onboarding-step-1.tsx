@@ -1,27 +1,43 @@
 "use client";
 
-import {useState} from "react";
+import {useRef, useState} from "react";
+import Image from "next/image";
 import {useTranslations} from "next-intl";
-import {Camera, MapPin, Languages} from "lucide-react";
+import {Camera, MapPin} from "lucide-react";
 
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
-import {updateOnboardingProfileAction} from "@/app/[locale]/server-actions";
+import {
+  updateOnboardingProfileAction,
+  uploadAvatarAction,
+} from "@/app/[locale]/server-actions";
+import {prepareImageForUpload} from "@/lib/images/client-compression";
+import {ACCEPTED_IMAGE_EXTENSIONS} from "@/lib/images/upload-config";
 
 interface OnboardingStep1Props {
-  onSave: (data: {full_name: string; bio: string; city: string; languages: string[]}) => void;
+  onSave: (data: {full_name: string; bio: string; city: string; languages: string[]; avatar_url: string | undefined}) => void;
   onSkip: () => void;
   initialData?: {full_name: string; bio: string; city: string; languages: string[]};
+  locale: string;
 }
 
-export function OnboardingStep1({onSave, onSkip, initialData}: OnboardingStep1Props) {
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return parts[0].substring(0, 2).toUpperCase();
+}
+
+export function OnboardingStep1({onSave, onSkip, initialData, locale}: OnboardingStep1Props) {
   const t = useTranslations("Onboarding.step1");
   const [fullName, setFullName] = useState(initialData?.full_name || "");
   const [bio, setBio] = useState(initialData?.bio || "");
   const [city, setCity] = useState(initialData?.city || "");
   const [languages, setLanguages] = useState<string[]>(initialData?.languages || []);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const commonLanguages = [
     {code: "ar", name: "العربية"},
@@ -38,16 +54,42 @@ export function OnboardingStep1({onSave, onSkip, initialData}: OnboardingStep1Pr
     );
   };
 
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const preparedFile = await prepareImageForUpload(file, "avatar");
+      setAvatarFile(preparedFile);
+      setAvatarPreview(URL.createObjectURL(preparedFile));
+    } catch {
+      e.target.value = "";
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      let avatarUrl: string | undefined;
+
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.set("locale", locale);
+        formData.set("file", avatarFile);
+        const result = await uploadAvatarAction(formData);
+        if (result.url) {
+          avatarUrl = result.url;
+        }
+      }
+
       await updateOnboardingProfileAction({
         full_name: fullName,
         bio,
         city,
         languages,
       });
-      onSave({full_name: fullName, bio, city, languages});
+
+      onSave({full_name: fullName, bio, city, languages, avatar_url: avatarUrl});
     } catch (error) {
       console.error("Failed to save profile:", error);
     } finally {
@@ -65,12 +107,45 @@ export function OnboardingStep1({onSave, onSkip, initialData}: OnboardingStep1Pr
 
       {/* Form */}
       <div className="space-y-4">
-        {/* Profile photo placeholder */}
+        {/* Profile photo */}
         <div className="flex justify-center">
-          <div className="relative h-24 w-24 overflow-hidden rounded-full bg-gray-100 sm:h-32 sm:w-32">
-            <div className="flex h-full w-full items-center justify-center text-gray-400">
-              <Camera size={32} className="sm:size-40" />
-            </div>
+          <div className="relative h-24 w-24 sm:h-32 sm:w-32">
+            <button
+              type="button"
+              onClick={() => avatarInputRef.current?.click()}
+              className="group relative h-full w-full overflow-hidden rounded-full bg-gray-100"
+            >
+              {avatarPreview ? (
+                <Image
+                  src={avatarPreview}
+                  alt=""
+                  fill
+                  sizes="128px"
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : fullName ? (
+                <div className="flex h-full w-full items-center justify-center bg-[#ED2124] text-2xl font-bold text-white sm:text-3xl">
+                  {getInitials(fullName)}
+                </div>
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-gray-400">
+                  <Camera size={32} className="sm:size-40" />
+                </div>
+              )}
+              <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/0 transition group-hover:bg-black/30">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background/80 opacity-0 transition group-hover:opacity-100">
+                  <Camera size={16} className="text-foreground" />
+                </div>
+              </div>
+            </button>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept={ACCEPTED_IMAGE_EXTENSIONS}
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
           </div>
         </div>
 

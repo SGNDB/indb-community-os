@@ -1,6 +1,6 @@
 {
   "Onboarding": {
-    "title": "Nangal ci INDB",
+    "title": "Nangal ci I ❤️ NDB",
     "subtitle": "Sama suqal",
     "back": "Dindi",
     "next": "Ci kanam",
@@ -16,13 +16,14 @@
       "city": "Dëkk",
       "cityPlaceholder": "Duggal sa dëkk",
       "languages": "Làkk yi",
+      "skip": "Tere fi te",
       "saveAndContinue": "Denc ak dem",
       "saving": "Nana denc..."
     },
     "step2": {
-      "title": "INDB mooy ki la?",
+      "title": "I ❤️ NDB mooy ki la?",
       "subtitle": "Gis li mbooloo mi def ko yees",
-      "whatIsINDB": "INDB mooy ab mbooloo ci Nouadhibou, dajale nit ñi ci bind, jikku, yoon, dimbali.",
+      "whatIsINDB": "I ❤️ NDB Community mooy ab mbooloo ci Nouadhibou, dajale nit ñi ci bind, jikku, yoon, dimbali.",
       "skip": "Tere fi te",
       "next": "Ci kanam",
       "features": {

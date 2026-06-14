@@ -25,6 +25,7 @@ export function OnboardingFlow({locale, userId}: OnboardingFlowProps) {
     bio: "",
     city: "",
     languages: [] as string[],
+    avatar_url: undefined as string | undefined,
   });
 
   const totalSteps = 3;
@@ -83,6 +84,7 @@ export function OnboardingFlow({locale, userId}: OnboardingFlowProps) {
               onSave={handleProfileSave}
               onSkip={handleSkip}
               initialData={profileData}
+              locale={locale}
             />
           )}
 

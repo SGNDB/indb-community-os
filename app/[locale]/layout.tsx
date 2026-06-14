@@ -76,6 +76,7 @@ export default async function LocaleLayout({
   const pathname = requestHeaders.get("x-indb-pathname") ?? "";
   const pathWithoutLocale = stripLocale(pathname);
   const isAdminRoute = pathWithoutLocale === "/admin" || pathWithoutLocale.startsWith("/admin/");
+  const isOnboardingRoute = pathWithoutLocale === "/onboarding";
 
   return (
     <ThemeProvider>
@@ -94,6 +95,10 @@ export default async function LocaleLayout({
         >
           {isAdminRoute ? (
             <main className="mx-auto min-w-0 max-w-6xl px-3 py-4 sm:px-4 sm:py-5">
+              <PageTransition>{children}</PageTransition>
+            </main>
+          ) : isOnboardingRoute ? (
+            <main className="min-h-screen">
               <PageTransition>{children}</PageTransition>
             </main>
           ) : (

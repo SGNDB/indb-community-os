@@ -1,9 +1,9 @@
 "use client";
 
 import {useTranslations} from "next-intl";
-import Image from "next/image";
 
 import {Button} from "@/components/ui/button";
+import {Logo} from "@/components/shared/logo";
 
 interface OnboardingStep3Props {
   onComplete: () => void;
@@ -15,15 +15,7 @@ export function OnboardingStep3({onComplete}: OnboardingStep3Props) {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-8 text-center">
       {/* Logo */}
-      <div className="relative h-32 w-32 sm:h-40 sm:w-40">
-        <Image
-          src="/images/logondb.png"
-          alt="INDB Logo"
-          fill
-          className="object-contain"
-          priority
-        />
-      </div>
+      <Logo size="lg" priority />
 
       {/* Welcome message */}
       <div className="space-y-4">

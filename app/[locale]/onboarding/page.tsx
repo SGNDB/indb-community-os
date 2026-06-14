@@ -44,8 +44,6 @@ export default async function OnboardingPage({
     redirect(`/${locale}`);
   }
 
-  const t = await getTranslations({locale, namespace: "Onboarding"});
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#ED2124]/5 to-background">
       <OnboardingFlow locale={locale} userId={user.id} />

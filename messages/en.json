@@ -1,6 +1,6 @@
 {
   "Onboarding": {
-    "title": "Welcome to INDB",
+    "title": "Welcome to I ❤️ NDB",
     "subtitle": "Let's get you set up",
     "back": "Back",
     "next": "Next",
@@ -16,13 +16,14 @@
       "city": "City",
       "cityPlaceholder": "Enter your city",
       "languages": "Languages",
+      "skip": "Skip for now",
       "saveAndContinue": "Save and continue",
       "saving": "Saving..."
     },
     "step2": {
-      "title": "What is INDB?",
+      "title": "What is I ❤️ NDB?",
       "subtitle": "Discover what makes our community special",
-      "whatIsINDB": "INDB is a community platform for Nouadhibou, bringing people together through posts, memories, ideas, and helping each other.",
+      "whatIsINDB": "I ❤️ NDB Community is a platform for Nouadhibou, bringing people together through posts, memories, ideas, and helping each other.",
       "skip": "Skip for now",
       "next": "Next",
       "features": {

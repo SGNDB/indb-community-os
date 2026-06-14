@@ -1,6 +1,6 @@
 {
   "Onboarding": {
-    "title": "Bienvenue sur INDB",
+    "title": "Bienvenue sur I ❤️ NDB",
     "subtitle": "Commençons par vous configurer",
     "back": "Retour",
     "next": "Suivant",
@@ -16,13 +16,14 @@
       "city": "Ville",
       "cityPlaceholder": "Entrez votre ville",
       "languages": "Langues",
+      "skip": "Passer pour l'instant",
       "saveAndContinue": "Enregistrer et continuer",
       "saving": "Enregistrement..."
     },
     "step2": {
-      "title": "Qu'est-ce que INDB ?",
+      "title": "Qu'est-ce que I ❤️ NDB ?",
       "subtitle": "Découvrez ce qui rend notre communauté spéciale",
-      "whatIsINDB": "INDB est une plateforme communautaire pour Nouadhibou, réunissant les habitants autour des publications, souvenirs, idées et entraide.",
+      "whatIsINDB": "I ❤️ NDB Community est une plateforme pour Nouadhibou, réunissant les habitants autour des publications, souvenirs, idées et entraide.",
       "skip": "Passer pour l'instant",
       "next": "Suivant",
       "features": {
