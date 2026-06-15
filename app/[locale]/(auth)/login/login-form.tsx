@@ -95,7 +95,11 @@ export function LoginForm({locale, next, phone: prefilledPhone, registered}: {lo
           </span>
           <Input
             type="tel"
+            name="phone"
             value={formData.phone}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             onChange={(e) => updateField("phone", e.target.value)}
             placeholder="XX XX XX XX"
             aria-invalid={Boolean(errors.phone)}
@@ -104,8 +108,8 @@ export function LoginForm({locale, next, phone: prefilledPhone, registered}: {lo
                 ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20"
                 : "border-border/60 focus-visible:border-[#ED2124]"
             }`}
-            autoComplete="tel-national"
-            inputMode="numeric"
+            autoComplete="tel"
+            inputMode="tel"
           />
         </div>
         {errors.phone && (
@@ -120,6 +124,7 @@ export function LoginForm({locale, next, phone: prefilledPhone, registered}: {lo
         <div className="relative">
           <Input
             type={showPassword ? "text" : "password"}
+            name="password"
             value={formData.password}
             onChange={(e) => updateField("password", e.target.value)}
             placeholder="••••••••"

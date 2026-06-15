@@ -171,44 +171,6 @@ function isInvalidCredentialsError(error: SupabaseErrorLike | null | undefined) 
   );
 }
 
-function isDuplicateDatabaseError(error: SupabaseErrorLike | null | undefined) {
-  const message = getErrorMessage(error);
-  return error?.code === "23505" || message.includes("duplicate key");
-}
-
-function isPermissionDatabaseError(error: SupabaseErrorLike | null | undefined) {
-  const message = getErrorMessage(error);
-  return (
-    error?.code === "42501" ||
-    message.includes("row-level security") ||
-    message.includes("permission")
-  );
-}
-
-function registrationSuccess(
-  locale: string,
-  _next: FormDataEntryValue | null,
-  hasSession: boolean,
-): {success: true; redirect: string} {
-  revalidatePath('/', 'layout');
-
-  if (hasSession) {
-    // Signed in immediately (admin-created user) → go straight to onboarding
-    return {
-      success: true,
-      redirect: toPath(locale, '/onboarding'),
-    };
-  }
-
-  // Account created but no session yet (anon signUp without auto-confirm).
-  // Send to login with a success flag so the page can show a confirmation banner,
-  // and preserve the post-login destination as /onboarding.
-  return {
-    success: true,
-    redirect: toPath(locale, `/login?registered=1&next=${encodeURIComponent('/onboarding')}`),
-  };
-}
-
 async function findProfileByPhone(
   supabase: ServerSupabaseClient,
   normalizedPhone: string,
@@ -360,10 +322,6 @@ export async function loginAction(formData: FormData) {
       }
     }
 
-    if (!profile?.onboarding_completed) {
-      revalidatePath('/', 'layout');
-      return { success: true, redirect: toPath(locale, '/onboarding') };
-    }
   }
 
   const safeNext = sanitizeRedirectUrl(typeof next === 'string' ? next : "");
@@ -445,12 +403,9 @@ export async function registerAction(formData: FormData) {
     return { error: { phone: "auth_phone_exists" } };
   }
 
-  console.log("REGISTER: preparing user creation for email", syntheticEmail);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let signUpData: any = null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let signUpError: any = null;
+  console.log("REGISTER START");
+  console.log("REGISTER normalizedPhone", normalizedPhone);
+  console.log("REGISTER syntheticEmail", syntheticEmail);
 
   const adminClient = createAdminClient();
   if (!adminClient) {
@@ -458,56 +413,37 @@ export async function registerAction(formData: FormData) {
     return { error: { general: errorT("auth_generic_error") } };
   }
 
-  console.log("REGISTER: using admin client for synthetic phone registration");
   const registrationInput = getSyntheticPhoneRegistrationInput({
     normalizedPhone,
     fullName,
     password,
   });
 
-  const { data: adminData, error: adminError } = await adminClient.auth.admin.createUser(registrationInput);
-  signUpData = adminData;
-  signUpError = adminError;
+  console.log("REGISTER: using admin client for synthetic phone registration");
 
-  if (!adminError && adminData?.user) {
-    console.log("REGISTER: admin user creation successful, logging in user now...");
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: registrationInput.email,
-      password,
-    });
-    if (signInError) {
-      console.error("REGISTER ERROR: auto-login after admin signup failed", signInError);
-    } else {
-      console.log("REGISTER: auto-login successful");
-      signUpData.session = signInData.session;
-    }
+  const { data: createdUser, error: createUserError } = await adminClient.auth.admin.createUser(registrationInput);
+  console.log("REGISTER createUser result", { userId: createdUser?.user?.id, error: createUserError ? { message: createUserError.message, code: createUserError.code } : null });
+
+  if (createUserError) {
+    console.error("REGISTER ERROR: auth user creation failed", { message: createUserError.message, code: createUserError.code, status: createUserError.status });
+    if (isAuthUserAlreadyRegisteredError(createUserError)) return { error: { phone: "auth_phone_exists" } };
+    if (isWeakPasswordError(createUserError)) return { error: { password: errorT("auth_weak_password") } };
+    if (isRateLimitError(createUserError)) return { error: { general: errorT("auth_rate_limited") } };
+    if (isNetworkError(createUserError)) return { error: { general: errorT("auth_network_error") } };
+    return { error: { general: getLocalizedAuthError(createUserError, errorT) } };
   }
 
-  const data = signUpData;
-  const error = signUpError;
-
-  console.log("REGISTER: auth creation result", { userId: data?.user?.id, session: !!data?.session, error });
-
-  if (error) {
-    console.error("REGISTER ERROR: auth user creation failed", { message: error.message, code: error.code, status: error.status });
-    if (isAuthUserAlreadyRegisteredError(error)) return { error: { phone: "auth_phone_exists" } };
-    if (isWeakPasswordError(error)) return { error: { password: errorT("auth_weak_password") } };
-    if (isRateLimitError(error)) return { error: { general: errorT("auth_rate_limited") } };
-    if (isNetworkError(error)) return { error: { general: errorT("auth_network_error") } };
-    console.error("REGISTER ERROR: unhandled auth error mapped to generic", { message: error.message });
+  const userId = createdUser?.user?.id;
+  if (!userId) {
+    console.error("REGISTER ERROR: no user returned from createUser", { createdUser });
     return { error: { general: errorT("auth_generic_error") } };
   }
 
-  if (!data?.user?.id) {
-    console.error("REGISTER ERROR: no user returned from signup", { data });
-    return { error: { general: errorT("auth_generic_error") } };
-  }
+  console.log("REGISTER createdUser.id", userId);
 
-  const autoUsername = `u${data.user.id.replace(/-/g, '').slice(0, 12)}`;
-  console.log("REGISTER: auto-generated username", autoUsername);
-
+  const autoUsername = `u${userId.replace(/-/g, '').slice(0, 12)}`;
   const profileData = {
-    id: data.user.id,
+    id: userId,
     username: autoUsername,
     full_name: fullName,
     phone: normalizedPhone,
@@ -517,50 +453,50 @@ export async function registerAction(formData: FormData) {
   let profileError: SupabaseErrorLike | null = null;
 
   try {
-    const adminClient = createAdminClient();
-    if (adminClient) {
-      console.log("REGISTER: using admin client for profile upsert");
-      const { error } = await adminClient.from('profiles').upsert(profileData, {onConflict: 'id'});
-      profileError = error;
-    } else {
-      console.log("REGISTER: using anon client for profile upsert");
-      const { error } = await supabase.from('profiles').upsert(profileData, {onConflict: 'id'});
-      profileError = error;
-    }
-  } catch (e) {
-    console.error("REGISTER: admin profile upsert failed, trying anon", e);
-    const { error } = await supabase.from('profiles').upsert(profileData, {onConflict: 'id'});
+    const profileClient = adminClient ?? supabase;
+    const { error } = await profileClient.from('profiles').upsert(profileData, { onConflict: 'id' });
     profileError = error;
+  } catch (e) {
+    console.error("REGISTER: profile upsert failed", e);
+    profileError = { message: String(e), code: 'PROFILE_UPSERT_FAILED' } as SupabaseErrorLike;
   }
 
-  console.log("REGISTER: profile upsert result", { error: profileError });
+  console.log("REGISTER profile insert result", { profileData, error: profileError ? { message: profileError.message, code: profileError.code } : null });
 
   if (profileError) {
     console.error("REGISTER ERROR: profile creation failed", { message: profileError.message, code: profileError.code, details: profileError.details, hint: profileError.hint });
-    
-    // Check if the profile already exists (e.g. successfully created by the DB trigger)
     const conflictLookup = await findProfileByPhone(supabase, normalizedPhone);
-    console.log("REGISTER existing profile after error:", conflictLookup.profile);
-
-    if (conflictLookup.profile?.id === data.user.id) {
-      console.log("REGISTER: profile already exists for newly-created auth user, ignoring upsert error");
-      return registrationSuccess(locale, next, Boolean(data.session));
-    }
-
-    if (isDuplicateDatabaseError(profileError)) {
-      if (conflictLookup.profile) return { error: { phone: "auth_phone_exists" } };
+    if (conflictLookup.profile?.id === userId) {
+      console.log("REGISTER: profile already exists for newly-created auth user, continuing to sign in");
+    } else {
       return { error: { general: errorT("auth_generic_error") } };
     }
+  }
 
-    if (isPermissionDatabaseError(profileError)) {
-      console.error("REGISTER ERROR: RLS policy blocked profile creation", profileError);
-      return { error: { general: errorT("auth_generic_error") } };
-    }
-    
+  console.log("REGISTER: attempting immediate sign-in with synthetic email");
+  const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+    email: registrationInput.email,
+    password,
+  });
+  console.log("REGISTER signIn result", { userId: signInData?.user?.id, session: !!signInData?.session, error: signInError ? { message: signInError.message, code: signInError.code } : null });
+
+  if (signInError) {
+    console.error("REGISTER signIn error", signInError);
+    return {
+      error: {
+        general: getLocalizedAuthError(signInError, errorT),
+      },
+    };
+  }
+
+  if (!signInData?.session) {
+    console.error("REGISTER: signIn succeeded without a session");
     return { error: { general: errorT("auth_generic_error") } };
   }
 
-  return registrationSuccess(locale, next, Boolean(data.session));
+  console.log("REGISTER redirecting to feed");
+  const safeNext = sanitizeRedirectUrl(typeof next === 'string' ? next : "");
+  return { success: true, redirect: toPath(locale, safeNext || '/feed') };
 }
 
 export async function resendVerificationAction(formData: FormData) {

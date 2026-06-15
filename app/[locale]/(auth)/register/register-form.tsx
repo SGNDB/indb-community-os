@@ -97,7 +97,7 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
       const result = await registerAction(formDataObj);
 
       if (result && "error" in result) {
-        setErrors(result.error);
+        setErrors(result.error ?? {});
       } else if (result?.success) {
         router.push(result.redirect || "/onboarding");
         router.refresh();
@@ -143,6 +143,9 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
             type="tel"
             name="phone"
             value={formData.phone}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             onChange={(e) => updateField("phone", e.target.value)}
             placeholder="XX XX XX XX"
             aria-invalid={Boolean(errors.phone)}
@@ -151,8 +154,8 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
                 ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20"
                 : "border-border/60 focus-visible:border-[#ED2124]"
             }`}
-            autoComplete="tel-national"
-            inputMode="numeric"
+            autoComplete="tel"
+            inputMode="tel"
           />
         </div>
         {errors.phone && errors.phone !== "auth_phone_exists" && (
