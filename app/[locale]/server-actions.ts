@@ -487,6 +487,24 @@ export async function registerAction(formData: FormData) {
     });
     signUpData = anonData;
     signUpError = anonError;
+
+    // If signUp succeeded but has no session yet (email confirmation pending),
+    // try an immediate sign-in. This works when Supabase has "Confirm email"
+    // disabled — which is the correct setting for phone-only auth with synthetic emails.
+    if (!anonError && anonData?.user && !anonData?.session) {
+      console.log("REGISTER: no session from signUp, attempting immediate auto-login...");
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: syntheticEmail,
+        password,
+      });
+      if (signInError) {
+        console.error("REGISTER: auto-login after anon signUp failed", signInError.message);
+        // Leave signUpData.session as null — will fall through to login page with banner
+      } else {
+        console.log("REGISTER: auto-login after anon signUp succeeded");
+        signUpData = { ...anonData, session: signInData.session };
+      }
+    }
   }
 
   const data = signUpData;
