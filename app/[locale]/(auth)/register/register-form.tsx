@@ -155,7 +155,7 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
             inputMode="numeric"
           />
         </div>
-        {errors.phone && (
+        {errors.phone && errors.phone !== "auth_phone_exists" && (
           <p className="flex items-center gap-1.5 text-xs text-red-600">
             <AlertCircle size={12} />
             {errors.phone}

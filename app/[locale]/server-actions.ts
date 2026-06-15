@@ -271,7 +271,7 @@ export async function registerAction(formData: FormData) {
 
   if (existingProfileByPhone) {
     console.log("REGISTER: phone already registered", { normalizedPhone });
-    return { error: { phone: errorT("auth_phone_exists") } };
+    return { error: { phone: "auth_phone_exists" } };
   }
 
   console.log("REGISTER: calling supabase.auth.signUp with email", syntheticEmail);
@@ -292,7 +292,7 @@ export async function registerAction(formData: FormData) {
   if (error) {
     console.error("REGISTER ERROR: auth signUp failed", { message: error.message, code: error.code, status: error.status });
     if (error.message.includes('User already registered') || error.message.toLowerCase().includes('already registered')) {
-      return { error: { phone: errorT("auth_phone_exists") } };
+      return { error: { phone: "auth_phone_exists" } };
     }
     if (error.message.toLowerCase().includes('weak password') || error.message.toLowerCase().includes('at least 8')) {
       return { error: { password: errorT("auth_weak_password") } };
@@ -303,7 +303,7 @@ export async function registerAction(formData: FormData) {
     if (error.message.toLowerCase().includes('network') || error.message.toLowerCase().includes('fetch')) {
       return { error: { general: errorT("auth_network_error") } };
     }
-    return { error: { phone: errorT("auth_phone_exists") } };
+    return { error: { phone: "auth_phone_exists" } };
   }
 
   if (!data.user?.id) {
@@ -329,7 +329,7 @@ export async function registerAction(formData: FormData) {
   if (profileError) {
     console.error("REGISTER ERROR: profile creation failed", { message: profileError.message, code: profileError.code, details: profileError.details, hint: profileError.hint });
     if (profileError.message?.toLowerCase().includes('duplicate key') || profileError.code === '23505') {
-      return { error: { phone: errorT("auth_phone_exists") } };
+      return { error: { phone: "auth_phone_exists" } };
     }
     if (profileError.message?.toLowerCase().includes('row-level security') || profileError.message?.toLowerCase().includes('permission')) {
       console.error("REGISTER ERROR: RLS policy blocked profile creation", profileError);
