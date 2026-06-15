@@ -16,6 +16,8 @@
       "city": "Ville",
       "cityPlaceholder": "Entrez votre ville",
       "languages": "Langues",
+      "username": "Nom d'utilisateur",
+      "usernamePlaceholder": "Choisissez un nom d'utilisateur",
       "skip": "Passer pour l'instant",
       "saveAndContinue": "Enregistrer et continuer",
       "saving": "Enregistrement..."
@@ -958,23 +960,20 @@
     "login": {
       "title": "Connexion",
       "done": "Interaction de connexion terminée.",
-      "email": "E-mail",
+      "phone": "Numéro de téléphone",
       "password": "Mot de passe",
       "submit": "Se connecter",
       "submitting": "Connexion...",
-      "forgotPassword": "Mot de passe oublié ?",
       "noAccount": "Vous n'avez pas de compte ?",
       "register": "Créer un compte",
       "showPassword": "Afficher le mot de passe",
-      "hidePassword": "Masquer le mot de passe",
-      "loginWithFacebook": "Continuer avec Facebook",
-      "orContinueWith": "ou continuer avec"
+      "hidePassword": "Masquer le mot de passe"
     },
     "register": {
       "title": "Créer votre compte",
       "done": "Interaction de création de compte terminée.",
       "username": "Nom d'utilisateur",
-      "email": "E-mail",
+      "phone": "Numéro de téléphone",
       "password": "Mot de passe",
       "confirmPassword": "Confirmer le mot de passe",
       "submit": "Créer le compte",
@@ -985,9 +984,7 @@
       "hidePassword": "Masquer le mot de passe",
       "fullName": "Nom complet",
       "fullNamePlaceholder": "Votre nom complet",
-      "usernamePlaceholder": "Choisissez un nom d'utilisateur",
-      "registerWithFacebook": "S'inscrire avec Facebook",
-      "orContinueWith": "ou s'inscrire avec"
+      "usernamePlaceholder": "Choisissez un nom d'utilisateur"
     },
     "forgotPassword": {
       "title": "Réinitialiser votre mot de passe",
@@ -999,7 +996,7 @@
       "description": "Entrez votre e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe."
     },
     "errors": {
-      "auth_invalid_credentials": "E-mail ou mot de passe incorrect",
+      "auth_invalid_credentials": "Numéro de téléphone ou mot de passe incorrect",
       "auth_email_not_confirmed": "Veuillez confirmer votre e-mail avant de vous connecter",
       "auth_user_exists": "Un compte existe d?j? avec cette adresse e-mail.",
       "auth_weak_password": "Le mot de passe doit contenir au moins 8 caractères avec des lettres et des chiffres",
@@ -1020,6 +1017,9 @@
       "incorrect_password": "Mot de passe incorrect",
       "account_not_found": "Aucun compte trouv? avec cette adresse e-mail",
       "email_required": "L?adresse e-mail est requise",
+      "phone_required": "Le numéro de téléphone est requis",
+      "auth_invalid_phone": "Veuillez entrer un numéro de téléphone valide",
+      "auth_phone_exists": "Un compte existe déjà avec ce numéro de téléphone",
       "password_required": "Le mot de passe est requis",
       "username_required": "Le nom d?utilisateur est requis",
       "full_name_required": "Le nom complet est requis",

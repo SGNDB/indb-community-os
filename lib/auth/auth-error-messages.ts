@@ -3,11 +3,11 @@ import "server-only";
 const AUTH_ERROR_MAP: Record<string, string> = {
   "Invalid login credentials": "auth_invalid_credentials",
   "Email not confirmed": "auth_email_not_confirmed",
-  "Invalid email": "auth_invalid_email",
+  "Invalid email": "auth_invalid_phone",
   "User already registered": "auth_user_exists",
   "Signup requires a valid password": "auth_weak_password",
   "Password should be at least 8 characters": "auth_weak_password",
-  "Unable to validate email address: invalid format": "auth_invalid_email",
+  "Unable to validate email address: invalid format": "auth_invalid_phone",
   "Email link is invalid or has expired": "auth_link_expired",
   "Rate limit exceeded": "auth_rate_limited",
   "Too many requests": "auth_rate_limited",

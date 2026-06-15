@@ -40,6 +40,7 @@ import {
   profileSchema,
   registerSchema,
 } from '@/lib/validations/community';
+import { normalizePhone, phoneToEmail, isValidMauritaniaPhone } from '@/lib/auth/phone';
 import type {
   CommentWithAuthor,
   CommunityShareImage,
@@ -108,6 +109,7 @@ type AuthFieldErrors = {
   fullName?: string;
   username?: string;
   email?: string;
+  phone?: string;
   password?: string;
   confirmPassword?: string;
   general?: string;
@@ -148,6 +150,7 @@ function authValidationErrors(
     if (field === "fullName") errors.fullName = errorT(isEmpty ? "full_name_required" : issue.message);
     else if (field === "username") errors.username = errorT(isEmpty ? "username_required" : issue.message);
     else if (field === "email") errors.email = errorT(isEmpty ? "email_required" : issue.message);
+    else if (field === "phone") errors.phone = errorT(isEmpty ? "phone_required" : issue.message);
     else if (field === "password") errors.password = errorT(isEmpty ? "password_required" : issue.message);
     else if (field === "confirmPassword") errors.confirmPassword = errorT(isEmpty ? "confirm_password_required" : issue.message);
     else errors.general = errorT(issue.message || "auth_generic_error");
@@ -171,46 +174,45 @@ export async function loginAction(formData: FormData) {
   const next = formData.get('next');
 
   const parsed = loginSchema.safeParse({
-    email: formData.get('email'),
+    phone: formData.get('phone'),
     password: formData.get('password'),
   });
 
   if (!parsed.success) {
     return {
       error: authValidationErrors(parsed.error.issues, {
-        email: formData.get('email'),
+        phone: formData.get('phone'),
         password: formData.get('password'),
       }, errorT),
     };
   }
 
-  const email = parsed.data.email.trim().toLowerCase();
+  const rawPhone = parsed.data.phone.trim();
+  const normalizedPhone = normalizePhone(rawPhone);
+
+  if (!isValidMauritaniaPhone(normalizedPhone)) {
+    return { error: { phone: errorT("auth_invalid_phone") } };
+  }
+
+  const syntheticEmail = phoneToEmail(normalizedPhone);
 
   const ip = await getClientIp();
-  const rateCheck = await checkRateLimit("login", `${ip}:${email}`);
+  const rateCheck = await checkRateLimit("login", `${ip}:${normalizedPhone}`);
 
   if (!rateCheck.allowed) {
     return { error: { general: errorT("auth_rate_limited") } };
   }
 
   const supabase = await createClient();
-  const existingAuthUser = await findAuthUserByEmail(email);
   const { error } = await supabase.auth.signInWithPassword({
-    email,
+    email: syntheticEmail,
     password: parsed.data.password,
   });
 
   if (error) {
     const errorMessage = getLocalizedAuthError(error, errorT);
-    if (error.message.includes('Invalid login credentials')) {
-      return {
-        error: existingAuthUser
-          ? { password: errorT("incorrect_password") }
-          : { email: errorT("account_not_found") },
-      };
-    }
-    if (error.message.includes('Email not confirmed')) {
-      return { error: { email: errorT("auth_email_not_confirmed") } };
+    if (error.message.toLowerCase().includes('invalid login') || error.message.toLowerCase().includes('invalid credentials')) {
+      return { error: { password: errorT("auth_invalid_credentials") } };
     }
     return { error: { general: errorMessage } };
   }
@@ -242,7 +244,7 @@ export async function registerAction(formData: FormData) {
   const parsed = registerSchema.safeParse({
     username: formData.get('username'),
     fullName: formData.get('fullName'),
-    email: formData.get('email'),
+    phone: formData.get('phone'),
     password: formData.get('password'),
     confirmPassword: formData.get('confirmPassword'),
   });
@@ -252,14 +254,21 @@ export async function registerAction(formData: FormData) {
       error: authValidationErrors(parsed.error.issues, {
         username: formData.get('username'),
         fullName: formData.get('fullName'),
-        email: formData.get('email'),
+        phone: formData.get('phone'),
         password: formData.get('password'),
         confirmPassword: formData.get('confirmPassword'),
       }, errorT),
     };
   }
 
-  const email = parsed.data.email.trim().toLowerCase();
+  const rawPhone = parsed.data.phone.trim();
+  const normalizedPhone = normalizePhone(rawPhone);
+
+  if (!isValidMauritaniaPhone(normalizedPhone)) {
+    return { error: { phone: errorT("auth_invalid_phone") } };
+  }
+
+  const syntheticEmail = phoneToEmail(normalizedPhone);
   const password = parsed.data.password;
   const username = parsed.data.username;
   const fullName = parsed.data.fullName;
@@ -272,39 +281,45 @@ export async function registerAction(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const existingAuthUser = await findAuthUserByEmail(email);
-  if (existingAuthUser) {
-    return { error: { email: errorT("auth_user_exists") } };
+
+  // Check if phone already exists in profiles
+  const { data: existingProfileByPhone } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('phone', normalizedPhone)
+    .maybeSingle();
+
+  if (existingProfileByPhone) {
+    return { error: { phone: errorT("auth_phone_exists") } };
   }
 
-  const { data: existingProfile } = await supabase
+  // Check if username already taken
+  const { data: existingProfileByUsername } = await supabase
     .from('profiles')
     .select('id')
     .eq('username', username)
     .maybeSingle();
 
-  if (existingProfile) {
+  if (existingProfileByUsername) {
     return { error: { username: errorT("username_taken") } };
   }
 
   const { data, error } = await supabase.auth.signUp({
-    email,
+    email: syntheticEmail,
     password,
     options: {
       data: {
         full_name: fullName,
         username,
+        phone: normalizedPhone,
       },
     },
   });
 
   if (error) {
     const errorMessage = getLocalizedAuthError(error, errorT);
-    if (error.message.includes('User already registered')) {
-      return { error: { email: errorT("auth_user_exists") } };
-    }
-    if (error.message.toLowerCase().includes('duplicate') || error.message.toLowerCase().includes('username')) {
-      return { error: { username: errorT("username_taken") } };
+    if (error.message.includes('User already registered') || error.message.toLowerCase().includes('already registered')) {
+      return { error: { phone: errorT("auth_phone_exists") } };
     }
     return { error: { general: errorMessage } };
   }
@@ -316,6 +331,7 @@ export async function registerAction(formData: FormData) {
         id: data.user.id,
         username,
         full_name: fullName,
+        phone: normalizedPhone,
         role: 'member',
       })
       .maybeSingle();
@@ -3353,6 +3369,8 @@ export async function updateOnboardingProfileAction(
     bio?: string;
     city?: string;
     languages?: string[];
+    username?: string;
+    avatar_url?: string;
   },
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
@@ -3365,14 +3383,24 @@ export async function updateOnboardingProfileAction(
     return { success: false, error: 'Not authenticated' };
   }
 
+  const updateData: Record<string, unknown> = {
+    full_name: profileData.full_name || null,
+    bio: profileData.bio || null,
+    city: profileData.city || null,
+    languages_spoken: profileData.languages || [],
+  };
+
+  if (profileData.username) {
+    updateData.username = profileData.username;
+  }
+
+  if (profileData.avatar_url) {
+    updateData.avatar_url = profileData.avatar_url;
+  }
+
   const { error } = await supabase
     .from('profiles')
-    .update({
-      full_name: profileData.full_name || null,
-      bio: profileData.bio || null,
-      city: profileData.city || null,
-      languages_spoken: profileData.languages || [],
-    })
+    .update(updateData)
     .eq('id', user.id);
 
   if (error) {

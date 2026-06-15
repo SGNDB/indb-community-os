@@ -8,11 +8,10 @@ import {useRouter} from "next/navigation";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Link} from "@/lib/i18n/routing";
-import {createClient} from "@/lib/supabase/client";
 import {loginAction} from "@/app/[locale]/server-actions";
 
 interface FormErrors {
-  email?: string;
+  phone?: string;
   password?: string;
   general?: string;
 }
@@ -24,9 +23,9 @@ export function LoginForm({locale, next}: {locale: string; next?: string}) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [formData, setFormData] = useState({email: "", password: ""});
+  const [formData, setFormData] = useState({phone: "", password: ""});
 
-  function updateField(field: "email" | "password", value: string) {
+  function updateField(field: "phone" | "password", value: string) {
     setFormData((current) => ({...current, [field]: value}));
     setErrors((current) => {
       if (!current[field]) return current;
@@ -38,12 +37,9 @@ export function LoginForm({locale, next}: {locale: string; next?: string}) {
 
   function validateForm() {
     const nextErrors: FormErrors = {};
-    const email = formData.email.trim();
 
-    if (!email) {
-      nextErrors.email = errorT("email_required");
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      nextErrors.email = errorT("auth_invalid_email");
+    if (!formData.phone.trim()) {
+      nextErrors.phone = errorT("phone_required");
     }
 
     if (!formData.password) {
@@ -64,12 +60,12 @@ export function LoginForm({locale, next}: {locale: string; next?: string}) {
     try {
       const formDataObj = new FormData();
       formDataObj.append("locale", locale);
-      formDataObj.append("email", formData.email);
+      formDataObj.append("phone", formData.phone);
       formDataObj.append("password", formData.password);
       if (next) formDataObj.append("next", next);
 
       const result = await loginAction(formDataObj);
-      
+
       if (result?.error) {
         setErrors(result.error);
       } else if (result?.success) {
@@ -83,33 +79,33 @@ export function LoginForm({locale, next}: {locale: string; next?: string}) {
     }
   };
 
-  async function handleFacebookLogin() {
-    const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/callback?locale=${locale}`;
-    await supabase.auth.signInWithOAuth({provider: "facebook", options: {redirectTo}});
-  }
-
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground/80">{t("email")}</label>
-        <Input
-          type="email"
-          value={formData.email}
-          onChange={(e) => updateField("email", e.target.value)}
-          placeholder="name@example.com"
-          aria-invalid={Boolean(errors.email)}
-          className={`h-11 rounded-xl bg-background px-4 text-sm transition-colors focus-visible:ring-[#ED2124]/20 ${
-            errors.email
-              ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20"
-              : "border-border/60 focus-visible:border-[#ED2124]"
-          }`}
-          autoComplete="email"
-        />
-        {errors.email && (
+        <label className="text-sm font-medium text-foreground/80">{t("phone")}</label>
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-medium pointer-events-none select-none">
+            +222
+          </span>
+          <Input
+            type="tel"
+            value={formData.phone}
+            onChange={(e) => updateField("phone", e.target.value)}
+            placeholder="XX XX XX XX"
+            aria-invalid={Boolean(errors.phone)}
+            className={`h-11 rounded-xl bg-background pl-12 pe-4 text-sm transition-colors focus-visible:ring-[#ED2124]/20 ${
+              errors.phone
+                ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20"
+                : "border-border/60 focus-visible:border-[#ED2124]"
+            }`}
+            autoComplete="tel-national"
+            inputMode="numeric"
+          />
+        </div>
+        {errors.phone && (
           <p className="flex items-center gap-1.5 text-xs text-red-600">
             <AlertCircle size={12} />
-            {errors.email}
+            {errors.phone}
           </p>
         )}
       </div>
@@ -152,30 +148,9 @@ export function LoginForm({locale, next}: {locale: string; next?: string}) {
           <span>{errors.general}</span>
         </div>
       )}
-      <div className="flex items-center justify-end">
-        <Link href="/forgot-password" className="text-xs text-[#ED2124] hover:underline">{t("forgotPassword")}</Link>
-      </div>
       <Button type="submit" className="w-full bg-[#ED2124] hover:bg-[#ED2124]/90 text-white" disabled={isLoading}>
         {isLoading ? <><Loader2 size={16} className="mr-2 inline animate-spin" />{t("submitting")}</> : t("submit")}
       </Button>
-
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-2 text-muted-foreground">{t("orContinueWith")}</span>
-        </div>
-      </div>
-
-      <button
-        type="button"
-        onClick={handleFacebookLogin}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-border/60 bg-background px-4 py-2.5 text-sm font-medium transition hover:bg-muted"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-        {t("loginWithFacebook")}
-      </button>
 
       <p className="text-center text-sm text-muted-foreground">
         {t("noAccount")}{" "}

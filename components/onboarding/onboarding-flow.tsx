@@ -1,6 +1,6 @@
 "use client";
 
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useTranslations} from "next-intl";
 import {ChevronLeft, ChevronRight} from "lucide-react";
 
@@ -10,6 +10,7 @@ import {OnboardingStep3} from "@/components/onboarding/onboarding-step-3";
 import {Button} from "@/components/ui/button";
 import {completeOnboardingAction} from "@/app/[locale]/server-actions";
 import {useRouter} from "@/lib/i18n/routing";
+import {createClient} from "@/lib/supabase/client";
 
 interface OnboardingFlowProps {
   locale: string;
@@ -27,8 +28,30 @@ export function OnboardingFlow({locale, userId}: OnboardingFlowProps) {
     city: "",
     languages: [] as string[],
     avatar_url: undefined as string | undefined,
+    username: "",
   });
   const step1Ref = useRef<OnboardingStep1Handle>(null);
+
+  useEffect(() => {
+    (async () => {
+      const supabase = createClient();
+      const {data: profile} = await supabase
+        .from("profiles")
+        .select("full_name, bio, city, languages_spoken, avatar_url, username")
+        .eq("id", userId)
+        .single();
+      if (profile) {
+        setProfileData({
+          full_name: profile.full_name || "",
+          bio: profile.bio || "",
+          city: profile.city || "",
+          languages: profile.languages_spoken || [],
+          avatar_url: profile.avatar_url || undefined,
+          username: profile.username || "",
+        });
+      }
+    })();
+  }, [userId]);
 
   const totalSteps = 3;
 
@@ -55,7 +78,14 @@ export function OnboardingFlow({locale, userId}: OnboardingFlowProps) {
     router.push("/feed");
   };
 
-  const handleProfileSave = (data: typeof profileData) => {
+  const handleProfileSave = (data: {
+    full_name: string;
+    bio: string;
+    city: string;
+    languages: string[];
+    avatar_url: string | undefined;
+    username: string;
+  }) => {
     setProfileData(data);
     handleNext();
   };

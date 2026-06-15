@@ -19,8 +19,8 @@ export interface OnboardingStep1Handle {
 }
 
 interface OnboardingStep1Props {
-  onSave: (data: {full_name: string; bio: string; city: string; languages: string[]; avatar_url: string | undefined}) => void;
-  initialData?: {full_name: string; bio: string; city: string; languages: string[]};
+  onSave: (data: {full_name: string; bio: string; city: string; languages: string[]; avatar_url: string | undefined; username: string}) => void;
+  initialData?: {full_name: string; bio: string; city: string; languages: string[]; avatar_url?: string; username?: string};
   locale: string;
 }
 
@@ -36,8 +36,10 @@ export const OnboardingStep1 = forwardRef<OnboardingStep1Handle, OnboardingStep1
   const [bio, setBio] = useState(initialData?.bio || "");
   const [city, setCity] = useState(initialData?.city || "");
   const [languages, setLanguages] = useState<string[]>(initialData?.languages || []);
+  const [username, setUsername] = useState(initialData?.username || "");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const avatarInitialUrl = initialData?.avatar_url || null;
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const commonLanguages = [
@@ -70,7 +72,7 @@ export const OnboardingStep1 = forwardRef<OnboardingStep1Handle, OnboardingStep1
 
   const handleSave = async () => {
     try {
-      let avatarUrl: string | undefined;
+      let avatarUrl: string | undefined = avatarInitialUrl || undefined;
 
       if (avatarFile) {
         const formData = new FormData();
@@ -87,9 +89,11 @@ export const OnboardingStep1 = forwardRef<OnboardingStep1Handle, OnboardingStep1
         bio,
         city,
         languages,
+        username: username || undefined,
+        avatar_url: avatarUrl,
       });
 
-      onSave({full_name: fullName, bio, city, languages, avatar_url: avatarUrl});
+      onSave({full_name: fullName, bio, city, languages, avatar_url: avatarUrl, username});
     } catch (error) {
       console.error("Failed to save profile:", error);
     }
@@ -117,9 +121,9 @@ export const OnboardingStep1 = forwardRef<OnboardingStep1Handle, OnboardingStep1
               onClick={() => avatarInputRef.current?.click()}
               className="group relative h-full w-full overflow-hidden rounded-full bg-gray-100"
             >
-              {avatarPreview ? (
+              {avatarPreview || avatarInitialUrl ? (
                 <Image
-                  src={avatarPreview}
+                  src={avatarPreview || avatarInitialUrl!}
                   alt=""
                   fill
                   sizes="128px"
@@ -159,6 +163,18 @@ export const OnboardingStep1 = forwardRef<OnboardingStep1Handle, OnboardingStep1
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder={t("fullNamePlaceholder")}
+            className="min-h-12"
+          />
+        </div>
+
+        {/* Username */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium">{t("username")}</label>
+          <Input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder={t("usernamePlaceholder")}
             className="min-h-12"
           />
         </div>

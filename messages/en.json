@@ -16,6 +16,8 @@
       "city": "City",
       "cityPlaceholder": "Enter your city",
       "languages": "Languages",
+      "username": "Username",
+      "usernamePlaceholder": "Choose a username",
       "skip": "Skip for now",
       "saveAndContinue": "Save and continue",
       "saving": "Saving..."
@@ -958,23 +960,20 @@
     "login": {
       "title": "Sign in",
       "done": "Login interaction completed.",
-      "email": "Email",
+      "phone": "Phone number",
       "password": "Password",
       "submit": "Sign in",
       "submitting": "Signing in...",
-      "forgotPassword": "Forgot password?",
       "noAccount": "Don't have an account?",
       "register": "Create one",
       "showPassword": "Show password",
-      "hidePassword": "Hide password",
-      "loginWithFacebook": "Continue with Facebook",
-      "orContinueWith": "or continue with"
+      "hidePassword": "Hide password"
     },
     "register": {
       "title": "Create your account",
       "done": "Account creation interaction completed.",
       "username": "Username",
-      "email": "Email",
+      "phone": "Phone number",
       "password": "Password",
       "confirmPassword": "Confirm password",
       "submit": "Create account",
@@ -985,9 +984,7 @@
       "hidePassword": "Hide password",
       "fullName": "Full name",
       "fullNamePlaceholder": "Your full name",
-      "usernamePlaceholder": "Choose a username",
-      "registerWithFacebook": "Sign up with Facebook",
-      "orContinueWith": "or sign up with"
+      "usernamePlaceholder": "Choose a username"
     },
     "forgotPassword": {
       "title": "Reset your password",
@@ -999,7 +996,7 @@
       "description": "Enter your email and we'll send you a link to reset your password."
     },
     "errors": {
-      "auth_invalid_credentials": "Invalid email or password",
+      "auth_invalid_credentials": "Phone number or password is incorrect",
       "auth_email_not_confirmed": "Please confirm your email before logging in",
       "auth_user_exists": "An account already exists with this email address.",
       "auth_weak_password": "Password must be at least 8 characters with letters and numbers",
@@ -1020,6 +1017,9 @@
       "incorrect_password": "Incorrect password",
       "account_not_found": "No account found with this email address",
       "email_required": "Email is required",
+      "phone_required": "Phone number is required",
+      "auth_invalid_phone": "Please enter a valid phone number",
+      "auth_phone_exists": "An account already exists with this phone number",
       "password_required": "Password is required",
       "username_required": "Username is required",
       "full_name_required": "Full name is required",

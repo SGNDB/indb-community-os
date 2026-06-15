@@ -7,7 +7,7 @@ export const passwordSchema = z
   .regex(/[0-9]/, "password_number");
 
 export const loginSchema = z.object({
-  email: z.string().email("auth_invalid_email"),
+  phone: z.string().min(1, "phone_required"),
   password: z.string().min(1, "password_required"),
 });
 
@@ -15,7 +15,7 @@ export const registerSchema = z
   .object({
     username: z.string().min(3, "username_length").max(24, "username_length"),
     fullName: z.string().min(2, "full_name_length").max(100, "full_name_length"),
-    email: z.string().email("auth_invalid_email"),
+    phone: z.string().min(1, "phone_required"),
     password: passwordSchema,
     confirmPassword: z.string().min(1, "confirm_password_required"),
   })
