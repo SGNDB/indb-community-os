@@ -1,15 +1,23 @@
 import pg from "pg";
 import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = "https://oanwmlouezwtcirrhbyl.supabase.co";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const DB_CONFIG = {
-  host: "aws-0-eu-west-1.pooler.supabase.com",
-  port: 5432,
-  database: "postgres",
-  user: "postgres.oanwmlouezwtcirrhbyl",
-  password: "38sgfZW!-e88/Tm",
+  host: process.env.SUPABASE_DB_HOST,
+  port: Number(process.env.SUPABASE_DB_PORT ?? 5432),
+  database: process.env.SUPABASE_DB_NAME ?? "postgres",
+  user: process.env.SUPABASE_DB_USER,
+  password: process.env.SUPABASE_DB_PASSWORD,
   ssl: { rejectUnauthorized: false },
 };
+
+function requireEnvValue(value, name) {
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+
+  return value;
+}
 
 // Embed normalization logic for testing
 function normalizeMauritaniaPhone(input) {
@@ -83,6 +91,11 @@ async function testNormalization() {
 }
 
 async function runDatabaseQuery(query, params = []) {
+  requireEnvValue(SUPABASE_URL, "NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL");
+  requireEnvValue(DB_CONFIG.host, "SUPABASE_DB_HOST");
+  requireEnvValue(DB_CONFIG.user, "SUPABASE_DB_USER");
+  requireEnvValue(DB_CONFIG.password, "SUPABASE_DB_PASSWORD");
+
   const client = new pg.Client(DB_CONFIG);
   await client.connect();
   try {
@@ -114,8 +127,10 @@ async function testAuthIntegration() {
   await deleteAuthUser(testEmail1);
   await deleteAuthUser(testEmail2);
 
-  const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hbndtbG91ZXp3dGNpcnJoYnlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNzAyMjQsImV4cCI6MjA5NTg0NjIyNH0.VYKOvgUg-nDlDontyqx6nRiFBVzW9qRgZ422jzTXZ48";
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  requireEnvValue(SUPABASE_URL, "NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL");
 
   let supabase;
   let useAdminForCreate = false;
@@ -125,6 +140,7 @@ async function testAuthIntegration() {
     supabase = createClient(SUPABASE_URL, serviceRoleKey);
     useAdminForCreate = true;
   } else {
+    requireEnvValue(anonKey, "NEXT_PUBLIC_SUPABASE_ANON_KEY or SUPABASE_ANON_KEY");
     console.log("SUPABASE_SERVICE_ROLE_KEY is not set. Using anon client for tests.");
     supabase = createClient(SUPABASE_URL, anonKey);
   }
@@ -202,7 +218,7 @@ async function testAuthIntegration() {
   console.log("\n[TEST B] Login: same phone + same password");
   // Login must always run using anon client to fetch actual session
   const anonSupabase = createClient(SUPABASE_URL, anonKey);
-  const { data: signInData, error: signInError } = await anonSupabase.auth.signInWithPassword({
+  const { error: signInError } = await anonSupabase.auth.signInWithPassword({
     email: testEmail1,
     password: "Testpass1",
   });
@@ -224,8 +240,8 @@ async function testAuthIntegration() {
         phone: normalizeMauritaniaPhone("37225588"),
       },
     });
-    signUpData = data;
-    signUpError = error;
+    dupSignUpData = data;
+    dupSignUpError = error;
   } else {
     const { data, error } = await anonSupabase.auth.signUp({
       email: testEmail1,
@@ -251,7 +267,7 @@ async function testAuthIntegration() {
   console.log("[TEST C] Passed: Duplicate registration prevented.");
 
   console.log("\n[TEST D] Wrong password");
-  const { data: wrongSignInData, error: wrongSignInError } = await anonSupabase.auth.signInWithPassword({
+  const { error: wrongSignInError } = await anonSupabase.auth.signInWithPassword({
     email: testEmail1,
     password: "WrongPassword",
   });

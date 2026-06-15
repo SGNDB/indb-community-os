@@ -88,8 +88,9 @@ async function attachPostMedia(posts: PostWithAuthor[]): Promise<PostWithAuthor[
 
 export async function getPosts(
   currentUserId?: string | null,
+  limit = 10,
 ): Promise<PostWithAuthor[]> {
-  const page = await getPostsPage({currentUserId});
+  const page = await getPostsPage({currentUserId, pageSize: limit});
   return page.items;
 }
 
@@ -160,6 +161,8 @@ export async function getPostById(
 export async function getUserPosts(
   userId: string,
   currentUserId?: string | null,
+  page = 1,
+  pageSize = 10,
 ): Promise<PostWithAuthor[]> {
   const supabase = await createClient();
 
@@ -171,7 +174,8 @@ export async function getUserPosts(
       category:categories(id, slug, name_en, name_fr, name_ar, name_ff, name_snk, name_wo)
     `)
     .eq("author_id", userId)
-    .order("created_at", {ascending: false});
+    .order("created_at", {ascending: false})
+    .range((page - 1) * pageSize, page * pageSize);
 
   const posts = (data ?? []) as unknown as PostWithAuthor[];
   await attachPostMedia(posts);

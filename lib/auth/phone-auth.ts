@@ -75,3 +75,13 @@ export function getSyntheticPhoneRegistrationInput({
     email_confirm: true,
   };
 }
+
+export function getSyntheticPhoneLoginCredentials(
+  normalizedPhone: string,
+  password: string,
+) {
+  return {
+    email: toSyntheticPhoneEmail(normalizedPhone),
+    password,
+  };
+}

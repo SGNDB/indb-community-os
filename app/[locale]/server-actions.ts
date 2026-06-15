@@ -9,7 +9,6 @@ import { routing } from '@/lib/i18n/routing';
 import { withLocale } from '@/lib/i18n/paths';
 import { type ImageUploadKind, validateCompressedImageFile } from '@/lib/images/upload-config';
 import { getLocalizedAuthError } from '@/lib/auth/auth-error-messages';
-import { sanitizeRedirectUrl } from '@/lib/auth/safe-redirect';
 import { recordAdminAuditLog } from '@/lib/security/admin-audit';
 import { checkRateLimit, type RateLimitKind } from '@/lib/security/rate-limit';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -41,7 +40,8 @@ import {
   registerSchema,
 } from '@/lib/validations/community';
 import { normalizeMauritaniaPhone, isValidMauritaniaPhone } from '@/lib/auth/phone';
-import { getPhoneRegistrationInput } from '@/lib/auth/phone-auth';
+import { getSyntheticPhoneLoginCredentials, getSyntheticPhoneRegistrationInput } from '@/lib/auth/phone-auth';
+import { buildOnboardingProfileUpdate, getPostAuthRedirectPath } from '@/lib/auth/onboarding';
 import type {
   CommentWithAuthor,
   CommunityShareImage,
@@ -221,7 +221,6 @@ export async function signOutAction(formData: FormData) {
 export async function loginAction(formData: FormData) {
   const locale = normalizeLocale(formData.get('locale'));
   const errorT = await getTranslations({ locale, namespace: 'Auth.errors' });
-  const next = formData.get('next');
 
   const parsed = loginSchema.safeParse({
     phone: formData.get('phone'),
@@ -263,10 +262,8 @@ export async function loginAction(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
-    phone: normalizedPhone,
-    password: parsed.data.password,
-  });
+  const loginCredentials = getSyntheticPhoneLoginCredentials(normalizedPhone, parsed.data.password);
+  const { error } = await supabase.auth.signInWithPassword(loginCredentials);
 
   if (error) {
     console.error("LOGIN error:", { message: error.message, code: error.code, status: error.status });
@@ -280,6 +277,8 @@ export async function loginAction(formData: FormData) {
     return { error: { general: mappedError } };
   }
 
+  let profile: { onboarding_completed?: boolean } | null = null;
+
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
     // Check if profile is missing, if so, repair it
@@ -289,7 +288,7 @@ export async function loginAction(formData: FormData) {
       .eq('id', user.id)
       .maybeSingle();
 
-    let profile = profileData;
+    profile = profileData;
 
     if (profileFetchError) {
       console.error("LOGIN ERROR: failed to fetch profile during repair check", profileFetchError);
@@ -323,15 +322,16 @@ export async function loginAction(formData: FormData) {
 
   }
 
-  const safeNext = sanitizeRedirectUrl(typeof next === 'string' ? next : "");
+  const onboardingCompleted = profile?.onboarding_completed ?? false;
+  const redirectPath = getPostAuthRedirectPath(locale, onboardingCompleted);
+
   revalidatePath('/', 'layout');
-  return { success: true, redirect: toPath(locale, safeNext || '/feed') };
+  return { success: true, redirect: redirectPath };
 }
 
 export async function registerAction(formData: FormData) {
   const locale = normalizeLocale(formData.get('locale'));
   const errorT = await getTranslations({ locale, namespace: 'Auth.errors' });
-  const next = formData.get('next');
 
   const parsed = registerSchema.safeParse({
     fullName: formData.get('fullName'),
@@ -410,13 +410,13 @@ export async function registerAction(formData: FormData) {
     return { error: { general: errorT("auth_generic_error") } };
   }
 
-  const registrationInput = getPhoneRegistrationInput({
+  const registrationInput = getSyntheticPhoneRegistrationInput({
     normalizedPhone,
     fullName,
     password,
   });
 
-  console.log("REGISTER: using admin client for real phone registration");
+  console.log("REGISTER: using synthetic email credentials for phone registration");
 
   const { data: createdUser, error: createUserError } = await adminClient.auth.admin.createUser(registrationInput);
   console.log("REGISTER createUser result", { userId: createdUser?.user?.id, error: createUserError ? { message: createUserError.message, code: createUserError.code } : null });
@@ -470,11 +470,9 @@ export async function registerAction(formData: FormData) {
     }
   }
 
-  console.log("REGISTER: attempting immediate sign-in with phone credentials");
-  const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-    phone: normalizedPhone,
-    password,
-  });
+  console.log("REGISTER: attempting immediate sign-in with synthetic email credentials");
+  const signInCredentials = getSyntheticPhoneLoginCredentials(normalizedPhone, password);
+  const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword(signInCredentials);
   console.log("REGISTER signIn result", { userId: signInData?.user?.id, session: !!signInData?.session, error: signInError ? { message: signInError.message, code: signInError.code } : null });
 
   if (signInError) {
@@ -491,9 +489,9 @@ export async function registerAction(formData: FormData) {
     return { error: { general: errorT("auth_generic_error") } };
   }
 
-  console.log("REGISTER redirecting to feed");
-  const safeNext = sanitizeRedirectUrl(typeof next === 'string' ? next : "");
-  return { success: true, redirect: toPath(locale, safeNext || '/feed') };
+  console.log("REGISTER redirecting based on onboarding status");
+  const redirectPath = getPostAuthRedirectPath(locale, false);
+  return { success: true, redirect: redirectPath };
 }
 
 export async function resendVerificationAction(formData: FormData) {
@@ -3529,15 +3527,10 @@ export async function updateOnboardingProfileAction(
     return { success: false, error: 'Not authenticated' };
   }
 
-  const updateData: Record<string, unknown> = {
-    full_name: profileData.full_name || null,
-    bio: profileData.bio || null,
-    city: profileData.city || null,
-    languages_spoken: profileData.languages || [],
-  };
+  const updateData = buildOnboardingProfileUpdate(profileData);
 
-  if (profileData.avatar_url) {
-    updateData.avatar_url = profileData.avatar_url;
+  if (Object.keys(updateData).length === 0) {
+    return { success: true };
   }
 
   const { error } = await supabase

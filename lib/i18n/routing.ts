@@ -5,6 +5,7 @@ export const routing = defineRouting({
   locales: ["ar", "fr", "ff", "snk", "wo", "en"],
   defaultLocale: "ar",
   localePrefix: "always",
+  localeDetection: false,
 });
 
 export const localeLabels: Record<string, string> = {

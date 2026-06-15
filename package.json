@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "admin:audit": "node scripts/admin-account-maintenance.mjs audit",
+    "admin:promote-phone": "node scripts/admin-account-maintenance.mjs promote-phone",
+    "admin:remove-legacy": "node scripts/admin-account-maintenance.mjs remove-legacy"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -23,6 +26,7 @@
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-hook-form": "^7.77.0",
+    "server-only": "^0.0.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.6.0",
     "translate": "^2.0.2",

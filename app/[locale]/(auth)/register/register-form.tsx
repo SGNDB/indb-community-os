@@ -5,6 +5,7 @@ import {useTranslations} from "next-intl";
 import {useState} from "react";
 import {useRouter} from "next/navigation";
 
+import {AuthLanguageSwitcher} from "@/components/auth/auth-language-switcher";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Link} from "@/lib/i18n/routing";
@@ -111,6 +112,8 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <AuthLanguageSwitcher />
+
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground/80">{t("fullName")}</label>
         <Input
@@ -260,7 +263,7 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
           <span>{errors.general}</span>
         </div>
       )}
-      <Button type="submit" className="w-full bg-[#ED2124] hover:bg-[#ED2124]/90 text-white" disabled={isLoading}>
+      <Button type="submit" className="w-full bg-[#ED2124] hover:bg-[#ED2124]/90 text-white" disabled={isLoading} style={{touchAction: "manipulation"}}>
         {isLoading ? <><Loader2 size={16} className="mr-2 inline animate-spin" />{t("submitting")}</> : t("submit")}
       </Button>
 

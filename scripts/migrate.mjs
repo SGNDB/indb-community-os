@@ -8,13 +8,23 @@ const {Client} = pg;
 
 async function main() {
   const client = new Client({
-    host: "aws-0-eu-west-1.pooler.supabase.com",
-    port: 5432,
-    database: "postgres",
-    user: "postgres.oanwmlouezwtcirrhbyl",
-    password: "38sgfZW!-e88/Tm",
+    host: process.env.SUPABASE_DB_HOST,
+    port: Number(process.env.SUPABASE_DB_PORT ?? 5432),
+    database: process.env.SUPABASE_DB_NAME ?? "postgres",
+    user: process.env.SUPABASE_DB_USER,
+    password: process.env.SUPABASE_DB_PASSWORD,
     ssl: {rejectUnauthorized: false},
   });
+
+  const missingEnv = [
+    ["SUPABASE_DB_HOST", process.env.SUPABASE_DB_HOST],
+    ["SUPABASE_DB_USER", process.env.SUPABASE_DB_USER],
+    ["SUPABASE_DB_PASSWORD", process.env.SUPABASE_DB_PASSWORD],
+  ].filter(([, value]) => !value);
+
+  if (missingEnv.length > 0) {
+    throw new Error(`Missing required environment variable(s): ${missingEnv.map(([name]) => name).join(", ")}`);
+  }
 
   await client.connect();
   console.log("Connected to Supabase PostgreSQL.");

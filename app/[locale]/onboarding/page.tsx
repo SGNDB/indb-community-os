@@ -41,7 +41,7 @@ export default async function OnboardingPage({
     .single();
 
   if (profile?.onboarding_completed) {
-    redirect(`/${locale}`);
+    redirect(`/${locale}/feed`);
   }
 
   return (

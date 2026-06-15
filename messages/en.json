@@ -998,6 +998,7 @@
       "auth_invalid_credentials": "Phone number or password is incorrect",
       "auth_email_not_confirmed": "This phone account exists but is not confirmed yet. Please use the admin repair step if this was created previously.",
       "auth_email_provider_disabled": "Synthetic phone login requires the email provider to be enabled in Supabase Auth settings.",
+      "auth_phone_provider_disabled": "Phone login requires the phone provider to be enabled in Supabase Auth settings.",
       "auth_user_exists": "An account already exists with this phone number.",
       "auth_weak_password": "Password must be at least 8 characters with letters and numbers",
       "auth_invalid_email": "Please enter a valid email address",

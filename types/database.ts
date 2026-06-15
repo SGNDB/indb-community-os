@@ -47,7 +47,7 @@ export interface ProfileRow {
 
 export interface CommunityCreditRow {
   id: string;
-  user_id: string;
+  user_id: string | null;
   points: number;
   reason: string;
   note: string | null;
@@ -212,7 +212,7 @@ export interface IdeaRow {
 export interface IdeaCommentRow {
   id: string;
   idea_id: string;
-  author_id: string;
+  author_id: string | null;
   content: string;
   content_language: ContentLanguage | null;
   created_at: string;
@@ -403,7 +403,7 @@ export interface MemoryReactionRow {
 export interface MemoryCommentRow {
   id: string;
   memory_id: string;
-  author_id: string;
+  author_id: string | null;
   content: string;
   content_language: ContentLanguage | null;
   created_at: string;

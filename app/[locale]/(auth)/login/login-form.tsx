@@ -5,6 +5,7 @@ import {useTranslations} from "next-intl";
 import {useState} from "react";
 import {useRouter} from "next/navigation";
 
+import {AuthLanguageSwitcher} from "@/components/auth/auth-language-switcher";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Link} from "@/lib/i18n/routing";
@@ -81,6 +82,8 @@ export function LoginForm({locale, next, phone: prefilledPhone, registered}: {lo
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <AuthLanguageSwitcher />
+
       {registered && (
         <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
           <CheckCircle2 size={16} className="shrink-0 text-green-600" />
@@ -159,7 +162,7 @@ export function LoginForm({locale, next, phone: prefilledPhone, registered}: {lo
           <span>{errors.general}</span>
         </div>
       )}
-      <Button type="submit" className="w-full bg-[#ED2124] hover:bg-[#ED2124]/90 text-white" disabled={isLoading}>
+      <Button type="submit" className="w-full bg-[#ED2124] hover:bg-[#ED2124]/90 text-white" disabled={isLoading} style={{touchAction: "manipulation"}}>
         {isLoading ? <><Loader2 size={16} className="mr-2 inline animate-spin" />{t("submitting")}</> : t("submit")}
       </Button>
 

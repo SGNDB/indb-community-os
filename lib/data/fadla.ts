@@ -183,13 +183,18 @@ export async function getItemById(
   return { ...item, requests };
 }
 
-export async function getUserItems(userId: string): Promise<FadlaWithOwner[]> {
+export async function getUserItems(
+  userId: string,
+  page = 1,
+  pageSize = 10,
+): Promise<FadlaWithOwner[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from('community_shares')
     .select('*, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)')
     .eq('owner_id', userId)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range((page - 1) * pageSize, page * pageSize);
 
   return hydrateItems((data ?? []) as unknown as FadlaWithOwner[], userId);
 }

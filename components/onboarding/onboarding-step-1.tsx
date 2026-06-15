@@ -32,7 +32,7 @@ function getInitials(name: string): string {
 
 export const OnboardingStep1 = forwardRef<OnboardingStep1Handle, OnboardingStep1Props>(function OnboardingStep1({onSave, initialData, locale}, ref) {
   const t = useTranslations("Onboarding.step1");
-  const [fullName, setFullName] = useState(initialData?.full_name || "");
+  const [fullName] = useState(initialData?.full_name || "");
   const [bio, setBio] = useState(initialData?.bio || "");
   const [city, setCity] = useState(initialData?.city || "");
   const [languages, setLanguages] = useState<string[]>(initialData?.languages || []);
@@ -152,18 +152,6 @@ export const OnboardingStep1 = forwardRef<OnboardingStep1Handle, OnboardingStep1
               onChange={handleAvatarChange}
             />
           </div>
-        </div>
-
-        {/* Full name */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">{t("fullName")}</label>
-          <Input
-            type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder={t("fullNamePlaceholder")}
-            className="min-h-12"
-          />
         </div>
 
         {/* Bio */}

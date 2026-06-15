@@ -49,7 +49,7 @@ export function MobileNav() {
                     ? "text-primary"
                     : "text-muted-foreground active:text-foreground",
                 )}
-                style={{WebkitTapHighlightColor: "transparent"}}
+                style={{WebkitTapHighlightColor: "transparent", touchAction: "manipulation"}}
               >
                 <div className={cn(
                   "flex min-h-8 min-w-10 items-center justify-center rounded-lg transition-all duration-100",

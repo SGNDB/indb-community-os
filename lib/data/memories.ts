@@ -28,12 +28,12 @@ export async function attachMemoryMedia(memories: MemoryWithContributor[]): Prom
   return memories;
 }
 
-export async function getVisibleMemories(): Promise<MemoryWithContributor[]> {
-  return getApprovedMemories();
+export async function getVisibleMemories(limit = 10): Promise<MemoryWithContributor[]> {
+  return getApprovedMemories(limit);
 }
 
-export async function getApprovedMemories(): Promise<MemoryWithContributor[]> {
-  const page = await getApprovedMemoriesPage();
+export async function getApprovedMemories(limit = 10): Promise<MemoryWithContributor[]> {
+  const page = await getApprovedMemoriesPage({pageSize: limit});
   return page.items;
 }
 
@@ -128,6 +128,7 @@ export async function getMemoriesCount(): Promise<number> {
 
 export async function getMemoryComments(
   memoryId: string,
+  limit = 10,
 ): Promise<MemoryCommentWithAuthor[]> {
   const supabase = await createClient();
 
@@ -136,7 +137,8 @@ export async function getMemoryComments(
     .select("*, author:profiles!memory_comments_author_id_fkey(id, username, full_name, avatar_url)")
     .eq("memory_id", memoryId)
     .not("author_id", "is", null)
-    .order("created_at", {ascending: true});
+    .order("created_at", {ascending: true})
+    .limit(limit);
 
   return (data ?? []) as unknown as MemoryCommentWithAuthor[];
 }
@@ -161,7 +163,11 @@ export async function getUserMemoriesCount(userId: string): Promise<number> {
   return count ?? 0;
 }
 
-export async function getUserMemories(userId: string): Promise<MemoryWithContributor[]> {
+export async function getUserMemories(
+  userId: string,
+  page = 1,
+  pageSize = 10,
+): Promise<MemoryWithContributor[]> {
   const supabase = await createClient();
 
   const {data} = await supabase
@@ -171,7 +177,8 @@ export async function getUserMemories(userId: string): Promise<MemoryWithContrib
       contributor:profiles!memories_contributor_id_fkey(id, username, full_name, avatar_url)
     `)
     .eq("contributor_id", userId)
-    .order("created_at", {ascending: false});
+    .order("created_at", {ascending: false})
+    .range((page - 1) * pageSize, page * pageSize);
 
   const memories = (data ?? []) as unknown as MemoryWithContributor[];
   return attachMemoryMedia(memories);

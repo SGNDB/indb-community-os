@@ -30,8 +30,8 @@ async function attachIdeaMedia(ideas: IdeaWithAuthor[]): Promise<IdeaWithAuthor[
   return ideas;
 }
 
-export async function getIdeas(): Promise<{ideas: IdeaWithSupport[]; totalUsers: number}> {
-  const page = await getIdeasPage();
+export async function getIdeas(limit = 10): Promise<{ideas: IdeaWithSupport[]; totalUsers: number}> {
+  const page = await getIdeasPage({pageSize: limit});
   return {ideas: page.ideas, totalUsers: page.totalUsers};
 }
 
@@ -100,7 +100,11 @@ export async function getUserIdeasCount(userId: string): Promise<number> {
   return count ?? 0;
 }
 
-export async function getUserIdeas(userId: string): Promise<IdeaWithAuthor[]> {
+export async function getUserIdeas(
+  userId: string,
+  page = 1,
+  pageSize = 10,
+): Promise<IdeaWithAuthor[]> {
   const supabase = await createClient();
 
   const {data} = await supabase
@@ -111,7 +115,8 @@ export async function getUserIdeas(userId: string): Promise<IdeaWithAuthor[]> {
       category:categories(id, slug, name_en, name_fr, name_ar, name_ff, name_snk, name_wo)
     `)
     .eq("author_id", userId)
-    .order("created_at", {ascending: false});
+    .order("created_at", {ascending: false})
+    .range((page - 1) * pageSize, page * pageSize);
 
   const ideas = (data ?? []) as unknown as IdeaWithAuthor[];
   return attachIdeaMedia(ideas);
@@ -137,7 +142,10 @@ export async function getIdeaById(id: string): Promise<IdeaWithAuthor | null> {
   return ideas[0] ?? null;
 }
 
-export async function getIdeaComments(ideaId: string): Promise<IdeaCommentWithAuthor[]> {
+export async function getIdeaComments(
+  ideaId: string,
+  limit = 10,
+): Promise<IdeaCommentWithAuthor[]> {
   const supabase = await createClient();
 
   const {data} = await supabase
@@ -145,7 +153,8 @@ export async function getIdeaComments(ideaId: string): Promise<IdeaCommentWithAu
     .select("*, author:profiles!idea_comments_author_id_fkey(id, username, full_name, avatar_url)")
     .eq("idea_id", ideaId)
     .not("author_id", "is", null)
-    .order("created_at", {ascending: true});
+    .order("created_at", {ascending: true})
+    .limit(limit);
 
   return (data ?? []) as unknown as IdeaCommentWithAuthor[];
 }

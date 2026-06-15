@@ -1,7 +1,10 @@
 import {createClient} from "@/lib/supabase/server";
 import type {CommentWithAuthor} from "@/types/database";
 
-export async function getCommentsByPost(postId: string): Promise<CommentWithAuthor[]> {
+export async function getCommentsByPost(
+  postId: string,
+  limit = 10,
+): Promise<CommentWithAuthor[]> {
   const supabase = await createClient();
 
   const {data} = await supabase
@@ -13,12 +16,54 @@ export async function getCommentsByPost(postId: string): Promise<CommentWithAuth
     .eq("post_id", postId)
     .eq("status", "published")
     .not("author_id", "is", null)
-    .order("created_at", {ascending: true});
+    .order("created_at", {ascending: true})
+    .limit(limit);
 
   return (data ?? []) as unknown as CommentWithAuthor[];
 }
 
-export async function getCommentsForPosts(postIds: string[]): Promise<Record<string, CommentWithAuthor[]>> {
+export async function getCommentsByPostPage(
+  postId: string,
+  page = 1,
+  pageSize = 5,
+): Promise<{
+  items: CommentWithAuthor[];
+  hasMore: boolean;
+  total: number;
+}> {
+  const supabase = await createClient();
+
+  const {count} = await supabase
+    .from("comments")
+    .select("*", {count: "exact", head: true})
+    .eq("post_id", postId)
+    .eq("status", "published")
+    .not("author_id", "is", null);
+
+  const from = (page - 1) * pageSize;
+  const {data} = await supabase
+    .from("comments")
+    .select(`
+      *,
+      author:profiles!comments_author_id_fkey(id, username, full_name, avatar_url)
+    `)
+    .eq("post_id", postId)
+    .eq("status", "published")
+    .not("author_id", "is", null)
+    .order("created_at", {ascending: true})
+    .range(from, from + pageSize - 1);
+
+  return {
+    items: (data ?? []) as unknown as CommentWithAuthor[],
+    hasMore: (count ?? 0) > page * pageSize,
+    total: count ?? 0,
+  };
+}
+
+export async function getCommentsForPosts(
+  postIds: string[],
+  maxCommentsPerPost = 3,
+): Promise<Record<string, CommentWithAuthor[]>> {
   if (postIds.length === 0) return {};
 
   const supabase = await createClient();
@@ -36,8 +81,12 @@ export async function getCommentsForPosts(postIds: string[]): Promise<Record<str
 
   const grouped: Record<string, CommentWithAuthor[]> = {};
   for (const comment of ((data ?? []) as unknown as CommentWithAuthor[])) {
-    grouped[comment.post_id] = grouped[comment.post_id] ?? [];
-    grouped[comment.post_id].push(comment);
+    if (!grouped[comment.post_id]) {
+      grouped[comment.post_id] = [];
+    }
+    if (grouped[comment.post_id].length < maxCommentsPerPost) {
+      grouped[comment.post_id].push(comment);
+    }
   }
 
   return grouped;
