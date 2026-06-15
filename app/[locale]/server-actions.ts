@@ -269,16 +269,23 @@ export async function loginAction(formData: FormData) {
   }
 
   const rawPhone = parsed.data.phone.trim();
-  const normalizedPhone = normalizeMauritaniaPhone(rawPhone);
-  const syntheticEmail = toSyntheticPhoneEmail(normalizedPhone);
+  let normalizedPhone: string;
+  try {
+    normalizedPhone = normalizeMauritaniaPhone(rawPhone);
+  } catch (err) {
+    console.error("LOGIN: Phone normalization failed", err);
+    return { error: { phone: errorT("auth_invalid_phone") } };
+  }
 
   console.log("LOGIN raw phone:", rawPhone);
   console.log("LOGIN normalized phone:", normalizedPhone);
-  console.log("LOGIN synthetic email:", syntheticEmail);
 
   if (!isValidMauritaniaPhone(normalizedPhone)) {
     return { error: { phone: errorT("auth_invalid_phone") } };
   }
+
+  const syntheticEmail = toSyntheticPhoneEmail(normalizedPhone);
+  console.log("LOGIN synthetic email:", syntheticEmail);
 
   const ip = await getClientIp();
   const rateCheck = await checkRateLimit("login", `${ip}:${normalizedPhone}`);
@@ -301,11 +308,44 @@ export async function loginAction(formData: FormData) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
-    const { data: profile } = await supabase
+    // Check if profile is missing, if so, repair it
+    const { data: profileData, error: profileFetchError } = await supabase
       .from('profiles')
       .select('onboarding_completed')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
+
+    let profile = profileData;
+
+    if (profileFetchError) {
+      console.error("LOGIN ERROR: failed to fetch profile during repair check", profileFetchError);
+    }
+
+    if (!profile) {
+      console.log("LOGIN: profile missing, repairing now...");
+      const autoUsername = `u${user.id.replace(/-/g, '').slice(0, 12)}`;
+      const profileData = {
+        id: user.id,
+        username: autoUsername,
+        full_name: user.user_metadata?.full_name || '',
+        phone: user.user_metadata?.phone || normalizedPhone,
+        role: 'member',
+      };
+
+      try {
+        const adminClient = createAdminClient();
+        const writeClient = adminClient ?? supabase;
+        const { error: repairError } = await writeClient.from('profiles').upsert(profileData, { onConflict: 'id' });
+        if (repairError) {
+          console.error("LOGIN ERROR: profile repair upsert failed", repairError);
+        } else {
+          console.log("LOGIN: profile repair upsert completed successfully");
+          profile = { onboarding_completed: false };
+        }
+      } catch (e) {
+        console.error("LOGIN ERROR: exception during profile repair", e);
+      }
+    }
 
     if (!profile?.onboarding_completed) {
       revalidatePath('/', 'layout');
@@ -342,18 +382,26 @@ export async function registerAction(formData: FormData) {
   }
 
   const rawPhone = parsed.data.phone.trim();
-  const normalizedPhone = normalizeMauritaniaPhone(rawPhone);
-  const syntheticEmail = toSyntheticPhoneEmail(normalizedPhone);
-  const password = parsed.data.password;
-  const fullName = parsed.data.fullName;
+  let normalizedPhone: string;
+  try {
+    normalizedPhone = normalizeMauritaniaPhone(rawPhone);
+  } catch (err) {
+    console.error("REGISTER: Phone normalization failed", err);
+    return { error: { phone: errorT("auth_invalid_phone") } };
+  }
 
   console.log("REGISTER raw phone:", rawPhone);
   console.log("REGISTER normalized phone:", normalizedPhone);
-  console.log("REGISTER synthetic email:", syntheticEmail);
 
   if (!isValidMauritaniaPhone(normalizedPhone)) {
     return { error: { phone: errorT("auth_invalid_phone") } };
   }
+
+  const syntheticEmail = toSyntheticPhoneEmail(normalizedPhone);
+  const password = parsed.data.password;
+  const fullName = parsed.data.fullName;
+
+  console.log("REGISTER synthetic email:", syntheticEmail);
 
   const ip = await getClientIp();
   const rateCheck = await checkRateLimit("register", ip);
@@ -384,23 +432,64 @@ export async function registerAction(formData: FormData) {
     return { error: { phone: "auth_phone_exists" } };
   }
 
-  console.log("REGISTER: calling supabase.auth.signUp with email", syntheticEmail);
+  console.log("REGISTER: preparing user creation for email", syntheticEmail);
 
-  const { data, error } = await supabase.auth.signUp({
-    email: syntheticEmail,
-    password,
-    options: {
-      data: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let signUpData: any = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let signUpError: any = null;
+
+  const adminClient = createAdminClient();
+  if (adminClient) {
+    console.log("REGISTER: using admin client for user creation");
+    const { data: adminData, error: adminError } = await adminClient.auth.admin.createUser({
+      email: syntheticEmail,
+      password: password,
+      email_confirm: true,
+      user_metadata: {
         full_name: fullName,
         phone: normalizedPhone,
-      },
-    },
-  });
+      }
+    });
+    signUpData = adminData;
+    signUpError = adminError;
 
-  console.log("REGISTER: auth signUp result", { userId: data.user?.id, session: !!data.session, error });
+    if (!adminError && adminData?.user) {
+      console.log("REGISTER: admin user creation successful, logging in user now...");
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: syntheticEmail,
+        password: password,
+      });
+      if (signInError) {
+        console.error("REGISTER ERROR: auto-login after admin signup failed", signInError);
+      } else {
+        console.log("REGISTER: auto-login successful");
+        signUpData.session = signInData.session;
+      }
+    }
+  } else {
+    console.log("REGISTER: admin client not available, using anon client signUp");
+    const { data: anonData, error: anonError } = await supabase.auth.signUp({
+      email: syntheticEmail,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          phone: normalizedPhone,
+        },
+      },
+    });
+    signUpData = anonData;
+    signUpError = anonError;
+  }
+
+  const data = signUpData;
+  const error = signUpError;
+
+  console.log("REGISTER: auth creation result", { userId: data?.user?.id, session: !!data?.session, error });
 
   if (error) {
-    console.error("REGISTER ERROR: auth signUp failed", { message: error.message, code: error.code, status: error.status });
+    console.error("REGISTER ERROR: auth user creation failed", { message: error.message, code: error.code, status: error.status });
     if (isAuthUserAlreadyRegisteredError(error)) return { error: { phone: "auth_phone_exists" } };
     if (isWeakPasswordError(error)) return { error: { password: errorT("auth_weak_password") } };
     if (isRateLimitError(error)) return { error: { general: errorT("auth_rate_limited") } };
@@ -409,8 +498,8 @@ export async function registerAction(formData: FormData) {
     return { error: { general: errorT("auth_generic_error") } };
   }
 
-  if (!data.user?.id) {
-    console.error("REGISTER ERROR: no user returned from signUp", { data });
+  if (!data?.user?.id) {
+    console.error("REGISTER ERROR: no user returned from signup", { data });
     return { error: { general: errorT("auth_generic_error") } };
   }
 
@@ -448,42 +537,26 @@ export async function registerAction(formData: FormData) {
 
   if (profileError) {
     console.error("REGISTER ERROR: profile creation failed", { message: profileError.message, code: profileError.code, details: profileError.details, hint: profileError.hint });
+    
+    // Check if the profile already exists (e.g. successfully created by the DB trigger)
     const conflictLookup = await findProfileByPhone(supabase, normalizedPhone);
+    console.log("REGISTER existing profile after error:", conflictLookup.profile);
 
-    console.log("REGISTER existing profile:", conflictLookup.profile);
-
-    if (conflictLookup.error) {
-      console.error("REGISTER: post-signup phone lookup failed", {
-        source: conflictLookup.source,
-        message: conflictLookup.error.message,
-        code: conflictLookup.error.code,
-        details: conflictLookup.error.details,
-        hint: conflictLookup.error.hint,
-      });
+    if (conflictLookup.profile?.id === data.user.id) {
+      console.log("REGISTER: profile already exists for newly-created auth user, ignoring upsert error");
+      return registrationSuccess(locale, next, Boolean(data.session));
     }
 
     if (isDuplicateDatabaseError(profileError)) {
-      if (conflictLookup.profile?.id === data.user.id) {
-        console.log("REGISTER: profile already exists for newly-created auth user", { normalizedPhone });
-        return registrationSuccess(locale, next, Boolean(data.session));
-      }
-
       if (conflictLookup.profile) return { error: { phone: "auth_phone_exists" } };
-
       return { error: { general: errorT("auth_generic_error") } };
     }
 
     if (isPermissionDatabaseError(profileError)) {
       console.error("REGISTER ERROR: RLS policy blocked profile creation", profileError);
-      if (conflictLookup.profile?.id === data.user.id) {
-        return registrationSuccess(locale, next, Boolean(data.session));
-      }
       return { error: { general: errorT("auth_generic_error") } };
     }
-    if (profileError.message?.toLowerCase().includes('not null') || profileError.message?.toLowerCase().includes('constraint')) {
-      console.error("REGISTER ERROR: database constraint violation", profileError);
-      return { error: { general: errorT("auth_generic_error") } };
-    }
+    
     return { error: { general: errorT("auth_generic_error") } };
   }
 
