@@ -996,7 +996,7 @@
     "errors": {
       "auth_invalid_credentials": "Phone number or password is incorrect",
       "auth_email_not_confirmed": "Please confirm your email before logging in",
-      "auth_user_exists": "An account already exists with this email address.",
+      "auth_user_exists": "An account already exists with this phone number.",
       "auth_weak_password": "Password must be at least 8 characters with letters and numbers",
       "auth_invalid_email": "Please enter a valid email address",
       "auth_link_expired": "This link has expired or is invalid",

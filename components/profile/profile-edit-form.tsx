@@ -20,7 +20,6 @@ import {prepareImageForUpload, ImageUploadError} from "@/lib/images/client-compr
 import {ACCEPTED_IMAGE_EXTENSIONS} from "@/lib/images/upload-config";
 
 const formSchema = z.object({
-  username: z.string().min(3).max(24),
   fullName: z.string().min(2).max(100),
   bio: z.string().max(500).optional().or(z.literal("")),
   city: z.string().max(100).optional().or(z.literal("")),
@@ -30,7 +29,6 @@ const formSchema = z.object({
 });
 
 type ProfileFormValues = {
-  username: string;
   fullName: string;
   bio?: string;
   city?: string;
@@ -61,7 +59,6 @@ export function ProfileEditForm({profile, locale}: {profile: ProfileRow; locale:
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: profile.username ?? "",
       fullName: profile.full_name ?? "",
       bio: profile.bio ?? "",
       city: profile.city ?? "",
@@ -109,7 +106,6 @@ export function ProfileEditForm({profile, locale}: {profile: ProfileRow; locale:
     try {
       const formData = new FormData();
       formData.set("locale", locale);
-      formData.set("username", values.username);
       formData.set("fullName", values.fullName);
       formData.set("bio", values.bio ?? "");
       formData.set("city", values.city ?? "");
@@ -146,12 +142,6 @@ export function ProfileEditForm({profile, locale}: {profile: ProfileRow; locale:
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">{t("fields.username")}</label>
-            <Input {...register("username")} placeholder={t("fields.username")} />
-            {errors.username && <p className="text-xs text-destructive">{errors.username.message}</p>}
-          </div>
-
           <div className="space-y-1">
             <label className="text-xs font-medium text-muted-foreground">{t("fields.fullName")}</label>
             <Input {...register("fullName")} placeholder={t("fields.fullName")} />

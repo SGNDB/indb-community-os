@@ -107,33 +107,11 @@ async function getClientIp(): Promise<string> {
 
 type AuthFieldErrors = {
   fullName?: string;
-  username?: string;
-  email?: string;
   phone?: string;
   password?: string;
   confirmPassword?: string;
   general?: string;
 };
-
-async function findAuthUserByEmail(email: string) {
-  const admin = createAdminClient();
-  if (!admin) return null;
-
-  let page = 1;
-  const perPage = 1000;
-
-  while (page <= 10) {
-    const {data, error} = await admin.auth.admin.listUsers({page, perPage});
-    if (error || !data?.users?.length) return null;
-
-    const match = data.users.find((user) => user.email?.toLowerCase() === email.toLowerCase());
-    if (match) return match;
-    if (data.users.length < perPage) return null;
-    page += 1;
-  }
-
-  return null;
-}
 
 function authValidationErrors(
   issues: Array<{path: PropertyKey[]; message: string}>,
@@ -148,8 +126,6 @@ function authValidationErrors(
     const isEmpty = typeof rawValue !== "string" || rawValue.trim().length === 0;
 
     if (field === "fullName") errors.fullName = errorT(isEmpty ? "full_name_required" : issue.message);
-    else if (field === "username") errors.username = errorT(isEmpty ? "username_required" : issue.message);
-    else if (field === "email") errors.email = errorT(isEmpty ? "email_required" : issue.message);
     else if (field === "phone") errors.phone = errorT(isEmpty ? "phone_required" : issue.message);
     else if (field === "password") errors.password = errorT(isEmpty ? "password_required" : issue.message);
     else if (field === "confirmPassword") errors.confirmPassword = errorT(isEmpty ? "confirm_password_required" : issue.message);
@@ -280,7 +256,8 @@ export async function registerAction(formData: FormData) {
 
   const supabase = await createClient();
 
-  // Check if phone already exists in profiles
+  console.log("REGISTER: checking phone uniqueness", { normalizedPhone });
+
   const { data: existingProfileByPhone, error: phoneCheckError } = await supabase
     .from('profiles')
     .select('id')
@@ -288,11 +265,12 @@ export async function registerAction(formData: FormData) {
     .maybeSingle();
 
   if (phoneCheckError) {
-    console.error("REGISTER: phone uniqueness check failed", phoneCheckError);
-    return { error: { phone: errorT("auth_generic_error") } };
+    console.error("REGISTER ERROR: phone uniqueness check failed", phoneCheckError);
+    return { error: { phone: errorT("auth_phone_exists") } };
   }
 
   if (existingProfileByPhone) {
+    console.log("REGISTER: phone already registered", { normalizedPhone });
     return { error: { phone: errorT("auth_phone_exists") } };
   }
 
@@ -309,39 +287,58 @@ export async function registerAction(formData: FormData) {
     },
   });
 
-  console.log("REGISTER: signUp result", { data, error });
+  console.log("REGISTER: auth signUp result", { userId: data.user?.id, session: !!data.session, error });
 
   if (error) {
-    console.error("REGISTER ERROR", error);
-    const errorMessage = getLocalizedAuthError(error, errorT);
+    console.error("REGISTER ERROR: auth signUp failed", { message: error.message, code: error.code, status: error.status });
     if (error.message.includes('User already registered') || error.message.toLowerCase().includes('already registered')) {
       return { error: { phone: errorT("auth_phone_exists") } };
     }
-    return { error: { general: errorMessage } };
+    if (error.message.toLowerCase().includes('weak password') || error.message.toLowerCase().includes('at least 8')) {
+      return { error: { password: errorT("auth_weak_password") } };
+    }
+    if (error.message.toLowerCase().includes('rate limit')) {
+      return { error: { general: errorT("auth_rate_limited") } };
+    }
+    if (error.message.toLowerCase().includes('network') || error.message.toLowerCase().includes('fetch')) {
+      return { error: { general: errorT("auth_network_error") } };
+    }
+    return { error: { phone: errorT("auth_phone_exists") } };
   }
 
-  if (data.user?.id) {
-    const autoUsername = `u${data.user.id.replace(/-/g, '').slice(0, 12)}`;
-    console.log("REGISTER: auto-generated username", autoUsername);
+  if (!data.user?.id) {
+    console.error("REGISTER ERROR: no user returned from signUp", { data });
+    return { error: { general: errorT("auth_generic_error") } };
+  }
 
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .upsert({
-        id: data.user.id,
-        username: autoUsername,
-        full_name: fullName,
-        phone: normalizedPhone,
-        role: 'member',
-      });
+  const autoUsername = `u${data.user.id.replace(/-/g, '').slice(0, 12)}`;
+  console.log("REGISTER: auto-generated username", autoUsername);
 
-    console.log("REGISTER: profile upsert result", { error: profileError });
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .upsert({
+      id: data.user.id,
+      username: autoUsername,
+      full_name: fullName,
+      phone: normalizedPhone,
+      role: 'member',
+    });
 
-    if (profileError) {
-      console.error("REGISTER: profile creation failed", profileError);
+  console.log("REGISTER: profile upsert result", { error: profileError });
+
+  if (profileError) {
+    console.error("REGISTER ERROR: profile creation failed", { message: profileError.message, code: profileError.code, details: profileError.details, hint: profileError.hint });
+    if (profileError.message?.toLowerCase().includes('duplicate key') || profileError.code === '23505') {
+      return { error: { phone: errorT("auth_phone_exists") } };
+    }
+    if (profileError.message?.toLowerCase().includes('row-level security') || profileError.message?.toLowerCase().includes('permission')) {
+      console.error("REGISTER ERROR: RLS policy blocked profile creation", profileError);
       return { error: { general: errorT("auth_generic_error") } };
     }
-  } else {
-    console.error("REGISTER: no user returned from signUp");
+    if (profileError.message?.toLowerCase().includes('not null') || profileError.message?.toLowerCase().includes('constraint')) {
+      console.error("REGISTER ERROR: database constraint violation", profileError);
+      return { error: { general: errorT("auth_generic_error") } };
+    }
     return { error: { general: errorT("auth_generic_error") } };
   }
 
@@ -1019,7 +1016,6 @@ export async function updateProfileAction(
   if (!user) return { success: false, error: imageT('notAuthenticated') };
 
   const parsed = profileSchema.safeParse({
-    username: formData.get('username'),
     fullName: formData.get('fullName'),
     bio: formData.get('bio'),
     city: formData.get('city'),
@@ -1063,7 +1059,6 @@ export async function updateProfileAction(
 
   const { error } = await supabase.from('profiles').upsert({
     id: user.id,
-    username: parsed.data.username,
     full_name: parsed.data.fullName,
     bio: parsed.data.bio || null,
     city: parsed.data.city || null,
@@ -3377,7 +3372,6 @@ export async function updateOnboardingProfileAction(
     bio?: string;
     city?: string;
     languages?: string[];
-    username?: string;
     avatar_url?: string;
   },
 ): Promise<{ success: boolean; error?: string }> {
@@ -3397,10 +3391,6 @@ export async function updateOnboardingProfileAction(
     city: profileData.city || null,
     languages_spoken: profileData.languages || [],
   };
-
-  if (profileData.username) {
-    updateData.username = profileData.username;
-  }
 
   if (profileData.avatar_url) {
     updateData.avatar_url = profileData.avatar_url;

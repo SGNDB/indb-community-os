@@ -21,6 +21,7 @@ const AUTH_ERROR_MAP: Record<string, string> = {
   "Invalid verification code": "auth_generic_error",
   "new email cannot be the same as the old email": "auth_generic_error",
   "Only anon, email, or phone sign-ups are supported": "auth_generic_error",
+  "Phone sign-ups are not supported. Only anon, email, or phone sign-ups are supported.": "auth_phone_exists",
 };
 
 function normalizeSupabaseMessage(message: string): string {

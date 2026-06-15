@@ -28,7 +28,6 @@ export function OnboardingFlow({locale, userId}: OnboardingFlowProps) {
     city: "",
     languages: [] as string[],
     avatar_url: undefined as string | undefined,
-    username: "",
   });
   const step1Ref = useRef<OnboardingStep1Handle>(null);
 
@@ -47,7 +46,6 @@ export function OnboardingFlow({locale, userId}: OnboardingFlowProps) {
           city: profile.city || "",
           languages: profile.languages_spoken || [],
           avatar_url: profile.avatar_url || undefined,
-          username: profile.username || "",
         });
       }
     })();
@@ -84,7 +82,6 @@ export function OnboardingFlow({locale, userId}: OnboardingFlowProps) {
     city: string;
     languages: string[];
     avatar_url: string | undefined;
-    username: string;
   }) => {
     setProfileData(data);
     handleNext();
