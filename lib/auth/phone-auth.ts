@@ -39,3 +39,23 @@ export function toSyntheticPhoneEmail(normalizedPhone: string): string {
   const digits = normalizedPhone.slice(1); // strip the leading '+'
   return `${digits}@phone.indb.local`;
 }
+
+export function getSyntheticPhoneRegistrationInput({
+  normalizedPhone,
+  fullName,
+  password,
+}: {
+  normalizedPhone: string;
+  fullName: string;
+  password: string;
+}) {
+  return {
+    email: toSyntheticPhoneEmail(normalizedPhone),
+    password,
+    email_confirm: true,
+    user_metadata: {
+      full_name: fullName,
+      phone: normalizedPhone,
+    },
+  };
+}

@@ -41,6 +41,7 @@ import {
   registerSchema,
 } from '@/lib/validations/community';
 import { normalizeMauritaniaPhone, toSyntheticPhoneEmail, isValidMauritaniaPhone } from '@/lib/auth/phone';
+import { getSyntheticPhoneRegistrationInput } from '@/lib/auth/phone-auth';
 import type {
   CommentWithAuthor,
   CommunityShareImage,
@@ -308,8 +309,14 @@ export async function loginAction(formData: FormData) {
 
   if (error) {
     console.error("LOGIN error:", { message: error.message, code: error.code, status: error.status });
+
+    const mappedError = getLocalizedAuthError(error, errorT);
+    if (error.message.toLowerCase().includes("email not confirmed") || error.message.toLowerCase().includes("email not verified")) {
+      return { error: { general: mappedError } };
+    }
+
     if (isInvalidCredentialsError(error)) return { error: { password: errorT("auth_invalid_credentials") } };
-    return { error: { general: errorT("auth_invalid_credentials") } };
+    return { error: { general: mappedError } };
   }
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -446,64 +453,33 @@ export async function registerAction(formData: FormData) {
   let signUpError: any = null;
 
   const adminClient = createAdminClient();
-  if (adminClient) {
-    console.log("REGISTER: using admin client for user creation");
-    const { data: adminData, error: adminError } = await adminClient.auth.admin.createUser({
-      email: syntheticEmail,
-      password: password,
-      email_confirm: true,
-      user_metadata: {
-        full_name: fullName,
-        phone: normalizedPhone,
-      }
-    });
-    signUpData = adminData;
-    signUpError = adminError;
+  if (!adminClient) {
+    console.error("REGISTER: admin client unavailable for synthetic phone registration");
+    return { error: { general: errorT("auth_generic_error") } };
+  }
 
-    if (!adminError && adminData?.user) {
-      console.log("REGISTER: admin user creation successful, logging in user now...");
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: syntheticEmail,
-        password: password,
-      });
-      if (signInError) {
-        console.error("REGISTER ERROR: auto-login after admin signup failed", signInError);
-      } else {
-        console.log("REGISTER: auto-login successful");
-        signUpData.session = signInData.session;
-      }
-    }
-  } else {
-    console.log("REGISTER: admin client not available, using anon client signUp");
-    const { data: anonData, error: anonError } = await supabase.auth.signUp({
-      email: syntheticEmail,
+  console.log("REGISTER: using admin client for synthetic phone registration");
+  const registrationInput = getSyntheticPhoneRegistrationInput({
+    normalizedPhone,
+    fullName,
+    password,
+  });
+
+  const { data: adminData, error: adminError } = await adminClient.auth.admin.createUser(registrationInput);
+  signUpData = adminData;
+  signUpError = adminError;
+
+  if (!adminError && adminData?.user) {
+    console.log("REGISTER: admin user creation successful, logging in user now...");
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: registrationInput.email,
       password,
-      options: {
-        data: {
-          full_name: fullName,
-          phone: normalizedPhone,
-        },
-      },
     });
-    signUpData = anonData;
-    signUpError = anonError;
-
-    // If signUp succeeded but has no session yet (email confirmation pending),
-    // try an immediate sign-in. This works when Supabase has "Confirm email"
-    // disabled — which is the correct setting for phone-only auth with synthetic emails.
-    if (!anonError && anonData?.user && !anonData?.session) {
-      console.log("REGISTER: no session from signUp, attempting immediate auto-login...");
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: syntheticEmail,
-        password,
-      });
-      if (signInError) {
-        console.error("REGISTER: auto-login after anon signUp failed", signInError.message);
-        // Leave signUpData.session as null — will fall through to login page with banner
-      } else {
-        console.log("REGISTER: auto-login after anon signUp succeeded");
-        signUpData = { ...anonData, session: signInData.session };
-      }
+    if (signInError) {
+      console.error("REGISTER ERROR: auto-login after admin signup failed", signInError);
+    } else {
+      console.log("REGISTER: auto-login successful");
+      signUpData.session = signInData.session;
     }
   }
 
