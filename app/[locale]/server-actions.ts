@@ -350,15 +350,32 @@ export async function registerAction(formData: FormData) {
   const autoUsername = `u${data.user.id.replace(/-/g, '').slice(0, 12)}`;
   console.log("REGISTER: auto-generated username", autoUsername);
 
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .upsert({
-      id: data.user.id,
-      username: autoUsername,
-      full_name: fullName,
-      phone: normalizedPhone,
-      role: 'member',
-    });
+  const profileData = {
+    id: data.user.id,
+    username: autoUsername,
+    full_name: fullName,
+    phone: normalizedPhone,
+    role: 'member',
+  };
+
+  let profileError = null;
+
+  try {
+    const adminClient = createAdminClient();
+    if (adminClient) {
+      console.log("REGISTER: using admin client for profile upsert");
+      const { error } = await adminClient.from('profiles').upsert(profileData);
+      profileError = error;
+    } else {
+      console.log("REGISTER: using anon client for profile upsert");
+      const { error } = await supabase.from('profiles').upsert(profileData);
+      profileError = error;
+    }
+  } catch (e) {
+    console.error("REGISTER: admin profile upsert failed, trying anon", e);
+    const { error } = await supabase.from('profiles').upsert(profileData);
+    profileError = error;
+  }
 
   console.log("REGISTER: profile upsert result", { error: profileError });
 
