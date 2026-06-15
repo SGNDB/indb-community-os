@@ -840,7 +840,8 @@
       "noAccount": "Amul jikko?",
       "register": "Sos ay jikko",
       "showPassword": "Wone sàmm",
-      "hidePassword": "Nàcc sàmm"
+      "hidePassword": "Nàcc sàmm",
+      "registeredSuccess": "Jëkk bi dafa dëkk! Dugg ci këram."
     },
     "register": {
       "title": "Sos sa jikko",

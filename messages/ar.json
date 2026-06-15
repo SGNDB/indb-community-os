@@ -967,7 +967,8 @@
       "noAccount": "ليس لديك حساب؟",
       "register": "إنشاء حساب",
       "showPassword": "إظهار كلمة المرور",
-      "hidePassword": "إخفاء كلمة المرور"
+      "hidePassword": "إخفاء كلمة المرور",
+      "registeredSuccess": "تم إنشاء الحساب بنجاح! يرجى تسجيل الدخول للمتابعة."
     },
     "register": {
       "title": "إنشاء حساب",

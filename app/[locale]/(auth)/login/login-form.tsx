@@ -1,6 +1,6 @@
 "use client";
 
-import {Eye, EyeOff, Loader2, AlertCircle} from "lucide-react";
+import {Eye, EyeOff, Loader2, AlertCircle, CheckCircle2} from "lucide-react";
 import {useTranslations} from "next-intl";
 import {useState} from "react";
 import {useRouter} from "next/navigation";
@@ -16,7 +16,7 @@ interface FormErrors {
   general?: string;
 }
 
-export function LoginForm({locale, next, phone: prefilledPhone}: {locale: string; next?: string; phone?: string}) {
+export function LoginForm({locale, next, phone: prefilledPhone, registered}: {locale: string; next?: string; phone?: string; registered?: boolean}) {
   const t = useTranslations("Auth.login");
   const errorT = useTranslations("Auth.errors");
   const router = useRouter();
@@ -81,6 +81,12 @@ export function LoginForm({locale, next, phone: prefilledPhone}: {locale: string
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      {registered && (
+        <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+          <CheckCircle2 size={16} className="shrink-0 text-green-600" />
+          <span>{t("registeredSuccess")}</span>
+        </div>
+      )}
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground/80">{t("phone")}</label>
         <div className="relative">

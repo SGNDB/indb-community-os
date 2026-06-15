@@ -840,7 +840,8 @@
       "noAccount": "Kuun sanya?",
       "register": "Mah kuun",
       "showPassword": "Yeru furta",
-      "hidePassword": "Noxu furta"
+      "hidePassword": "Noxu furta",
+      "registeredSuccess": "Kuntigi kɛra! I sɛbɛ i lajɛ."
     },
     "register": {
       "title": "Mah kuun maa",

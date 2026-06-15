@@ -840,7 +840,8 @@
       "noAccount": "Alaa huunde?",
       "register": "Mah huunde",
       "showPassword": "Hollu finnde wowre",
-      "hidePassword": "Suud finnde wowre"
+      "hidePassword": "Suud finnde wowre",
+      "registeredSuccess": "Janngo tawni! Naatir yiɗde jokki."
     },
     "register": {
       "title": "Mah huunde maa",

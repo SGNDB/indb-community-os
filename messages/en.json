@@ -967,7 +967,8 @@
       "noAccount": "Don't have an account?",
       "register": "Create one",
       "showPassword": "Show password",
-      "hidePassword": "Hide password"
+      "hidePassword": "Hide password",
+      "registeredSuccess": "Account created successfully! Please sign in to continue."
     },
     "register": {
       "title": "Create your account",

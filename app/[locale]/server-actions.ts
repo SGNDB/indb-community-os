@@ -186,19 +186,25 @@ function isPermissionDatabaseError(error: SupabaseErrorLike | null | undefined) 
 
 function registrationSuccess(
   locale: string,
-  next: FormDataEntryValue | null,
+  _next: FormDataEntryValue | null,
   hasSession: boolean,
 ): {success: true; redirect: string} {
-  const redirectPath = typeof next === 'string' && next ? next : '/feed';
-
   revalidatePath('/', 'layout');
 
+  if (hasSession) {
+    // Signed in immediately (admin-created user) → go straight to onboarding
+    return {
+      success: true,
+      redirect: toPath(locale, '/onboarding'),
+    };
+  }
+
+  // Account created but no session yet (anon signUp without auto-confirm).
+  // Send to login with a success flag so the page can show a confirmation banner,
+  // and preserve the post-login destination as /onboarding.
   return {
     success: true,
-    redirect: toPath(
-      locale,
-      hasSession ? '/onboarding' : `/login?next=${encodeURIComponent(redirectPath)}`,
-    ),
+    redirect: toPath(locale, `/login?registered=1&next=${encodeURIComponent('/onboarding')}`),
   };
 }
 

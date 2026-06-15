@@ -16,6 +16,7 @@ export default async function LoginPage({
   const sp = await searchParams;
   const next = typeof sp.next === "string" ? sp.next : undefined;
   const phone = typeof sp.phone === "string" ? sp.phone : undefined;
+  const registered = sp.registered === "1";
 
   return (
     <div className="mx-auto max-w-md space-y-6">
@@ -28,7 +29,7 @@ export default async function LoginPage({
           <CardTitle className="text-xl font-semibold tracking-tight">{t("title")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <LoginForm locale={locale} next={next} phone={phone} />
+          <LoginForm locale={locale} next={next} phone={phone} registered={registered} />
         </CardContent>
       </Card>
     </div>

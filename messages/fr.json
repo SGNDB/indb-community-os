@@ -967,7 +967,8 @@
       "noAccount": "Vous n'avez pas de compte ?",
       "register": "Créer un compte",
       "showPassword": "Afficher le mot de passe",
-      "hidePassword": "Masquer le mot de passe"
+      "hidePassword": "Masquer le mot de passe",
+      "registeredSuccess": "Compte créé avec succès ! Veuillez vous connecter pour continuer."
     },
     "register": {
       "title": "Créer votre compte",
