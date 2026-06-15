@@ -118,7 +118,7 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
   async function handleFacebookLogin() {
     const supabase = createClient();
     const redirectTo = `${window.location.origin}/auth/callback?locale=${locale}${next ? `&next=${encodeURIComponent(next)}` : ""}`;
-    await supabase.auth.signInWithOAuth({provider: "facebook", options: {redirectTo}});
+    await supabase.auth.signInWithOAuth({provider: "facebook", options: {scopes: "public_profile,email", redirectTo}});
   }
 
   return (

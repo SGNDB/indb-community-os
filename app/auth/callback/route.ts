@@ -47,9 +47,23 @@ export async function GET(request: NextRequest) {
       .from("profiles")
       .select("onboarding_completed")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
-    if (!profile?.onboarding_completed) {
+    if (!profile) {
+      const email = user.email || `${user.id}@facebook.local`;
+      const fullName = user.user_metadata?.full_name || user.user_metadata?.name || "User";
+
+      await supabase.from("profiles").upsert({
+        id: user.id,
+        email,
+        full_name: fullName,
+        onboarding_completed: false,
+      });
+
+      return NextResponse.redirect(new URL(`/${locale}/onboarding`, origin));
+    }
+
+    if (!profile.onboarding_completed) {
       return NextResponse.redirect(new URL(`/${locale}/onboarding`, origin));
     }
 
