@@ -72,7 +72,9 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
     if (!email) nextErrors.email = errorT("email_required");
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) nextErrors.email = errorT("auth_invalid_email");
     if (!formData.password) nextErrors.password = errorT("password_required");
-    else if (!hasMinLen || !hasLetter || !hasNumber) nextErrors.password = errorT("password_requirements");
+    else if (!hasMinLen) nextErrors.password = errorT("password_length");
+    else if (!hasLetter) nextErrors.password = errorT("password_letter");
+    else if (!hasNumber) nextErrors.password = errorT("password_number");
     if (!formData.confirmPassword) nextErrors.confirmPassword = errorT("confirm_password_required");
     else if (formData.password !== formData.confirmPassword) nextErrors.confirmPassword = errorT("password_mismatch");
 

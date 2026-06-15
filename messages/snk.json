@@ -879,7 +879,7 @@
       "auth_session_expired": "Votre session a expiré. Veuillez vous reconnecter",
       "auth_network_error": "Erreur réseau. Veuillez vérifier votre connexion",
       "password_length": "Le mot de passe doit contenir au moins 8 caractères",
-      "password_requirements": "Le mot de passe doit contenir au moins une lettre et un chiffre",
+      "password_requirements": "Le mot de passe doit contenir au moins 8 caractères, une lettre et un chiffre",
       "password_mismatch": "Les mots de passe ne correspondent pas",
       "username_length": "Le nom d'utilisateur doit contenir entre 3 et 24 caractères",
       "full_name_length": "Le nom complet doit contenir entre 2 et 100 caractères",
@@ -890,7 +890,9 @@
       "password_required": "Password waajibini",
       "username_required": "Username waajibini",
       "full_name_required": "Toxo timma waajibini",
-      "confirm_password_required": "Password in saxu"
+      "confirm_password_required": "Password in saxu",
+      "password_letter": "Le mot de passe doit contenir au moins une lettre",
+      "password_number": "Le mot de passe doit contenir au moins un chiffre"
     },
     "success": {
       "auth_registered": "Inscription terminée ! Vérifiez votre e-mail pour confirmer votre compte.",

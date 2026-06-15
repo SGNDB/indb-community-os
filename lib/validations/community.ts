@@ -3,8 +3,8 @@
 export const passwordSchema = z
   .string()
   .min(8, "password_length")
-  .regex(/[a-zA-Z]/, "password_requirements")
-  .regex(/[0-9]/, "password_requirements");
+  .regex(/[a-zA-Z]/, "password_letter")
+  .regex(/[0-9]/, "password_number");
 
 export const loginSchema = z.object({
   email: z.string().email("auth_invalid_email"),
