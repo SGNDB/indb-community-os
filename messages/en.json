@@ -1,0 +1,1345 @@
+{
+  "Onboarding": {
+    "title": "Welcome to I ❤️ NDB",
+    "subtitle": "Let's get you set up",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip for now",
+    "getStarted": "Get started",
+    "step1": {
+      "title": "Introduce yourself to the community",
+      "subtitle": "Tell us a bit about yourself (optional)",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Enter your full name",
+      "bio": "Bio",
+      "bioPlaceholder": "Write a short bio about yourself",
+      "city": "City",
+      "cityPlaceholder": "Enter your city",
+      "languages": "Languages",
+      "skip": "Skip for now",
+      "saveAndContinue": "Save and continue",
+      "saving": "Saving..."
+    },
+    "step2": {
+      "title": "What is I ❤️ NDB?",
+      "subtitle": "Discover what makes our community special",
+      "whatIsINDB": "A community platform for Nouadhibou, bringing people together through posts, memories, ideas, and helping each other.",
+      "skip": "Skip for now",
+      "next": "Next",
+      "features": {
+        "home": {
+          "title": "Home",
+          "description": "Latest updates and community activity."
+        },
+        "community": {
+          "title": "Community",
+          "description": "Share posts, photos, comments, and reactions."
+        },
+        "memory": {
+          "title": "Memory",
+          "description": "Preserve stories, photos, and history of Nouadhibou."
+        },
+        "ideas": {
+          "title": "Ideas",
+          "description": "Suggest ideas to improve the city and vote on them."
+        },
+        "fadla": {
+          "title": "Fadla",
+          "description": "Share useful things you no longer need with people who need them."
+        },
+        "profile": {
+          "title": "Profile",
+          "description": "Show who you are and your contributions."
+        }
+      }
+    },
+    "step3": {
+      "title": "Welcome to Nouadhibou's community",
+      "message": "Here, we preserve memory, share good, and build the future together.",
+      "getStarted": "Get started"
+    }
+  },
+  "Meta": {
+    "siteTitle": "I love NDB",
+    "siteDescription": "Nouadhibou community platform for civic memory, participation, and local solutions.",
+    "home": {
+      "title": "Home",
+      "description": "Discover the INDB community platform for memory, participation, and local action."
+    },
+    "feed": {
+      "title": "Feed",
+      "description": "Follow community updates, stories, and constructive conversations."
+    },
+    "memory": {
+      "title": "Memory Archive",
+      "description": "Explore community memories, stories, and local heritage."
+    },
+    "events": {
+      "title": "Events",
+      "description": "Discover upcoming community events and local initiatives."
+    },
+    "projects": {
+      "title": "Projects",
+      "description": "Track civic projects, volunteer efforts, and progress."
+    },
+    "polls": {
+      "title": "Polls",
+      "description": "Participate in community polls that support inclusive decisions."
+    },
+    "ideas": {
+      "title": "Ideas",
+      "description": "Vote and contribute to practical ideas for Nouadhibou."
+    },
+    "fadla": {
+      "title": "Fadla",
+      "description": "Share useful things you no longer need with people who need them."
+    },
+    "fadlaArchive": {
+      "title": "Fadla Archive",
+      "description": "Browse completed and archived shared items and track community impact."
+    },
+    "timeline": {
+      "title": "Timeline",
+      "description": "Browse key moments from Nouadhibou's community memory."
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "View your community profile, contributions, and activity."
+    },
+    "admin": {
+      "title": "Admin Dashboard",
+      "description": "Manage community users, credits, and recent content."
+    },
+    "memorySubmit": {
+      "title": "Submit Memory",
+      "description": "Share a community memory with context and archival details."
+    },
+    "ideaSubmit": {
+      "title": "Submit Idea",
+      "description": "Propose a civic idea and help shape community priorities."
+    },
+    "ideaEdit": {
+      "title": "Edit Idea",
+      "description": "Update your civic idea proposal."
+    },
+    "postEdit": {
+      "title": "Edit Post",
+      "description": "Update your post."
+    },
+    "privacy": {
+      "title": "Privacy Policy | I ❤️ NDB",
+      "description": "Privacy policy for the I ❤️ NDB community platform."
+    },
+    "terms": {
+      "title": "Terms of Service | I ❤️ NDB",
+      "description": "Terms and conditions for using the I ❤️ NDB community platform."
+    },
+    "dataDeletion": {
+      "title": "Data Deletion | I ❤️ NDB",
+      "description": "Request deletion of your data from the I ❤️ NDB community platform."
+    }
+  },
+  "Privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: June 2026",
+    "introTitle": "Introduction",
+    "introBody": "Welcome to I ❤️ NDB (Nouadhibou). We are committed to protecting your privacy and ensuring that your personal information is handled in a safe and responsible manner. This Privacy Policy explains how we collect, use, and safeguard your information when you use our platform.\nBy creating an account and using I ❤️ NDB, you agree to the collection and use of information in accordance with this policy.",
+    "dataTitle": "What Data We Collect",
+    "dataBody": "When you create an account and use our platform, we collect the following types of information:",
+    "dataList": [
+      "Account Information: Your name, email address, and password when you register.",
+      "Profile Information: Your display name, bio, profile picture, cover photo, city, and any other details you choose to add.",
+      "Posts and Comments: Content you publish on the feed, including text, links, and reactions.",
+      "Memories: Stories, photos, and historical content you contribute to the memory archive.",
+      "Ideas: Suggestions and proposals you submit to improve the city.",
+      "Fadla Items: Items you list to share with the community.",
+      "Media: Images and videos you upload to the platform.",
+      "Cookies and Session Data: Technical data collected through cookies and similar technologies."
+    ],
+    "accountsTitle": "User Accounts",
+    "accountsBody": "When you create an account on I ❤️ NDB, we collect your name and email address. You may optionally provide additional profile information such as a bio, profile picture, and city. Your profile is visible to other community members. You can control what information is displayed by editing your profile settings at any time.",
+    "contentTitle": "Posts, Memories, Ideas, and Fadla",
+    "contentBody": "Any content you post on the platform — including feed posts, memories, ideas, comments, and Fadla listings — is stored on our servers and may be visible to other users according to your privacy settings and the nature of the feature. We retain this content to provide our services and maintain the community archive. You can delete your content at any time, and we will remove it from public view.",
+    "mediaTitle": "Uploaded Images and Videos",
+    "mediaBody": "Images and videos you upload are stored securely on our servers. We use these media files only to display them on the platform as you intend. We do not use your uploaded media for any purpose other than providing our services. You may delete any media you have uploaded at any time through the platform interface.",
+    "cookiesTitle": "Cookies and Session Usage",
+    "cookiesBody": "We use cookies and similar tracking technologies to maintain your session, remember your preferences, and improve your experience. Cookies are small text files stored on your device. You can control cookie settings through your browser. Essential cookies are required for the platform to function properly. Analytics cookies help us understand how the platform is used so we can improve it.",
+    "rightsTitle": "User Rights",
+    "rightsBody": "You have the right to access, update, or delete your personal information at any time. You can:\n- Edit your profile information through the platform settings.\n- Delete your posts, memories, ideas, and Fadla items individually.\n- Request full account deletion by contacting the platform administrators.\n- Withdraw consent for data processing where applicable.\n- Export your data by contacting us.\nWe will respond to any data request within a reasonable timeframe.",
+    "contactTitle": "Contact Information",
+    "contactBody": "If you have any questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact the platform administrators through the platform's contact channels or by reaching out to the community management team."
+  },
+  "Terms": {
+    "title": "Terms of Service",
+    "lastUpdated": "Last updated: June 2026",
+    "introTitle": "Introduction",
+    "introBody": "Welcome to I ❤️ NDB. By accessing or using our platform, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you may not use the platform. These terms apply to all visitors, users, and contributors of the I ❤️ NDB community platform.",
+    "rulesTitle": "Community Rules",
+    "rulesBody": "To maintain a welcoming and constructive community, all users must follow these rules:",
+    "rulesList": [
+      "Treat all community members with respect and dignity.",
+      "Share content that is accurate, constructive, and relevant to the community.",
+      "Use the platform in good faith and for its intended purposes.",
+      "Protect your account credentials and notify administrators of any unauthorized use.",
+      "Follow all applicable local and international laws when using the platform."
+    ],
+    "responsibilitiesTitle": "User Responsibilities",
+    "responsibilitiesBody": "As a user of I ❤️ NDB, you are responsible for:",
+    "responsibilitiesList": [
+      "The accuracy of the information you provide in your profile and posts.",
+      "Ensuring that any content you upload does not violate the rights of others.",
+      "Maintaining the confidentiality of your account password.",
+      "Reporting any violations of these terms to the platform administrators.",
+      "Complying with any additional guidelines posted for specific features or campaigns."
+    ],
+    "prohibitedTitle": "Prohibited Content",
+    "prohibitedBody": "The following types of content are strictly prohibited on I ❤️ NDB:",
+    "prohibitedList": [
+      "Hate speech, harassment, bullying, or discriminatory content.",
+      "Explicit, violent, or sexually explicit material.",
+      "Spam, misleading information, or fake news.",
+      "Content that infringes on the intellectual property rights of others.",
+      "Content promoting illegal activities or substances.",
+      "Malicious code, phishing attempts, or content that compromises platform security.",
+      "Impersonation of other users, public figures, or organizations."
+    ],
+    "moderationTitle": "Content Moderation",
+    "moderationBody": "I ❤️ NDB reserves the right to review, moderate, and remove any content that violates these terms or is deemed inappropriate for the community. Moderators and administrators may take action without prior notice when necessary to protect the community. We strive to apply moderation consistently and fairly. If you believe content has been removed in error, you may contact the moderation team for review.",
+    "suspensionTitle": "Account Suspension and Removal",
+    "suspensionBody": "Violation of these terms may result in any of the following actions:\n- Warning: A formal notice about the violation.\n- Content Removal: Removal of specific content that violates the terms.\n- Temporary Suspension: Limited access to the platform for a specified period.\n- Permanent Ban: Complete removal of access to the platform.\n- Account Deletion: Removal of the account and all associated data.\nThe severity of the action depends on the nature and frequency of the violation. Appeals may be submitted to the platform administrators.",
+    "limitationsTitle": "Platform Limitations",
+    "limitationsBody": "I ❤️ NDB is provided on an \"as is\" and \"as available\" basis. We make no warranties, expressed or implied, regarding the availability, reliability, or suitability of the platform for any particular purpose. We reserve the right to modify, suspend, or discontinue any aspect of the platform at any time. We are not liable for any damages arising from the use or inability to use the platform.",
+    "contactTitle": "Contact Information",
+    "contactBody": "If you have questions about these Terms of Service, please contact the platform administrators through the available communication channels."
+  },
+  "DataDeletion": {
+    "title": "Data Deletion",
+    "lastUpdated": "Last updated: June 2026",
+    "introTitle": "Introduction",
+    "introBody": "At I ❤️ NDB, we respect your right to control your data. This page explains how you can request the deletion of your data from our platform. We are committed to processing deletion requests promptly and transparently.",
+    "noticeTitle": "Temporary Process",
+    "noticeBody": "Currently, account and data deletion is handled manually by platform administrators. You can request deletion by contacting the platform administrators directly. Self-service account deletion will be available in a future update.",
+    "accountTitle": "Deleting Your Account",
+    "accountBody": "To delete your entire account and all associated data, please contact the platform administrators with your request. Include the email address associated with your account so we can verify your identity. Once verified, we will:\n- Permanently delete your account.\n- Remove your profile information.\n- Anonymize or delete your posts, comments, and reactions.\n- Remove your uploaded media files.\nPlease note that some content (such as comments on others' posts) may be anonymized rather than fully deleted to preserve community context.",
+    "postsTitle": "Deleting Your Posts",
+    "postsBody": "You can delete individual posts directly from the platform interface. Navigate to the post you wish to delete and use the delete option. If you need to delete multiple posts or are unable to delete a post yourself, please contact the platform administrators for assistance.",
+    "memoriesTitle": "Deleting Your Memories",
+    "memoriesBody": "Memories you have contributed can be deleted from the memory archive. Navigate to the memory you wish to delete and use the available options. If you need help deleting memories or wish to remove all your memory contributions, contact the platform administrators.",
+    "ideasTitle": "Deleting Your Ideas",
+    "ideasBody": "Ideas you have submitted can be deleted through the platform interface. Please note that deleting an idea will also remove associated votes and comments. If you encounter any issues, reach out to the platform administrators.",
+    "fadlaTitle": "Deleting Fadla Items",
+    "fadlaBody": "Fadla items you have listed can be deleted from the Fadla section. Once deleted, the item will no longer be visible to other community members. For bulk deletion or assistance, please contact the platform administrators.",
+    "contactTitle": "Contact Us",
+    "contactBody": "To request data deletion or ask any questions about this process, please contact the platform administrators through the platform's communication channels. We will respond to your request within a reasonable timeframe and confirm once the deletion has been completed."
+  },
+  "LanguageSwitcher": {
+    "label": "Language switcher",
+    "changeTo": "Switch language to {language}"
+  },
+  "Navbar": {
+    "memberAvatarLabel": "Community member profile",
+    "createAccount": "Create account",
+    "login": "Login",
+    "logout": "Log out",
+    "loggingOut": "Logging out..."
+  },
+  "Navigation": {
+    "items": {
+      "home": {
+        "label": "Home",
+        "short": "Home"
+      },
+      "feed": {
+        "label": "Feed",
+        "short": "Feed"
+      },
+      "memory": {
+        "label": "Memories",
+        "short": "Memory"
+      },
+      "ideas": {
+        "label": "Ideas",
+        "short": "Ideas"
+      },
+      "fadla": {
+        "label": "Fadla",
+        "short": "Share"
+      },
+      "polls": {
+        "label": "Polls",
+        "short": "Polls"
+      },
+      "events": {
+        "label": "Events",
+        "short": "Events"
+      },
+      "projects": {
+        "label": "Projects",
+        "short": "Projects"
+      },
+      "profile": {
+        "label": "Profile",
+        "short": "Profile"
+      }
+    }
+  },
+  "Theme": {
+    "toggle": "Toggle theme"
+  },
+  "Search": {
+    "title": "Search",
+    "placeholder": "Search the community",
+    "clear": "Clear search",
+    "noResults": "No results found",
+    "viewAll": "View all results",
+    "searching": "Searching...",
+    "error": "Could not complete search",
+    "minLength": "Type at least 2 characters to search.",
+    "resultsFor": "Results for “{query}”",
+    "sections": {
+      "posts": "Posts",
+      "ideas": "Ideas",
+      "memories": "Memories",
+      "fadla": "Shares",
+      "people": "People"
+    },
+    "types": {
+      "post": "Post",
+      "idea": "Idea",
+      "memory": "Memory",
+      "fadla": "Shared item",
+      "profile": "Person"
+    }
+  },
+  "Notifications": {
+    "button": "Notifications",
+    "title": "Notifications",
+    "empty": "No notifications yet",
+    "markAllRead": "Mark all as read",
+    "loading": "Loading...",
+    "close": "Close",
+    "startedFollowing": "{actorName} started following you",
+    "reactedToPost": "{actorName} reacted to your post",
+    "commentedOnPost": "{actorName} commented on your post",
+    "commentedOnYourIdea": "{actorName} commented on your idea",
+    "sharedYourIdea": "{actorName} shared your idea",
+    "reactedToMemory": "{actorName} reacted to your memory",
+    "commentedOnYourMemory": "{actorName} commented on your memory",
+    "sharedYourMemory": "{actorName} shared your memory",
+    "creditAwarded": "You received {points} contribution points",
+    "communityShareRequested": "Someone requested the item you shared",
+    "fadlaRequested": "{actorName} requested an item you shared",
+    "fadlaCompleted": "{actorName} completed your Fadla item",
+    "someone": "Someone",
+    "loadMore": "Load more"
+  },
+  "RightSidebar": {
+    "trendingTopics": "Trending Topics",
+    "featuredMemories": "Featured Memories",
+    "activePoll": "Active Poll",
+    "votes": "{count} votes",
+    "upcomingEvents": "Upcoming Events"
+  },
+  "Landing": {
+    "tagline": "Memory - Participation - Future",
+    "heroTitle": "Preserving Memory. Building the Future.",
+    "heroDescription": "A digital community platform for Dakhlet Nouadhibou.",
+    "mottoPrimary": "Nouadhibou belongs to all of us.",
+    "mottoSecondary": "Community memory powers shared progress.",
+    "joinCommunity": "Join Community",
+    "exploreMemories": "Explore Memories",
+    "latestPosts": "Latest Posts",
+    "pollPreview": "Poll Preview",
+    "featuredMemories": "Featured Memories",
+    "communityIdeas": "Community Ideas",
+    "createAccount": "Create account",
+    "login": "Login"
+  },
+  "Feed": {
+    "ago": "ago",
+    "save": "Save",
+    "saved": "Saved",
+    "comments": "Comments",
+    "share": "Share",
+    "linkCopied": "Post link copied",
+    "shareFailed": "Unable to share",
+    "deleting": "Deleting...",
+    "sending": "Sending...",
+    "commentPlaceholder": "Write a comment...",
+    "unknownAuthor": "Unknown",
+    "all": "All",
+    "categories": {
+      "community": "Community",
+      "events": "Events",
+      "memory": "Memory",
+      "ideas": "Ideas"
+    },
+    "reactions": {
+      "like": "Like",
+      "love": "Love",
+      "support": "Support",
+      "celebrate": "Celebrate",
+      "insightful": "Insightful",
+      "sad": "Sad"
+    },
+    "actionCounts": {
+      "likes": "{count} Likes",
+      "comments": "{count} Comments",
+      "saves": "{count} Saves"
+    },
+    "editComment": "Edit comment",
+    "deleteComment": "Delete comment",
+    "cancel": "Cancel",
+    "commentUpdated": "Comment updated",
+    "commentDeleted": "Comment deleted",
+    "commentUpdateFailed": "Failed to update comment",
+    "commentDeleteFailed": "Failed to delete comment"
+  },
+  "FeedComposer": {
+    "title": "Create post",
+    "placeholder": "Share something with the community...",
+    "quickActions": {
+      "text": "Text",
+      "image": "Image",
+      "event": "Event",
+      "photo": "Photo",
+      "memory": "Memory",
+      "idea": "Idea"
+    },
+    "composerTitle": "Share an update with your community",
+    "form": {
+      "title": "Title",
+      "content": "What happened? What solution do you suggest?",
+      "mediaUrl": "Optional media URL",
+      "selectCategory": "Select a category",
+      "publish": "Publish"
+    },
+    "cancel": "Cancel",
+    "post": "Post",
+    "posting": "Posting...",
+    "socialPrompt": "What's happening in Nouadhibou?",
+    "editTitle": "Edit post",
+    "save": "Save",
+    "saving": "Saving...",
+    "notFound": "Post not found",
+    "notFoundDescription": "The post you are trying to edit does not exist.",
+    "errors": {
+      "submitFailed": "Could not publish post. Please try again.",
+      "postFailed": "Could not publish post. Please try again.",
+      "uploading": "Please wait until media upload finishes."
+    }
+  },
+  "Memory": {
+    "title": "Memory Archive",
+    "description": "A digital museum of community stories, photos, and historical context.",
+    "openTimeline": "Open Timeline",
+    "submitNew": "Submit new memory",
+    "contributedBy": "Contributed by {name}",
+    "relatedMemories": "Related Memories",
+    "noImage": "No image available",
+    "unknownContributor": "Unknown contributor",
+    "share": "Share",
+    "linkCopied": "Memory link copied",
+    "shareFailed": "Unable to share",
+    "edit": "Edit memory",
+    "delete": "Delete memory",
+    "confirmDelete": "Delete",
+    "confirmDeleteTitle": "Delete memory",
+    "deleteConfirm": "Are you sure you want to delete this memory?",
+    "memoryDeleted": "Memory deleted",
+    "deleteFailed": "Failed to delete memory",
+    "cancel": "Cancel",
+    "storyMemory": "Story Memory",
+    "verification": {
+      "pending": "Pending review",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "needsMoreInfo": "Needs more info"
+    },
+    "memoryShared": "Memory shared successfully",
+    "memoryUpdated": "Memory updated",
+    "memorySaved": "Memory saved",
+    "memoryUnsaved": "Memory removed from saved",
+    "allCategories": "All Categories",
+    "categories": {
+      "port": "Port",
+      "railway": "Railway",
+      "schools": "Schools",
+      "families": "Families",
+      "culture": "Culture",
+      "sport": "Sport",
+      "market": "Market",
+      "beach": "Beach",
+      "oldCity": "Old City",
+      "work": "Work",
+      "fishing": "Fishing",
+      "migration": "Migration",
+      "cansado": "Cansado",
+      "snim": "SNIM",
+      "religiousEvents": "Religious Events",
+      "nationalEvents": "National Events",
+      "neighborhoods": "Neighborhoods",
+      "other": "Other"
+    }
+  },
+  "MemoryReactions": {
+    "love": "Love",
+    "respect": "Respect",
+    "nostalgia": "Nostalgia",
+    "important": "Important",
+    "failed": "Reaction failed"
+  },
+  "MemoryForm": {
+    "title": "Submit a community memory",
+    "editTitle": "Edit memory",
+    "update": "Update memory",
+    "ready": "Your memory is ready to submit.",
+    "imageHelper": "Add a photo if you have one. Memories can also be shared as stories.",
+    "fields": {
+      "title": "Memory title",
+      "story": "Share the story and context",
+      "category": "Select a category",
+      "eraLabel": "Era (optional)",
+      "location": "Location (optional)"
+    },
+    "errors": {
+      "title": "Please enter a valid memory title.",
+      "story": "Please provide enough story details.",
+      "category": "Please choose a category.",
+      "submitFailed": "Something went wrong while submitting"
+    },
+    "submitting": "Submitting...",
+    "submit": "Submit memory",
+    "cancel": "Cancel",
+    "successMessage": "Memory submitted successfully"
+  },
+  "MemoryTimeline": {
+    "title": "Memory Timeline",
+    "subtitle": "Browse community memories by decade, year, and category",
+    "browseDecades": "Browse by Decade",
+    "noDecades": "No dated memories yet",
+    "noDecadesDescription": "Memories exist, but none have a year yet. Add a year to memories so they appear in the timeline.",
+    "pickYear": "Pick a Year",
+    "noYears": "No years in this decade yet",
+    "memoriesFrom": "Memories from {year}",
+    "noMemories": "No memories match your filters",
+    "noMemoriesInYear": "No memories from {year}",
+    "loadMore": "Load More",
+    "loadingMemories": "Loading memories...",
+    "filterByCategory": "Filter by category",
+    "filterByLocation": "Filter by location",
+    "allCategories": "All categories",
+    "sortBy": "Sort by",
+    "sortNewest": "Newest first",
+    "sortOldest": "Oldest first",
+    "sortMostReacted": "Most reacted",
+    "sortMostSaved": "Most saved",
+    "sortMostCommented": "Most commented",
+    "totalMemories": "{count} memories",
+    "topCategories": "Top categories",
+    "topLocations": "Top locations",
+    "backToTimeline": "Back to timeline",
+    "backToDecades": "Back to decades",
+    "memoryCount": "{count} memories",
+    "categories": {
+      "port": "Port",
+      "railway": "Railway",
+      "schools": "Schools",
+      "families": "Families",
+      "culture": "Culture",
+      "sport": "Sport",
+      "market": "Market",
+      "beach": "Beach",
+      "oldCity": "Old City",
+      "work": "Work",
+      "fishing": "Fishing",
+      "migration": "Migration",
+      "cansado": "Cansado",
+      "snim": "SNIM",
+      "religiousEvents": "Religious Events",
+      "nationalEvents": "National Events",
+      "neighborhoods": "Neighborhoods",
+      "other": "Other"
+    }
+  },
+  "Ideas": {
+    "title": "Community Ideas",
+    "description": "Vote for practical proposals and help prioritize solutions for Nouadhibou.",
+    "voteLabel": "Vote",
+    "voteLabelVoted": "Voted",
+    "supportPercent": "{percent}% support",
+    "top10PopularIdeas": "Top 10 Popular Ideas",
+    "showAll": "Show all ({count})",
+    "badgeNewIdea": "New Idea",
+    "badgeGrowingSupport": "Growing Support",
+    "badgePopular": "Popular",
+    "badgeCommunityPriority": "Community Priority",
+    "badgeTopPriority": "Top Priority",
+    "share": "Share",
+    "linkCopied": "Idea link copied",
+    "unknownAuthor": "Unknown",
+    "voteFailed": "Vote failed",
+    "commentsWithCount": "Comments ({count})",
+    "commentPlaceholder": "Write a comment...",
+    "noCommentsYet": "No comments yet. Be the first to comment.",
+    "loginToComment": "Log in to comment",
+    "commentFailed": "Failed to add comment",
+    "commentDeleteFailed": "Failed to delete comment",
+    "delete": "Delete",
+    "shareAnother": "Share another idea",
+    "edit": "Edit",
+    "deleteConfirm": "Are you sure you want to delete this idea?",
+    "confirmDelete": "Delete",
+    "confirmDeleteTitle": "Delete idea",
+    "cancel": "Cancel",
+    "ideaUpdated": "Idea updated successfully",
+    "ideaDeleted": "Idea deleted successfully",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "editIdea": "Edit idea",
+    "deleteIdea": "Delete idea",
+    "allIdeas": "All Ideas",
+    "status": {
+      "submitted": "Submitted",
+      "underReview": "Under Review",
+      "accepted": "Accepted",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "rejected": "Rejected"
+    },
+    "editComment": "Edit comment",
+    "deleteComment": "Delete comment",
+    "save": "Save",
+    "commentUpdated": "Comment updated",
+    "commentDeleted": "Comment deleted",
+    "commentUpdateFailed": "Failed to update comment"
+  },
+  "IdeaForm": {
+    "title": "Submit a civic idea",
+    "editTitle": "Edit your idea",
+    "update": "Update idea",
+    "ready": "Your idea is ready to submit.",
+    "fields": {
+      "title": "Idea title",
+      "description": "Describe the idea, benefits and next steps",
+      "category": "Select a category",
+      "others": "Others"
+    },
+    "errors": {
+      "title": "Please enter a valid idea title.",
+      "description": "Please describe the idea clearly.",
+      "category": "Please choose a category.",
+      "submitFailed": "Could not submit idea. Please try again."
+    },
+    "submitting": "Submitting...",
+    "submit": "Submit idea",
+    "cancel": "Cancel",
+    "successMessage": "Idea submitted successfully"
+  },
+  "Events": {
+    "title": "Community Events",
+    "description": "Discover upcoming events and join local initiatives.",
+    "rsvp": "RSVP"
+  },
+  "Projects": {
+    "title": "Community Projects",
+    "description": "Track progress, volunteers, and impact across civic projects.",
+    "progress": "Progress",
+    "volunteers": "{count} volunteers",
+    "status": {
+      "planning": "Planning",
+      "inProgress": "In Progress",
+      "recruiting": "Recruiting"
+    }
+  },
+  "Polls": {
+    "title": "Community Polls",
+    "description": "Simple community polls to support constructive and inclusive decisions.",
+    "totalVotes": "{count} total votes",
+    "voteButton": "Vote"
+  },
+  "Timeline": {
+    "title": "Nouadhibou Timeline"
+  },
+  "Profile": {
+    "bio": "Community volunteer, storyteller, and youth mentorship advocate.",
+    "location": "Nouadhibou, Mauritania",
+    "stats": {
+      "posts": "Posts",
+      "memories": "Memories",
+      "ideas": "Ideas",
+      "comments": "Comments"
+    },
+    "editProfile": "Edit profile",
+    "changeAvatar": "Change Avatar",
+    "changeCover": "Change Cover",
+    "shareProfile": "Share profile",
+    "tabsTitle": "Profile Tabs",
+    "tabs": {
+      "posts": "Posts",
+      "memories": "Memories",
+      "ideas": "Ideas",
+      "shares": "Shares",
+      "about": "About"
+    },
+    "joined": "Joined",
+    "role": {
+      "admin": "Admin",
+      "moderator": "Moderator"
+    },
+    "recentMemories": "Recent Memories",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "updated": "Profile updated successfully",
+    "cancel": "Cancel",
+    "noBio": "No bio yet.",
+    "noBioYet": "No bio yet.",
+    "uploading": "Uploading...",
+    "photoUpdated": "Profile photo updated",
+    "coverUpdated": "Cover photo updated",
+    "uploadFailed": "Failed to upload image",
+    "noCity": "No city set.",
+    "createPost": "Create post",
+    "noPostsYet": "No posts yet. Share your first update.",
+    "fields": {
+      "username": "Username",
+      "fullName": "Full name",
+      "bio": "Bio",
+      "city": "City",
+      "languagePreference": "Language (en, fr, ar)",
+      "avatarUrl": "Avatar",
+      "coverImage": "Cover image",
+      "role": "Role",
+      "memberSince": "Member since"
+    },
+    "contributionScore": "Contribution Score",
+    "contributionRanks": {
+      "member": "Member",
+      "contributor": "Contributor",
+      "communityBuilder": "Community Builder",
+      "communityLeader": "Community Leader",
+      "ndbChampion": "NDB Champion"
+    }
+  },
+  "Follow": {
+    "follow": "Follow",
+    "following": "Following",
+    "unfollow": "Unfollow",
+    "followers": "Followers",
+    "followingCount": "Following",
+    "followedToast": "You are now following this profile",
+    "unfollowedToast": "You unfollowed this profile",
+    "loginToFollow": "Login to follow users",
+    "failed": "Unable to update follow status"
+  },
+  "ProfileCard": {
+    "bio": "Community storyteller documenting memories, ideas, and local projects.",
+    "location": "Dakhlet Nouadhibou",
+    "stats": {
+      "posts": "Posts",
+      "memories": "Memories",
+      "ideas": "Ideas"
+    },
+    "badges": {
+      "contributor": "Contributor",
+      "historian": "Historian"
+    }
+  },
+  "Admin": {
+    "stats": {
+      "postsToday": "Posts today",
+      "pendingMemories": "Pending memories",
+      "openIdeas": "Open ideas",
+      "reportsQueue": "Reports queue"
+    },
+    "moderationQueue": "Moderation queue",
+    "noPendingReports": "No pending reports.",
+    "targetType": {
+      "memory": "Memory",
+      "post": "Post"
+    },
+    "status": {
+      "pending": "Pending"
+    },
+    "reasons": {
+      "yearConfirmation": "Needs publication year confirmation",
+      "respectfulTone": "Review wording for respectful tone"
+    },
+    "commandCenter": "INDB Center",
+    "nouadhibouSignal": "Nouadhibou signal",
+    "eyebrow": "Community Command Center",
+    "signedInLabel": "Signed in as",
+    "signedInAs": "Admin: {name}",
+    "hero": {
+      "title": "Nouadhibou is alive. Here is its pulse.",
+      "description": "Watch the people, ideas, memories, and contributions shaping INDB. This space is for guiding a living community, not managing a database."
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "content": "Content",
+      "credits": "Credits",
+      "analytics": "Analytics",
+      "settings": "Settings"
+    },
+    "sections": {
+      "overview": "Overview",
+      "users": "Users",
+      "credits": "Credits",
+      "content": "Content"
+    },
+    "health": {
+      "eyebrow": "Community health",
+      "title": "What is happening now",
+      "members": "Members",
+      "posts": "Posts",
+      "ideas": "Ideas",
+      "memories": "Memories",
+      "activeToday": "Active today",
+      "newToday": "+{count} today",
+      "today": "+{count} today",
+      "activeSignal": "live signal",
+      "totalComments": "{count} comments"
+    },
+    "pulse": {
+      "eyebrow": "Community pulse",
+      "title": "The conversations moving the city",
+      "noPreview": "No preview available yet.",
+      "type": {
+        "post": "Most active discussion",
+        "idea": "Most active idea",
+        "memory": "Memory spotlight",
+        "member": "Newest member"
+      }
+    },
+    "newMembers": {
+      "eyebrow": "New arrivals",
+      "title": "Newest members"
+    },
+    "contributors": {
+      "eyebrow": "Top contributors",
+      "title": "People building the community",
+      "rank": {
+        "member": "Member",
+        "contributor": "Contributor",
+        "communityBuilder": "Community Builder",
+        "communityLeader": "Community Leader",
+        "ndbChampion": "NDB Champion"
+      }
+    },
+    "actions": {
+      "eyebrow": "Action center",
+      "title": "Move the community forward",
+      "awardCredits": "Award Credits",
+      "awardCreditsDescription": "Recognize helpful members.",
+      "reviewReports": "Review Reports",
+      "reviewReportsDescription": "Check content that needs attention.",
+      "viewUsers": "View Users",
+      "viewUsersDescription": "Find members and update roles.",
+      "analytics": "Community Analytics",
+      "analyticsDescription": "Read the pulse and activity."
+    },
+    "overview": {
+      "totalUsers": "Total users",
+      "totalPosts": "Total posts",
+      "totalIdeas": "Total ideas",
+      "totalMemories": "Total memories",
+      "totalComments": "Total comments"
+    },
+    "users": {
+      "eyebrow": "Community people",
+      "title": "Member management",
+      "description": "Users stay as members. Admin can remove accounts when needed.",
+      "search": "Search users",
+      "searchButton": "Search",
+      "user": "User",
+      "email": "Email",
+      "role": "Role",
+      "score": "Contribution score",
+      "award": "Award credits",
+      "noUsername": "No username",
+      "emailUnavailable": "Not available",
+      "updateRole": "Update",
+      "selfRoleProtected": "Your admin account is protected",
+      "deleteUser": "Delete account",
+      "deleteConfirm": "Delete this user account from the community? This cannot be undone from the dashboard."
+    },
+    "roles": {
+      "member": "Member",
+      "admin": "Admin"
+    },
+    "credits": {
+      "eyebrow": "Contribution credits",
+      "title": "Reward community impact",
+      "description": "Award community contribution points and keep history.",
+      "user": "User",
+      "points": "Points",
+      "reason": "Reason",
+      "note": "Note",
+      "notePlaceholder": "Optional note",
+      "award": "Award credits",
+      "recent": "Recent credits",
+      "empty": "No credits awarded yet."
+    },
+    "creditReasons": {
+      "helpedCommunity": "Helped the community",
+      "sharedValuableMemory": "Shared valuable memory",
+      "proposedUsefulIdea": "Proposed useful idea",
+      "volunteerWork": "Volunteer work",
+      "cityImprovementAction": "City improvement action",
+      "other": "Other"
+    },
+    "content": {
+      "eyebrow": "Content watch",
+      "title": "Recent posts, ideas, and memories",
+      "description": "Review recent posts, ideas, and memories.",
+      "by": "By {name}",
+      "view": "View",
+      "delete": "Delete",
+      "type": {
+        "post": "Post",
+        "idea": "Idea",
+        "memory": "Memory"
+      }
+    },
+    "activity": {
+      "eyebrow": "Recent activity",
+      "title": "Community timeline",
+      "type": {
+        "post": "{name} shared a post: {title}",
+        "idea": "{name} proposed an idea: {title}",
+        "memory": "{name} shared a memory: {title}",
+        "credit": "{name} gained {title} credits",
+        "member": "{title} joined the community"
+      }
+    },
+    "identity": {
+      "eyebrow": "Community identity",
+      "title": "You are building Nouadhibou?s digital home.",
+      "description": "Every credit, review, and role update should help people feel seen, useful, and connected to the city.",
+      "settingsNote": "Settings and deeper analytics can come later. The MVP stays focused on people and contribution."
+    },
+    "statusMessage": {
+      "roleUpdated": "Role updated successfully.",
+      "creditsAwarded": "Credits awarded successfully.",
+      "contentDeleted": "Content deleted successfully.",
+      "invalid": "Invalid admin action.",
+      "roleError": "Could not update role.",
+      "creditError": "Could not award credits. Make sure the Supabase migration is applied.",
+      "deleteError": "Could not delete content.",
+      "selfRoleBlocked": "You cannot remove your own admin role from this page.",
+      "userDeleted": "User account removed from the community.",
+      "userDeleteError": "Could not delete this user account. Check Supabase service role permissions and try again.",
+      "selfDeleteBlocked": "You cannot delete your own admin account from this page.",
+      "userDeleteConfigError": "Supabase service role key is missing. Add SUPABASE_SERVICE_ROLE_KEY in Vercel first."
+    },
+    "sidebar": {
+      "backToSite": "Back to site",
+      "close": "Close sidebar",
+      "collapse": "Collapse sidebar",
+      "expand": "Expand sidebar"
+    }
+  },
+  "Categories": {
+    "memory": {
+      "history": "History",
+      "railway": "Railway",
+      "fishing": "Fishing",
+      "culture": "Culture"
+    },
+    "idea": {
+      "education": "Education",
+      "environment": "Environment",
+      "youth": "Youth",
+      "culture": "Culture"
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "Sign in",
+      "done": "Login interaction completed.",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "register": "Create one",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
+    },
+    "register": {
+      "title": "Create your account",
+      "done": "Account creation interaction completed.",
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "submit": "Create account",
+      "submitting": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "login": "Sign in",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Your full name",
+      "usernamePlaceholder": "Choose a username"
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "email": "Email address",
+      "submit": "Send reset link",
+      "submitting": "Sending...",
+      "sent": "Check your email for a password reset link.",
+      "backToLogin": "Back to login",
+      "description": "Enter your email and we'll send you a link to reset your password."
+    },
+    "errors": {
+      "auth_invalid_credentials": "Invalid email or password",
+      "auth_email_not_confirmed": "Please confirm your email before logging in",
+      "auth_user_exists": "An account already exists with this email address.",
+      "auth_weak_password": "Password must be at least 8 characters with letters and numbers",
+      "auth_invalid_email": "Please enter a valid email address",
+      "auth_link_expired": "This link has expired or is invalid",
+      "auth_rate_limited": "Too many attempts. Please try again later",
+      "auth_generic_error": "An error occurred. Please try again",
+      "auth_session_expired": "Your session has expired. Please sign in again",
+      "auth_network_error": "Network error. Please check your connection",
+      "password_length": "Password must be at least 8 characters",
+      "password_requirements": "Password must be at least 8 characters and contain at least one letter and one number",
+      "password_letter": "Password must contain at least one letter",
+      "password_number": "Password must contain at least one number",
+      "password_mismatch": "Passwords do not match",
+      "username_length": "Username must be between 3 and 24 characters",
+      "full_name_length": "Full name must be between 2 and 100 characters",
+      "username_taken": "This username is already taken",
+      "incorrect_password": "Incorrect password",
+      "account_not_found": "No account found with this email address",
+      "email_required": "Email is required",
+      "password_required": "Password is required",
+      "username_required": "Username is required",
+      "full_name_required": "Full name is required",
+      "confirm_password_required": "Please confirm your password"
+    },
+    "success": {
+      "auth_registered": "Registration complete! Check your email to confirm your account.",
+      "auth_password_reset_sent": "If an account exists, you will receive a password reset email.",
+      "auth_password_updated": "Password updated successfully.",
+      "auth_email_confirmed": "Email confirmed! You can now sign in.",
+      "auth_logged_out": "You have been signed out.",
+      "auth_email_confirmation_sent": "Confirmation email sent. Please check your inbox."
+    },
+    "validation": {
+      "password_requirements": "At least 8 characters with letters and numbers",
+      "password_length": "At least 8 characters",
+      "password_letter": "Contains a letter",
+      "password_number": "Contains a number",
+      "password_mismatch": "Passwords do not match",
+      "username_length": "Between 3 and 24 characters",
+      "full_name_length": "Between 2 and 100 characters"
+    }
+  },
+  "Toasts": {
+    "postCreated": "Post created",
+    "postUpdated": "Post updated",
+    "commentAdded": "Comment added",
+    "commentDeleted": "Comment deleted",
+    "postDeleted": "Post deleted",
+    "postSaved": "Post saved",
+    "memorySubmitted": "Memory shared successfully",
+    "ideaSubmitted": "Idea submitted successfully",
+    "voteAdded": "Vote added",
+    "updated": "Profile updated",
+    "linkCopied": "Post link copied",
+    "emailSent": "Check your email for the reset link",
+    "emailConfirmation": "Registration complete. Please check your email to confirm your account.",
+    "comingSoon": "Coming soon"
+  },
+  "Errors": {
+    "invalidInput": "Invalid input",
+    "invalidPost": "Invalid post",
+    "invalidProfile": "Invalid profile",
+    "invalidMemory": "Invalid memory",
+    "invalidIdea": "Invalid idea",
+    "saveFailed": "Save failed",
+    "reactionFailed": "Reaction update failed",
+    "titleRequired": "Title is required",
+    "descriptionRequired": "Description is required",
+    "titleTooShort": "Title must be at least 4 characters",
+    "descriptionTooShort": "Description must be at least 10 characters",
+    "submitFailed": "Something went wrong while submitting"
+  },
+  "ImageUpload": {
+    "tooLarge": "File is too large. Please choose a smaller file.",
+    "videoTooLarge": "Video is too large. Maximum size is 50MB.",
+    "videoTooLong": "Video is too long. Maximum duration is 60 seconds.",
+    "imagesOrVideo": "You can upload either images or one video, not both.",
+    "invalidType": "Please choose a valid file (JPG, PNG, WebP, MP4, WebM, MOV).",
+    "uploading": "Uploading...",
+    "success": "Uploaded successfully.",
+    "chooseImage": "Add photos",
+    "chooseVideo": "Add video",
+    "replace": "Replace image",
+    "remove": "Remove image",
+    "failed": "Failed to upload.",
+    "compressionFailed": "Failed to prepare image for upload.",
+    "notAuthenticated": "Please log in before uploading.",
+    "noFile": "Please choose a file to upload.",
+    "uploadingImagesProgress": "Uploading images {current} of {total}..."
+  },
+  "Brand": {
+    "title": "INDB Community OS",
+    "subtitle": "I love NDB",
+    "alt": "INDB logo mark"
+  },
+  "Common": {
+    "seeTranslation": "See translation",
+    "seeOriginal": "See original",
+    "translating": "Translating...",
+    "translationUnavailable": "Translation unavailable",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "EmptyStates": {
+    "posts": {
+      "title": "No community stories yet",
+      "description": "Be the first to share what is happening in Nouadhibou.",
+      "cta": "Create a post"
+    },
+    "memories": {
+      "title": "No memories yet",
+      "description": "Preserve a story, photo, or moment from Nouadhibou.",
+      "cta": "Share a memory"
+    },
+    "ideas": {
+      "title": "No ideas yet",
+      "description": "Start the next community improvement idea.",
+      "cta": "Share an idea"
+    },
+    "fadla": {
+      "title": "No shares yet",
+      "description": "Share something useful you no longer need and help a neighbor.",
+      "cta": "Share something"
+    },
+    "events": {
+      "title": "No events yet",
+      "description": "Create the first event and bring people together around local action.",
+      "cta": "Explore feed"
+    },
+    "profile": {
+      "title": "No posts yet",
+      "description": "Share your first update.",
+      "cta": "Create post"
+    },
+    "polls": {
+      "title": "No polls yet",
+      "description": "Create the first poll to gather community input.",
+      "cta": "Explore feed"
+    },
+    "projects": {
+      "title": "No projects yet",
+      "description": "Start a citizen project and bring the community together around local action.",
+      "cta": "Explore feed"
+    }
+  },
+  "Fadla": {
+    "title": "Fadla",
+    "eyebrow": "Community sharing",
+    "description": "Share useful things you no longer need with people who need them. Less waste, more solidarity, stronger Nouadhibou.",
+    "notMarketplace": "No prices. No payments. Only sharing and helping.",
+    "shareButton": "Share Something",
+    "searchPlaceholder": "Search shared items",
+    "allCategories": "All categories",
+    "allUrgency": "All urgency",
+    "allStatus": "All statuses",
+    "unknownOwner": "Community member",
+    "sharedForHelp": "Shared to help",
+    "imagePlaceholder": "Useful item",
+    "needThis": "I Need This",
+    "requested": "Requested",
+    "requestSent": "Request Sent",
+    "requestAccepted": "Your request was accepted",
+    "qty": "Qty",
+    "markCompleted": "Mark Completed",
+    "requests": "Requests",
+    "viewRequests": "View Requests",
+    "hideRequests": "Hide Requests",
+    "ownerLabel": "Owner",
+    "recipientLabel": "Recipient",
+    "categories": {
+      "food": "Food",
+      "clothes": "Clothes",
+      "books": "Books",
+      "school_supplies": "School Supplies",
+      "furniture": "Furniture",
+      "tools": "Tools",
+      "electronics": "Electronics",
+      "medical": "Medical",
+      "household": "Household",
+      "other": "Other"
+    },
+    "urgency": {
+      "urgent": "Urgent",
+      "this_week": "This week",
+      "no_urgency": "No urgency"
+    },
+    "status": {
+      "published": "Available",
+      "requested": "Requested",
+      "completed": "Completed"
+    },
+    "actions": {
+      "edit": "Edit item",
+      "delete": "Delete item"
+    },
+    "accept": "Accept",
+    "decline": "Decline",
+    "form": {
+      "createTitle": "Share something useful",
+      "editTitle": "Edit shared item",
+      "helper": "Keep it generous and simple. No prices or payments.",
+      "title": "Title",
+      "description": "Description",
+      "quantity": "Quantity",
+      "condition": "Condition",
+      "location": "Location",
+      "cancel": "Cancel",
+      "submit": "Share",
+      "update": "Update"
+    },
+    "toasts": {
+      "created": "Item shared successfully",
+      "updated": "Shared item updated",
+      "deleted": "Shared item deleted",
+      "requested": "Request sent to the owner",
+      "accepted": "Request accepted",
+      "declined": "Request declined",
+      "completed": "Item completed"
+    },
+    "errors": {
+      "saveFailed": "Could not save shared item",
+      "actionFailed": "Could not complete this action",
+      "alreadyRequested": "You already requested this item",
+      "notFound": "Item not found",
+      "ownItem": "You cannot request your own item",
+      "notAvailable": "This item is no longer available",
+      "collectionNotConfirmed": "The recipient must confirm collection first."
+    },
+    "empty": {
+      "title": "Nothing shared yet",
+      "description": "Be the first to share something useful with the community."
+    },
+    "markHandedOver": "Mark as Handed Over",
+    "completeAndArchive": "Complete and Archive",
+    "reservedFor": "Reserved for {name}",
+    "waitingCollection": "Waiting for the recipient to confirm collection.",
+    "recipientConfirmed": "Recipient confirmed collection. Confirm the handover to continue.",
+    "waitingHandover": "Waiting for owner handover confirmation",
+    "requestStatus": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "cancelled": "Cancelled"
+    }
+  },
+  "ConfirmDialog": {
+    "title": "Discard changes?",
+    "message": "Your changes will not be saved.",
+    "keepEditing": "Keep editing",
+    "discard": "Discard"
+  },
+  "Translating": {
+    "seeTranslation": "See translation",
+    "showOriginal": "Show original",
+    "translating": "Translating...",
+    "unavailable": "Translation unavailable"
+  },
+  "ProfileAbout": {
+    "overview": "Overview",
+    "basicInfo": "Basic Info",
+    "workAndEducation": "Work & Education",
+    "contact": "Contact Information",
+    "places": "Places",
+    "interests": "Interests & Hobbies",
+    "links": "Links",
+    "currentCity": "Current City",
+    "hometown": "Hometown",
+    "languages": "Languages",
+    "memberSince": "Member since",
+    "livesIn": "Lives in {city}",
+    "from": "From {city}",
+    "speaks": "Speaks {languages}",
+    "worksAt": "Works at {company}",
+    "studiedAt": "Studied at {school}",
+    "position": "Position",
+    "company": "Company",
+    "school": "School",
+    "degree": "Degree",
+    "fieldOfStudy": "Field of Study",
+    "startYear": "Start Year",
+    "endYear": "End Year",
+    "currentJob": "I currently work here",
+    "addWork": "Add Work",
+    "editWork": "Edit Work",
+    "deleteWork": "Delete",
+    "workConfirmDelete": "Delete this work entry?",
+    "addEducation": "Add Education",
+    "editEducation": "Edit Education",
+    "deleteEducation": "Delete",
+    "educationConfirmDelete": "Delete this education entry?",
+    "phone": "Phone",
+    "email": "Email",
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
+    "linkedin": "LinkedIn",
+    "telegram": "Telegram",
+    "website": "Website",
+    "portfolio": "Portfolio",
+    "youtube": "YouTube",
+    "github": "GitHub",
+    "tiktok": "TikTok",
+    "visibility": "Visibility",
+    "public": "Public",
+    "followers": "Followers",
+    "onlyMe": "Only Me",
+    "addLink": "Add Link",
+    "editLink": "Edit Link",
+    "deleteLink": "Delete",
+    "linkConfirmDelete": "Delete this link?",
+    "linkPlaceholder": "https://...",
+    "noWork": "No work experience added yet.",
+    "noEducation": "No education added yet.",
+    "noInterests": "No interests added yet.",
+    "noHobbies": "No hobbies added yet.",
+    "noLinks": "No links added yet.",
+    "noTravel": "No travel history added yet.",
+    "interests_title": "Interests",
+    "hobbies_title": "Hobbies",
+    "addInterest": "Add Interest",
+    "addHobby": "Add Hobby",
+    "interestPlaceholder": "Type an interest and press Enter",
+    "hobbyPlaceholder": "Type a hobby and press Enter",
+    "travelHistory": "Travel History",
+    "visited": "Visited",
+    "addTravel": "Add Country",
+    "countryPlaceholder": "Enter a country name",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure?",
+    "confirmDeleteMessage": "This action cannot be undone.",
+    "profileCompleteness": "Profile Completeness",
+    "completeYourProfile": "Complete your profile to help others know you better.",
+    "percent": "{percent}% Complete",
+    "completenessItems": {
+      "avatar": "Profile photo",
+      "cover": "Cover photo",
+      "bio": "Bio",
+      "city": "City",
+      "work": "Work",
+      "education": "Education",
+      "interests": "Interests",
+      "links": "Links"
+    }
+  }
+}

@@ -1,0 +1,212 @@
+@import "tailwindcss";
+
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+
+  --font-latin: "Inter", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+  --font-arabic: "Cairo", "Noto Sans Arabic", "Tahoma", "Segoe UI", sans-serif;
+
+  --brand-red: #ed2124;
+  --brand-red-hover: #c91b1e;
+  --brand-red-active: #a91517;
+
+  --background: #f5f7fa;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-elevated: #ffffff;
+  --muted: #f8fafc;
+  --muted-foreground: #6b7280;
+  --border: #e5e7eb;
+  --primary: var(--brand-red);
+  --primary-foreground: #ffffff;
+  --destructive: #ef4444;
+  --radius: 20px;
+}
+
+.dark {
+  --background: #0f1115;
+  --foreground: #f8fafc;
+  --card: #171a21;
+  --card-elevated: #1e232d;
+  --muted: #171a21;
+  --muted-foreground: #7b8798;
+  --border: #2a3240;
+  --primary: var(--brand-red);
+  --primary-foreground: #ffffff;
+  --destructive: #ef4444;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-elevated: var(--card-elevated);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-destructive: var(--destructive);
+  --color-brand-red: var(--brand-red);
+  --color-brand-red-hover: var(--brand-red-hover);
+  --color-brand-red-active: var(--brand-red-active);
+  --radius-xl: var(--radius);
+
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+}
+
+*,
+*::before,
+*::after {
+  border-color: var(--border);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+button,
+a,
+input,
+select,
+textarea,
+[role="button"],
+summary {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+}
+
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  width: 100%;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: var(--font-latin);
+  background: var(--background);
+  color: var(--foreground);
+  text-align: start;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+html[dir="rtl"] body {
+  font-family: var(--font-arabic);
+}
+
+a {
+  transition: all 0.2s ease;
+}
+
+.idea-highlight {
+  animation: idea-highlight-pulse 1.5s ease-out;
+}
+
+@keyframes idea-highlight-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(237, 33, 36, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(237, 33, 36, 0.15);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(237, 33, 36, 0);
+  }
+}
+
+.touch-pressed {
+  transform: scale(0.97) !important;
+  filter: brightness(0.92) !important;
+  transition: transform 0.05s ease, filter 0.05s ease !important;
+}
+
+@supports (padding: max(0px)) {
+  .safe-area-bottom {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0.5rem));
+  }
+}
+
+@supports (padding: max(0px)) {
+  .safe-area-top {
+    padding-top: max(0.75rem, env(safe-area-inset-top, 0.75rem));
+  }
+}
+
+@media (max-width: 767px) {
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  [data-sonner-toaster] {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  [data-sonner-toast] {
+    width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 24px) !important;
+    border-radius: 14px !important;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,1345 @@
+{
+  "Onboarding": {
+    "title": "Bienvenue sur I ❤️ NDB",
+    "subtitle": "Commençons par vous configurer",
+    "back": "Retour",
+    "next": "Suivant",
+    "skip": "Passer pour l'instant",
+    "getStarted": "Commencer",
+    "step1": {
+      "title": "Présentez-vous à la communauté",
+      "subtitle": "Parlez-nous un peu de vous (optionnel)",
+      "fullName": "Nom complet",
+      "fullNamePlaceholder": "Entrez votre nom complet",
+      "bio": "Bio",
+      "bioPlaceholder": "Écrivez une courte bio sur vous",
+      "city": "Ville",
+      "cityPlaceholder": "Entrez votre ville",
+      "languages": "Langues",
+      "skip": "Passer pour l'instant",
+      "saveAndContinue": "Enregistrer et continuer",
+      "saving": "Enregistrement..."
+    },
+    "step2": {
+      "title": "Qu'est-ce que I ❤️ NDB ?",
+      "subtitle": "Découvrez ce qui rend notre communauté spéciale",
+      "whatIsINDB": "Une plateforme communautaire pour Nouadhibou, réunissant les habitants autour des publications, souvenirs, idées et entraide.",
+      "skip": "Passer pour l'instant",
+      "next": "Suivant",
+      "features": {
+        "home": {
+          "title": "Accueil",
+          "description": "Dernières mises à jour et activité de la communauté."
+        },
+        "community": {
+          "title": "Communauté",
+          "description": "Partagez des publications, photos, commentaires et réactions."
+        },
+        "memory": {
+          "title": "Souvenirs",
+          "description": "Préservez les histoires, photos et l'histoire de Nouadhibou."
+        },
+        "ideas": {
+          "title": "Idées",
+          "description": "Suggérez des idées pour améliorer la ville et votez pour elles."
+        },
+        "fadla": {
+          "title": "Fadla",
+          "description": "Partagez des choses utiles dont vous n'avez plus besoin avec ceux qui en ont besoin."
+        },
+        "profile": {
+          "title": "Profil",
+          "description": "Montrez qui vous êtes et vos contributions."
+        }
+      }
+    },
+    "step3": {
+      "title": "Bienvenue dans la communauté de Nouadhibou",
+      "message": "Ici, nous préservons la mémoire, partageons le bien et construisons l'avenir ensemble.",
+      "getStarted": "Commencer"
+    }
+  },
+  "Meta": {
+    "siteTitle": "I love NDB",
+    "siteDescription": "Plateforme communautaire de Nouadhibou pour la mémoire civique, la participation et les solutions locales.",
+    "home": {
+      "title": "Accueil",
+      "description": "Découvrez la plateforme communautaire INDB pour la mémoire, la participation et l'action locale."
+    },
+    "feed": {
+      "title": "Fil d'actualité",
+      "description": "Suivez les actualités, récits et conversations constructives de la communauté."
+    },
+    "memory": {
+      "title": "Archives",
+      "description": "Explorez les souvenirs communautaires, les récits et le patrimoine local."
+    },
+    "events": {
+      "title": "Événements",
+      "description": "Découvrez les prochains événements communautaires et initiatives locales."
+    },
+    "projects": {
+      "title": "Projets",
+      "description": "Suivez les projets citoyens, les bénévoles et les avancées."
+    },
+    "polls": {
+      "title": "Sondages",
+      "description": "Participez à des sondages communautaires pour des décisions inclusives."
+    },
+    "ideas": {
+      "title": "Idées",
+      "description": "Votez et contribuez à des idées concrètes pour Nouadhibou."
+    },
+    "timeline": {
+      "title": "Chronologie",
+      "description": "Parcourez les moments clés de la mémoire communautaire de Nouadhibou."
+    },
+    "profile": {
+      "title": "Profil",
+      "description": "Consultez votre profil communautaire, vos contributions et votre activité."
+    },
+    "admin": {
+      "title": "Tableau de bord admin",
+      "description": "G?rez les utilisateurs, les cr?dits et les contenus r?cents."
+    },
+    "memorySubmit": {
+      "title": "Soumettre un souvenir",
+      "description": "Partagez un souvenir communautaire avec son contexte et ses détails d'archive."
+    },
+    "ideaSubmit": {
+      "title": "Soumettre une idée",
+      "description": "Proposer une idée citoyenne et contribuer aux priorités de la communauté."
+    },
+    "ideaEdit": {
+      "title": "Modifier l'idée",
+      "description": "Mettez à jour votre proposition d'idée civique."
+    },
+    "postEdit": {
+      "title": "Modifier la publication",
+      "description": "Mettez à jour votre publication."
+    },
+    "fadla": {
+      "title": "Fadla",
+      "description": "Partagez les objets utiles dont vous n'avez plus besoin avec celles et ceux qui en ont besoin."
+    },
+    "fadlaArchive": {
+      "title": "Archives Fadla",
+      "description": "Consultez les objets terminés et archivés et suivez votre impact communautaire."
+    },
+    "privacy": {
+      "title": "Politique de Confidentialité | I ❤️ NDB",
+      "description": "Politique de confidentialité de la plateforme communautaire I ❤️ NDB."
+    },
+    "terms": {
+      "title": "Conditions d'Utilisation | I ❤️ NDB",
+      "description": "Conditions générales d'utilisation de la plateforme communautaire I ❤️ NDB."
+    },
+    "dataDeletion": {
+      "title": "Suppression des Données | I ❤️ NDB",
+      "description": "Demander la suppression de vos données de la plateforme communautaire I ❤️ NDB."
+    }
+  },
+  "Privacy": {
+    "title": "Politique de Confidentialité",
+    "lastUpdated": "Dernière mise à jour : Juin 2026",
+    "introTitle": "Introduction",
+    "introBody": "Bienvenue sur I ❤️ NDB (Nouadhibou). Nous nous engageons à protéger votre vie privée et à garantir que vos informations personnelles soient traitées de manière sûre et responsable. Cette politique de confidentialité explique comment nous collectons, utilisons et protégeons vos informations lorsque vous utilisez notre plateforme.\nEn créant un compte et en utilisant I ❤️ NDB, vous acceptez la collecte et l'utilisation d'informations conformément à cette politique.",
+    "dataTitle": "Données que nous collectons",
+    "dataBody": "Lorsque vous créez un compte et utilisez notre plateforme, nous collectons les types d'informations suivants :",
+    "dataList": [
+      "Informations du compte : votre nom, adresse e-mail et mot de passe lors de l'inscription.",
+      "Informations du profil : votre nom d'affichage, bio, photo de profil, photo de couverture, ville et toute autre information que vous choisissez d'ajouter.",
+      "Publications et commentaires : le contenu que vous publiez sur le fil d'actualité, y compris le texte, les liens et les réactions.",
+      "Souvenirs : les histoires, photos et contenus historiques que vous contribuez aux archives.",
+      "Idées : les suggestions et propositions que vous soumettez pour améliorer la ville.",
+      "Articles Fadla : les articles que vous listez pour les partager avec la communauté.",
+      "Médias : les images et vidéos que vous téléchargez sur la plateforme.",
+      "Cookies et données de session : les données techniques collectées via les cookies et technologies similaires."
+    ],
+    "accountsTitle": "Comptes utilisateurs",
+    "accountsBody": "Lorsque vous créez un compte sur I ❤️ NDB, nous collectons votre nom et votre adresse e-mail. Vous pouvez éventuellement fournir des informations de profil supplémentaires telles qu'une bio, une photo de profil et votre ville. Votre profil est visible par les autres membres de la communauté. Vous pouvez contrôler les informations affichées en modifiant les paramètres de votre profil à tout moment.",
+    "contentTitle": "Publications, Souvenirs, Idées et Fadla",
+    "contentBody": "Tout contenu que vous publiez sur la plateforme — y compris les publications, souvenirs, idées, commentaires et annonces Fadla — est stocké sur nos serveurs et peut être visible par d'autres utilisateurs selon vos paramètres de confidentialité et la nature de la fonctionnalité. Nous conservons ce contenu pour fournir nos services et maintenir les archives communautaires. Vous pouvez supprimer votre contenu à tout moment et nous le retirerons de la vue publique.",
+    "mediaTitle": "Images et vidéos téléchargées",
+    "mediaBody": "Les images et vidéos que vous téléchargez sont stockées en toute sécurité sur nos serveurs. Nous utilisons ces fichiers uniquement pour les afficher sur la plateforme comme vous le souhaitez. Nous n'utilisons pas vos médias téléchargés à d'autres fins que la fourniture de nos services. Vous pouvez supprimer tout média que vous avez téléchargé à tout moment via l'interface de la plateforme.",
+    "cookiesTitle": "Cookies et utilisation des sessions",
+    "cookiesBody": "Nous utilisons des cookies et des technologies de suivi similaires pour maintenir votre session, mémoriser vos préférences et améliorer votre expérience. Les cookies sont de petits fichiers texte stockés sur votre appareil. Vous pouvez contrôler les paramètres des cookies via votre navigateur. Les cookies essentiels sont nécessaires au bon fonctionnement de la plateforme. Les cookies d'analyse nous aident à comprendre comment la plateforme est utilisée afin que nous puissions l'améliorer.",
+    "rightsTitle": "Droits des utilisateurs",
+    "rightsBody": "Vous avez le droit d'accéder, de mettre à jour ou de supprimer vos informations personnelles à tout moment. Vous pouvez :\n- Modifier les informations de votre profil via les paramètres de la plateforme.\n- Supprimer vos publications, souvenirs, idées et articles Fadla individuellement.\n- Demander la suppression complète du compte en contactant les administrateurs de la plateforme.\n- Retirer votre consentement au traitement des données le cas échéant.\n- Exporter vos données en nous contactant.\nNous répondrons à toute demande de données dans un délai raisonnable.",
+    "contactTitle": "Informations de contact",
+    "contactBody": "Si vous avez des questions, préoccupations ou demandes concernant cette politique de confidentialité ou vos données personnelles, veuillez contacter les administrateurs de la plateforme via les canaux de contact disponibles ou en contactant l'équipe de gestion communautaire."
+  },
+  "Terms": {
+    "title": "Conditions d'Utilisation",
+    "lastUpdated": "Dernière mise à jour : Juin 2026",
+    "introTitle": "Introduction",
+    "introBody": "Bienvenue sur I ❤️ NDB. En accédant ou en utilisant notre plateforme, vous acceptez d'être lié par ces conditions d'utilisation. Si vous n'acceptez pas une partie de ces conditions, vous ne pouvez pas utiliser la plateforme. Ces conditions s'appliquent à tous les visiteurs, utilisateurs et contributeurs de la plateforme communautaire I ❤️ NDB.",
+    "rulesTitle": "Règles communautaires",
+    "rulesBody": "Pour maintenir une communauté accueillante et constructive, tous les utilisateurs doivent suivre ces règles :",
+    "rulesList": [
+      "Traitez tous les membres de la communauté avec respect et dignité.",
+      "Partagez un contenu précis, constructif et pertinent pour la communauté.",
+      "Utilisez la plateforme de bonne foi et aux fins prévues.",
+      "Protégez vos identifiants de compte et informez les administrateurs de toute utilisation non autorisée.",
+      "Respectez toutes les lois locales et internationales applicables lors de l'utilisation de la plateforme."
+    ],
+    "responsibilitiesTitle": "Responsabilités de l'utilisateur",
+    "responsibilitiesBody": "En tant qu'utilisateur de I ❤️ NDB, vous êtes responsable de :",
+    "responsibilitiesList": [
+      "L'exactitude des informations que vous fournissez dans votre profil et vos publications.",
+      "Vous assurer que tout contenu que vous téléchargez ne viole pas les droits d'autrui.",
+      "Maintenir la confidentialité de votre mot de passe.",
+      "Signaler toute violation de ces conditions aux administrateurs de la plateforme.",
+      "Vous conformer à toutes les directives supplémentaires publiées pour des fonctionnalités ou campagnes spécifiques."
+    ],
+    "prohibitedTitle": "Contenu interdit",
+    "prohibitedBody": "Les types de contenu suivants sont strictement interdits sur I ❤️ NDB :",
+    "prohibitedList": [
+      "Discours de haine, harcèlement, intimidation ou contenu discriminatoire.",
+      "Contenu explicite, violent ou sexuellement explicite.",
+      "Spam, informations trompeuses ou fausses nouvelles.",
+      "Contenu qui enfreint les droits de propriété intellectuelle d'autrui.",
+      "Contenu faisant la promotion d'activités ou de substances illégales.",
+      "Code malveillant, tentatives d'hameçonnage ou contenu compromettant la sécurité de la plateforme.",
+      "Usurpation d'identité d'autres utilisateurs, personnalités publiques ou organisations."
+    ],
+    "moderationTitle": "Modération du contenu",
+    "moderationBody": "I ❤️ NDB se réserve le droit d'examiner, de modérer et de supprimer tout contenu qui enfreint ces conditions ou est jugé inapproprié pour la communauté. Les modérateurs et administrateurs peuvent prendre des mesures sans préavis lorsque cela est nécessaire pour protéger la communauté. Nous nous efforçons d'appliquer la modération de manière cohérente et équitable. Si vous estimez qu'un contenu a été supprimé par erreur, vous pouvez contacter l'équipe de modération pour un examen.",
+    "suspensionTitle": "Suspension et suppression du compte",
+    "suspensionBody": "La violation de ces conditions peut entraîner l'une des actions suivantes :\n- Avertissement : un avis officiel concernant la violation.\n- Suppression de contenu : suppression du contenu spécifique qui enfreint les conditions.\n- Suspension temporaire : accès limité à la plateforme pour une période déterminée.\n- Bannissement permanent : suppression complète de l'accès à la plateforme.\n- Suppression du compte : suppression du compte et de toutes les données associées.\nLa gravité de l'action dépend de la nature et de la fréquence de la violation. Les appels peuvent être soumis aux administrateurs de la plateforme.",
+    "limitationsTitle": "Limitations de la plateforme",
+    "limitationsBody": "I ❤️ NDB est fourni sur une base « tel quel » et « selon disponibilité ». Nous ne donnons aucune garantie, expresse ou implicite, concernant la disponibilité, la fiabilité ou l'adéquation de la plateforme à un usage particulier. Nous nous réservons le droit de modifier, suspendre ou interrompre tout aspect de la plateforme à tout moment. Nous ne sommes pas responsables des dommages résultant de l'utilisation ou de l'incapacité d'utiliser la plateforme.",
+    "contactTitle": "Informations de contact",
+    "contactBody": "Si vous avez des questions sur ces conditions d'utilisation, veuillez contacter les administrateurs de la plateforme via les canaux de communication disponibles."
+  },
+  "DataDeletion": {
+    "title": "Suppression des Données",
+    "lastUpdated": "Dernière mise à jour : Juin 2026",
+    "introTitle": "Introduction",
+    "introBody": "Chez I ❤️ NDB, nous respectons votre droit de contrôler vos données. Cette page explique comment demander la suppression de vos données de notre plateforme. Nous nous engageons à traiter les demandes de suppression rapidement et en toute transparence.",
+    "noticeTitle": "Procédure temporaire",
+    "noticeBody": "Actuellement, la suppression des comptes et des données est effectuée manuellement par les administrateurs de la plateforme. Vous pouvez demander la suppression en contactant directement les administrateurs de la plateforme. La suppression en libre-service sera disponible dans une future mise à jour.",
+    "accountTitle": "Supprimer votre compte",
+    "accountBody": "Pour supprimer votre compte et toutes les données associées, veuillez contacter les administrateurs de la plateforme avec votre demande. Incluez l'adresse e-mail associée à votre compte afin que nous puissions vérifier votre identité. Une fois vérifié, nous :\n- Supprimerons définitivement votre compte.\n- Retirerons les informations de votre profil.\n- Anonymiserons ou supprimerons vos publications, commentaires et réactions.\n- Supprimerons vos fichiers multimédias téléchargés.\nVeuillez noter que certains contenus (comme les commentaires sur les publications d'autrui) peuvent être anonymisés plutôt que complètement supprimés pour préserver le contexte communautaire.",
+    "postsTitle": "Supprimer vos publications",
+    "postsBody": "Vous pouvez supprimer des publications individuelles directement depuis l'interface de la plateforme. Accédez à la publication que vous souhaitez supprimer et utilisez l'option de suppression. Si vous devez supprimer plusieurs publications ou si vous ne pouvez pas supprimer une publication vous-même, veuillez contacter les administrateurs de la plateforme.",
+    "memoriesTitle": "Supprimer vos souvenirs",
+    "memoriesBody": "Les souvenirs que vous avez contribués peuvent être supprimés depuis les archives. Accédez au souvenir que vous souhaitez supprimer et utilisez les options disponibles. Si vous avez besoin d'aide pour supprimer des souvenirs ou souhaitez supprimer toutes vos contributions, contactez les administrateurs de la plateforme.",
+    "ideasTitle": "Supprimer vos idées",
+    "ideasBody": "Les idées que vous avez soumises peuvent être supprimées via l'interface de la plateforme. Veuillez noter que la suppression d'une idée supprimera également les votes et commentaires associés. Si vous rencontrez des problèmes, contactez les administrateurs de la plateforme.",
+    "fadlaTitle": "Supprimer les articles Fadla",
+    "fadlaBody": "Les articles Fadla que vous avez listés peuvent être supprimés depuis la section Fadla. Une fois supprimés, l'article ne sera plus visible par les autres membres de la communauté. Pour une suppression en masse ou une assistance, veuillez contacter les administrateurs de la plateforme.",
+    "contactTitle": "Contactez-nous",
+    "contactBody": "Pour demander la suppression de données ou poser des questions sur ce processus, veuillez contacter les administrateurs de la plateforme via les canaux de communication disponibles. Nous répondrons à votre demande dans un délai raisonnable et confirmerons une fois la suppression effectuée."
+  },
+  "LanguageSwitcher": {
+    "label": "Sélecteur de langue",
+    "changeTo": "Changer la langue vers {language}"
+  },
+  "Navbar": {
+    "memberAvatarLabel": "Profil membre de la communauté",
+    "createAccount": "Créer un compte",
+    "login": "Connexion",
+    "logout": "Se déconnecter",
+    "loggingOut": "Déconnexion..."
+  },
+  "Navigation": {
+    "items": {
+      "home": {
+        "label": "Accueil",
+        "short": "Accueil"
+      },
+      "feed": {
+        "label": "Fil d'actualité",
+        "short": "Fil"
+      },
+      "memory": {
+        "label": "Archives",
+        "short": "Archives"
+      },
+      "ideas": {
+        "label": "Idées",
+        "short": "Idées"
+      },
+      "polls": {
+        "label": "Sondages",
+        "short": "Sondages"
+      },
+      "events": {
+        "label": "Événements",
+        "short": "Événements"
+      },
+      "projects": {
+        "label": "Projets",
+        "short": "Projets"
+      },
+      "profile": {
+        "label": "Profil",
+        "short": "Profil"
+      },
+      "fadla": {
+        "label": "Fadla",
+        "short": "Fadla"
+      }
+    }
+  },
+  "Theme": {
+    "toggle": "Changer le thème"
+  },
+  "Search": {
+    "title": "Recherche",
+    "placeholder": "Rechercher dans la communauté",
+    "clear": "Effacer la recherche",
+    "noResults": "Aucun résultat",
+    "viewAll": "Voir tous les résultats",
+    "searching": "Recherche...",
+    "error": "Impossible d’effectuer la recherche",
+    "minLength": "Saisissez au moins 2 caractères pour rechercher.",
+    "resultsFor": "Résultats pour « {query} »",
+    "sections": {
+      "posts": "Publications",
+      "ideas": "Idées",
+      "memories": "Souvenirs",
+      "people": "Personnes",
+      "fadla": "Fadla"
+    },
+    "types": {
+      "post": "Publication",
+      "idea": "Idée",
+      "memory": "Souvenir",
+      "profile": "Personne",
+      "fadla": "Objet partage"
+    }
+  },
+  "Notifications": {
+    "button": "Notifications",
+    "title": "Notifications",
+    "empty": "Aucune notification pour le moment",
+    "markAllRead": "Tout marquer comme lu",
+    "loading": "Chargement...",
+    "close": "Fermer",
+    "startedFollowing": "{actorName} a commencé à vous suivre",
+    "reactedToPost": "{actorName} a réagi à votre publication",
+    "commentedOnPost": "{actorName} a commenté votre publication",
+    "commentedOnYourIdea": "{actorName} a commenté votre idée",
+    "sharedYourIdea": "{actorName} a partagé votre idée",
+    "reactedToMemory": "{actorName} a réagi à votre souvenir",
+    "commentedOnYourMemory": "{actorName} a commenté votre mémoire",
+    "sharedYourMemory": "{actorName} a partagé votre souvenir",
+    "creditAwarded": "Vous avez reçu {points} points de contribution",
+    "someone": "Quelqu'un",
+    "communityShareRequested": "Quelqu'un souhaite recevoir l'objet que vous avez partage",
+    "fadlaRequested": "{actorName} a demande l'objet que vous partagez",
+    "fadlaCompleted": "{actorName} a termine votre objet Fadla",
+    "loadMore": "Charger plus"
+  },
+  "RightSidebar": {
+    "trendingTopics": "Sujets tendance",
+    "featuredMemories": "Souvenirs en vedette",
+    "activePoll": "Sondage actif",
+    "votes": "{count} votes",
+    "upcomingEvents": "Événements à venir"
+  },
+  "Landing": {
+    "tagline": "Mémoire - Participation - Avenir",
+    "heroTitle": "Préserver la mémoire. Construire l'avenir.",
+    "heroDescription": "Une plateforme communautaire numérique pour Dakhlet Nouadhibou.",
+    "mottoPrimary": "Nouadhibou appartient à toutes et à tous.",
+    "mottoSecondary": "La mémoire collective alimente le progrès partagé.",
+    "joinCommunity": "Rejoindre la communauté",
+    "exploreMemories": "Explorer les archives",
+    "latestPosts": "Dernières publications",
+    "pollPreview": "Aperçu du sondage",
+    "featuredMemories": "Souvenirs en vedette",
+    "communityIdeas": "Idées de la communauté",
+    "createAccount": "Créer un compte",
+    "login": "Connexion"
+  },
+  "Feed": {
+    "ago": "plus tôt",
+    "save": "Enregistrer",
+    "saved": "Enregistré",
+    "comments": "Commentaires",
+    "share": "Partager",
+    "linkCopied": "Lien de la publication copié",
+    "shareFailed": "Impossible de partager",
+    "deleting": "Suppression...",
+    "sending": "Envoi...",
+    "commentPlaceholder": "Écrire un commentaire...",
+    "unknownAuthor": "Inconnu",
+    "all": "Tous",
+    "categories": {
+      "community": "Communauté",
+      "events": "Événements",
+      "memory": "Archives",
+      "ideas": "Idées"
+    },
+    "reactions": {
+      "like": "J'aime",
+      "love": "J'adore",
+      "support": "Soutien",
+      "celebrate": "Célébrer",
+      "insightful": "Pertinent",
+      "sad": "Triste"
+    },
+    "actionCounts": {
+      "likes": "{count} J'aime",
+      "comments": "{count} Commentaires",
+      "saves": "{count} Enregistrements"
+    },
+    "editComment": "Modifier le commentaire",
+    "deleteComment": "Supprimer le commentaire",
+    "cancel": "Annuler",
+    "commentUpdated": "Commentaire mis ? jour",
+    "commentDeleted": "Commentaire supprim?",
+    "commentUpdateFailed": "?chec de la mise ? jour du commentaire",
+    "commentDeleteFailed": "?chec de la suppression du commentaire"
+  },
+  "FeedComposer": {
+    "title": "Créer une publication",
+    "placeholder": "Partagez quelque chose avec la communauté...",
+    "quickActions": {
+      "text": "Texte",
+      "image": "Image",
+      "event": "Événement",
+      "photo": "Photo",
+      "memory": "Archive",
+      "idea": "Idée"
+    },
+    "composerTitle": "Partagez une mise à jour avec votre communauté",
+    "form": {
+      "title": "Titre",
+      "content": "Que s'est-il passé ? Quelle solution proposez-vous ?",
+      "mediaUrl": "URL média facultative",
+      "selectCategory": "Sélectionner une catégorie",
+      "publish": "Publier"
+    },
+    "cancel": "Annuler",
+    "post": "Publier",
+    "posting": "Publication...",
+    "socialPrompt": "Quoi de neuf à Nouadhibou ?",
+    "editTitle": "Modifier la publication",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "notFound": "Publication introuvable",
+    "notFoundDescription": "La publication que vous essayez de modifier n'existe pas.",
+    "errors": {
+      "submitFailed": "Impossible de publier la publication. Veuillez réessayer.",
+      "postFailed": "Impossible de publier la publication. Veuillez réessayer.",
+      "uploading": "Veuillez attendre la fin du téléversement des médias."
+    }
+  },
+  "Memory": {
+    "title": "Archives",
+    "description": "Un musée numérique des récits communautaires, photos et repères historiques.",
+    "openTimeline": "Ouvrir la chronologie",
+    "submitNew": "Soumettre un nouveau souvenir",
+    "contributedBy": "Contribué par {name}",
+    "relatedMemories": "Souvenirs liés",
+    "noImage": "Aucune image disponible",
+    "unknownContributor": "Contributeur inconnu",
+    "share": "Partager",
+    "linkCopied": "Lien du souvenir copié",
+    "shareFailed": "Impossible de partager",
+    "edit": "Modifier le souvenir",
+    "delete": "Supprimer le souvenir",
+    "confirmDelete": "Supprimer",
+    "confirmDeleteTitle": "Supprimer le souvenir",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce souvenir ?",
+    "memoryDeleted": "Souvenir supprimé",
+    "deleteFailed": "Échec de la suppression du souvenir",
+    "cancel": "Annuler",
+    "storyMemory": "Souvenir récit",
+    "verification": {
+      "pending": "En attente de révision",
+      "approved": "Approuvé",
+      "rejected": "Rejeté",
+      "needsMoreInfo": "Plus d'infos nécessaires"
+    },
+    "memoryShared": "Souvenir partagé avec succès",
+    "memoryUpdated": "Souvenir mis à jour",
+    "memorySaved": "Souvenir enregistré",
+    "memoryUnsaved": "Souvenir retiré des éléments enregistrés",
+    "allCategories": "Toutes les catégories",
+    "categories": {
+      "port": "Port",
+      "railway": "Chemin de fer",
+      "schools": "Écoles",
+      "families": "Familles",
+      "culture": "Culture",
+      "sport": "Sport",
+      "market": "Marché",
+      "beach": "Plage",
+      "oldCity": "Vieille ville",
+      "work": "Travail",
+      "fishing": "Pêche",
+      "migration": "Migration",
+      "cansado": "Cansado",
+      "snim": "SNIM",
+      "religiousEvents": "Événements religieux",
+      "nationalEvents": "Événements nationaux",
+      "neighborhoods": "Quartiers",
+      "other": "Autre"
+    }
+  },
+  "MemoryReactions": {
+    "love": "J'adore",
+    "respect": "Respect",
+    "nostalgia": "Nostalgie",
+    "important": "Important",
+    "failed": "Échec de la réaction"
+  },
+  "MemoryForm": {
+    "title": "Soumettre un souvenir communautaire",
+    "editTitle": "Modifier le souvenir",
+    "update": "Mettre à jour le souvenir",
+    "ready": "Votre souvenir est prêt à être soumis.",
+    "imageHelper": "Ajoutez une photo si vous en avez une. Les souvenirs peuvent aussi être partagés comme des récits.",
+    "fields": {
+      "title": "Titre du souvenir",
+      "story": "Partagez l'histoire et son contexte",
+      "category": "Sélectionner une catégorie",
+      "eraLabel": "Période (optionnel)",
+      "location": "Lieu (optionnel)"
+    },
+    "errors": {
+      "title": "Veuillez saisir un titre valide.",
+      "story": "Veuillez fournir davantage de détails.",
+      "category": "Veuillez choisir une catégorie.",
+      "submitFailed": "Une erreur est survenue lors de l'envoi"
+    },
+    "submitting": "Envoi...",
+    "submit": "Soumettre le souvenir",
+    "cancel": "Annuler",
+    "successMessage": "Souvenir soumis avec succès"
+  },
+  "MemoryTimeline": {
+    "title": "Chronologie des souvenirs",
+    "subtitle": "Parcourez les souvenirs communautaires par décennie, année et catégorie",
+    "browseDecades": "Parcourir par décennie",
+    "noDecades": "Aucun souvenir daté pour le moment",
+    "noDecadesDescription": "Des souvenirs existent, mais aucun n'a d'année pour le moment. Ajoutez une année aux souvenirs pour les afficher dans la chronologie.",
+    "pickYear": "Choisir une année",
+    "noYears": "Aucune année dans cette décennie",
+    "memoriesFrom": "Souvenirs de {year}",
+    "noMemories": "Aucun souvenir ne correspond à vos filtres",
+    "noMemoriesInYear": "Aucun souvenir de {year}",
+    "loadMore": "Charger plus",
+    "loadingMemories": "Chargement des souvenirs...",
+    "filterByCategory": "Filtrer par catégorie",
+    "filterByLocation": "Filtrer par lieu",
+    "allCategories": "Toutes les catégories",
+    "sortBy": "Trier par",
+    "sortNewest": "Plus récents",
+    "sortOldest": "Plus anciens",
+    "sortMostReacted": "Plus de réactions",
+    "sortMostSaved": "Plus enregistrés",
+    "sortMostCommented": "Plus commentés",
+    "totalMemories": "{count} souvenirs",
+    "topCategories": "Catégories principales",
+    "topLocations": "Lieux principaux",
+    "backToTimeline": "Retour à la chronologie",
+    "backToDecades": "Retour aux décennies",
+    "memoryCount": "{count} souvenirs",
+    "categories": {
+      "port": "Port",
+      "railway": "Chemin de fer",
+      "schools": "Écoles",
+      "families": "Familles",
+      "culture": "Culture",
+      "sport": "Sport",
+      "market": "Marché",
+      "beach": "Plage",
+      "oldCity": "Vieille ville",
+      "work": "Travail",
+      "fishing": "Pêche",
+      "migration": "Migration",
+      "cansado": "Cansado",
+      "snim": "SNIM",
+      "religiousEvents": "Événements religieux",
+      "nationalEvents": "Événements nationaux",
+      "neighborhoods": "Quartiers",
+      "other": "Autre"
+    }
+  },
+  "Ideas": {
+    "title": "Idées de la communauté",
+    "description": "Votez pour des propositions pratiques et aidez à prioriser les solutions pour Nouadhibou.",
+    "voteLabel": "Voter",
+    "voteLabelVoted": "Voté",
+    "supportPercent": "{percent}% de soutien",
+    "top10PopularIdeas": "Top 10 des idées populaires",
+    "showAll": "Voir tout ({count})",
+    "badgeNewIdea": "Nouvelle idée",
+    "badgeGrowingSupport": "Soutien croissant",
+    "badgePopular": "Populaire",
+    "badgeCommunityPriority": "Priorité communautaire",
+    "badgeTopPriority": "Priorité absolue",
+    "share": "Partager",
+    "linkCopied": "Lien de l'idée copié",
+    "unknownAuthor": "Inconnu",
+    "voteFailed": "Échec du vote",
+    "commentsWithCount": "Commentaires ({count})",
+    "commentPlaceholder": "Écrire un commentaire...",
+    "noCommentsYet": "Aucun commentaire pour le moment. Soyez le premier à commenter.",
+    "loginToComment": "Connectez-vous pour commenter",
+    "commentFailed": "Échec de l'ajout du commentaire",
+    "commentDeleteFailed": "Échec de la suppression du commentaire",
+    "delete": "Supprimer",
+    "shareAnother": "Partager une autre idée",
+    "edit": "Modifier",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette idée ?",
+    "confirmDelete": "Supprimer",
+    "confirmDeleteTitle": "Supprimer l'idée",
+    "cancel": "Annuler",
+    "ideaUpdated": "Idée mise à jour avec succès",
+    "ideaDeleted": "Idée supprimée avec succès",
+    "showMore": "Voir plus",
+    "showLess": "Voir moins",
+    "editIdea": "Modifier l'idée",
+    "deleteIdea": "Supprimer l'idée",
+    "allIdeas": "Toutes les idées",
+    "status": {
+      "submitted": "Soumise",
+      "underReview": "En révision",
+      "accepted": "Acceptée",
+      "inProgress": "En cours",
+      "completed": "Terminée",
+      "rejected": "Rejetée"
+    },
+    "editComment": "Modifier le commentaire",
+    "deleteComment": "Supprimer le commentaire",
+    "save": "Enregistrer",
+    "commentUpdated": "Commentaire mis ? jour",
+    "commentDeleted": "Commentaire supprim?",
+    "commentUpdateFailed": "?chec de la mise ? jour du commentaire"
+  },
+  "IdeaForm": {
+    "title": "Soumettre une idée citoyenne",
+    "editTitle": "Modifier votre idée",
+    "update": "Mettre à jour l'idée",
+    "ready": "Votre idée est prête à être soumise.",
+    "fields": {
+      "title": "Titre de l'idée",
+      "description": "Décrivez l'idée, ses bénéfices et les prochaines étapes",
+      "category": "Sélectionner une catégorie",
+      "others": "Autres"
+    },
+    "errors": {
+      "title": "Veuillez saisir un titre valide.",
+      "description": "Veuillez décrire l'idée plus clairement.",
+      "category": "Veuillez choisir une catégorie.",
+      "submitFailed": "Impossible de soumettre l'idée. Veuillez réessayer."
+    },
+    "submitting": "Envoi...",
+    "submit": "Soumettre l'idée",
+    "cancel": "Annuler",
+    "successMessage": "Idée soumise avec succès"
+  },
+  "Events": {
+    "title": "Événements communautaires",
+    "description": "Découvrez les prochains événements et rejoignez les initiatives locales.",
+    "rsvp": "Je participe"
+  },
+  "Projects": {
+    "title": "Projets communautaires",
+    "description": "Suivez les progrès, les bénévoles et l'impact des projets citoyens.",
+    "progress": "Progression",
+    "volunteers": "{count} bénévoles",
+    "status": {
+      "planning": "Planification",
+      "inProgress": "En cours",
+      "recruiting": "Recrutement"
+    }
+  },
+  "Polls": {
+    "title": "Sondages communautaires",
+    "description": "Des sondages simples pour soutenir des décisions constructives et inclusives.",
+    "totalVotes": "{count} votes au total",
+    "voteButton": "Voter"
+  },
+  "Timeline": {
+    "title": "Chronologie de Nouadhibou"
+  },
+  "Profile": {
+    "bio": "Bénévole communautaire, conteur et mentor engagé auprès de la jeunesse.",
+    "location": "Nouadhibou, Mauritanie",
+    "stats": {
+      "posts": "Publications",
+      "memories": "Souvenirs",
+      "ideas": "Idées",
+      "comments": "Commentaires"
+    },
+    "editProfile": "Modifier le profil",
+    "changeAvatar": "Changer la photo",
+    "changeCover": "Changer la couverture",
+    "shareProfile": "Partager le profil",
+    "tabsTitle": "Onglets du profil",
+    "tabs": {
+      "posts": "Publications",
+      "memories": "Souvenirs",
+      "ideas": "Idées",
+      "about": "À propos",
+      "shares": "Fadla"
+    },
+    "joined": "Membre depuis",
+    "role": {
+      "admin": "Admin",
+      "moderator": "Modérateur"
+    },
+    "recentMemories": "Souvenirs récents",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "updated": "Profil mis à jour avec succès",
+    "cancel": "Annuler",
+    "noBio": "Aucune bio pour le moment.",
+    "noBioYet": "Aucune bio pour le moment.",
+    "uploading": "Téléversement...",
+    "photoUpdated": "Photo de profil mise à jour",
+    "coverUpdated": "Photo de couverture mise à jour",
+    "uploadFailed": "Échec du téléversement de l'image",
+    "noCity": "Aucune ville renseignée.",
+    "createPost": "Créer une publication",
+    "noPostsYet": "Aucune publication pour le moment. Partagez votre première nouvelle.",
+    "fields": {
+      "username": "Nom d'utilisateur",
+      "fullName": "Nom complet",
+      "bio": "Bio",
+      "city": "Ville",
+      "languagePreference": "Langue (en, fr, ar)",
+      "avatarUrl": "Avatar",
+      "coverImage": "Image de couverture",
+      "role": "Rôle",
+      "memberSince": "Membre depuis"
+    },
+    "contributionScore": "Score de contribution",
+    "contributionRanks": {
+      "member": "Membre",
+      "contributor": "Contributeur",
+      "communityBuilder": "Bâtisseur communautaire",
+      "communityLeader": "Leader communautaire",
+      "ndbChampion": "Champion NDB"
+    }
+  },
+  "Follow": {
+    "follow": "Suivre",
+    "following": "Abonné",
+    "unfollow": "Se désabonner",
+    "followers": "Abonnés",
+    "followingCount": "Abonnements",
+    "followedToast": "Vous suivez maintenant ce profil",
+    "unfollowedToast": "Vous ne suivez plus ce profil",
+    "loginToFollow": "Connectez-vous pour suivre des utilisateurs",
+    "failed": "Impossible de mettre à jour l’abonnement"
+  },
+  "ProfileCard": {
+    "bio": "Conteur communautaire qui documente souvenirs, idées et projets locaux.",
+    "location": "Dakhlet Nouadhibou",
+    "stats": {
+      "posts": "Publications",
+      "memories": "Souvenirs",
+      "ideas": "Idées"
+    },
+    "badges": {
+      "contributor": "Contributeur",
+      "historian": "Historien"
+    }
+  },
+  "Admin": {
+    "stats": {
+      "postsToday": "Publications du jour",
+      "pendingMemories": "Souvenirs en attente",
+      "openIdeas": "Id?es ouvertes",
+      "reportsQueue": "File des signalements"
+    },
+    "moderationQueue": "File de mod?ration",
+    "noPendingReports": "Aucun signalement en attente.",
+    "targetType": {
+      "memory": "M?moire",
+      "post": "Post"
+    },
+    "status": {
+      "pending": "En attente"
+    },
+    "reasons": {
+      "yearConfirmation": "Ann?e de publication ? confirmer",
+      "respectfulTone": "V?rifier la formulation pour un ton respectueux"
+    },
+    "commandCenter": "Centre INDB",
+    "nouadhibouSignal": "Signal de Nouadhibou",
+    "eyebrow": "Centre de commande communautaire",
+    "signedInLabel": "Connect? en tant que",
+    "signedInAs": "Admin : {name}",
+    "hero": {
+      "title": "Nouadhibou est vivante. Voici son pouls.",
+      "description": "Suivez les personnes, les id?es, les m?moires et les contributions qui fa?onnent INDB. Cet espace sert ? guider une communaut? vivante, pas ? g?rer une base de donn?es."
+    },
+    "nav": {
+      "dashboard": "Tableau",
+      "users": "Utilisateurs",
+      "content": "Contenu",
+      "credits": "Cr?dits",
+      "analytics": "Analytique",
+      "settings": "Réglages"
+    },
+    "sections": {
+      "overview": "Vue d?ensemble",
+      "users": "Utilisateurs",
+      "credits": "Cr?dits",
+      "content": "Contenu"
+    },
+    "health": {
+      "eyebrow": "Sant? communautaire",
+      "title": "Ce qui se passe maintenant",
+      "members": "Membres",
+      "posts": "Posts",
+      "ideas": "Id?es",
+      "memories": "M?moires",
+      "activeToday": "Actifs aujourd?hui",
+      "newToday": "+{count} aujourd?hui",
+      "today": "+{count} aujourd?hui",
+      "activeSignal": "signal vivant",
+      "totalComments": "{count} commentaires"
+    },
+    "pulse": {
+      "eyebrow": "Pouls communautaire",
+      "title": "Les conversations qui font bouger la ville",
+      "noPreview": "Aucun aper?u disponible.",
+      "type": {
+        "post": "Discussion la plus active",
+        "idea": "Id?e la plus active",
+        "memory": "M?moire ? d?couvrir",
+        "member": "Nouveau membre"
+      }
+    },
+    "newMembers": {
+      "eyebrow": "Nouvelles arriv?es",
+      "title": "Nouveaux membres"
+    },
+    "contributors": {
+      "eyebrow": "Meilleurs contributeurs",
+      "title": "Celles et ceux qui construisent la communaut?",
+      "rank": {
+        "member": "Membre",
+        "contributor": "Contributeur",
+        "communityBuilder": "Bâtisseur communautaire",
+        "communityLeader": "Leader communautaire",
+        "ndbChampion": "Champion NDB"
+      }
+    },
+    "actions": {
+      "eyebrow": "Centre d?action",
+      "title": "Faire avancer la communaut?",
+      "awardCredits": "Attribuer des cr?dits",
+      "awardCreditsDescription": "Reconna?tre les membres utiles.",
+      "reviewReports": "Examiner les signalements",
+      "reviewReportsDescription": "Voir ce qui demande attention.",
+      "viewUsers": "Voir les utilisateurs",
+      "viewUsersDescription": "Trouver les membres et g?rer les r?les.",
+      "analytics": "Analytique communautaire",
+      "analyticsDescription": "Lire le pouls et l?activit?."
+    },
+    "overview": {
+      "totalUsers": "Utilisateurs",
+      "totalPosts": "Posts",
+      "totalIdeas": "Id?es",
+      "totalMemories": "M?moires",
+      "totalComments": "Commentaires"
+    },
+    "users": {
+      "eyebrow": "Personnes de la communaut?",
+      "title": "Gestion des membres",
+      "description": "Les utilisateurs restent membres. L?admin peut supprimer les comptes si n?cessaire.",
+      "search": "Rechercher des utilisateurs",
+      "searchButton": "Rechercher",
+      "user": "Utilisateur",
+      "email": "Email",
+      "role": "R?le",
+      "score": "Score de contribution",
+      "award": "Attribuer des cr?dits",
+      "noUsername": "Aucun nom d?utilisateur",
+      "emailUnavailable": "Non disponible",
+      "updateRole": "Mettre ? jour",
+      "selfRoleProtected": "Votre compte admin est prot?g?",
+      "deleteUser": "Supprimer le compte",
+      "deleteConfirm": "Supprimer ce compte utilisateur de la communaut? ? Cette action ne peut pas ?tre annul?e depuis le tableau de bord."
+    },
+    "roles": {
+      "member": "Membre",
+      "admin": "Admin"
+    },
+    "credits": {
+      "eyebrow": "Cr?dits de contribution",
+      "title": "R?compenser l?impact communautaire",
+      "description": "Attribuez des points de contribution et conservez l?historique.",
+      "user": "Utilisateur",
+      "points": "Points",
+      "reason": "Raison",
+      "note": "Note",
+      "notePlaceholder": "Note facultative",
+      "award": "Attribuer des cr?dits",
+      "recent": "Cr?dits r?cents",
+      "empty": "Aucun cr?dit attribu? pour le moment."
+    },
+    "creditReasons": {
+      "helpedCommunity": "A aid? la communaut?",
+      "sharedValuableMemory": "A partag? une m?moire pr?cieuse",
+      "proposedUsefulIdea": "A propos? une id?e utile",
+      "volunteerWork": "Travail b?n?vole",
+      "cityImprovementAction": "Action d?am?lioration de la ville",
+      "other": "Autre"
+    },
+    "content": {
+      "eyebrow": "Veille contenu",
+      "title": "Posts, id?es et m?moires r?cents",
+      "description": "V?rifiez les posts, id?es et m?moires r?cents.",
+      "by": "Par {name}",
+      "view": "Voir",
+      "delete": "Supprimer",
+      "type": {
+        "post": "Post",
+        "idea": "Id?e",
+        "memory": "M?moire"
+      }
+    },
+    "activity": {
+      "eyebrow": "Activit? r?cente",
+      "title": "Chronologie communautaire",
+      "type": {
+        "post": "{name} a partag? un post : {title}",
+        "idea": "{name} a propos? une id?e : {title}",
+        "memory": "{name} a partag? une m?moire : {title}",
+        "credit": "{name} a gagn? {title} cr?dits",
+        "member": "{title} a rejoint la communaut?"
+      }
+    },
+    "identity": {
+      "eyebrow": "Identit? communautaire",
+      "title": "Vous construisez la maison num?rique de Nouadhibou.",
+      "description": "Chaque cr?dit, revue et r?le doit aider les personnes ? se sentir vues, utiles et reli?es ? la ville.",
+      "settingsNote": "Les r?glages et analyses avanc?es peuvent venir plus tard. Le MVP reste centr? sur les personnes et la contribution."
+    },
+    "statusMessage": {
+      "roleUpdated": "R?le mis ? jour avec succ?s.",
+      "creditsAwarded": "Cr?dits attribu?s avec succ?s.",
+      "contentDeleted": "Contenu supprim? avec succ?s.",
+      "invalid": "Action admin invalide.",
+      "roleError": "Impossible de mettre ? jour le r?le.",
+      "creditError": "Impossible d?attribuer les cr?dits. V?rifiez que la migration Supabase est appliqu?e.",
+      "deleteError": "Impossible de supprimer le contenu.",
+      "selfRoleBlocked": "Vous ne pouvez pas retirer votre propre r?le admin depuis cette page.",
+      "userDeleted": "Compte utilisateur retir? de la communaut?.",
+      "userDeleteError": "Impossible de supprimer ce compte utilisateur. V?rifiez les permissions de la cl? service role Supabase puis r?essayez.",
+      "selfDeleteBlocked": "Vous ne pouvez pas supprimer votre propre compte admin depuis cette page.",
+      "userDeleteConfigError": "La cl? service role Supabase est manquante. Ajoutez SUPABASE_SERVICE_ROLE_KEY dans Vercel d?abord."
+    },
+    "sidebar": {
+      "backToSite": "Retour au site",
+      "close": "Fermer le menu",
+      "collapse": "R?duire le menu",
+      "expand": "Ouvrir le menu"
+    }
+  },
+  "Categories": {
+    "memory": {
+      "history": "Histoire",
+      "railway": "Chemin de fer",
+      "fishing": "Pêche",
+      "culture": "Culture"
+    },
+    "idea": {
+      "education": "Éducation",
+      "environment": "Environnement",
+      "youth": "Jeunesse",
+      "culture": "Culture"
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "Connexion",
+      "done": "Interaction de connexion terminée.",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "submitting": "Connexion...",
+      "forgotPassword": "Mot de passe oublié ?",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "register": "Créer un compte",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe"
+    },
+    "register": {
+      "title": "Créer votre compte",
+      "done": "Interaction de création de compte terminée.",
+      "username": "Nom d'utilisateur",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "submit": "Créer le compte",
+      "submitting": "Création du compte...",
+      "hasAccount": "Vous avez déjà un compte ?",
+      "login": "Connexion",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe",
+      "fullName": "Nom complet",
+      "fullNamePlaceholder": "Votre nom complet",
+      "usernamePlaceholder": "Choisissez un nom d'utilisateur"
+    },
+    "forgotPassword": {
+      "title": "Réinitialiser votre mot de passe",
+      "email": "Adresse e-mail",
+      "submit": "Envoyer le lien de réinitialisation",
+      "submitting": "Envoi...",
+      "sent": "Consultez vos e-mails pour le lien de réinitialisation.",
+      "backToLogin": "Retour à la connexion",
+      "description": "Entrez votre e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe."
+    },
+    "errors": {
+      "auth_invalid_credentials": "E-mail ou mot de passe incorrect",
+      "auth_email_not_confirmed": "Veuillez confirmer votre e-mail avant de vous connecter",
+      "auth_user_exists": "Un compte existe d?j? avec cette adresse e-mail.",
+      "auth_weak_password": "Le mot de passe doit contenir au moins 8 caractères avec des lettres et des chiffres",
+      "auth_invalid_email": "Veuillez entrer une adresse e-mail valide",
+      "auth_link_expired": "Ce lien a expiré ou est invalide",
+      "auth_rate_limited": "Trop de tentatives. Veuillez réessayer plus tard",
+      "auth_generic_error": "Une erreur est survenue. Veuillez réessayer",
+      "auth_session_expired": "Votre session a expiré. Veuillez vous reconnecter",
+      "auth_network_error": "Erreur réseau. Veuillez vérifier votre connexion",
+      "password_length": "Le mot de passe doit contenir au moins 8 caractères",
+      "password_requirements": "Le mot de passe doit contenir au moins 8 caractères, une lettre et un chiffre",
+      "password_letter": "Le mot de passe doit contenir au moins une lettre",
+      "password_number": "Le mot de passe doit contenir au moins un chiffre",
+      "password_mismatch": "Les mots de passe ne correspondent pas",
+      "username_length": "Le nom d'utilisateur doit contenir entre 3 et 24 caractères",
+      "full_name_length": "Le nom complet doit contenir entre 2 et 100 caractères",
+      "username_taken": "Ce nom d?utilisateur est d?j? pris",
+      "incorrect_password": "Mot de passe incorrect",
+      "account_not_found": "Aucun compte trouv? avec cette adresse e-mail",
+      "email_required": "L?adresse e-mail est requise",
+      "password_required": "Le mot de passe est requis",
+      "username_required": "Le nom d?utilisateur est requis",
+      "full_name_required": "Le nom complet est requis",
+      "confirm_password_required": "Veuillez confirmer votre mot de passe"
+    },
+    "success": {
+      "auth_registered": "Inscription terminée ! Vérifiez votre e-mail pour confirmer votre compte.",
+      "auth_password_reset_sent": "Si un compte existe, vous recevrez un e-mail de réinitialisation.",
+      "auth_password_updated": "Mot de passe mis à jour avec succès.",
+      "auth_email_confirmed": "E-mail confirmé ! Vous pouvez maintenant vous connecter.",
+      "auth_logged_out": "Vous avez été déconnecté.",
+      "auth_email_confirmation_sent": "E-mail de confirmation envoyé. Veuillez vérifier votre boîte de réception."
+    },
+    "validation": {
+      "password_requirements": "Au moins 8 caractères avec lettres et chiffres",
+      "password_length": "Au moins 8 caractères",
+      "password_letter": "Contient une lettre",
+      "password_number": "Contient un chiffre",
+      "password_mismatch": "Les mots de passe ne correspondent pas",
+      "username_length": "Entre 3 et 24 caractères",
+      "full_name_length": "Entre 2 et 100 caractères"
+    }
+  },
+  "Toasts": {
+    "postCreated": "Publication créée",
+    "postUpdated": "Publication mise à jour",
+    "commentAdded": "Commentaire ajouté",
+    "commentDeleted": "Commentaire supprimé",
+    "postDeleted": "Publication supprimée",
+    "postSaved": "Publication enregistrée",
+    "memorySubmitted": "Souvenir partagé avec succès",
+    "ideaSubmitted": "Idée soumise avec succès",
+    "voteAdded": "Vote ajouté",
+    "updated": "Profil mis à jour",
+    "linkCopied": "Lien de la publication copié",
+    "emailSent": "Consultez vos e-mails pour le lien de réinitialisation",
+    "emailConfirmation": "Inscription terminée. Veuillez vérifier votre e-mail pour confirmer votre compte.",
+    "comingSoon": "Bientôt disponible"
+  },
+  "Errors": {
+    "invalidInput": "Saisie invalide",
+    "invalidPost": "Publication invalide",
+    "invalidProfile": "Profil invalide",
+    "invalidMemory": "Souvenir invalide",
+    "invalidIdea": "Idée invalide",
+    "saveFailed": "Échec de l'enregistrement",
+    "reactionFailed": "Échec de la réaction",
+    "titleRequired": "Le titre est requis",
+    "descriptionRequired": "La description est requise",
+    "titleTooShort": "Le titre doit comporter au moins 4 caractères",
+    "descriptionTooShort": "La description doit comporter au moins 10 caractères",
+    "submitFailed": "Une erreur est survenue lors de l'envoi"
+  },
+  "ImageUpload": {
+    "tooLarge": "Le fichier est trop volumineux. Veuillez choisir un fichier plus petit.",
+    "videoTooLarge": "La vidéo est trop volumineuse. La taille maximale est de 50 Mo.",
+    "videoTooLong": "La vidéo est trop longue. La durée maximale est de 60 secondes.",
+    "imagesOrVideo": "Vous pouvez téléverser soit des images, soit une seule vidéo, pas les deux.",
+    "invalidType": "Veuillez choisir un fichier valide (JPG, PNG, WebP, MP4, WebM, MOV).",
+    "uploading": "Téléversement...",
+    "success": "Téléversé avec succès.",
+    "chooseImage": "Ajouter des photos",
+    "chooseVideo": "Ajouter une vidéo",
+    "replace": "Remplacer l’image",
+    "remove": "Supprimer l’image",
+    "failed": "Échec du téléversement.",
+    "compressionFailed": "Échec de la préparation de l'image.",
+    "notAuthenticated": "Veuillez vous connecter avant de téléverser.",
+    "noFile": "Veuillez choisir un fichier à téléverser.",
+    "uploadingImagesProgress": "Téléversement des images {current} sur {total}..."
+  },
+  "Brand": {
+    "title": "INDB Community OS",
+    "subtitle": "I love NDB",
+    "alt": "Symbole du logo INDB"
+  },
+  "Common": {
+    "seeTranslation": "Voir la traduction",
+    "seeOriginal": "Voir l’original",
+    "translating": "Traduction...",
+    "translationUnavailable": "Traduction indisponible",
+    "previous": "Précédent",
+    "next": "Suivant"
+  },
+  "EmptyStates": {
+    "posts": {
+      "title": "Aucune publication pour le moment",
+      "description": "Soyez le premier à partager ce qui se passe à Nouadhibou.",
+      "cta": "Créer une publication"
+    },
+    "memories": {
+      "title": "Aucun souvenir pour le moment",
+      "description": "Préservez une histoire, une photo ou un moment de Nouadhibou.",
+      "cta": "Partager un souvenir"
+    },
+    "ideas": {
+      "title": "Aucune idée pour le moment",
+      "description": "Lancez la prochaine idée utile pour la communauté.",
+      "cta": "Partager une idée"
+    },
+    "events": {
+      "title": "Aucun événement pour le moment",
+      "description": "Créez le premier événement et rassemblez la communauté autour d’une action locale.",
+      "cta": "Explorer le fil"
+    },
+    "profile": {
+      "title": "Aucune publication pour le moment",
+      "description": "Partagez votre première nouvelle.",
+      "cta": "Créer une publication"
+    },
+    "polls": {
+      "title": "Aucun sondage pour le moment",
+      "description": "Créez le premier sondage pour recueillir l'avis de la communauté.",
+      "cta": "Explorer le fil"
+    },
+    "projects": {
+      "title": "Aucun projet pour le moment",
+      "description": "Lancez un projet citoyen et rassemblez la communauté autour d'une action locale.",
+      "cta": "Explorer le fil"
+    },
+    "fadla": {
+      "title": "Aucun partage pour le moment",
+      "description": "Partagez un objet utile dont vous n’avez plus besoin pour aider un voisin.",
+      "cta": "Partager un objet"
+    }
+  },
+  "ConfirmDialog": {
+    "title": "Annuler les modifications ?",
+    "message": "Vos modifications ne seront pas enregistrées.",
+    "keepEditing": "Continuer la modification",
+    "discard": "Ignorer"
+  },
+  "Fadla": {
+    "title": "Fadla",
+    "eyebrow": "Partage communautaire",
+    "description": "Partagez les objets utiles dont vous n'avez plus besoin avec celles et ceux qui en ont besoin. Moins de gaspillage, plus de solidarite, un Nouadhibou plus fort.",
+    "notMarketplace": "Pas de prix. Pas de paiement. Seulement le partage et l'entraide.",
+    "shareButton": "Partager un objet",
+    "searchPlaceholder": "Rechercher des objets partages",
+    "allCategories": "Toutes les categories",
+    "allUrgency": "Toute urgence",
+    "allStatus": "Tous les statuts",
+    "unknownOwner": "Membre de la communaute",
+    "sharedForHelp": "Partage pour aider",
+    "imagePlaceholder": "Objet utile",
+    "needThis": "Je le souhaite",
+    "requested": "Demandé",
+    "requestSent": "Demande envoyée",
+    "requestAccepted": "Votre demande a été acceptée",
+    "qty": "Qté",
+    "markCompleted": "Marquer termine",
+    "requests": "Demandes",
+    "viewRequests": "Voir les demandes",
+    "hideRequests": "Masquer les demandes",
+    "ownerLabel": "Propriétaire",
+    "recipientLabel": "Bénéficiaire",
+    "categories": {
+      "food": "Nourriture",
+      "clothes": "Vetements",
+      "books": "Livres",
+      "school_supplies": "Fournitures scolaires",
+      "furniture": "Meubles",
+      "tools": "Outils",
+      "electronics": "Electronique",
+      "medical": "Medical",
+      "household": "Maison",
+      "other": "Autre"
+    },
+    "urgency": {
+      "urgent": "Urgent",
+      "this_week": "Cette semaine",
+      "no_urgency": "Pas d'urgence"
+    },
+    "status": {
+      "published": "Disponible",
+      "requested": "Demandé",
+      "completed": "Terminé"
+    },
+    "actions": {
+      "edit": "Modifier l'objet",
+      "delete": "Supprimer l'objet"
+    },
+    "accept": "Accepter",
+    "decline": "Refuser",
+    "form": {
+      "createTitle": "Partager un objet utile",
+      "editTitle": "Modifier l'objet partage",
+      "helper": "Restez simple et genereux. Pas de prix ni de paiement.",
+      "title": "Titre",
+      "description": "Description",
+      "quantity": "Quantite",
+      "condition": "Etat",
+      "location": "Lieu",
+      "cancel": "Annuler",
+      "submit": "Partager",
+      "update": "Mettre a jour"
+    },
+    "toasts": {
+      "created": "Objet partage avec succes",
+      "updated": "Objet partage mis a jour",
+      "deleted": "Objet partage supprime",
+      "requested": "Demande envoyee au proprietaire",
+      "accepted": "Demande acceptee",
+      "declined": "Demand refuse",
+      "completed": "Objet termine"
+    },
+    "errors": {
+      "saveFailed": "Impossible d'enregistrer l'objet partage",
+      "actionFailed": "Impossible de terminer cette action",
+      "alreadyRequested": "Vous avez deja demande cet element",
+      "notFound": "Element introuvable",
+      "ownItem": "Vous ne pouvez pas demander votre propre element",
+      "notAvailable": "Cet element n'est plus disponible",
+      "collectionNotConfirmed": "Le b?n?ficiaire doit confirmer la collecte d?abord."
+    },
+    "empty": {
+      "title": "Aucun objet partage pour le moment",
+      "description": "Soyez la premiere personne a partager quelque chose d'utile avec la communaute."
+    },
+    "markHandedOver": "Marquer comme remis",
+    "completeAndArchive": "Terminer et archiver",
+    "reservedFor": "R?serv? pour {name}",
+    "waitingCollection": "En attente de la confirmation de collecte par le b?n?ficiaire.",
+    "recipientConfirmed": "Le b?n?ficiaire a confirm? la collecte. Confirmez la remise pour continuer.",
+    "waitingHandover": "En attente de la confirmation de remise par le propri?taire",
+    "requestStatus": {
+      "pending": "En attente",
+      "accepted": "Accept?e",
+      "declined": "Refus?e",
+      "cancelled": "Annul?e"
+    }
+  },
+  "Translating": {
+    "seeTranslation": "Voir la traduction",
+    "showOriginal": "Voir l'original",
+    "translating": "Traduction...",
+    "unavailable": "Traduction indisponible"
+  },
+  "ProfileAbout": {
+    "overview": "Aperçu",
+    "basicInfo": "Infos de base",
+    "workAndEducation": "Travail & Études",
+    "contact": "Coordonnées",
+    "places": "Lieux",
+    "interests": "Centres d'intérêt & Loisirs",
+    "links": "Liens",
+    "currentCity": "Ville actuelle",
+    "hometown": "Ville d'origine",
+    "languages": "Langues",
+    "memberSince": "Membre depuis",
+    "livesIn": "Vit à {city}",
+    "from": "De {city}",
+    "speaks": "Parle {languages}",
+    "worksAt": "Travaille chez {company}",
+    "studiedAt": "A étudié à {school}",
+    "position": "Poste",
+    "company": "Entreprise",
+    "school": "Établissement",
+    "degree": "Diplôme",
+    "fieldOfStudy": "Domaine d'études",
+    "startYear": "Année de début",
+    "endYear": "Année de fin",
+    "currentJob": "Je travaille actuellement ici",
+    "addWork": "Ajouter un emploi",
+    "editWork": "Modifier",
+    "deleteWork": "Supprimer",
+    "workConfirmDelete": "Supprimer cet emploi ?",
+    "addEducation": "Ajouter une formation",
+    "editEducation": "Modifier",
+    "deleteEducation": "Supprimer",
+    "educationConfirmDelete": "Supprimer cette formation ?",
+    "phone": "Téléphone",
+    "email": "E-mail",
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
+    "linkedin": "LinkedIn",
+    "telegram": "Telegram",
+    "website": "Site web",
+    "portfolio": "Portfolio",
+    "youtube": "YouTube",
+    "github": "GitHub",
+    "tiktok": "TikTok",
+    "visibility": "Visibilité",
+    "public": "Public",
+    "followers": "Abonnés",
+    "onlyMe": "Moi seul",
+    "addLink": "Ajouter un lien",
+    "editLink": "Modifier",
+    "deleteLink": "Supprimer",
+    "linkConfirmDelete": "Supprimer ce lien ?",
+    "linkPlaceholder": "https://...",
+    "noWork": "Aucune expérience professionnelle ajoutée.",
+    "noEducation": "Aucune formation ajoutée.",
+    "noInterests": "Aucun centre d'intérêt ajouté.",
+    "noHobbies": "Aucun loisir ajouté.",
+    "noLinks": "Aucun lien ajouté.",
+    "noTravel": "Aucun voyage ajouté.",
+    "interests_title": "Centres d'intérêt",
+    "hobbies_title": "Loisirs",
+    "addInterest": "Ajouter un centre d'intérêt",
+    "addHobby": "Ajouter un loisir",
+    "interestPlaceholder": "Tapez un centre d'intérêt et appuyez sur Entrée",
+    "hobbyPlaceholder": "Tapez un loisir et appuyez sur Entrée",
+    "travelHistory": "Voyages",
+    "visited": "A visité",
+    "addTravel": "Ajouter un pays",
+    "countryPlaceholder": "Entrez un nom de pays",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "confirmDelete": "Êtes-vous sûr ?",
+    "confirmDeleteMessage": "Cette action est irréversible.",
+    "profileCompleteness": "Complétion du profil",
+    "completeYourProfile": "Complétez votre profil pour que les autres vous connaissent mieux.",
+    "percent": "{percent}% Complet",
+    "completenessItems": {
+      "avatar": "Photo de profil",
+      "cover": "Photo de couverture",
+      "bio": "Bio",
+      "city": "Ville",
+      "work": "Emploi",
+      "education": "Formation",
+      "interests": "Centres d'intérêt",
+      "links": "Liens"
+    }
+  }
+}

@@ -1,0 +1,282 @@
+"use client";
+
+import {useTranslations} from "next-intl";
+import {Loader2} from "lucide-react";
+import {useRef, useState} from "react";
+import {useRouter} from "@/lib/i18n/routing";
+import {toast} from "sonner";
+
+import {MediaUpload, type MediaItem, type ExistingMediaItem} from "@/components/shared/media-upload";
+import {Button} from "@/components/ui/button";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Input} from "@/components/ui/input";
+import {Textarea} from "@/components/ui/textarea";
+import {submitMemoryAction, updateMemoryAction} from "@/app/[locale]/server-actions";
+import {TIMELINE_CATEGORIES} from "@/lib/data/timeline-constants";
+import type {MemoryWithContributor} from "@/types/database";
+
+export function MemoryUploadForm({
+  locale,
+  existingMemory,
+}: {
+  locale: string;
+  existingMemory?: MemoryWithContributor | null;
+}) {
+  const t = useTranslations("MemoryForm");
+  const mt = useTranslations("MemoryTimeline");
+  const confirmT = useTranslations("ConfirmDialog");
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+  const isEditing = !!existingMemory;
+
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+  const [removedMediaPaths, setRemovedMediaPaths] = useState<string[]>([]);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  const imageUploadT = useTranslations("ImageUpload");
+  const mediaUploading = mediaItems.some((item) => item.uploading);
+
+  const [titleError, setTitleError] = useState<string | null>(null);
+  const [descError, setDescError] = useState<string | null>(null);
+
+  // Map existing media for the upload component
+  const existingMediaItems: ExistingMediaItem[] | undefined = existingMemory?.media?.map((m) => ({
+    storagePath: m.storage_path,
+    url: m.url,
+    type: m.type,
+  }));
+
+  const markDirty = () => {
+    if (!dirty) setDirty(true);
+  };
+
+  function handleMediaChange(files: MediaItem[], removed: string[]) {
+    setMediaItems(files);
+    setRemovedMediaPaths(removed);
+    markDirty();
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (submitting || mediaUploading) return;
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    // Send uploaded media metadata as JSON (files already uploaded directly to Supabase)
+    const uploaded = mediaItems.filter((m) => !m.failed && m.url);
+    if (uploaded.length > 0) {
+      formData.set("mediaData", JSON.stringify(
+        uploaded.map((m) => ({url: m.url, storagePath: m.storagePath, type: m.type, mime_type: m.mimeType ?? ""})),
+      ));
+    }
+
+    // Send removed media paths
+    if (removedMediaPaths.length > 0) {
+      formData.set("removedMedia", JSON.stringify(removedMediaPaths));
+    }
+
+    formData.set("locale", locale);
+
+    const title = (formData.get("title") as string)?.trim();
+    const description = (formData.get("description") as string)?.trim();
+
+    let hasError = false;
+    setTitleError(null);
+    setDescError(null);
+
+    if (!title || title.length < 1) {
+      setTitleError(t("errors.title"));
+      hasError = true;
+    }
+    if (!description || description.length < 1) {
+      setDescError(t("errors.story"));
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    setSubmitting(true);
+
+    try {
+      let result;
+      if (isEditing && existingMemory) {
+        formData.set("memoryId", existingMemory.id);
+        result = await updateMemoryAction(formData);
+      } else {
+        result = await submitMemoryAction(formData);
+      }
+
+      if (result.success) {
+        router.push("/memory?memorySubmitted=1");
+        return;
+      }
+
+      toast.error(result.error || t("errors.submitFailed"));
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("[MemoryUploadForm] submit error:", error);
+      }
+      toast.error(t("errors.submitFailed"));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function handleCancel() {
+    if (dirty) {
+      setShowConfirm(true);
+    } else {
+      router.push("/memory");
+    }
+  }
+
+  function handleDiscard() {
+    setShowConfirm(false);
+    setDirty(false);
+    router.push("/memory");
+  }
+
+  return (
+    <>
+      {showConfirm ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setShowConfirm(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-card p-6 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold">{confirmT("title")}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">{confirmT("message")}</p>
+            <div className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+              <Button variant="outline" onClick={() => setShowConfirm(false)}>
+                {confirmT("keepEditing")}
+              </Button>
+              <Button variant="destructive" onClick={handleDiscard}>
+                {confirmT("discard")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{isEditing ? t("editTitle") : t("title")}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
+            <input type="hidden" name="locale" value={locale} />
+            {isEditing && existingMemory ? (
+              <input type="hidden" name="memoryId" value={existingMemory.id} />
+            ) : null}
+
+            <div>
+              <Input
+                name="title"
+                placeholder={t("fields.title")}
+                defaultValue={existingMemory?.title ?? ""}
+                onChange={markDirty}
+              />
+              {titleError ? (
+                <p className="mt-1 text-xs text-destructive">{titleError}</p>
+              ) : null}
+            </div>
+
+            <div>
+              <Textarea
+                name="description"
+                placeholder={t("fields.story")}
+                defaultValue={existingMemory?.description ?? ""}
+                onChange={markDirty}
+              />
+              {descError ? (
+                <p className="mt-1 text-xs text-destructive">{descError}</p>
+              ) : null}
+            </div>
+
+            <Input
+              name="decade"
+              placeholder={t("fields.eraLabel")}
+              defaultValue={existingMemory?.decade ?? ""}
+              onChange={markDirty}
+            />
+
+            <Input
+              name="year"
+              type="number"
+              placeholder="Year (e.g. 1984)"
+              defaultValue={existingMemory?.year?.toString() ?? ""}
+              onChange={markDirty}
+            />
+
+            <Input
+              name="location"
+              placeholder={t("fields.location")}
+              defaultValue={existingMemory?.location ?? ""}
+              onChange={markDirty}
+            />
+
+            <div>
+              <select
+                name="category"
+                defaultValue={existingMemory?.category ?? ""}
+                onChange={markDirty}
+                className="h-11 w-full rounded-xl border border-border/70 bg-card px-3 text-sm text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+              >
+                <option value="">{t("fields.category")}</option>
+                {TIMELINE_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {mt(`categories.${cat}`)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <Input
+              name="tags"
+              placeholder="Tags (comma separated)"
+              defaultValue={existingMemory?.tags?.join(", ") ?? ""}
+              onChange={markDirty}
+            />
+
+            <MediaUpload
+              existingMedia={existingMediaItems}
+              onMediaChange={handleMediaChange}
+              uploadKind="memory"
+            />
+
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancel}
+                disabled={submitting || mediaUploading}
+                className="w-full sm:w-auto"
+              >
+                {t("cancel")}
+              </Button>
+              <Button
+                type="submit"
+                disabled={submitting || mediaUploading}
+                className="w-full sm:w-auto"
+              >
+                {submitting || mediaUploading ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    {mediaUploading ? imageUploadT("uploading") : t("submitting")}
+                  </>
+                ) : (
+                  isEditing ? t("update") : t("submit")
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </>
+  );
+}

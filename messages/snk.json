@@ -1,0 +1,1229 @@
+{
+  "Onboarding": {
+    "title": "A jaɓɓo e I ❤️ NDB",
+    "subtitle": "Men yahda nde",
+    "back": "Rutto",
+    "next": "Ɓennuɗo",
+    "skip": "Salti e jooni",
+    "getStarted": "Fuuɗo",
+    "step1": {
+      "title": "Hollu kuurdu ɗam",
+      "subtitle": "Wi'tan min tawo e ɗum (optionnel)",
+      "fullName": "Innde timmuɗo",
+      "fullNamePlaceholder": "Naatnu innde maa timmuɗo",
+      "bio": "Bio",
+      "bioPlaceholder": "Winndu bio ngal haala e ma",
+      "city": "Wuro",
+      "cityPlaceholder": "Naatnu wuro maa",
+      "languages": "Ɗemɗe",
+      "skip": "Salti e jooni",
+      "saveAndContinue": "Dow e ɓennu",
+      "saving": "Nana dow..."
+    },
+    "step2": {
+      "title": "I ❤️ NDB ko honngo?",
+      "subtitle": "Hiiɗo ko kuurdu maa ɓuri",
+      "whatIsINDB": "Laawol kuurdu ngal Nouadhibou, waɗɓe yimɓe ender pos, jikku, baawo e ballondir.",
+      "skip": "Salti e jooni",
+      "next": "Ɓennuɗo",
+      "features": {
+        "home": {
+          "title": "Jaɓɓo",
+          "description": "Kesum cuɓe e kuurdu."
+        },
+        "community": {
+          "title": "Kuurdu",
+          "description": "Yel pos, nate, wi'ɗe e baawo."
+        },
+        "memory": {
+          "title": "Jikku",
+          "description": "Dowta hibe, nate e taariha Nouadhibou."
+        },
+        "ideas": {
+          "title": "Baawo",
+          "description": "Wattin baawo ngam yahude wuro ngam e dooɓe."
+        },
+        "fadla": {
+          "title": "Fadla",
+          "description": "Yel huɗe goɗɗe nde aɗa waɗii e yimɓe nde ɓe haaɓii."
+        },
+        "profile": {
+          "title": "Profil",
+          "description": "Hollu ko a woni e ballondir maa."
+        }
+      }
+    },
+    "step3": {
+      "title": "A jaɓɓo e kuurdu Nouadhibou",
+      "message": "Nde, men dowta jikku, yel goɗɗe, e yahdu kature e ɓam.",
+      "getStarted": "Fuuɗo"
+    }
+  },
+  "Meta": {
+    "siteTitle": "I love NDB",
+    "siteDescription": "Jamasiye Nuwaadibu : jikku siwil, tawtital, e fasil nokku.",
+    "home": {
+      "title": "Kore",
+      "description": "Kanandi jamasiye INDB ga jikku, tawtital, e goy nokku."
+    },
+    "feed": {
+      "title": "Kesɗintin",
+      "description": "Wirin jamasiye keyiŋe, taariixu, e yeewte meɲe."
+    },
+    "memory": {
+      "title": "Mbangite Jikku",
+      "description": "Yillen jikku jamasiye, taariixu, e alaaman nokku."
+    },
+    "events": {
+      "title": "Kaabutin",
+      "description": "Kanandi kaabutin kolli e saakin nokku."
+    },
+    "projects": {
+      "title": "Proje",
+      "description": "Wirin proje siwil, goy jooxentun, e cadde."
+    },
+    "polls": {
+      "title": "Suuban",
+      "description": "Tawtu suuban jamasiye ga fasil tawtixiŋ."
+    },
+    "ideas": {
+      "title": "Miiji",
+      "description": "Suubu e tawtu miiji goy dal Nuwaadibu."
+    },
+    "fadla": {
+      "title": "Fadla",
+      "description": "Ntene no ma sugu no ma hampa ga no ma."
+    },
+    "fadlaArchive": {
+      "title": "Fadla Archive",
+      "description": "Yillen no banta e no marxi, wirin nafa maa jamasiye."
+    },
+    "timeline": {
+      "title": "Tenburu Waati",
+      "description": "Yillen waati maŋi jikku jamasiye Nuwaadibu."
+    },
+    "profile": {
+      "title": "Profil",
+      "description": "Yeru profil maa jamasiye, tawtital maa, e goy maa."
+    },
+    "admin": {
+      "title": "Batte Njuɓɓu",
+      "description": "Njuɓɓu gollantun jamasiye, keredi, e keyiŋe."
+    },
+    "memorySubmit": {
+      "title": "Ntene Jikku",
+      "description": "Ntene jikku jamasiye e yowre tara."
+    },
+    "ideaSubmit": {
+      "title": "Ntene Miijo",
+      "description": "Saga miijo siwil e tawtu sifa ko daami e jamasiye."
+    },
+    "ideaEdit": {
+      "title": "Taƴtu Miijo",
+      "description": "Sagalin miijo maa siwil."
+    },
+    "postEdit": {
+      "title": "Taƴtu Keyiŋe",
+      "description": "Sagalin keyiŋe maa."
+    }
+  },
+  "LanguageSwitcher": {
+    "label": "Taƴtu kan",
+    "changeTo": "Taƴtu kan ga {language}"
+  },
+  "Navbar": {
+    "memberAvatarLabel": "Profil tərəyə jamasiye",
+    "createAccount": "Ntene kuun",
+    "login": "Don",
+    "logout": "Yinti",
+    "loggingOut": "No yintin..."
+  },
+  "Navigation": {
+    "items": {
+      "home": {
+        "label": "Kore",
+        "short": "Kore"
+      },
+      "feed": {
+        "label": "Kesɗintin",
+        "short": "Kesɗi"
+      },
+      "memory": {
+        "label": "Jikku",
+        "short": "Jikku"
+      },
+      "ideas": {
+        "label": "Miiji",
+        "short": "Miiji"
+      },
+      "fadla": {
+        "label": "Fadla",
+        "short": "Ntene"
+      },
+      "polls": {
+        "label": "Suuban",
+        "short": "Suubu"
+      },
+      "events": {
+        "label": "Kaabutin",
+        "short": "Kaabu"
+      },
+      "projects": {
+        "label": "Proje",
+        "short": "Proje"
+      },
+      "profile": {
+        "label": "Profil",
+        "short": "Profil"
+      }
+    }
+  },
+  "Theme": {
+    "toggle": "Taƴtu la"
+  },
+  "Search": {
+    "title": "Ndaxari",
+    "placeholder": "Ndaxar jamasiye",
+    "clear": "Nafu ndaxari",
+    "noResults": "Hay koo sanya",
+    "viewAll": "Yeru keyiŋe fuu",
+    "searching": "No ndaxarin...",
+    "error": "Wa ndaxari boori",
+    "minLength": "Siiɓu 2 harfi biri ga ndaxari.",
+    "resultsFor": "Keyiŋe ndaxari ga \"{query}\"",
+    "sections": {
+      "posts": "Keyiŋe",
+      "ideas": "Miiji",
+      "memories": "Jikku",
+      "fadla": "Ntentine",
+      "people": "Nkuntun"
+    },
+    "types": {
+      "post": "Keyiŋe",
+      "idea": "Miijo",
+      "memory": "Jikku",
+      "fadla": "Ntentine",
+      "profile": "Nkunto"
+    }
+  },
+  "Notifications": {
+    "button": "Xabaru",
+    "title": "Xabaru",
+    "empty": "Xabaru sanya haa saati",
+    "markAllRead": "Dumi fuu nafu",
+    "loading": "No ɲarxun...",
+    "close": "Tang",
+    "startedFollowing": "{actorName} tunna wiri ma",
+    "reactedToPost": "{actorName} jaabinta keyiŋe maa",
+    "commentedOnPost": "{actorName} siiwu keyiŋe maa",
+    "commentedOnYourIdea": "{actorName} siiwu miijo maa",
+    "sharedYourIdea": "{actorName} ntenxinti miijo maa",
+    "reactedToMemory": "{actorName} jaabinta jikku maa",
+    "commentedOnYourMemory": "{actorName} commented on your memory",
+    "sharedYourMemory": "{actorName} ntenxinti jikku maa",
+    "creditAwarded": "I sera {points} keredi tawtital",
+    "communityShareRequested": "Nkunto sera ntene no i ntinxinin.",
+    "fadlaRequested": "{actorName} sera ntene no i ntinxinin",
+    "fadlaCompleted": "{actorName} yantini ntene nde Fadla maa",
+    "someone": "Nkunto",
+    "loadMore": "Load more"
+  },
+  "RightSidebar": {
+    "trendingTopics": "Jeli No Mberlin",
+    "featuredMemories": "Jikku Suuben",
+    "activePoll": "Suuban Goon",
+    "votes": "{count} suubu",
+    "upcomingEvents": "Kaabutin Kolli"
+  },
+  "Landing": {
+    "tagline": "Jikku - Tawtital - Koyin",
+    "heroTitle": "Mar Jikku. Mah Koyin.",
+    "heroDescription": "Jamasiye dijital ga Daqlat Nuwaadibu.",
+    "mottoPrimary": "Nuwaadimu ye nkuntaŋ fuu.",
+    "mottoSecondary": "Jamasiye jikku gaɲa cadde ntenxin.",
+    "joinCommunity": "Tawtu Jamasiye",
+    "exploreMemories": "Yillen Jikku",
+    "latestPosts": "Keyiŋe Siiɓen",
+    "pollPreview": "Yeru Suuban",
+    "featuredMemories": "Jikku Suuben",
+    "communityIdeas": "Miiji Jamasiye",
+    "createAccount": "Ntene kuun",
+    "login": "Don"
+  },
+  "Feed": {
+    "ago": "fodun",
+    "save": "Mar",
+    "saved": "Mari",
+    "comments": "Siiwu",
+    "share": "Nten",
+    "linkCopied": "Link keyiŋe sera jaabi",
+    "shareFailed": "Ntentine wa",
+    "deleting": "No tunxun...",
+    "sending": "No ntenxun...",
+    "commentPlaceholder": "Siiɓu siiwu...",
+    "unknownAuthor": "Kunna",
+    "all": "Fuu",
+    "categories": {
+      "community": "Jamasiye",
+      "events": "Kaabutin",
+      "memory": "Jikku",
+      "ideas": "Miiji"
+    },
+    "reactions": {
+      "like": "Dami",
+      "love": "Niiwu",
+      "support": "Detem",
+      "celebrate": "Maani",
+      "insightful": "Faamu",
+      "sad": "Sun"
+    },
+    "actionCounts": {
+      "likes": "{count} Dami",
+      "comments": "{count} Siiwu",
+      "saves": "{count} Mari"
+    },
+    "editComment": "Taƴtu siiwu",
+    "deleteComment": "Tun siiwu",
+    "cancel": "Fo",
+    "commentUpdated": "Siiwu sagalinta",
+    "commentDeleted": "Siiwu tunta",
+    "commentUpdateFailed": "Wa sagalin siiwu",
+    "commentDeleteFailed": "Wa tun siiwu"
+  },
+  "FeedComposer": {
+    "title": "Mah keyiŋe",
+    "placeholder": "Ntene no ma jamasiye...",
+    "quickActions": {
+      "text": "Siiɓu",
+      "image": "Nta",
+      "event": "Kaabutin",
+      "photo": "Nta",
+      "memory": "Jikku",
+      "idea": "Miijo"
+    },
+    "composerTitle": "Ntene sagalintin e jamasiye maa",
+    "form": {
+      "title": "Tigi",
+      "content": "Mu tigi? I saga fasil maŋ?",
+      "mediaUrl": "URL media (suuba)",
+      "selectCategory": "Suubu kategori",
+      "publish": "Firinta"
+    },
+    "cancel": "Fo",
+    "post": "Firin",
+    "posting": "No firinxun...",
+    "socialPrompt": "Mu siiɓen Nuwaadibu?",
+    "editTitle": "Taƴtu keyiŋe",
+    "save": "Mar",
+    "saving": "No marxun...",
+    "notFound": "Keyiŋe sanya",
+    "notFoundDescription": "Keyiŋe no yidi taƴtu sanya.",
+    "errors": {
+      "submitFailed": "Firinta keyiŋe wa. Fo i kote.",
+      "postFailed": "Firinta keyiŋe wa. Fo i kote.",
+      "uploading": "Please wait until media upload finishes."
+    }
+  },
+  "Memory": {
+    "title": "Mbangite Jikku",
+    "description": "Muse dijital nkintin taariixu, nta, e yowre.",
+    "openTimeline": "Fen Tenburu Waati",
+    "submitNew": "Ntene jikku siiɓen",
+    "contributedBy": "Tawtite e ɲaxa {name}",
+    "relatedMemories": "Jikku Jokkinti",
+    "noImage": "Nta sanya",
+    "unknownContributor": "Tawtuta kunna",
+    "share": "Nten",
+    "linkCopied": "Link jikku jaabinta",
+    "shareFailed": "Ntentine wa",
+    "edit": "Taƴtu jikku",
+    "delete": "Tun jikku",
+    "confirmDelete": "Tun",
+    "confirmDeleteTitle": "Tun jikku",
+    "deleteConfirm": "I bata a yi tun jikku nku?",
+    "memoryDeleted": "Jikku tunta",
+    "deleteFailed": "Jikku tinti waayi",
+    "cancel": "Fo",
+    "storyMemory": "Jikku Taariixu",
+    "verification": {
+      "pending": "No ɲaaxun",
+      "approved": "Daminta",
+      "rejected": "Yeppa",
+      "needsMoreInfo": "Haaju bata njirixu"
+    },
+    "memoryShared": "Jikku ntenxinta no boori",
+    "memoryUpdated": "Jikku sagalinta",
+    "memorySaved": "Jikku marinta",
+    "memoryUnsaved": "Jikku itinta e nmarin"
+  },
+  "MemoryReactions": {
+    "love": "Niiwu",
+    "respect": "Bonya",
+    "nostalgia": "Jikku",
+    "important": "Diga",
+    "failed": "Jaabi wa"
+  },
+  "MemoryForm": {
+    "title": "Ntene jikku jamasiye",
+    "editTitle": "Taƴtu jikku",
+    "update": "Sagalin jikku",
+    "ready": "Jikku maa mari ga ntentine.",
+    "imageHelper": "Ɓeydu nta si i munta. Jikku mu ntenxindi no taariixu.",
+    "fields": {
+      "title": "Tigi jikku",
+      "story": "Ntene taariixu e yowre",
+      "category": "Suubu kategori",
+      "eraLabel": "Waati (suuba)",
+      "location": "Nokku (suuba)"
+    },
+    "errors": {
+      "title": "Siiɓu tigi boori.",
+      "story": "Ntene taariixu keyiŋe.",
+      "category": "Suubu kategori.",
+      "submitFailed": "Hay koo waɗi e ntentine"
+    },
+    "submitting": "No ntenxun...",
+    "submit": "Ntene jikku",
+    "cancel": "Fo",
+    "successMessage": "Jikku ntenxinta no boori"
+  },
+  "MemoryTimeline": {
+    "title": "Tenburu Waati Jikku",
+    "subtitle": "Yillen jikku jamasiye e sanɲe, waati, e kategori",
+    "browseDecades": "Yillen e sanɲe",
+    "noDecades": "Sanɲe sanya haa saati",
+    "pickYear": "Suubu sanɲe",
+    "noYears": "Sanɲe sanya e nku waati",
+    "memoriesFrom": "Jikku ganda {year}",
+    "noMemories": "Jikku sanya no foti i suubu",
+    "noMemoriesInYear": "Jikku sanya ganda {year}",
+    "loadMore": "Ɓeyndi",
+    "loadingMemories": "No ɲarxi jikku...",
+    "filterByCategory": "Tuɗu e kategori",
+    "filterByLocation": "Tuɗu e nokku",
+    "allCategories": "Kategori fuu",
+    "sortBy": "Sifa e",
+    "sortNewest": "Siiɓen jikko",
+    "sortOldest": "Fodunen jikko",
+    "sortMostReacted": "ɓuri jaabi",
+    "sortMostSaved": "ɓuri mar",
+    "sortMostCommented": "ɓuri siiwu",
+    "totalMemories": "{count} jikku",
+    "topCategories": "Kategori ɓuri",
+    "topLocations": "Nokku ɓuri",
+    "backToTimeline": "Yinti tenburu waati",
+    "backToDecades": "Yinti sanɲe",
+    "memoryCount": "{count} jikku",
+    "categories": {
+      "port": "Port",
+      "railway": "Fere xaranda",
+      "schools": "Karaandu",
+      "families": "Denɲe",
+      "culture": "Taarixu",
+      "sport": "Pijiranki",
+      "market": "Marche",
+      "beach": "Betee",
+      "oldCity": "Tundu kooro",
+      "work": "Baara",
+      "fishing": "Fiɲintu",
+      "migration": "Siginindi",
+      "cansado": "Kansadu",
+      "snim": "SNIM",
+      "religiousEvents": "Kibaru diina",
+      "nationalEvents": "Kibaru nasionale",
+      "neighborhoods": "Kundu",
+      "other": "Ndookti"
+    }
+  },
+  "Ideas": {
+    "title": "Miiji Jamasiye",
+    "description": "Suubu miiji goy e tawtu sifa boori ga Nuwaadibu.",
+    "voteLabel": "Suubu",
+    "voteLabelVoted": "Suubinta",
+    "supportPercent": "{percent}% detem",
+    "top10PopularIdeas": "Miiji 10 maŋi ɓuri la",
+    "showAll": "Yeru fuu ({count})",
+    "badgeNewIdea": "Miijo Siiɓen",
+    "badgeGrowingSupport": "Detem No Ɓeydin",
+    "badgePopular": "La",
+    "badgeCommunityPriority": "Daami Jamasiye",
+    "badgeTopPriority": "Daami Bari",
+    "share": "Nten",
+    "linkCopied": "Link miijo jaabinta",
+    "unknownAuthor": "Kunna",
+    "voteFailed": "Suubu wa",
+    "commentsWithCount": "Siiwu ({count})",
+    "commentPlaceholder": "Siiɓu siiwu...",
+    "noCommentsYet": "Siiwu sanya haa saati. I tamma i siiwu.",
+    "loginToComment": "Don ga siiwu",
+    "commentFailed": "Siiwu ɓeydi wa",
+    "commentDeleteFailed": "Tun siiwu wa",
+    "delete": "Tun",
+    "shareAnother": "Ntene miijo nto",
+    "edit": "Taƴtu",
+    "deleteConfirm": "I bata a yi tun miijo nku?",
+    "confirmDelete": "Tun",
+    "confirmDeleteTitle": "Tun miijo",
+    "cancel": "Fo",
+    "ideaUpdated": "Miijo sagalinta no boori",
+    "ideaDeleted": "Miijo tunta no boori",
+    "showMore": "Yeru ɓari",
+    "showLess": "Yeru dogo",
+    "editIdea": "Taƴtu miijo",
+    "deleteIdea": "Tun miijo",
+    "allIdeas": "Miiji Fuu",
+    "status": {
+      "submitted": "Ntenxinta",
+      "underReview": "No ɲaaxun",
+      "accepted": "Daminta",
+      "inProgress": "No Goyun",
+      "completed": "Banta",
+      "rejected": "Yeppa"
+    },
+    "editComment": "Taƴtu siiwu",
+    "deleteComment": "Tun siiwu",
+    "save": "Mar",
+    "commentUpdated": "Siiwu sagalinta",
+    "commentDeleted": "Siiwu tunta",
+    "commentUpdateFailed": "Wa sagalin siiwu"
+  },
+  "IdeaForm": {
+    "title": "Ntene miijo siwil",
+    "editTitle": "Taƴtu miijo maa",
+    "update": "Sagalin miijo",
+    "ready": "Miijo maa mari ga ntentine.",
+    "fields": {
+      "title": "Tigi miijo",
+      "description": "Sifor miijo, nafa, e kolli",
+      "category": "Suubu kategori",
+      "others": "Nto non"
+    },
+    "errors": {
+      "title": "Siiɓu tigi miijo boori.",
+      "description": "Sifor miijo maa no laaɓi.",
+      "category": "Suubu kategori.",
+      "submitFailed": "Ntentine miijo wa. Fo i kote."
+    },
+    "submitting": "No ntenxun...",
+    "submit": "Ntene miijo",
+    "cancel": "Fo",
+    "successMessage": "Miijo ntenxinta no boori"
+  },
+  "Events": {
+    "title": "Kaabutin Jamasiye",
+    "description": "Kanandi kaabutin kolli e tawtu saakin nokku.",
+    "rsvp": "I Tammi"
+  },
+  "Projects": {
+    "title": "Proje Jamasiye",
+    "description": "Wirin cadde, goy jooxentun, e nafa proje siwil.",
+    "progress": "Cadde",
+    "volunteers": "{count} goy jooxentun",
+    "status": {
+      "planning": "No Sigitin",
+      "inProgress": "No Goyun",
+      "recruiting": "No Ndaxarun"
+    }
+  },
+  "Polls": {
+    "title": "Suuban Jamasiye",
+    "description": "Suuban weeɓi ga detem fasil tuuxi e tawtixi.",
+    "totalVotes": "{count} suubu fuu",
+    "voteButton": "Suubu"
+  },
+  "Timeline": {
+    "title": "Tenburu Waati Nuwaadibu"
+  },
+  "Profile": {
+    "bio": "Goy jooxentun jamasiye, taariixutun, e detem ntaaku.",
+    "location": "Nuwaadibu, Gànnaar",
+    "stats": {
+      "posts": "Keyiŋe",
+      "memories": "Jikku",
+      "ideas": "Miiji",
+      "comments": "Siiwu"
+    },
+    "editProfile": "Taƴtu profil",
+    "changeAvatar": "Taƴtu Nta",
+    "changeCover": "Taƴtu Sutura",
+    "shareProfile": "Nten profil",
+    "tabsTitle": "Pɔrɔ Profil",
+    "tabs": {
+      "posts": "Keyiŋe",
+      "memories": "Jikku",
+      "ideas": "Miiji",
+      "shares": "Ntentine",
+      "about": "Ga jari"
+    },
+    "joined": "Tawtite",
+    "role": {
+      "admin": "Njuɓɓutu",
+      "moderator": "Sigi ṭen"
+    },
+    "recentMemories": "Jikku Siiɓen",
+    "save": "Mar taƴtu",
+    "saving": "No marxun...",
+    "updated": "Profil sagalinta no boori",
+    "cancel": "Fo",
+    "noBio": "Hay koo sanya haa saati.",
+    "noBioYet": "Hay koo sanya haa saati.",
+    "uploading": "No ɲarxun...",
+    "photoUpdated": "Nta profil sagalinta",
+    "coverUpdated": "Sutura nta sagalinta",
+    "uploadFailed": "Ɲarxi nta wa",
+    "noCity": "Tundu sanya.",
+    "createPost": "Mah keyiŋe",
+    "noPostsYet": "Keyiŋe sanya haa saati. Ntene sagalintin maa tamma.",
+    "fields": {
+      "username": "Turu gollan",
+      "fullName": "Turu kese",
+      "bio": "Siifu",
+      "city": "Tundu",
+      "languagePreference": "Kan (snk, ar, fr, en, ff, wo)",
+      "avatarUrl": "Nta",
+      "coverImage": "Sutura nta",
+      "role": "Goy",
+      "memberSince": "Tərəyə ganda"
+    },
+    "contributionScore": "Keredi tawtital",
+    "contributionRanks": {
+      "member": "Tərəyə",
+      "contributor": "Tawtuta",
+      "communityBuilder": "Maha Jamasiye",
+      "communityLeader": "Jitere Jamasiye",
+      "ndbChampion": "Mbadi NDB"
+    }
+  },
+  "Follow": {
+    "follow": "Wiri",
+    "following": "No Wirin",
+    "unfollow": "Wiri fo",
+    "followers": "Wiritun",
+    "followingCount": "No Wirin",
+    "followedToast": "I no wiri jaŋ profil nku",
+    "unfollowedToast": "Wirin profil nku fota",
+    "loginToFollow": "Don ga wiri nkuntun",
+    "failed": "Sagalin wiri wa"
+  },
+  "ProfileCard": {
+    "bio": "Taariixutun jamasiye no siiɓu jikku, miiji, e proje nokku.",
+    "location": "Daqlat Nuwaadibu",
+    "stats": {
+      "posts": "Keyiŋe",
+      "memories": "Jikku",
+      "ideas": "Miiji"
+    },
+    "badges": {
+      "contributor": "Tawtuta",
+      "historian": "Taariixutun"
+    }
+  },
+  "Admin": {
+    "stats": {
+      "postsToday": "Keyiŋe yiwoo",
+      "pendingMemories": "Jikku no ɲaaxun",
+      "openIdeas": "Miiji fenlen",
+      "reportsQueue": "Xabaru"
+    },
+    "moderationQueue": "Xabaru ɲaaxi",
+    "noPendingReports": "Xabaru sanya haa saati.",
+    "targetType": {
+      "memory": "Jikku",
+      "post": "Keyiŋe"
+    },
+    "status": {
+      "pending": "No ɲaaxun"
+    },
+    "reasons": {
+      "yearConfirmation": "Haaju tabiti ndu firinte",
+      "respectfulTone": "Ɲaaxo siifu ga bonya"
+    },
+    "commandCenter": "Markazi INDB",
+    "nouadhibouSignal": "Dila Nuwaadibu",
+    "eyebrow": "Markazi Jitere Jamasiye",
+    "signedInLabel": "Donti no",
+    "signedInAs": "Njuɓɓutu: {name}",
+    "hero": {
+      "title": "Nuwaadibu no wuuri. Nku na a dila.",
+      "description": "Wirin nkuntun, miiji, jikku, e tawtital no mahata INDB. Nku nokku ga jitere jamasiye wuuru, wa ga njuɓɓu database."
+    },
+    "nav": {
+      "dashboard": "Batte",
+      "users": "Gollantun",
+      "content": "Keyiŋe",
+      "credits": "Keredi",
+      "analytics": "Analytik",
+      "settings": "Sagalin"
+    },
+    "sections": {
+      "overview": "Yeru fuu",
+      "users": "Gollantun",
+      "credits": "Keredi",
+      "content": "Keyiŋe"
+    },
+    "health": {
+      "eyebrow": "Tiya Jamasiye",
+      "title": "Mu No Goyun Saati",
+      "members": "Tərəyə",
+      "posts": "Keyiŋe",
+      "ideas": "Miiji",
+      "memories": "Jikku",
+      "activeToday": "Goyun yiwoo",
+      "newToday": "+{count} yiwoo",
+      "today": "+{count} yiwoo",
+      "activeSignal": "dila wuuru",
+      "totalComments": "{count} siiwu"
+    },
+    "pulse": {
+      "eyebrow": "Dila Jamasiye",
+      "title": "Yeewte No Mberli Tundu",
+      "noPreview": "Yeru sanya haa saati.",
+      "type": {
+        "post": "Yeewtal ɓuri goy",
+        "idea": "Miijo ɓuri goy",
+        "memory": "Jikku tigi",
+        "member": "Tərəyə siiɓen"
+      }
+    },
+    "newMembers": {
+      "eyebrow": "Kolli Siiɓen",
+      "title": "Tərəyə Siiɓen"
+    },
+    "contributors": {
+      "eyebrow": "Tawtutun ɓuri",
+      "title": "Nkuntun no mahata jamasiye",
+      "rank": {
+        "member": "Tərəyə",
+        "contributor": "Tawtuta",
+        "communityBuilder": "Maha Jamasiye",
+        "communityLeader": "Jitere Jamasiye",
+        "ndbChampion": "Mbadi NDB"
+      }
+    },
+    "actions": {
+      "eyebrow": "Markazi Goy",
+      "title": "Dimbu Jamasiye Yaaga",
+      "awardCredits": "Ntene Keredi",
+      "awardCreditsDescription": "Kanandi tərəyə detemtun.",
+      "reviewReports": "Ɲaaxo Xabaru",
+      "reviewReportsDescription": "Ɲaaxo mu haaju tigi.",
+      "viewUsers": "Yeru Gollantun",
+      "viewUsersDescription": "Kan tərəyə e sagalin goy.",
+      "analytics": "Analytik Jamasiye",
+      "analyticsDescription": "Karan dila e goy."
+    },
+    "overview": {
+      "totalUsers": "Gollantun",
+      "totalPosts": "Keyiŋe",
+      "totalIdeas": "Miiji",
+      "totalMemories": "Jikku",
+      "totalComments": "Siiwu"
+    },
+    "users": {
+      "eyebrow": "Nkuntun Jamasiye",
+      "title": "Jitere Tərəyə",
+      "description": "Gollantun ye tərəyə. Njuɓɓutu dama tun kuun si haaju.",
+      "search": "Ndaxar gollantun",
+      "searchButton": "Ndaxar",
+      "user": "Gollanta",
+      "email": "Iimeel",
+      "role": "Goy",
+      "score": "Keredi tawtital",
+      "award": "Ntene keredi",
+      "noUsername": "Turu gollan sanya",
+      "emailUnavailable": "Sanya",
+      "updateRole": "Sagalin",
+      "selfRoleProtected": "Kuun maa njuɓɓutu no marinta",
+      "deleteUser": "Tun kuun",
+      "deleteConfirm": "Tun kuun nku gollanta e jamasiye? Nku wa taƴtun e batte."
+    },
+    "roles": {
+      "member": "Tərəyə",
+      "admin": "Njuɓɓutu"
+    },
+    "credits": {
+      "eyebrow": "Keredi tawtital",
+      "title": "Ntene nafa jamasiye",
+      "description": "Ntene keredi tawtital e mar taariixu.",
+      "user": "Gollanta",
+      "points": "Keredi",
+      "reason": "Sabu",
+      "note": "Xatu",
+      "notePlaceholder": "Xatu suuba",
+      "award": "Ntene keredi",
+      "recent": "Keredi kolli",
+      "empty": "Keredi sanya ntenxinta haa saati."
+    },
+    "creditReasons": {
+      "helpedCommunity": "Deteminta jamasiye",
+      "sharedValuableMemory": "Ntenxinti jikku diga",
+      "proposedUsefulIdea": "Saganti miijo nafa",
+      "volunteerWork": "Goy jooxentun",
+      "cityImprovementAction": "Goy ɓeyndi tundu",
+      "other": "Nto"
+    },
+    "content": {
+      "eyebrow": "Ɲaaxi keyiŋe",
+      "title": "Keyiŋe, miiji, e jikku kolli",
+      "description": "Ɲaaxo keyiŋe, miiji, e jikku kolli.",
+      "by": "e ɲaxa {name}",
+      "view": "Yeru",
+      "delete": "Tun",
+      "type": {
+        "post": "Keyiŋe",
+        "idea": "Miijo",
+        "memory": "Jikku"
+      }
+    },
+    "activity": {
+      "eyebrow": "Goy Kolli",
+      "title": "Tenburu waati jamasiye",
+      "type": {
+        "post": "{name} ntenxinti keyiŋe: {title}",
+        "idea": "{name} saganti miijo: {title}",
+        "memory": "{name} ntenxinti jikku: {title}",
+        "credit": "{name} sera keredi {title}",
+        "member": "{title} tawtita jamasiye"
+      }
+    },
+    "identity": {
+      "eyebrow": "Sifa Jamasiye",
+      "title": "I no mahata kore dijital Nuwaadibu.",
+      "description": "Keredi fuu, ɲaaxo, e sagalin goy ye detem nkuntun yi'de no mari, nafa, e jokkinti tundu.",
+      "settingsNote": "Sagalin e analytik ɓurin teewu kollin caggal. MVP fawii nkuntun e tawtital."
+    },
+    "statusMessage": {
+      "roleUpdated": "Goy sagalinta no boori.",
+      "creditsAwarded": "Keredi ntenxinta no boori.",
+      "contentDeleted": "Keyiŋe tunta no boori.",
+      "invalid": "Goy njuɓɓutu boori.",
+      "roleError": "Sagalin goy wa.",
+      "creditError": "Keredi ntentine wa. Tabiti Supabase migration no goyun.",
+      "deleteError": "Keyiŋe tun wa.",
+      "selfRoleBlocked": "I wa tun kuun maa njuɓɓutu e nku page.",
+      "userDeleted": "Kuun gollanta itinta e jamasiye.",
+      "userDeleteError": "Tun kuun gollanta wa. Ɲaaxo Supabase service role permissions, koten i kote.",
+      "selfDeleteBlocked": "I wa tun kuun maa njuɓɓutu e nku page.",
+      "userDeleteConfigError": "Suppu Supabase service role sanya. Ɓeydu SUPABASE_SERVICE_ROLE_KEY e Vercel tamma."
+    },
+    "sidebar": {
+      "backToSite": "Yinti jaygol",
+      "close": "Tang sidebar",
+      "collapse": "Dumbu sidebar",
+      "expand": "Fen sidebar"
+    }
+  },
+  "Categories": {
+    "memory": {
+      "history": "Taariixu",
+      "railway": "Jeli njamndi",
+      "fishing": "Lixi",
+      "culture": "Laada"
+    },
+    "idea": {
+      "education": "Karan",
+      "environment": "Dunya",
+      "youth": "Ntaaku",
+      "culture": "Laada"
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "Don",
+      "done": "Goy don banta.",
+      "email": "Iimeel",
+      "password": "Furta",
+      "submit": "Don",
+      "submitting": "No dontun...",
+      "forgotPassword": "Furta maa maayi?",
+      "noAccount": "Kuun sanya?",
+      "register": "Mah kuun",
+      "showPassword": "Yeru furta",
+      "hidePassword": "Noxu furta"
+    },
+    "register": {
+      "title": "Mah kuun maa",
+      "done": "Goy mah kuun banta.",
+      "username": "Turu gollan",
+      "email": "Iimeel",
+      "password": "Furta",
+      "confirmPassword": "Tabiti furta",
+      "submit": "Mah kuun",
+      "submitting": "No maha kuun...",
+      "hasAccount": "Kuun mari tawon?",
+      "login": "Don",
+      "showPassword": "Yeru furta",
+      "hidePassword": "Noxu furta",
+      "fullName": "Turu timmuxe",
+      "fullNamePlaceholder": "I turu timmuxe",
+      "usernamePlaceholder": "Suuxu turu gollan"
+    },
+    "forgotPassword": {
+      "title": "Sagalin furta maa",
+      "email": "Adres iimeel",
+      "submit": "Nten link sagalin",
+      "submitting": "No ntenxun...",
+      "sent": "Ƴaaxo iimeel maa ga link sagalin furta.",
+      "backToLogin": "Yinti don",
+      "description": "Ntene iimeel maa, nxu nten le link ga sagalin furta maa."
+    },
+    "errors": {
+      "auth_invalid_credentials": "E-mail ou mot de passe incorrect",
+      "auth_email_not_confirmed": "Veuillez confirmer votre e-mail avant de vous connecter",
+      "auth_user_exists": "Kontu ya ni email in da.",
+      "auth_weak_password": "Le mot de passe doit contenir au moins 8 caractères avec des lettres et des chiffres",
+      "auth_invalid_email": "Veuillez entrer une adresse e-mail valide",
+      "auth_link_expired": "Ce lien a expiré ou est invalide",
+      "auth_rate_limited": "Trop de tentatives. Veuillez réessayer plus tard",
+      "auth_generic_error": "Une erreur est survenue. Veuillez réessayer",
+      "auth_session_expired": "Votre session a expiré. Veuillez vous reconnecter",
+      "auth_network_error": "Erreur réseau. Veuillez vérifier votre connexion",
+      "password_length": "Le mot de passe doit contenir au moins 8 caractères",
+      "password_requirements": "Le mot de passe doit contenir au moins 8 caractères, une lettre et un chiffre",
+      "password_letter": "Le mot de passe doit contenir au moins une lettre",
+      "password_number": "Le mot de passe doit contenir au moins un chiffre",
+      "password_mismatch": "Les mots de passe ne correspondent pas",
+      "username_length": "Le nom d'utilisateur doit contenir entre 3 et 24 caractères",
+      "full_name_length": "Le nom complet doit contenir entre 2 et 100 caractères",
+      "username_taken": "Username in giri na kuttu",
+      "incorrect_password": "Password in ma ?i",
+      "account_not_found": "Kontu ma ?i email in da",
+      "email_required": "Email waajibini",
+      "password_required": "Password waajibini",
+      "username_required": "Username waajibini",
+      "full_name_required": "Toxo timma waajibini",
+      "confirm_password_required": "Password in saxu"
+    },
+    "success": {
+      "auth_registered": "Inscription terminée ! Vérifiez votre e-mail pour confirmer votre compte.",
+      "auth_password_reset_sent": "Si un compte existe, vous recevrez un e-mail de réinitialisation.",
+      "auth_password_updated": "Mot de passe mis à jour avec succès.",
+      "auth_email_confirmed": "E-mail confirmé ! Vous pouvez maintenant vous connecter.",
+      "auth_logged_out": "Vous avez été déconnecté.",
+      "auth_email_confirmation_sent": "E-mail de confirmation envoyé. Veuillez vérifier votre boîte de réception."
+    },
+    "validation": {
+      "password_requirements": "Au moins 8 caractères avec lettres et chiffres",
+      "password_length": "Au moins 8 caractères",
+      "password_letter": "Contient une lettre",
+      "password_number": "Contient un chiffre",
+      "password_mismatch": "Les mots de passe ne correspondent pas",
+      "username_length": "Entre 3 et 24 caractères",
+      "full_name_length": "Entre 2 et 100 caractères"
+    }
+  },
+  "Toasts": {
+    "postCreated": "Keyiŋe mahinta",
+    "postUpdated": "Keyiŋe sagalinta",
+    "commentAdded": "Siiwu ɓeydinta",
+    "commentDeleted": "Siiwu tunta",
+    "postDeleted": "Keyiŋe tunta",
+    "postSaved": "Keyiŋe marinta",
+    "memorySubmitted": "Jikku ntenxinta no boori",
+    "ideaSubmitted": "Miijo ntenxinta no boori",
+    "voteAdded": "Suubu ɓeydinta",
+    "updated": "Profil sagalinta",
+    "linkCopied": "Link keyiŋe jaabinta",
+    "emailSent": "Ƴaaxo iimeel maa ga link sagalin furta",
+    "emailConfirmation": "Inscription terminée. Veuillez vérifier votre e-mail pour confirmer votre compte.",
+    "comingSoon": "No Kollin"
+  },
+  "Errors": {
+    "invalidInput": "Naatgol boori",
+    "invalidPost": "Keyiŋe boori",
+    "invalidProfile": "Profil boori",
+    "invalidMemory": "Jikku boori",
+    "invalidIdea": "Miijo boori",
+    "saveFailed": "Mar wa",
+    "reactionFailed": "Sagalin jaabi wa",
+    "titleRequired": "Tigi haaju",
+    "descriptionRequired": "Siifu haaju",
+    "titleTooShort": "Tigi 4 harfi biri",
+    "descriptionTooShort": "Siifu 10 harfi biri",
+    "submitFailed": "Hay koo waɗi e ntentine"
+  },
+  "ImageUpload": {
+    "tooLarge": "Faylo ɓari. Suubu faylo dogo.",
+    "videoTooLarge": "Vidiyo ɓari. Ɓurnga mawni 50MB.",
+    "videoTooLong": "Vidiyo ɓari juuti. Ɓurnga juuti 60 second.",
+    "imagesOrVideo": "I dama ɲarxi nta walla vidiyo kiliŋ, wa nta e vidiyo fuu.",
+    "invalidType": "Suubu faylo boori (JPG, PNG, WebP, MP4, WebM, MOV).",
+    "uploading": "No ɲarxun...",
+    "success": "Ɲarxinta no boori.",
+    "chooseImage": "Ɓeydu nta",
+    "chooseVideo": "Ɓeydu vidiyo",
+    "replace": "Lomu nta",
+    "remove": "Iti nta",
+    "failed": "Ɲarxi wa.",
+    "compressionFailed": "Tapir nta ga ɲarxi wa.",
+    "notAuthenticated": "Don yinta ɲarxi.",
+    "noFile": "Suubu faylo ga ɲarxi.",
+    "uploadingImagesProgress": "Uploading images {current} of {total}..."
+  },
+  "Brand": {
+    "title": "INDB Community OS",
+    "subtitle": "I love NDB",
+    "alt": "Maande logo INDB"
+  },
+  "Common": {
+    "seeTranslation": "Yeru fir",
+    "seeOriginal": "Yeru tamma",
+    "translating": "No firun...",
+    "translationUnavailable": "Fir sanya",
+    "previous": "Koota",
+    "next": "Jikko"
+  },
+  "EmptyStates": {
+    "posts": {
+      "title": "No community stories yet",
+      "description": "Be the first to share what is happening in Nouadhibou.",
+      "cta": "Create a post"
+    },
+    "memories": {
+      "title": "No memories yet",
+      "description": "Preserve a story, photo, or moment from Nouadhibou.",
+      "cta": "Share a memory"
+    },
+    "ideas": {
+      "title": "No ideas yet",
+      "description": "Start the next community improvement idea.",
+      "cta": "Share an idea"
+    },
+    "fadla": {
+      "title": "No shares yet",
+      "description": "Share something useful you no longer need and help a neighbor.",
+      "cta": "Share something"
+    },
+    "events": {
+      "title": "Kaabutin sanya haa saati",
+      "description": "Mah kaabutin tamma ga tawtu nkuntun e goy nokku.",
+      "cta": "Yillen kesɗintin"
+    },
+    "profile": {
+      "title": "Keyiŋe sanya haa saati",
+      "description": "Ntene sagalintin maa tamma.",
+      "cta": "Mah keyiŋe"
+    },
+    "polls": {
+      "title": "Suuban sanya haa saati",
+      "description": "Mah suuban tamma ga sera miiji jamasiye.",
+      "cta": "Yillen kesɗintin"
+    },
+    "projects": {
+      "title": "Proje sanya haa saati",
+      "description": "Tun proje siwil e tawtu jamasiye e goy nokku.",
+      "cta": "Yillen kesɗintin"
+    }
+  },
+  "Fadla": {
+    "title": "Fadla",
+    "eyebrow": "Ntentine jamasiye",
+    "description": "Ntene no ma sugu no ma hampa ga no ma. Sutoru loota, ɓeydu tiiɗi, Nuwaadibu ɓuri boori.",
+    "notMarketplace": "Hay koo coggu. Hay koo njoɓu. Ntentine e detem tun.",
+    "shareButton": "Ntene Hay Koo",
+    "searchPlaceholder": "Ndaxar ntentine",
+    "allCategories": "Kategori fuu",
+    "allUrgency": "Acele fuu",
+    "allStatus": "Daraja fuu",
+    "unknownOwner": "Tərəyə jamasiye",
+    "sharedForHelp": "Ntenxinta ga detem",
+    "imagePlaceholder": "Hay koo nafa",
+    "needThis": "I Niiwu Nku",
+    "requested": "Ƴaminta",
+    "qty": "Nja",
+    "confirmCollection": "Tabiti sara",
+    "markCompleted": "Waɗu banta",
+    "archive": "Mar e profil",
+    "requests": "Ƴamle",
+    "archiveTitle": "Fadla Archive",
+    "archiveDescription": "Yillen no banta e no marxi, wirin nafa maa jamasiye.",
+    "completedOn": "Banta e",
+    "archivedOn": "Marxi e",
+    "backToActive": "Yinti ntentine wuuru",
+    "archiveEmpty": {
+      "title": "Ntentine marxi sanya haa saati",
+      "description": "Ntentine banta e marxi maale ɗoo."
+    },
+    "categories": {
+      "food": "Mii",
+      "clothes": "Yerxe",
+      "books": "Xatu",
+      "school_supplies": "Karan koyi",
+      "furniture": "Koyi kore",
+      "tools": "Goy koyi",
+      "electronics": "Elektronik",
+      "medical": "Fura",
+      "household": "Kore",
+      "other": "Nto"
+    },
+    "urgency": {
+      "urgent": "Acele",
+      "this_week": "Nku wiiyere",
+      "no_urgency": "Acele sanya"
+    },
+    "status": {
+      "published": "Firinta",
+      "requested": "Ƴaminta",
+      "reserved": "Marxaama",
+      "collected": "Sara",
+      "completed": "Banta",
+      "archived": "Marxi"
+    },
+    "actions": {
+      "edit": "Taƴtu hay koo",
+      "delete": "Tun hay koo"
+    },
+    "accept": "Ntaaxu",
+    "decline": "Ntaxa",
+    "form": {
+      "createTitle": "Ntene hay koo nafa",
+      "editTitle": "Taƴtu ntentine",
+      "helper": "Mar no boori e weeɓi. Hay koo coggu e njoɓu.",
+      "title": "Tigi",
+      "description": "Siifu",
+      "quantity": "Nja",
+      "condition": "La",
+      "location": "Nokku",
+      "cancel": "Fo",
+      "submit": "Nten",
+      "update": "Sagalin"
+    },
+    "toasts": {
+      "created": "Hay koo ntenxinta no boori",
+      "updated": "Ntentine sagalinta",
+      "deleted": "Ntentine tunta",
+      "requested": "Ƴamle ntenxinta jom hay koo",
+      "accepted": "Ƴamle ntaaxa",
+      "declined": "Ƴamle ntaxa",
+      "collected": "Matta ngata no ban",
+      "completed": "Item completed and archived",
+      "archived": "Hay koo nwuxa",
+      "handedOver": "Handover confirmed"
+    },
+    "errors": {
+      "saveFailed": "Mar ntentine wa",
+      "actionFailed": "Goy nku wa banta",
+      "alreadyRequested": "I na demaare ntene ndi",
+      "notFound": "Ntene sanya",
+      "ownItem": "I kuntan na i fa tene i ntene",
+      "notAvailable": "Ntene nku fe",
+      "collectionNotConfirmed": "The recipient must confirm collection first."
+    },
+    "empty": {
+      "title": "Ntentine sanya haa saati",
+      "description": "I tamma ntene hay koo nafa e jamasiye."
+    },
+    "markHandedOver": "Mark as Handed Over",
+    "completeAndArchive": "Complete and Archive",
+    "reservedFor": "Reserved for {name}",
+    "waitingCollection": "Waiting for the recipient to confirm collection.",
+    "recipientConfirmed": "Recipient confirmed collection. Confirm the handover to continue.",
+    "waitingHandover": "Waiting for owner handover confirmation",
+    "requestStatus": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "cancelled": "Cancelled"
+    }
+  },
+  "ConfirmDialog": {
+    "title": "Fo taƴtu?",
+    "message": "Taƴtu maa marinta.",
+    "keepEditing": "Joxu taƴtun",
+    "discard": "Fo"
+  },
+  "Translating": {
+    "seeTranslation": "See translation",
+    "showOriginal": "Show original",
+    "translating": "Translating...",
+    "unavailable": "Translation unavailable"
+  },
+  "ProfileAbout": {
+    "overview": "Nɲaamore",
+    "basicInfo": "Lanbure Fɔɲɔ",
+    "workAndEducation": "Ntumo & Karan",
+    "contact": "Hundondire",
+    "places": "Ndenke",
+    "interests": "Yunfanne & Nyeggoye",
+    "links": "Leenke",
+    "currentCity": "Taaɲa tigi",
+    "hometown": "Kawandu",
+    "languages": "Xamne",
+    "memberSince": "Membre ganda",
+    "livesIn": "A nta {city}",
+    "from": "Kawandu {city}",
+    "speaks": "A xamna {languages}",
+    "worksAt": "A ntuma {company}",
+    "studiedAt": "A karan na {school}",
+    "position": "Ntumo dina",
+    "company": "Firma",
+    "school": "Karangire",
+    "degree": "Sertifika",
+    "fieldOfStudy": "Xamme karandi dina",
+    "startYear": "Sanɲe fɔɲɔ",
+    "endYear": "Sanɲe laban",
+    "currentJob": "N ntuma yitere",
+    "addWork": "Fayi ntumo",
+    "editWork": "Bayi",
+    "deleteWork": "Barki",
+    "workConfirmDelete": "Barki ntumo yi?",
+    "addEducation": "Fayi karan",
+    "editEducation": "Bayi",
+    "deleteEducation": "Barki",
+    "educationConfirmDelete": "Barki karan yi?",
+    "phone": "Telefɔni",
+    "email": "Imeyili",
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
+    "linkedin": "LinkedIn",
+    "telegram": "Telegram",
+    "website": "Websaiti",
+    "portfolio": "Portfolio",
+    "youtube": "YouTube",
+    "github": "GitHub",
+    "tiktok": "TikTok",
+    "visibility": "Yitere",
+    "public": "Bɛɛ ye",
+    "followers": "Ntomenke",
+    "onlyMe": "Nte dɛ",
+    "addLink": "Fayi leenke",
+    "editLink": "Bayi",
+    "deleteLink": "Barki",
+    "linkConfirmDelete": "Barki leenke yi?",
+    "linkPlaceholder": "https://...",
+    "noWork": "Ntumo ma fayi.",
+    "noEducation": "Karan ma fayi.",
+    "noInterests": "Yunfanne ma fayi.",
+    "noHobbies": "Nyeggoye ma fayi.",
+    "noLinks": "Leenke ma fayi.",
+    "noTravel": "Saya ma fayi.",
+    "interests_title": "Yunfanne",
+    "hobbies_title": "Nyeggoye",
+    "addInterest": "Fayi yunfan",
+    "addHobby": "Fayi nyeggo",
+    "interestPlaceholder": "Sɛbɛ yunfan, n de tuŋ Enter",
+    "hobbyPlaceholder": "Sɛbɛ nyeggo, n de tuŋ Enter",
+    "travelHistory": "Saya tarixi",
+    "visited": "A taa",
+    "addTravel": "Fayi jamana",
+    "countryPlaceholder": "Sɛbɛ jamana tɔɣɔ",
+    "save": "Marafi",
+    "cancel": "Dandi",
+    "delete": "Barki",
+    "confirmDelete": "I ye a lahid?",
+    "confirmDeleteMessage": "Xaɲa tɛ a nafa.",
+    "profileCompleteness": "Kofile tɛmenden",
+    "completeYourProfile": "Tɛmen i kofile waxa denke y'an i lɔn.",
+    "percent": "{percent}% Tɛmenden",
+    "completenessItems": {
+      "avatar": "Kofile foto",
+      "cover": "Kunto foto",
+      "bio": "Ntaamɛ",
+      "city": "Taaɲa",
+      "work": "Ntumo",
+      "education": "Karan",
+      "interests": "Yunfanne",
+      "links": "Leenke"
+    }
+  }
+}

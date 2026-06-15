@@ -1,0 +1,547 @@
+export type ContentLanguage = "ar" | "fr" | "en" | "ff" | "snk" | "wo";
+
+export type CommunityRole = "member" | "contributor" | "historian" | "moderator" | "admin";
+
+export type PostType = "community" | "news" | "memory" | "event" | "idea" | "project";
+export type ProjectStatus = "planning" | "in_progress" | "recruiting" | "completed";
+export type PostStatus = "published" | "hidden" | "archived";
+export type CommentStatus = "published" | "hidden";
+export type MemoryVerificationStatus = "pending" | "approved" | "rejected" | "needs_more_info";
+export type IdeaStatus = "submitted" | "under_review" | "accepted" | "in_progress" | "completed" | "rejected";
+export type IdeaBadge = "new_idea" | "growing_support" | "popular" | "community_priority" | "top_priority";
+export type ReactionType = "like" | "love" | "support" | "celebrate" | "insightful" | "sad";
+export type MemoryReactionType = ReactionType;
+export type ReportTargetType = "post" | "comment" | "memory" | "idea";
+export type ReportStatus = "pending" | "reviewed" | "resolved" | "dismissed";
+export type FadlaStatus = "published" | "requested" | "reserved" | "collected" | "completed" | "archived";
+export type FadlaRequestStatus = "pending" | "accepted" | "declined" | "cancelled";
+export type FadlaUrgency = "urgent" | "this_week" | "no_urgency";
+export type FadlaCategory = "food" | "clothes" | "books" | "school_supplies" | "furniture" | "tools" | "electronics" | "medical" | "household" | "other";
+
+export type CommunityShareStatus = "available" | "reserved" | "given";
+export type CommunityShareCategory = "food" | "clothes" | "furniture" | "electronics" | "school_supplies" | "books" | "services" | "other";
+
+export interface CommunityShareImage {
+  url: string;
+  storagePath: string;
+  type?: "image";
+  mimeType?: string;
+}
+
+export interface ProfileRow {
+  id: string;
+  full_name: string | null;
+  username: string | null;
+  avatar_url: string | null;
+  cover_image_url: string | null;
+  bio: string | null;
+  city: string | null;
+  hometown: string | null;
+  languages_spoken: string[];
+  role: CommunityRole;
+  contribution_score: number;
+  language_preference: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CommunityCreditRow {
+  id: string;
+  user_id: string;
+  points: number;
+  reason: string;
+  note: string | null;
+  created_at: string;
+  awarded_by: string | null;
+}
+
+export interface CategoryRow {
+  id: number;
+  name_en: string;
+  name_fr: string;
+  name_ar: string;
+  name_ff: string;
+  name_snk: string;
+  name_wo: string;
+  slug: string;
+  icon: string | null;
+  color: string | null;
+  created_at: string;
+}
+
+export interface PostMediaRow {
+  id: string;
+  post_id: string;
+  url: string;
+  type: "image" | "video";
+  mime_type: string;
+  storage_path: string;
+  position: number;
+  created_at: string;
+}
+
+export interface PostRow {
+  id: string;
+  author_id: string | null;
+  category_id: number | null;
+  type: PostType;
+  title: string | null;
+  content: string;
+  content_language: ContentLanguage | null;
+  image_url: string | null;
+  status: PostStatus;
+  language: string;
+  likes_count: number;
+  comments_count: number;
+  saves_count: number;
+  shares_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ContentTranslationRow {
+  id: string;
+  content_type: string;
+  content_id: string;
+  source_lang: ContentLanguage;
+  target_lang: ContentLanguage;
+  original_hash: string;
+  translated_text: string;
+  created_at: string;
+}
+
+export interface CommentRow {
+  id: string;
+  post_id: string;
+  author_id: string | null;
+  parent_id: string | null;
+  content: string;
+  content_language: ContentLanguage | null;
+  status: CommentStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PostLikeRow {
+  id: string;
+  post_id: string;
+  user_id: string;
+  reaction_type: ReactionType;
+  created_at: string;
+}
+
+export interface PostReactionRow {
+  id: string;
+  post_id: string;
+  user_id: string;
+  reaction_type: ReactionType;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SavedPostRow {
+  id: string;
+  post_id: string;
+  user_id: string;
+  created_at: string;
+}
+
+export interface UserFollowRow {
+  id: string;
+  follower_id: string;
+  following_id: string;
+  created_at: string;
+}
+
+export interface IdeaMediaRow {
+  id: string;
+  idea_id: string;
+  url: string;
+  type: "image" | "video";
+  mime_type: string;
+  storage_path: string;
+  position: number;
+  created_at: string;
+}
+
+export interface MemoryRow {
+  id: string;
+  contributor_id: string | null;
+  title: string;
+  description: string | null;
+  content_language: ContentLanguage | null;
+  decade: string | null;
+  year: number | null;
+  location: string | null;
+  category: string | null;
+  media_url: string | null;
+  media_type: string;
+  verification_status: MemoryVerificationStatus;
+  tags: string[] | null;
+  shares_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MemoryMediaRow {
+  id: string;
+  memory_id: string;
+  url: string;
+  type: "image" | "video";
+  mime_type: string;
+  storage_path: string;
+  position: number;
+  created_at: string;
+}
+
+export interface IdeaRow {
+  id: string;
+  author_id: string | null;
+  title: string;
+  content_language: ContentLanguage | null;
+  description: string;
+  category_id: number | null;
+  status: IdeaStatus;
+  votes_count: number;
+  shares_count: number;
+  image_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IdeaCommentRow {
+  id: string;
+  idea_id: string;
+  author_id: string;
+  content: string;
+  content_language: ContentLanguage | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IdeaVoteRow {
+  id: string;
+  idea_id: string;
+  user_id: string;
+  created_at: string;
+}
+
+export interface ReportRow {
+  id: string;
+  reporter_id: string | null;
+  target_type: ReportTargetType;
+  target_id: string;
+  reason: string;
+  description: string | null;
+  status: ReportStatus;
+  created_at: string;
+}
+
+export interface NotificationRow {
+  id: string;
+  user_id: string;
+  actor_id: string | null;
+  type: string;
+  entity_type: string | null;
+  entity_id: string | null;
+  title: string;
+  message: string | null;
+  read: boolean;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export interface NotificationWithActor extends NotificationRow {
+  actor: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+}
+
+export interface CommunityShareRow {
+  id: string;
+  owner_id: string;
+  title: string;
+  description: string;
+  content_language: ContentLanguage | null;
+  category: CommunityShareCategory;
+  condition: string | null;
+  location: string | null;
+  status: CommunityShareStatus;
+  images: CommunityShareImage[];
+  shares_count: number;
+  accepted_request_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CommunityShareRequestRow {
+  id: string;
+  share_id: string;
+  requester_id: string;
+  created_at: string;
+}
+
+// ---- Fadla v2 types ----
+
+export interface FadlaItemRow {
+  id: string;
+  owner_id: string;
+  title: string;
+  description: string;
+  content_language: ContentLanguage | null;
+  category: FadlaCategory;
+  condition: string | null;
+  location: string | null;
+  quantity: number;
+  urgency_level: FadlaUrgency;
+  status: FadlaStatus;
+  images: CommunityShareImage[];
+  shares_count: number;
+  created_at: string;
+    updated_at: string;
+    completed_at: string | null;
+    archived_at: string | null;
+    accepted_request_id: string | null;
+  }
+
+export interface FadlaRequestRow {
+  id: string;
+  share_id: string;
+  requester_id: string;
+  message: string | null;
+  status: FadlaRequestStatus;
+  collected_at: string | null;
+  handed_over_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FadlaImpact {
+  people_helped: number;
+  items_shared: number;
+  completed_shares: number;
+}
+
+export interface FadlaWithOwner extends FadlaItemRow {
+  owner: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+  requests?: FadlaRequestWithRequester[];
+  requested_by_current_user?: boolean;
+  requests_count?: number;
+}
+
+export interface FadlaRequestWithRequester extends FadlaRequestRow {
+  requester: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+}
+
+export interface EventRow {
+  id: string;
+  title: string;
+  description: string | null;
+  date: string | null;
+  location: string | null;
+  image_url: string | null;
+  creator_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectRow {
+  id: string;
+  title: string;
+  description: string | null;
+  status: ProjectStatus;
+  volunteers_count: number;
+  progress: number;
+  image_url: string | null;
+  creator_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PollRow {
+  id: string;
+  question: string;
+  creator_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PollOptionRow {
+  id: string;
+  poll_id: string;
+  label: string;
+  votes_count: number;
+  created_at: string;
+}
+
+export interface PollVoteRow {
+  id: string;
+  poll_id: string;
+  option_id: string;
+  user_id: string;
+  created_at: string;
+}
+
+// ---- Joined types (used by UI) ----
+
+export interface PostWithAuthor extends PostRow {
+  author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+  category: Pick<CategoryRow, "id" | "slug" | "name_en" | "name_fr" | "name_ar" | "name_ff" | "name_snk" | "name_wo"> | null;
+  user_reaction?: ReactionType | null;
+  reaction_counts?: Record<string, number>;
+  user_saved?: boolean;
+  media?: PostMediaRow[];
+}
+
+export interface MemoryReactionRow {
+  id: string;
+  memory_id: string;
+  user_id: string;
+  reaction_type: MemoryReactionType;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MemoryCommentRow {
+  id: string;
+  memory_id: string;
+  author_id: string;
+  content: string;
+  content_language: ContentLanguage | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SavedMemoryRow {
+  id: string;
+  memory_id: string;
+  user_id: string;
+  created_at: string;
+}
+
+export interface MemoryWithContributor extends MemoryRow {
+  contributor: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+  media?: MemoryMediaRow[];
+}
+
+export interface MemoryCommentWithAuthor extends MemoryCommentRow {
+  author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+}
+
+export interface IdeaWithAuthor extends IdeaRow {
+  author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+  category: Pick<CategoryRow, "id" | "slug" | "name_en" | "name_fr" | "name_ar" | "name_ff" | "name_snk" | "name_wo"> | null;
+  media?: IdeaMediaRow[];
+}
+
+export interface IdeaWithSupport extends IdeaWithAuthor {
+  supportPercentage: number;
+  badge: IdeaBadge;
+  rank: number | null;
+}
+
+export interface IdeaCommentWithAuthor extends IdeaCommentRow {
+  author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+}
+
+export interface CommentWithAuthor extends CommentRow {
+  author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+}
+
+export interface CommunityShareWithOwner extends CommunityShareRow {
+  owner: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+  requested_by_current_user?: boolean;
+  requests_count?: number;
+}
+
+export interface ProfileWithCounts extends ProfileRow {
+  posts_count: number;
+  memories_count: number;
+  ideas_count: number;
+  comments_count: number;
+  shares_count?: number;
+  followers_count: number;
+  following_count: number;
+}
+
+export type LinkPlatform = "phone" | "email" | "whatsapp" | "facebook" | "instagram" | "linkedin" | "telegram" | "website" | "portfolio" | "youtube" | "github" | "tiktok";
+export type VisibilityLevel = "public" | "followers" | "only_me";
+
+export interface ProfileWorkRow {
+  id: string;
+  profile_id: string;
+  company: string;
+  position: string;
+  start_year: number;
+  end_year: number | null;
+  is_current: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProfileEducationRow {
+  id: string;
+  profile_id: string;
+  school: string;
+  degree: string | null;
+  field_of_study: string | null;
+  start_year: number;
+  end_year: number | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProfileInterestRow {
+  id: string;
+  profile_id: string;
+  name: string;
+  created_at: string;
+}
+
+export interface ProfileHobbyRow {
+  id: string;
+  profile_id: string;
+  name: string;
+  created_at: string;
+}
+
+export interface ProfileLinkRow {
+  id: string;
+  profile_id: string;
+  platform: string;
+  label: string | null;
+  value: string;
+  visibility: string;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface ProfileTravelRow {
+  id: string;
+  profile_id: string;
+  country: string;
+  created_at: string;
+}
+
+export interface ProfileWithDetails extends ProfileWithCounts {
+  hometown: string | null;
+  languages_spoken: string[];
+  work: ProfileWorkRow[];
+  education: ProfileEducationRow[];
+  interests: ProfileInterestRow[];
+  hobbies: ProfileHobbyRow[];
+  links: ProfileLinkRow[];
+  travel: ProfileTravelRow[];
+}
+
+export interface EventWithCreator extends EventRow {
+  creator: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+}
+
+export interface ProjectWithCreator extends ProjectRow {
+  creator: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+}
+
+export interface PollWithOptions extends PollRow {
+  options: PollOptionRow[];
+}
