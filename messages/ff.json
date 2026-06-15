@@ -870,6 +870,7 @@
     "errors": {
       "auth_invalid_credentials": "Nimitoor maa finnde wowre fotaani",
       "auth_email_not_confirmed": "Veuillez confirmer votre e-mail avant de vous connecter",
+      "auth_email_provider_disabled": "Connexion synthétique par téléphone exige que le fournisseur e-mail soit activé dans les paramètres Supabase Auth.",
       "auth_user_exists": "Konte ena woodi kadi e namba ndee.",
       "auth_weak_password": "Le mot de passe doit contenir au moins 8 caractères avec des lettres et des chiffres",
       "auth_invalid_email": "Veuillez entrer une adresse e-mail valide",

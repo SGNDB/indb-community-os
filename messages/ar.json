@@ -997,6 +997,7 @@
     "errors": {
       "auth_invalid_credentials": "رقم الهاتف أو كلمة المرور غير صحيحين",
       "auth_email_not_confirmed": "يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول",
+      "auth_email_provider_disabled": "يتطلب تسجيل الدخول الاصطناعي للهاتف تفعيل مزوّد البريد الإلكتروني في إعدادات Supabase Auth.",
       "auth_user_exists": "يوجد حساب بهذا الرقم بالفعل.",
       "auth_weak_password": "كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل مع حروف وأرقام",
       "auth_invalid_email": "يرجى إدخال بريد إلكتروني صحيح",

@@ -3,6 +3,7 @@ import "server-only";
 const AUTH_ERROR_MAP: Record<string, string> = {
   "Invalid login credentials": "auth_invalid_credentials",
   "Email not confirmed": "auth_email_not_confirmed",
+  "Email logins are disabled": "auth_email_provider_disabled",
   "Invalid email": "auth_invalid_phone",
   "User already registered": "auth_user_exists",
   "Signup requires a valid password": "auth_weak_password",
@@ -37,6 +38,8 @@ function getAuthErrorKey(error: { message?: string; code?: string }): string {
 
     const lowerMsg = normalized.toLowerCase();
     if (lowerMsg.includes("rate limit")) return "auth_rate_limited";
+    if (lowerMsg.includes("email logins are disabled") || lowerMsg.includes("email provider disabled"))
+      return "auth_email_provider_disabled";
     if (lowerMsg.includes("email not confirmed") || lowerMsg.includes("email not verified"))
       return "auth_email_not_confirmed";
     if (
