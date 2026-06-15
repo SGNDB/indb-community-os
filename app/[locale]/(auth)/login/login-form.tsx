@@ -16,14 +16,14 @@ interface FormErrors {
   general?: string;
 }
 
-export function LoginForm({locale, next}: {locale: string; next?: string}) {
+export function LoginForm({locale, next, phone: prefilledPhone}: {locale: string; next?: string; phone?: string}) {
   const t = useTranslations("Auth.login");
   const errorT = useTranslations("Auth.errors");
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [formData, setFormData] = useState({phone: "", password: ""});
+  const [formData, setFormData] = useState({phone: prefilledPhone?.replace(/\D/g, "") ?? "", password: ""});
 
   function updateField(field: "phone" | "password", value: string) {
     setFormData((current) => ({...current, [field]: value}));

@@ -891,6 +891,8 @@
       "phone_required": "Numéro portable bi war na am",
       "auth_invalid_phone": "Duggal numéro portable bu mat",
       "auth_phone_exists": "Am na kont bu jokkook bii numéro portable",
+      "phone_exists_title": "Kont bu jokkook ci namba li",
+      "phone_exists_login": "Jot ci namba li",
       "password_required": "Baatu-j?ll bi war na am",
       "username_required": "Tur j?fandikukat bi war na am",
       "full_name_required": "Tur wu mat wi war na am",

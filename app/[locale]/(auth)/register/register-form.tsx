@@ -1,6 +1,6 @@
 "use client";
 
-import {Eye, EyeOff, Loader2, Check, X, AlertCircle} from "lucide-react";
+import {Eye, EyeOff, Loader2, Check, X, AlertCircle, LogIn} from "lucide-react";
 import {useTranslations} from "next-intl";
 import {useState} from "react";
 import {useRouter} from "next/navigation";
@@ -9,6 +9,7 @@ import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Link} from "@/lib/i18n/routing";
 import {registerAction} from "@/app/[locale]/server-actions";
+import {normalizePhone} from "@/lib/auth/phone";
 
 interface FormErrors {
   fullName?: string;
@@ -239,7 +240,18 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
           </p>
         )}
       </div>
-      {errors.general && (
+      {errors.phone === "auth_phone_exists" ? (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-4 text-sm text-blue-900">
+          <p className="font-medium">{errorT("phone_exists_title")}</p>
+          <Link
+            href={`/login?phone=${normalizePhone(formData.phone).replace(/\D/g, "").slice(4)}`}
+            className="mt-2 inline-flex items-center gap-1.5 font-medium text-blue-700 hover:text-blue-800 hover:underline"
+          >
+            <LogIn size={14} />
+            {errorT("phone_exists_login")}
+          </Link>
+        </div>
+      ) : errors.general && (
         <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           <AlertCircle size={16} className="shrink-0 text-red-600" />
           <span>{errors.general}</span>

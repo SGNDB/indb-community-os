@@ -1018,6 +1018,8 @@
       "phone_required": "يرجى إدخال رقم الهاتف",
       "auth_invalid_phone": "يرجى إدخال رقم هاتف صحيح",
       "auth_phone_exists": "يوجد حساب مرتبط بهذا الرقم",
+      "phone_exists_title": "يوجد حساب مرتبط بهذا الرقم",
+      "phone_exists_login": "تسجيل الدخول بهذا الرقم",
       "password_required": "كلمة المرور مطلوبة",
       "username_required": "اسم المستخدم مطلوب",
       "full_name_required": "الاسم الكامل مطلوب",

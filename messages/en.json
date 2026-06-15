@@ -1018,6 +1018,8 @@
       "phone_required": "Phone number is required",
       "auth_invalid_phone": "Please enter a valid phone number",
       "auth_phone_exists": "An account already exists with this phone number",
+      "phone_exists_title": "An account is linked to this number",
+      "phone_exists_login": "Sign in with this number",
       "password_required": "Password is required",
       "username_required": "Username is required",
       "full_name_required": "Full name is required",

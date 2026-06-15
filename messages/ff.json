@@ -891,6 +891,8 @@
       "phone_required": "Nimitoor ena wa??ii",
       "auth_invalid_phone": "Naatnu nimitoor moƴƴo",
       "auth_phone_exists": "Konte ena woodi kadi e nimitoor ngal",
+      "phone_exists_title": "Konte ena jokkondiri e nimitoor ngal",
+      "phone_exists_login": "Naatu e nimitoor ngal",
       "password_required": "Finnde ena wa??ii",
       "username_required": "Innde kuutoro ena wa??ii",
       "full_name_required": "Innde timmunde ena wa??ii",

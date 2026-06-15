@@ -891,6 +891,8 @@
       "phone_required": "Numéro de téléphone waajibini",
       "auth_invalid_phone": "Ntene numéro de téléphone in tiima",
       "auth_phone_exists": "Kontu ya ni numéro de téléphone in da",
+      "phone_exists_title": "Kontu ya ni numenro in da",
+      "phone_exists_login": "Yikka n ni numenro in",
       "password_required": "Password waajibini",
       "username_required": "Username waajibini",
       "full_name_required": "Toxo timma waajibini",

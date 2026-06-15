@@ -1018,6 +1018,8 @@
       "phone_required": "Le numéro de téléphone est requis",
       "auth_invalid_phone": "Veuillez entrer un numéro de téléphone valide",
       "auth_phone_exists": "Un compte existe déjà avec ce numéro de téléphone",
+      "phone_exists_title": "Un compte est lié à ce numéro",
+      "phone_exists_login": "Connectez-vous avec ce numéro",
       "password_required": "Le mot de passe est requis",
       "username_required": "Le nom d?utilisateur est requis",
       "full_name_required": "Le nom complet est requis",
