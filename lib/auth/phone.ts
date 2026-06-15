@@ -3,14 +3,16 @@ const PHONE_DOMAIN = "phone.indb.local";
 
 export function normalizeMauritaniaPhone(input: string): string {
   const digits = input.replace(/\D/g, "");
-  if (digits.startsWith("222")) {
-    return "+" + digits;
-  }
-  return DEFAULT_COUNTRY_CODE + digits;
+  const withoutInternationalPrefix = digits.startsWith("00222") ? digits.slice(2) : digits;
+  const localDigits = withoutInternationalPrefix.startsWith("222")
+    ? withoutInternationalPrefix.slice(3)
+    : withoutInternationalPrefix;
+
+  return DEFAULT_COUNTRY_CODE + localDigits;
 }
 
-export function toSyntheticPhoneEmail(phone: string): string {
-  const normalized = normalizeMauritaniaPhone(phone);
+export function toSyntheticPhoneEmail(normalizedPhone: string): string {
+  const normalized = normalizeMauritaniaPhone(normalizedPhone);
   const digits = normalized.replace(/\D/g, "");
   return `${digits}@${PHONE_DOMAIN}`;
 }

@@ -113,6 +113,111 @@ type AuthFieldErrors = {
   general?: string;
 };
 
+type ServerSupabaseClient = Awaited<ReturnType<typeof createClient>>;
+type AdminSupabaseClient = NonNullable<ReturnType<typeof createAdminClient>>;
+type ProfileClient = ServerSupabaseClient | AdminSupabaseClient;
+type PhoneProfile = {
+  id: string;
+  phone: string | null;
+  full_name: string | null;
+  created_at: string | null;
+};
+type SupabaseErrorLike = {
+  message?: string;
+  code?: string;
+  status?: number;
+  details?: string;
+  hint?: string;
+};
+
+function getErrorMessage(error: SupabaseErrorLike | null | undefined) {
+  return error?.message?.toLowerCase() ?? "";
+}
+
+function isAuthUserAlreadyRegisteredError(error: SupabaseErrorLike | null | undefined) {
+  const message = getErrorMessage(error);
+  const code = error?.code?.toLowerCase() ?? "";
+
+  return (
+    code === "user_already_exists" ||
+    code === "email_exists" ||
+    code === "email_address_already_exists" ||
+    message.includes("already registered") ||
+    message.includes("already exists")
+  );
+}
+
+function isWeakPasswordError(error: SupabaseErrorLike | null | undefined) {
+  const message = getErrorMessage(error);
+  return message.includes("weak password") || message.includes("at least 8");
+}
+
+function isRateLimitError(error: SupabaseErrorLike | null | undefined) {
+  return getErrorMessage(error).includes("rate limit");
+}
+
+function isNetworkError(error: SupabaseErrorLike | null | undefined) {
+  const message = getErrorMessage(error);
+  return message.includes("network") || message.includes("fetch");
+}
+
+function isInvalidCredentialsError(error: SupabaseErrorLike | null | undefined) {
+  const message = getErrorMessage(error);
+  return (
+    message.includes("invalid login") ||
+    message.includes("invalid credentials") ||
+    message.includes("wrong password")
+  );
+}
+
+function isDuplicateDatabaseError(error: SupabaseErrorLike | null | undefined) {
+  const message = getErrorMessage(error);
+  return error?.code === "23505" || message.includes("duplicate key");
+}
+
+function isPermissionDatabaseError(error: SupabaseErrorLike | null | undefined) {
+  const message = getErrorMessage(error);
+  return (
+    error?.code === "42501" ||
+    message.includes("row-level security") ||
+    message.includes("permission")
+  );
+}
+
+function registrationSuccess(
+  locale: string,
+  next: FormDataEntryValue | null,
+  hasSession: boolean,
+): {success: true; redirect: string} {
+  const redirectPath = typeof next === 'string' && next ? next : '/feed';
+
+  revalidatePath('/', 'layout');
+
+  return {
+    success: true,
+    redirect: toPath(
+      locale,
+      hasSession ? '/onboarding' : `/login?next=${encodeURIComponent(redirectPath)}`,
+    ),
+  };
+}
+
+async function findProfileByPhone(
+  supabase: ServerSupabaseClient,
+  normalizedPhone: string,
+): Promise<{profile: PhoneProfile | null; error: SupabaseErrorLike | null; source: "admin" | "anon"}> {
+  const adminClient = createAdminClient();
+  const client: ProfileClient = adminClient ?? supabase;
+  const source = adminClient ? "admin" : "anon";
+  const {data, error} = await client
+    .from('profiles')
+    .select('id, phone, full_name, created_at')
+    .eq('phone', normalizedPhone)
+    .maybeSingle();
+
+  return {profile: data as PhoneProfile | null, error, source};
+}
+
 function authValidationErrors(
   issues: Array<{path: PropertyKey[]; message: string}>,
   values: Record<string, FormDataEntryValue | null>,
@@ -190,9 +295,7 @@ export async function loginAction(formData: FormData) {
 
   if (error) {
     console.error("LOGIN error:", { message: error.message, code: error.code, status: error.status });
-    if (error.message.toLowerCase().includes('invalid login') || error.message.toLowerCase().includes('invalid credentials')) {
-      return { error: { password: errorT("auth_invalid_credentials") } };
-    }
+    if (isInvalidCredentialsError(error)) return { error: { password: errorT("auth_invalid_credentials") } };
     return { error: { general: errorT("auth_invalid_credentials") } };
   }
 
@@ -260,49 +363,21 @@ export async function registerAction(formData: FormData) {
   }
 
   const supabase = await createClient();
-
-  let existingProfileByPhone = null;
-
-  try {
-    const adminClient = createAdminClient();
-    if (adminClient) {
-      console.log("REGISTER: using admin client for phone uniqueness check");
-      const { data, error } = await adminClient
-        .from('profiles')
-        .select('id, phone, full_name, created_at')
-        .eq('phone', normalizedPhone)
-        .maybeSingle();
-      if (error) {
-        console.error("REGISTER: admin phone query error (trying anon)", { message: error.message, code: error.code });
-      } else {
-        existingProfileByPhone = data;
-      }
-    } else {
-      console.log("REGISTER: admin client unavailable, trying anon client");
-    }
-  } catch (e) {
-    console.error("REGISTER: admin client exception (trying anon)", e);
-  }
-
-  if (!existingProfileByPhone) {
-    try {
-      console.log("REGISTER: checking phone uniqueness with anon client", { normalizedPhone });
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('phone', normalizedPhone)
-        .maybeSingle();
-      if (error) {
-        console.error("REGISTER: anon phone query error (proceeding without check)", { message: error.message, code: error.code });
-      } else if (data) {
-        existingProfileByPhone = data;
-      }
-    } catch (e) {
-      console.error("REGISTER: anon phone query exception (proceeding without check)", e);
-    }
-  }
+  const existingProfileLookup = await findProfileByPhone(supabase, normalizedPhone);
+  const existingProfileByPhone = existingProfileLookup.profile;
 
   console.log("REGISTER existing profile:", existingProfileByPhone);
+
+  if (existingProfileLookup.error) {
+    console.error("REGISTER: phone uniqueness check failed", {
+      source: existingProfileLookup.source,
+      message: existingProfileLookup.error.message,
+      code: existingProfileLookup.error.code,
+      details: existingProfileLookup.error.details,
+      hint: existingProfileLookup.error.hint,
+    });
+    return { error: { general: errorT("auth_generic_error") } };
+  }
 
   if (existingProfileByPhone) {
     console.log("REGISTER: phone already registered", { normalizedPhone });
@@ -326,18 +401,10 @@ export async function registerAction(formData: FormData) {
 
   if (error) {
     console.error("REGISTER ERROR: auth signUp failed", { message: error.message, code: error.code, status: error.status });
-    if (error.message.includes('User already registered') || error.message.toLowerCase().includes('already registered')) {
-      return { error: { phone: "auth_phone_exists" } };
-    }
-    if (error.message.toLowerCase().includes('weak password') || error.message.toLowerCase().includes('at least 8')) {
-      return { error: { password: errorT("auth_weak_password") } };
-    }
-    if (error.message.toLowerCase().includes('rate limit')) {
-      return { error: { general: errorT("auth_rate_limited") } };
-    }
-    if (error.message.toLowerCase().includes('network') || error.message.toLowerCase().includes('fetch')) {
-      return { error: { general: errorT("auth_network_error") } };
-    }
+    if (isAuthUserAlreadyRegisteredError(error)) return { error: { phone: "auth_phone_exists" } };
+    if (isWeakPasswordError(error)) return { error: { password: errorT("auth_weak_password") } };
+    if (isRateLimitError(error)) return { error: { general: errorT("auth_rate_limited") } };
+    if (isNetworkError(error)) return { error: { general: errorT("auth_network_error") } };
     console.error("REGISTER ERROR: unhandled auth error mapped to generic", { message: error.message });
     return { error: { general: errorT("auth_generic_error") } };
   }
@@ -358,22 +425,22 @@ export async function registerAction(formData: FormData) {
     role: 'member',
   };
 
-  let profileError = null;
+  let profileError: SupabaseErrorLike | null = null;
 
   try {
     const adminClient = createAdminClient();
     if (adminClient) {
       console.log("REGISTER: using admin client for profile upsert");
-      const { error } = await adminClient.from('profiles').upsert(profileData);
+      const { error } = await adminClient.from('profiles').upsert(profileData, {onConflict: 'id'});
       profileError = error;
     } else {
       console.log("REGISTER: using anon client for profile upsert");
-      const { error } = await supabase.from('profiles').upsert(profileData);
+      const { error } = await supabase.from('profiles').upsert(profileData, {onConflict: 'id'});
       profileError = error;
     }
   } catch (e) {
     console.error("REGISTER: admin profile upsert failed, trying anon", e);
-    const { error } = await supabase.from('profiles').upsert(profileData);
+    const { error } = await supabase.from('profiles').upsert(profileData, {onConflict: 'id'});
     profileError = error;
   }
 
@@ -381,11 +448,36 @@ export async function registerAction(formData: FormData) {
 
   if (profileError) {
     console.error("REGISTER ERROR: profile creation failed", { message: profileError.message, code: profileError.code, details: profileError.details, hint: profileError.hint });
-    if (profileError.message?.toLowerCase().includes('duplicate key') || profileError.code === '23505') {
-      return { error: { phone: "auth_phone_exists" } };
+    const conflictLookup = await findProfileByPhone(supabase, normalizedPhone);
+
+    console.log("REGISTER existing profile:", conflictLookup.profile);
+
+    if (conflictLookup.error) {
+      console.error("REGISTER: post-signup phone lookup failed", {
+        source: conflictLookup.source,
+        message: conflictLookup.error.message,
+        code: conflictLookup.error.code,
+        details: conflictLookup.error.details,
+        hint: conflictLookup.error.hint,
+      });
     }
-    if (profileError.message?.toLowerCase().includes('row-level security') || profileError.message?.toLowerCase().includes('permission')) {
+
+    if (isDuplicateDatabaseError(profileError)) {
+      if (conflictLookup.profile?.id === data.user.id) {
+        console.log("REGISTER: profile already exists for newly-created auth user", { normalizedPhone });
+        return registrationSuccess(locale, next, Boolean(data.session));
+      }
+
+      if (conflictLookup.profile) return { error: { phone: "auth_phone_exists" } };
+
+      return { error: { general: errorT("auth_generic_error") } };
+    }
+
+    if (isPermissionDatabaseError(profileError)) {
       console.error("REGISTER ERROR: RLS policy blocked profile creation", profileError);
+      if (conflictLookup.profile?.id === data.user.id) {
+        return registrationSuccess(locale, next, Boolean(data.session));
+      }
       return { error: { general: errorT("auth_generic_error") } };
     }
     if (profileError.message?.toLowerCase().includes('not null') || profileError.message?.toLowerCase().includes('constraint')) {
@@ -395,14 +487,7 @@ export async function registerAction(formData: FormData) {
     return { error: { general: errorT("auth_generic_error") } };
   }
 
-  const redirectPath = typeof next === 'string' && next ? next : '/feed';
-
-  if (data.session) {
-    revalidatePath('/', 'layout');
-    return { success: true, redirect: toPath(locale, '/onboarding') };
-  }
-
-  return { success: true, redirect: toPath(locale, `/login?next=${encodeURIComponent(redirectPath)}`) };
+  return registrationSuccess(locale, next, Boolean(data.session));
 }
 
 export async function resendVerificationAction(formData: FormData) {

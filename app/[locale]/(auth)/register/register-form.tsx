@@ -96,7 +96,7 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
 
       const result = await registerAction(formDataObj);
 
-      if (result?.error) {
+      if (result && "error" in result) {
         setErrors(result.error);
       } else if (result?.success) {
         router.push(result.redirect || "/onboarding");
