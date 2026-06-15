@@ -1,16 +1,21 @@
 const DEFAULT_COUNTRY_CODE = "+222";
 const PHONE_DOMAIN = "phone.indb.local";
 
+function stripNonDigits(input: string): string {
+  return input.replace(/\D/g, "");
+}
+
 export function normalizePhone(input: string): string {
-  const cleaned = input.replace(/[\s\-\(\)\.]/g, "");
-  if (cleaned.startsWith("+")) return "+" + cleaned.replace(/[^0-9]/g, "");
-  if (cleaned.startsWith("222")) return "+" + cleaned.replace(/[^0-9]/g, "");
-  return DEFAULT_COUNTRY_CODE + cleaned.replace(/[^0-9]/g, "");
+  const digits = stripNonDigits(input);
+  if (digits.startsWith("222")) {
+    return "+" + digits;
+  }
+  return DEFAULT_COUNTRY_CODE + digits;
 }
 
 export function isValidMauritaniaPhone(phone: string): boolean {
   const normalized = normalizePhone(phone);
-  if (!normalized.startsWith("+222") || normalized.length < 5) return false;
+  if (!normalized.startsWith(DEFAULT_COUNTRY_CODE)) return false;
   const local = normalized.slice(4);
   if (local.length !== 8) return false;
   if (!/^\d{8}$/.test(local)) return false;
@@ -25,7 +30,7 @@ export function isValidMauritaniaPhone(phone: string): boolean {
 
 export function phoneToEmail(phone: string): string {
   const normalized = normalizePhone(phone);
-  const localPart = normalized.replace(/[^0-9]/g, "");
+  const localPart = stripNonDigits(normalized);
   return `${localPart}@${PHONE_DOMAIN}`;
 }
 

@@ -244,7 +244,7 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
         <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-4 text-sm text-blue-900">
           <p className="font-medium">{errorT("phone_exists_title")}</p>
           <Link
-            href={`/login?phone=${normalizePhone(formData.phone).replace(/\D/g, "").slice(4)}`}
+            href={`/login?phone=${normalizePhone(formData.phone).replace(/\D/g, "").slice(3)}`}
             className="mt-2 inline-flex items-center gap-1.5 font-medium text-blue-700 hover:text-blue-800 hover:underline"
           >
             <LogIn size={14} />
