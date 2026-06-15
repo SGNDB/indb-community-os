@@ -1,6 +1,6 @@
 "use client";
 
-import {Eye, EyeOff, Loader2, Check, X, AlertCircle} from "lucide-react";
+import {Eye, EyeOff, Facebook, Loader2, Check, X, AlertCircle} from "lucide-react";
 import {useTranslations} from "next-intl";
 import {useState} from "react";
 import {useRouter} from "next/navigation";
@@ -8,6 +8,7 @@ import {useRouter} from "next/navigation";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Link} from "@/lib/i18n/routing";
+import {createClient} from "@/lib/supabase/client";
 import {registerAction} from "@/app/[locale]/server-actions";
 
 interface FormErrors {
@@ -113,6 +114,12 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
       setIsLoading(false);
     }
   };
+
+  async function handleFacebookLogin() {
+    const supabase = createClient();
+    const redirectTo = `${window.location.origin}/auth/callback?locale=${locale}${next ? `&next=${encodeURIComponent(next)}` : ""}`;
+    await supabase.auth.signInWithOAuth({provider: "facebook", options: {redirectTo}});
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
@@ -270,6 +277,25 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
       <Button type="submit" className="w-full bg-[#ED2124] hover:bg-[#ED2124]/90 text-white" disabled={isLoading}>
         {isLoading ? <><Loader2 size={16} className="mr-2 inline animate-spin" />{t("submitting")}</> : t("submit")}
       </Button>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-card px-2 text-muted-foreground">{t("orContinueWith")}</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={handleFacebookLogin}
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-border/60 bg-background px-4 py-2.5 text-sm font-medium transition hover:bg-muted"
+      >
+        <Facebook size={18} className="text-[#1877F2]" />
+        {t("registerWithFacebook")}
+      </button>
+
       <p className="text-center text-sm text-muted-foreground">
         {t("hasAccount")}{" "}
         <Link href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"} className="font-medium text-[#ED2124] hover:underline">{t("login")}</Link>

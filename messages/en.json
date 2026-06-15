@@ -966,7 +966,9 @@
       "noAccount": "Don't have an account?",
       "register": "Create one",
       "showPassword": "Show password",
-      "hidePassword": "Hide password"
+      "hidePassword": "Hide password",
+      "loginWithFacebook": "Continue with Facebook",
+      "orContinueWith": "or continue with"
     },
     "register": {
       "title": "Create your account",
@@ -983,7 +985,9 @@
       "hidePassword": "Hide password",
       "fullName": "Full name",
       "fullNamePlaceholder": "Your full name",
-      "usernamePlaceholder": "Choose a username"
+      "usernamePlaceholder": "Choose a username",
+      "registerWithFacebook": "Sign up with Facebook",
+      "orContinueWith": "or sign up with"
     },
     "forgotPassword": {
       "title": "Reset your password",

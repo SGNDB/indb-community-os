@@ -966,7 +966,9 @@
       "noAccount": "Vous n'avez pas de compte ?",
       "register": "Créer un compte",
       "showPassword": "Afficher le mot de passe",
-      "hidePassword": "Masquer le mot de passe"
+      "hidePassword": "Masquer le mot de passe",
+      "loginWithFacebook": "Continuer avec Facebook",
+      "orContinueWith": "ou continuer avec"
     },
     "register": {
       "title": "Créer votre compte",
@@ -983,7 +985,9 @@
       "hidePassword": "Masquer le mot de passe",
       "fullName": "Nom complet",
       "fullNamePlaceholder": "Votre nom complet",
-      "usernamePlaceholder": "Choisissez un nom d'utilisateur"
+      "usernamePlaceholder": "Choisissez un nom d'utilisateur",
+      "registerWithFacebook": "S'inscrire avec Facebook",
+      "orContinueWith": "ou s'inscrire avec"
     },
     "forgotPassword": {
       "title": "Réinitialiser votre mot de passe",

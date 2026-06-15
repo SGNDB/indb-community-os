@@ -966,7 +966,9 @@
       "noAccount": "ليس لديك حساب؟",
       "register": "إنشاء حساب",
       "showPassword": "إظهار كلمة المرور",
-      "hidePassword": "إخفاء كلمة المرور"
+      "hidePassword": "إخفاء كلمة المرور",
+      "loginWithFacebook": "المتابعة عبر فيسبوك",
+      "orContinueWith": "أو المتابعة عبر"
     },
     "register": {
       "title": "إنشاء حساب",
@@ -983,7 +985,9 @@
       "hidePassword": "إخفاء كلمة المرور",
       "fullName": "الاسم الكامل",
       "fullNamePlaceholder": "اسمك الكامل",
-      "usernamePlaceholder": "اختر اسم مستخدم"
+      "usernamePlaceholder": "اختر اسم مستخدم",
+      "registerWithFacebook": "التسجيل عبر فيسبوك",
+      "orContinueWith": "أو التسجيل عبر"
     },
     "forgotPassword": {
       "title": "إعادة تعيين كلمة المرور",
