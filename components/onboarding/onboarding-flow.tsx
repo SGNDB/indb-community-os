@@ -71,8 +71,8 @@ export function OnboardingFlow({locale, userId}: OnboardingFlowProps) {
     }
   };
 
-  const handleComplete = async () => {
-    await completeOnboardingAction(userId);
+  const handleComplete = () => {
+    completeOnboardingAction(userId);
     router.push("/feed");
   };
 
