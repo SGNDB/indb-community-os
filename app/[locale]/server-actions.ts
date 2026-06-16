@@ -1839,7 +1839,7 @@ export async function shareIdeaAction(
 
 export async function sharePostAction(
   formData: FormData,
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; sharesCount?: number }> {
   const postId = formData.get('postId');
   const supabase = await createClient();
 
@@ -1861,6 +1861,19 @@ export async function sharePostAction(
     return { success: false, error: 'not_found' };
   }
 
+  const { data: sharesCount, error: shareCountError } = await supabase.rpc(
+    'increment_share_count',
+    {
+      p_entity_type: 'post',
+      p_entity_id: postId,
+    },
+  );
+
+  if (shareCountError || typeof sharesCount !== 'number') {
+    console.error('sharePostAction increment_share_count error:', shareCountError);
+    return { success: false, error: 'share_count_failed' };
+  }
+
   if (post.author_id && post.author_id !== user.id) {
     await supabase.from('notifications').insert({
       user_id: post.author_id,
@@ -1873,19 +1886,7 @@ export async function sharePostAction(
     });
   }
 
-  const { data: postRow } = await supabase
-    .from('posts')
-    .select('shares_count')
-    .eq('id', postId)
-    .single();
-  if (postRow) {
-    await supabase
-      .from('posts')
-      .update({ shares_count: (postRow.shares_count ?? 0) + 1 })
-      .eq('id', postId);
-  }
-
-  return { success: true };
+  return { success: true, sharesCount };
 }
 
 export async function addIdeaCommentAction(
@@ -2591,7 +2592,7 @@ export async function updateMemoryAction(
 
 export async function shareMemoryAction(
   formData: FormData,
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; sharesCount?: number }> {
   const memoryId = formData.get('memoryId');
   const supabase = await createClient();
 
@@ -2617,6 +2618,19 @@ export async function shareMemoryAction(
     return { success: false, error: 'not_found' };
   }
 
+  const { data: sharesCount, error: shareCountError } = await supabase.rpc(
+    'increment_share_count',
+    {
+      p_entity_type: 'memory',
+      p_entity_id: memoryId,
+    },
+  );
+
+  if (shareCountError || typeof sharesCount !== 'number') {
+    console.error('shareMemoryAction increment_share_count error:', shareCountError);
+    return { success: false, error: 'share_count_failed' };
+  }
+
   if (memory.contributor_id && memory.contributor_id !== user.id) {
     const supabaseNotify = await createClient();
     await supabaseNotify.from('notifications').insert({
@@ -2630,19 +2644,7 @@ export async function shareMemoryAction(
     });
   }
 
-  const { data: memRow } = await supabase
-    .from('memories')
-    .select('shares_count')
-    .eq('id', memoryId)
-    .single();
-  if (memRow) {
-    await supabase
-      .from('memories')
-      .update({ shares_count: (memRow.shares_count ?? 0) + 1 })
-      .eq('id', memoryId);
-  }
-
-  return { success: true };
+  return { success: true, sharesCount };
 }
 
 export async function loadMoreTimelineMemoriesAction({

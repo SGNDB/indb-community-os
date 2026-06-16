@@ -212,18 +212,24 @@ export function PostCard({
       ? currentUrl
       : withLocale(returnPath, locale);
     const url = `${window.location.origin}${localizedPath}`;
+    let shared = false;
     if (navigator.share) {
       try {
         await navigator.share({title: authorName, text: post.content, url});
-      } catch {
-        // User cancelled
+        shared = true;
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") return;
       }
-    } else {
+    }
+
+    if (!shared) {
       try {
         await navigator.clipboard.writeText(url);
         toast.success(t("linkCopied"));
+        shared = true;
       } catch {
         toast.error(t("shareFailed"));
+        return;
       }
     }
 
@@ -231,9 +237,15 @@ export function PostCard({
     const formData = new FormData();
     formData.set("postId", post.id);
     const result = await sharePostAction(formData);
-    if (!result.success && result.error === "unauthorized") {
+    if (result.success && typeof result.sharesCount === "number") {
+      setSharesCount(result.sharesCount);
+    } else {
       setSharesCount((c) => Math.max(0, c - 1));
-      router.push(withLocale(`/login?next=${encodeURIComponent(returnPath)}`, locale));
+      if (result.error === "unauthorized") {
+        router.push(withLocale(`/login?next=${encodeURIComponent(returnPath)}`, locale));
+      } else {
+        toast.error(t("shareFailed"));
+      }
     }
   }
 

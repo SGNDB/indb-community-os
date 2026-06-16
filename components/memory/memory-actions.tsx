@@ -128,9 +128,15 @@ export function MemoryActions({
     const formData = new FormData();
     formData.set("memoryId", memoryId);
     const result = await shareMemoryAction(formData);
-    if (!result.success && result.error === "unauthorized") {
+    if (result.success && typeof result.sharesCount === "number") {
+      setSharesCount(result.sharesCount);
+    } else {
       setSharesCount((c) => Math.max(0, c - 1));
-      window.location.href = `/${locale}/login?next=/memory`;
+      if (result.error === "unauthorized") {
+        window.location.href = `/${locale}/login?next=/memory`;
+      } else {
+        toast.error(memoryT("shareFailed"));
+      }
     }
   }
 
