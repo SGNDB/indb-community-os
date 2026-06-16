@@ -69,15 +69,14 @@ export default async function RootLayout({
     ? requestedLocale
     : routing.defaultLocale;
   const dir = locale === "ar" ? "rtl" : "ltr";
+  const isQrVisitor = cookieStore.get("qr_ref")?.value === "1";
 
   return (
-    <html lang={locale} dir={dir} suppressHydrationWarning>
+    <html lang={locale} dir={dir} suppressHydrationWarning data-qr={isQrVisitor ? "1" : undefined}>
       <body className="antialiased">
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){if(document.cookie.indexOf("qr_ref=1")!==-1){document.documentElement.style.colorScheme="light";document.documentElement.classList.remove("dark");try{localStorage.setItem("theme","light")}catch(e){}}})()`,
-          }}
-        />
+        {isQrVisitor && (
+          <style>{`html[data-qr="1"] .dark{--background:#f5f7fa!important;--foreground:#111827!important;--card:#ffffff!important;--card-elevated:#ffffff!important;--muted:#f8fafc!important;--muted-foreground:#6b7280!important;--border:#e5e7eb!important}`}</style>
+        )}
         {children}
         <script
           dangerouslySetInnerHTML={{
