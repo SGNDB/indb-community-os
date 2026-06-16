@@ -1,6 +1,6 @@
 "use client";
 
-import {Eye, EyeOff, Loader2, Check, X, AlertCircle, LogIn} from "lucide-react";
+import {Eye, EyeOff, Loader2, AlertCircle, LogIn} from "lucide-react";
 import {useTranslations} from "next-intl";
 import {useState} from "react";
 import {useRouter} from "next/navigation";
@@ -27,15 +27,6 @@ const PHONE_PLACEHOLDER: Record<string, string> = {
   en: "Phone number",
 };
 
-function PasswordRequirement({met, label}: {met: boolean; label: string}) {
-  return (
-    <span className={`flex items-center gap-1.5 text-[13px] transition-colors ${met ? "text-green-600" : "text-muted-foreground"}`}>
-      {met ? <Check size={13} className="text-green-600" /> : <X size={13} />}
-      {label}
-    </span>
-  );
-}
-
 export function RegisterForm({locale, next}: {locale: string; next?: string}) {
   const t = useTranslations("Auth.register");
   const v = useTranslations("Auth.validation");
@@ -43,7 +34,6 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [formData, setFormData] = useState({
@@ -54,10 +44,6 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
   });
 
   const phonePlaceholder = PHONE_PLACEHOLDER[locale] ?? "Phone number";
-
-  const hasLetter = /[a-zA-Z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
-  const hasMinLen = password.length >= 8;
 
   function updateField(field: keyof typeof formData, value: string) {
     setFormData((current) => ({...current, [field]: value}));
@@ -78,9 +64,7 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
     if (!formData.fullName.trim()) nextErrors.fullName = errorT("full_name_required");
     if (!formData.phone.trim()) nextErrors.phone = errorT("phone_required");
     if (!formData.password) nextErrors.password = errorT("password_required");
-    else if (!hasMinLen) nextErrors.password = errorT("password_length");
-    else if (!hasLetter) nextErrors.password = errorT("password_letter");
-    else if (!hasNumber) nextErrors.password = errorT("password_number");
+    else if (formData.password.length < 8 || formData.password.length > 50) nextErrors.password = errorT("password_length");
     if (!formData.confirmPassword) nextErrors.confirmPassword = errorT("confirm_password_required");
     else if (formData.password !== formData.confirmPassword) nextErrors.confirmPassword = errorT("password_mismatch");
 
@@ -186,10 +170,7 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
             type={showPassword ? "text" : "password"}
             name="password"
             value={formData.password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              updateField("password", e.target.value);
-            }}
+            onChange={(e) => updateField("password", e.target.value)}
             placeholder="••••••••"
             aria-invalid={Boolean(errors.password)}
             className={`h-12 w-full rounded-2xl border bg-background px-4 pr-12 text-[15px] transition focus-visible:ring-2 focus-visible:ring-[#ED2124]/25 ${
@@ -209,12 +190,8 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </div>
-        {password.length > 0 && (
-          <div className="flex flex-wrap gap-x-5 gap-y-1 pt-1">
-            <PasswordRequirement met={hasMinLen} label={v("password_length")} />
-            <PasswordRequirement met={hasLetter} label={v("password_letter")} />
-            <PasswordRequirement met={hasNumber} label={v("password_number")} />
-          </div>
+        {formData.password.length > 0 && formData.password.length < 8 && (
+          <p className="text-[13px] text-muted-foreground pt-1">{v("password_length")}</p>
         )}
         {errors.password && (
           <p className="flex items-center gap-1.5 text-sm text-red-600">

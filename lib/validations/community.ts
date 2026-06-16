@@ -3,8 +3,7 @@
 export const passwordSchema = z
   .string()
   .min(8, "password_length")
-  .regex(/[a-zA-Z]/, "password_letter")
-  .regex(/[0-9]/, "password_number");
+  .max(50, "password_length");
 
 export const loginSchema = z.object({
   phone: z.string().min(1, "phone_required"),

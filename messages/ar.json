@@ -1000,7 +1000,7 @@
       "auth_email_provider_disabled": "يتطلب تسجيل الدخول الاصطناعي للهاتف تفعيل مزوّد البريد الإلكتروني في إعدادات Supabase Auth.",
       "auth_phone_provider_disabled": "يتطلب تسجيل الدخول عبر الهاتف تفعيل مزود الهاتف في إعدادات Supabase Auth.",
       "auth_user_exists": "يوجد حساب بهذا الرقم بالفعل.",
-      "auth_weak_password": "كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل مع حروف وأرقام",
+      "auth_weak_password": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
       "auth_invalid_email": "يرجى إدخال بريد إلكتروني صحيح",
       "auth_link_expired": "انتهت صلاحية هذا الرابط أو أنه غير صالح",
       "auth_rate_limited": "محاولات كثيرة جدًا. يرجى المحاولة مرة أخرى لاحقًا",
@@ -1008,9 +1008,7 @@
       "auth_session_expired": "انتهت جلستك. يرجى تسجيل الدخول مرة أخرى",
       "auth_network_error": "خطأ في الشبكة. يرجى التحقق من اتصالك",
       "password_length": "كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل",
-      "password_requirements": "كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، وحرف واحد، ورقم واحد",
-      "password_letter": "كلمة المرور يجب أن تحتوي على حرف واحد على الأقل",
-      "password_number": "كلمة المرور يجب أن تحتوي على رقم واحد على الأقل",
+      "password_requirements": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
       "password_mismatch": "كلمتا المرور غير متطابقتين",
       "username_length": "يجب أن يكون اسم المستخدم بين 3 و 24 حرفًا",
       "full_name_length": "يجب أن يكون الاسم الكامل بين 2 و 100 حرف",
@@ -1037,10 +1035,8 @@
       "auth_email_confirmation_sent": "تم إرسال بريد التأكيد. يرجى التحقق من صندوق الوارد الخاص بك."
     },
     "validation": {
-      "password_requirements": "8 أحرف على الأقل مع حروف وأرقام",
+      "password_requirements": "8 أحرف على الأقل",
       "password_length": "8 أحرف على الأقل",
-      "password_letter": "يحتوي على حرف",
-      "password_number": "يحتوي على رقم",
       "password_mismatch": "كلمتا المرور غير متطابقتين",
       "username_length": "بين 3 و 24 حرفًا",
       "full_name_length": "بين 2 و 100 حرف"

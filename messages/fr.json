@@ -1000,7 +1000,7 @@
       "auth_email_provider_disabled": "La connexion synthétique par téléphone exige que le fournisseur e-mail soit activé dans les paramètres d'authentification Supabase.",
       "auth_phone_provider_disabled": "La connexion par téléphone exige que le fournisseur téléphone soit activé dans les paramètres d'authentification Supabase.",
       "auth_user_exists": "Un compte existe d\u00e9j\u00e0 avec ce num\u00e9ro de t\u00e9l\u00e9phone.",
-      "auth_weak_password": "Le mot de passe doit contenir au moins 8 caractères avec des lettres et des chiffres",
+      "auth_weak_password": "Le mot de passe doit contenir au moins 8 caractères",
       "auth_invalid_email": "Veuillez entrer une adresse e-mail valide",
       "auth_link_expired": "Ce lien a expiré ou est invalide",
       "auth_rate_limited": "Trop de tentatives. Veuillez réessayer plus tard",
@@ -1008,9 +1008,7 @@
       "auth_session_expired": "Votre session a expiré. Veuillez vous reconnecter",
       "auth_network_error": "Erreur réseau. Veuillez vérifier votre connexion",
       "password_length": "Le mot de passe doit contenir au moins 8 caractères",
-      "password_requirements": "Le mot de passe doit contenir au moins 8 caractères, une lettre et un chiffre",
-      "password_letter": "Le mot de passe doit contenir au moins une lettre",
-      "password_number": "Le mot de passe doit contenir au moins un chiffre",
+      "password_requirements": "Le mot de passe doit contenir au moins 8 caractères",
       "password_mismatch": "Les mots de passe ne correspondent pas",
       "username_length": "Le nom d'utilisateur doit contenir entre 3 et 24 caractères",
       "full_name_length": "Le nom complet doit contenir entre 2 et 100 caractères",
@@ -1037,10 +1035,8 @@
       "auth_email_confirmation_sent": "E-mail de confirmation envoyé. Veuillez vérifier votre boîte de réception."
     },
     "validation": {
-      "password_requirements": "Au moins 8 caractères avec lettres et chiffres",
+      "password_requirements": "Au moins 8 caractères",
       "password_length": "Au moins 8 caractères",
-      "password_letter": "Contient une lettre",
-      "password_number": "Contient un chiffre",
       "password_mismatch": "Les mots de passe ne correspondent pas",
       "username_length": "Entre 3 et 24 caractères",
       "full_name_length": "Entre 2 et 100 caractères"

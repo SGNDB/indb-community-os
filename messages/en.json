@@ -1000,7 +1000,7 @@
       "auth_email_provider_disabled": "Synthetic phone login requires the email provider to be enabled in Supabase Auth settings.",
       "auth_phone_provider_disabled": "Phone login requires the phone provider to be enabled in Supabase Auth settings.",
       "auth_user_exists": "An account already exists with this phone number.",
-      "auth_weak_password": "Password must be at least 8 characters with letters and numbers",
+      "auth_weak_password": "Password must be at least 8 characters",
       "auth_invalid_email": "Please enter a valid email address",
       "auth_link_expired": "This link has expired or is invalid",
       "auth_rate_limited": "Too many attempts. Please try again later",
@@ -1008,9 +1008,7 @@
       "auth_session_expired": "Your session has expired. Please sign in again",
       "auth_network_error": "Network error. Please check your connection",
       "password_length": "Password must be at least 8 characters",
-      "password_requirements": "Password must be at least 8 characters and contain at least one letter and one number",
-      "password_letter": "Password must contain at least one letter",
-      "password_number": "Password must contain at least one number",
+      "password_requirements": "Password must be at least 8 characters",
       "password_mismatch": "Passwords do not match",
       "username_length": "Username must be between 3 and 24 characters",
       "full_name_length": "Full name must be between 2 and 100 characters",
@@ -1037,10 +1035,8 @@
       "auth_email_confirmation_sent": "Confirmation email sent. Please check your inbox."
     },
     "validation": {
-      "password_requirements": "At least 8 characters with letters and numbers",
+      "password_requirements": "At least 8 characters",
       "password_length": "At least 8 characters",
-      "password_letter": "Contains a letter",
-      "password_number": "Contains a number",
       "password_mismatch": "Passwords do not match",
       "username_length": "Between 3 and 24 characters",
       "full_name_length": "Between 2 and 100 characters"
