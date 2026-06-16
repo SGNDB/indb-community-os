@@ -337,6 +337,7 @@
     "fadlaReceiverConfirmed": "أكد {actorName} أنه استلم الفظلة",
     "fadlaSenderConfirmed": "أكد {actorName} أنه سلّم الفظلة",
     "fadlaBothCompleted": "تم إكمال الفظلة بنجاح",
+    "fadlaRequestAccepted": "تم قبول طلبك من قبل {actorName}",
     "loadMore": "عرض المزيد"
   },
   "RightSidebar": {

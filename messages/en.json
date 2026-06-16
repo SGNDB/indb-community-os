@@ -336,6 +336,7 @@
     "fadlaReceiverConfirmed": "{actorName} confirmed they received the item",
     "fadlaSenderConfirmed": "{actorName} confirmed they handed over the item",
     "fadlaBothCompleted": "Fadla was completed successfully",
+    "fadlaRequestAccepted": "Your request was accepted by {actorName}",
     "someone": "Someone",
     "loadMore": "Load more"
   },

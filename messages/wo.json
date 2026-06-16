@@ -227,6 +227,11 @@
     "communityShareRequested": "Nit ñaari laaj na mbariy bu ngalif",
     "fadlaRequested": "{actorName} laaj na mbariy bu ngalif",
     "fadlaCompleted": "{actorName} yees na mbariy bu Fadla bi",
+    "fadlaMessage": "{actorName} sent you a message about Fadla",
+    "fadlaReceiverConfirmed": "{actorName} confirmed they received the item",
+    "fadlaSenderConfirmed": "{actorName} confirmed they handed over the item",
+    "fadlaBothCompleted": "Fadla was completed successfully",
+    "fadlaRequestAccepted": "Your request was accepted by {actorName}",
     "someone": "Nit",
     "loadMore": "Load more"
   },

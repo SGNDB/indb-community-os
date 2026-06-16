@@ -227,6 +227,11 @@
     "communityShareRequested": "Nkunto sera ntene no i ntinxinin.",
     "fadlaRequested": "{actorName} sera ntene no i ntinxinin",
     "fadlaCompleted": "{actorName} yantini ntene nde Fadla maa",
+    "fadlaMessage": "{actorName} sent you a message about Fadla",
+    "fadlaReceiverConfirmed": "{actorName} confirmed they received the item",
+    "fadlaSenderConfirmed": "{actorName} confirmed they handed over the item",
+    "fadlaBothCompleted": "Fadla was completed successfully",
+    "fadlaRequestAccepted": "Your request was accepted by {actorName}",
     "someone": "Nkunto",
     "loadMore": "Load more"
   },

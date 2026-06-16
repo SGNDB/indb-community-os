@@ -227,6 +227,11 @@
     "communityShareRequested": "Goɗɗo ƴami huunde nde yeɗuɗaa",
     "fadlaRequested": "{actorName} ƴami huunde nde yeɗuɗaa",
     "fadlaCompleted": "{actorName} yaltini huunde nde Fadla maa",
+    "fadlaMessage": "{actorName} sent you a message about Fadla",
+    "fadlaReceiverConfirmed": "{actorName} confirmed they received the item",
+    "fadlaSenderConfirmed": "{actorName} confirmed they handed over the item",
+    "fadlaBothCompleted": "Fadla was completed successfully",
+    "fadlaRequestAccepted": "Your request was accepted by {actorName}",
     "someone": "Goɗɗo",
     "loadMore": "Load more"
   },

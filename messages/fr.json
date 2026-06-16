@@ -337,6 +337,7 @@
     "fadlaReceiverConfirmed": "{actorName} a confirmé avoir reçu Fadla",
     "fadlaSenderConfirmed": "{actorName} a confirmé avoir remis Fadla",
     "fadlaBothCompleted": "Fadla a été terminée avec succès",
+    "fadlaRequestAccepted": "Votre demande a été acceptée par {actorName}",
     "loadMore": "Charger plus"
   },
   "RightSidebar": {

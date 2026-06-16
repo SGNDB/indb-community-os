@@ -389,6 +389,12 @@ export function NotificationDropdown({
           return t("fadlaReceiverConfirmed", {actorName});
         case "fadla_sender_confirmed":
           return t("fadlaSenderConfirmed", {actorName});
+        case "fadla_request_accepted":
+          return t("fadlaRequestAccepted", {actorName});
+        case "share":
+          return n.entity_type === "memory"
+            ? t("sharedYourMemory", {actorName})
+            : t("sharedYourIdea", {actorName});
         default:
           return n.title ?? n.message ?? "";
       }
