@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 
@@ -321,6 +321,9 @@ export async function loginAction(formData: FormData) {
     }
 
   }
+
+  const cookieStore = await cookies();
+  cookieStore.set("qr_ref", "", { path: "/", maxAge: 0 });
 
   const onboardingCompleted = profile?.onboarding_completed ?? false;
   const redirectPath = getPostAuthRedirectPath(locale, onboardingCompleted);

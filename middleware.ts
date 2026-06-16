@@ -18,6 +18,25 @@ export default async function middleware(request: NextRequest) {
   const {pathname, searchParams} = request.nextUrl;
   request.headers.set("x-indb-pathname", pathname);
 
+  // QR visitor: force Arabic locale
+  const qrRef = request.cookies.get("qr_ref")?.value;
+  if (qrRef === "1") {
+    const pathLocale = routing.locales.find(
+      (l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`),
+    );
+    if (pathLocale && pathLocale !== "ar") {
+      const pathWithoutLocale = `/${pathname.split("/").slice(2).join("/")}`;
+      const arUrl = new URL(`/ar${pathWithoutLocale}`, request.url);
+      searchParams.forEach((value, key) => arUrl.searchParams.set(key, value));
+      return NextResponse.redirect(arUrl);
+    }
+    if (!pathLocale) {
+      const arUrl = new URL(`/ar${pathname}`, request.url);
+      searchParams.forEach((value, key) => arUrl.searchParams.set(key, value));
+      return NextResponse.redirect(arUrl);
+    }
+  }
+
   // OAuth code param detected — redirect to callback page immediately
   const oauthCode = searchParams.get("code");
   if (oauthCode) {
@@ -72,5 +91,5 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|auth|.*\\..*).*)"],
+  matcher: ["/((?!api|_next|_vercel|auth|qr|.*\\..*).*)"],
 };

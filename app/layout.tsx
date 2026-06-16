@@ -73,6 +73,11 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning>
       <body className="antialiased">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){if(document.cookie.indexOf("qr_ref=1")!==-1){document.documentElement.style.colorScheme="light";document.documentElement.classList.remove("dark");try{localStorage.setItem("theme","light")}catch(e){}}})()`,
+          }}
+        />
         {children}
         <script
           dangerouslySetInnerHTML={{
