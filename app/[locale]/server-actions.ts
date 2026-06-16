@@ -1424,6 +1424,7 @@ export async function submitIdeaAction(
       title: parsed.data.title,
       description: parsed.data.description,
       category_id: parsed.data.categoryId ?? null,
+      status: 'published',
       image_url,
     })
     .select('id')
