@@ -1,7 +1,7 @@
 import {createClient} from "@/lib/supabase/server";
 import {calculateIdeaSupport} from "@/lib/ideas/support";
 import {getTotalActiveUsers} from "@/lib/data/stats";
-import type {IdeaCommentWithAuthor, IdeaMediaRow, IdeaWithAuthor, IdeaWithSupport} from "@/types/database";
+import type {IdeaCommentWithAuthor, IdeaMediaRow, IdeaMessageWithSender, IdeaParticipantWithUser, IdeaWithAuthor, IdeaWithSupport} from "@/types/database";
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -210,4 +210,81 @@ export async function getIdeaVoteDetails(ideaId: string, limit = 50, offset = 0)
       } | null,
     })),
   };
+}
+
+// ---- Ideas V2 queries ----
+
+export async function getIdeaParticipants(ideaId: string): Promise<IdeaParticipantWithUser[]> {
+  const supabase = await createClient();
+  const {data} = await supabase
+    .from("idea_participants")
+    .select("*, user:user_id(id, username, full_name, avatar_url)")
+    .eq("idea_id", ideaId)
+    .order("created_at", {ascending: true});
+  return (data ?? []) as unknown as IdeaParticipantWithUser[];
+}
+
+export async function getIdeaAcceptedParticipants(ideaId: string): Promise<IdeaParticipantWithUser[]> {
+  const supabase = await createClient();
+  const {data} = await supabase
+    .from("idea_participants")
+    .select("*, user:user_id(id, username, full_name, avatar_url)")
+    .eq("idea_id", ideaId)
+    .eq("status", "accepted")
+    .order("created_at", {ascending: true});
+  return (data ?? []) as unknown as IdeaParticipantWithUser[];
+}
+
+export async function getIdeaMessages(ideaId: string): Promise<IdeaMessageWithSender[]> {
+  const supabase = await createClient();
+  const {data} = await supabase
+    .from("idea_messages")
+    .select("*, sender:sender_id(id, username, full_name, avatar_url)")
+    .eq("idea_id", ideaId)
+    .order("created_at", {ascending: true});
+  return (data ?? []) as unknown as IdeaMessageWithSender[];
+}
+
+export async function getIdeaUserParticipation(ideaId: string, userId: string) {
+  const supabase = await createClient();
+  const {data} = await supabase
+    .from("idea_participants")
+    .select("id, status, message")
+    .eq("idea_id", ideaId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  return data as {id: string; status: string; message: string | null} | null;
+}
+
+export async function getIdeaUserSupport(ideaId: string, userId: string) {
+  const supabase = await createClient();
+  const {data} = await supabase
+    .from("idea_supporters")
+    .select("id")
+    .eq("idea_id", ideaId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  return !!data;
+}
+
+export async function isUserAcceptedParticipant(ideaId: string, userId: string, authorId: string): Promise<boolean> {
+  if (userId === authorId) return true;
+  const supabase = await createClient();
+  const {data} = await supabase
+    .from("idea_participants")
+    .select("id")
+    .eq("idea_id", ideaId)
+    .eq("user_id", userId)
+    .eq("status", "accepted")
+    .maybeSingle();
+  return !!data;
+}
+
+export async function getIdeaSupportersCount(ideaId: string): Promise<number> {
+  const supabase = await createClient();
+  const {count} = await supabase
+    .from("idea_supporters")
+    .select("id", {count: "exact", head: true})
+    .eq("idea_id", ideaId);
+  return count ?? 0;
 }

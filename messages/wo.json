@@ -233,7 +233,13 @@
     "fadlaBothCompleted": "Fadla was completed successfully",
     "fadlaRequestAccepted": "Your request was accepted by {actorName}",
     "someone": "Nit",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "ideaSupported": "{actorName} supported your idea",
+    "ideaParticipateRequest": "{actorName} wants to join your project",
+    "ideaParticipantAccepted": "{actorName} accepted you as a participant",
+    "ideaParticipantDeclined": "{actorName} declined your participation",
+    "ideaMessage": "{actorName} sent a message about your idea",
+    "ideaStatusChange": "{actorName} updated the idea status"
   },
   "RightSidebar": {
     "trendingTopics": "Topiku ñu taw",
@@ -479,20 +485,42 @@
     "editIdea": "Soppi xalaat",
     "deleteIdea": "Far xalaat",
     "allIdeas": "Xalaat Lépp",
+    "support": "Support",
+    "participate": "Participate",
+    "discussion": "Discussion",
+    "participationPending": "Your request is pending approval",
+    "participationDeclined": "Your request was declined",
+    "participationRequested": "Participation request sent",
+    "participationError": "Failed to request participation",
+    "changeStatus": "Change Status",
+    "statusUpdated": "Status updated",
+    "statusUpdateError": "Failed to update status",
+    "requests": "Requests ({count})",
+    "accept": "Accept",
+    "decline": "Decline",
+    "participantAccepted": "Participant accepted",
+    "participantDeclined": "Participant declined",
+    "openDiscussion": "Open discussion",
     "status": {
-      "submitted": "Ngalif nañu",
-      "underReview": "Mungi xame",
-      "accepted": "Nangu nañu ko",
-      "inProgress": "Mungi dem",
-      "completed": "Mukk na",
-      "rejected": "Taggi nañu ko"
+      "published": "Published",
+      "interested": "Interested",
+      "discussion": "Discussion",
+      "in_progress": "In Progress",
+      "completed": "Completed",
+      "archived": "Archived"
     },
     "editComment": "Soppi nangu",
     "deleteComment": "Far nangu",
     "save": "Tank",
     "commentUpdated": "Nangu sagal na",
     "commentDeleted": "Nangu far na",
-    "commentUpdateFailed": "Mënul sagal nangu"
+    "commentUpdateFailed": "Mënul sagal nangu",
+    "discussion": {
+      "empty": "No messages yet. Start the conversation.",
+      "inputPlaceholder": "Type a message...",
+      "send": "Send",
+      "sendError": "Too many messages. Please wait."
+    }
   },
   "IdeaForm": {
     "title": "Ngalif xalaat siwil",

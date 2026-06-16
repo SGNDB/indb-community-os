@@ -8,6 +8,7 @@ import {
   Bookmark,
   Gift,
   Heart,
+  Lightbulb,
   MessageCircle,
   UserPlus,
   CheckCheck,
@@ -65,6 +66,13 @@ function getNotificationIcon(type: string) {
     case "fadla_request":
     case "fadla_completed":
       return Gift;
+    case "idea_support":
+    case "idea_participate_request":
+    case "idea_participant_accepted":
+    case "idea_participant_declined":
+    case "idea_message":
+    case "idea_status_change":
+      return Lightbulb;
     default:
       return Bell;
   }
@@ -277,7 +285,8 @@ export function NotificationDropdown({
           return;
         }
         case "idea": {
-          const ideaFocus = n.type === "idea_comment" ? "comments" : n.type === "share" ? "reactions" : "";
+          const ideaTypes = ["idea_comment", "idea_support", "idea_participate_request", "idea_participant_accepted", "idea_participant_declined", "idea_message", "idea_status_change"];
+          const ideaFocus = ["idea_comment"].includes(n.type) ? "comments" : ideaTypes.includes(n.type) ? "discussion" : "";
           const ideaFocusQuery = ideaFocus ? `&focus=${ideaFocus}` : "";
           const ideaHash = ideaFocus === "comments" && metadata.commentId
             ? `#comment-${metadata.commentId}`
@@ -391,6 +400,18 @@ export function NotificationDropdown({
           return t("fadlaSenderConfirmed", {actorName});
         case "fadla_request_accepted":
           return t("fadlaRequestAccepted", {actorName});
+        case "idea_support":
+          return t("ideaSupported", {actorName});
+        case "idea_participate_request":
+          return t("ideaParticipateRequest", {actorName});
+        case "idea_participant_accepted":
+          return t("ideaParticipantAccepted", {actorName});
+        case "idea_participant_declined":
+          return t("ideaParticipantDeclined", {actorName});
+        case "idea_message":
+          return t("ideaMessage", {actorName});
+        case "idea_status_change":
+          return t("ideaStatusChange", {actorName});
         case "share":
           return n.entity_type === "memory"
             ? t("sharedYourMemory", {actorName})

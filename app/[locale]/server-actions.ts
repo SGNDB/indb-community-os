@@ -22,11 +22,18 @@ import {
   createCommentNotification,
   createShareNotification,
   createIdeaCommentNotification,
+  createIdeaSupportNotification,
+  createIdeaParticipateRequestNotification,
+  createIdeaParticipantAcceptedNotification,
+  createIdeaParticipantDeclinedNotification,
+  createIdeaMessageNotification,
+  createIdeaStatusChangeNotification,
   upsertMemoryReactionNotification,
   createMemoryCommentNotification,
 } from '@/lib/data/notifications';
 import { toggleReaction, getPostReactionDetails } from '@/lib/data/reactions';
-import { getIdeaVoteDetails } from '@/lib/data/ideas';
+import type { IdeaStatus, IdeaMessageWithSender } from '@/types/database';
+import { getIdeaVoteDetails, getIdeaById, isUserAcceptedParticipant, getIdeaUserParticipation, getIdeaUserSupport, getIdeaAcceptedParticipants } from '@/lib/data/ideas';
 import { getMemoryReactionDetails } from '@/lib/data/memories';
 import { getTimelineMemoriesByYear } from '@/lib/data/memory-timeline';
 import {
@@ -3805,6 +3812,354 @@ export async function updateOnboardingProfileAction(
   if (error) {
     return { success: false, error: error.message };
   }
+
+  return { success: true };
+}
+
+// ---- Ideas V2 Server Actions ----
+
+export async function supportIdeaAction(
+  formData: FormData,
+): Promise<{ success: boolean; supported?: boolean; supportersCount?: number; error?: string }> {
+  const locale = normalizeLocale(formData.get('locale'));
+  const ideaId = formData.get('ideaId');
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'unauthorized' };
+  }
+
+  if (await isUserRateLimited('reaction', user.id)) {
+    return { success: false, error: 'rate_limited' };
+  }
+
+  if (typeof ideaId !== 'string') {
+    return { success: false, error: 'invalid' };
+  }
+
+  const { data: existing } = await supabase
+    .from('idea_supporters')
+    .select('id')
+    .eq('idea_id', ideaId)
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (existing) {
+    await supabase.from('idea_supporters').delete().eq('id', existing.id);
+  } else {
+    await supabase.from('idea_supporters').insert({
+      idea_id: ideaId,
+      user_id: user.id,
+    });
+  }
+
+  const { count } = await supabase
+    .from('idea_supporters')
+    .select('*', { count: 'exact', head: true })
+    .eq('idea_id', ideaId);
+
+  await supabase
+    .from('ideas')
+    .update({ supporters_count: count ?? 0 })
+    .eq('id', ideaId);
+
+  if (!existing) {
+    const idea = await getIdeaById(ideaId);
+    if (idea?.author_id) {
+      await createIdeaSupportNotification(idea.author_id, user.id, ideaId);
+    }
+  }
+
+  revalidatePath(toPath(locale, '/ideas'));
+
+  return {
+    success: true,
+    supported: !existing,
+    supportersCount: count ?? 0,
+  };
+}
+
+export async function requestParticipateAction(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
+  const locale = normalizeLocale(formData.get('locale'));
+  const ideaId = formData.get('ideaId');
+  const message = formData.get('message');
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'unauthorized' };
+  }
+
+  if (await isUserRateLimited('comment', user.id)) {
+    return { success: false, error: 'rate_limited' };
+  }
+
+  if (typeof ideaId !== 'string') {
+    return { success: false, error: 'invalid' };
+  }
+
+  const existing = await getIdeaUserParticipation(ideaId, user.id);
+  if (existing) {
+    return { success: false, error: 'already_requested' };
+  }
+
+  const idea = await getIdeaById(ideaId);
+  if (!idea) {
+    return { success: false, error: 'not_found' };
+  }
+
+  const { error } = await supabase.from('idea_participants').insert({
+    idea_id: ideaId,
+    user_id: user.id,
+    status: 'pending',
+    message: typeof message === 'string' && message.length > 0 ? message.slice(0, 500) : null,
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  if (idea.author_id) {
+    await createIdeaParticipateRequestNotification(idea.author_id, user.id, ideaId);
+  }
+
+  await supabase
+    .from('ideas')
+    .update({ participants_count: (await getIdeaAcceptedParticipants(ideaId)).length })
+    .eq('id', ideaId);
+
+  revalidatePath(toPath(locale, `/ideas/${ideaId}`));
+
+  return { success: true };
+}
+
+export async function respondToParticipantAction(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
+  const locale = normalizeLocale(formData.get('locale'));
+  const participantId = formData.get('participantId');
+  const action = formData.get('action'); // "accept" or "decline"
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'unauthorized' };
+  }
+
+  if (typeof participantId !== 'string' || (action !== 'accept' && action !== 'decline')) {
+    return { success: false, error: 'invalid' };
+  }
+
+  const { data: participant } = await supabase
+    .from('idea_participants')
+    .select('*, idea:ideas(author_id)')
+    .eq('id', participantId)
+    .single();
+
+  if (!participant) {
+    return { success: false, error: 'not_found' };
+  }
+
+  const ideaData = participant.idea as { author_id: string } | null;
+  if (!ideaData || ideaData.author_id !== user.id) {
+    return { success: false, error: 'unauthorized' };
+  }
+
+  const status = action === 'accept' ? 'accepted' : 'declined';
+  const { error } = await supabase
+    .from('idea_participants')
+    .update({ status })
+    .eq('id', participantId);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  if (action === 'accept') {
+    await createIdeaParticipantAcceptedNotification(participant.user_id, user.id, participant.idea_id);
+  } else {
+    await createIdeaParticipantDeclinedNotification(participant.user_id, user.id, participant.idea_id);
+  }
+
+  revalidatePath(toPath(locale, `/ideas/${participant.idea_id}`));
+  revalidatePath(toPath(locale, '/ideas'));
+
+  return { success: true };
+}
+
+export async function updateIdeaStatusAction(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
+  const locale = normalizeLocale(formData.get('locale'));
+  const ideaId = formData.get('ideaId');
+  const newStatus = formData.get('status');
+  const supabase = await createClient();
+
+  const validStatuses = ['published', 'interested', 'discussion', 'in_progress', 'completed', 'archived'];
+  if (typeof ideaId !== 'string' || typeof newStatus !== 'string' || !validStatuses.includes(newStatus)) {
+    return { success: false, error: 'invalid' };
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'unauthorized' };
+  }
+
+  const idea = await getIdeaById(ideaId);
+  if (!idea) {
+    return { success: false, error: 'not_found' };
+  }
+
+  if (idea.author_id !== user.id) {
+    return { success: false, error: 'unauthorized' };
+  }
+
+  const { error } = await supabase
+    .from('ideas')
+    .update({ status: newStatus as IdeaStatus })
+    .eq('id', ideaId);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  const acceptedParticipants = await getIdeaAcceptedParticipants(ideaId);
+  const participantIds = acceptedParticipants
+    .map((p) => p.user?.id)
+    .filter((id): id is string => !!id && id !== user.id);
+
+  if (participantIds.length > 0) {
+    await createIdeaStatusChangeNotification(ideaId, user.id, participantIds, newStatus);
+  }
+
+  revalidatePath(toPath(locale, `/ideas/${ideaId}`));
+  revalidatePath(toPath(locale, '/ideas'));
+
+  return { success: true };
+}
+
+export async function getIdeaMessagesAction(
+  ideaId: string,
+): Promise<{ success: boolean; messages?: IdeaMessageWithSender[]; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'unauthorized' };
+  }
+
+  const {data: messages} = await supabase
+    .from("idea_messages")
+    .select("*, sender:sender_id(id, username, full_name, avatar_url)")
+    .eq("idea_id", ideaId)
+    .order("created_at", {ascending: true});
+
+  return { success: true, messages: (messages ?? []) as unknown as IdeaMessageWithSender[] };
+}
+
+export async function getIdeaParticipationDataAction(
+  ideaId: string,
+): Promise<{
+  success: boolean;
+  userParticipation?: {status: string; message: string | null} | null;
+  userSupported?: boolean;
+  acceptedParticipants?: {id: string; user_id: string; status: string; message: string | null; user: {id: string; username: string | null; full_name: string | null; avatar_url: string | null} | null}[];
+  error?: string;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'unauthorized' };
+  }
+
+  const [participation, supported, acceptedParticipants] = await Promise.all([
+    getIdeaUserParticipation(ideaId, user.id),
+    getIdeaUserSupport(ideaId, user.id),
+    getIdeaAcceptedParticipants(ideaId),
+  ]);
+
+  return {
+    success: true,
+    userParticipation: participation,
+    userSupported: supported,
+    acceptedParticipants,
+  };
+}
+
+export async function sendIdeaMessageAction(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
+  const locale = normalizeLocale(formData.get('locale'));
+  const ideaId = formData.get('ideaId');
+  const message = formData.get('message');
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'unauthorized' };
+  }
+
+  if (await isUserRateLimited('comment', user.id)) {
+    return { success: false, error: 'rate_limited' };
+  }
+
+  if (typeof ideaId !== 'string' || typeof message !== 'string' || message.trim().length === 0) {
+    return { success: false, error: 'invalid' };
+  }
+
+  const trimmed = message.trim().slice(0, 500);
+
+  const idea = await getIdeaById(ideaId);
+  if (!idea) {
+    return { success: false, error: 'not_found' };
+  }
+
+  const isAuthorized = await isUserAcceptedParticipant(ideaId, user.id, idea.author_id ?? '');
+  if (!isAuthorized) {
+    return { success: false, error: 'unauthorized' };
+  }
+
+  const { error } = await supabase.from('idea_messages').insert({
+    idea_id: ideaId,
+    sender_id: user.id,
+    message: trimmed,
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  const acceptedParticipants = await getIdeaAcceptedParticipants(ideaId);
+  const participantIds = acceptedParticipants
+    .map((p) => p.user?.id)
+    .filter((id): id is string => !!id);
+
+  await createIdeaMessageNotification(ideaId, user.id, participantIds);
+
+  revalidatePath(toPath(locale, `/ideas/${ideaId}`));
 
   return { success: true };
 }

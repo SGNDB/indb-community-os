@@ -266,3 +266,104 @@ export async function createCommentNotification(
     metadata: commentId ? {commentId} : {},
   });
 }
+
+export async function createIdeaSupportNotification(
+  ideaAuthorId: string,
+  actorId: string,
+  ideaId: string,
+): Promise<void> {
+  if (ideaAuthorId === actorId) return;
+  await createNotification({
+    userId: ideaAuthorId,
+    actorId,
+    type: "idea_support",
+    entityType: "idea",
+    entityId: ideaId,
+    title: "New supporter on your idea",
+  });
+}
+
+export async function createIdeaParticipateRequestNotification(
+  ideaAuthorId: string,
+  actorId: string,
+  ideaId: string,
+): Promise<void> {
+  if (ideaAuthorId === actorId) return;
+  await createNotification({
+    userId: ideaAuthorId,
+    actorId,
+    type: "idea_participate_request",
+    entityType: "idea",
+    entityId: ideaId,
+    title: "Someone wants to join your project",
+  });
+}
+
+export async function createIdeaParticipantAcceptedNotification(
+  participantUserId: string,
+  actorId: string,
+  ideaId: string,
+): Promise<void> {
+  if (participantUserId === actorId) return;
+  await createNotification({
+    userId: participantUserId,
+    actorId,
+    type: "idea_participant_accepted",
+    entityType: "idea",
+    entityId: ideaId,
+    title: "You were accepted to participate",
+  });
+}
+
+export async function createIdeaParticipantDeclinedNotification(
+  participantUserId: string,
+  actorId: string,
+  ideaId: string,
+): Promise<void> {
+  if (participantUserId === actorId) return;
+  await createNotification({
+    userId: participantUserId,
+    actorId,
+    type: "idea_participant_declined",
+    entityType: "idea",
+    entityId: ideaId,
+    title: "Your participation request was declined",
+  });
+}
+
+export async function createIdeaMessageNotification(
+  ideaId: string,
+  senderId: string,
+  participantUserIds: string[],
+): Promise<void> {
+  for (const userId of participantUserIds) {
+    if (userId === senderId) continue;
+    await createNotification({
+      userId,
+      actorId: senderId,
+      type: "idea_message",
+      entityType: "idea",
+      entityId: ideaId,
+      title: "New message in idea discussion",
+    });
+  }
+}
+
+export async function createIdeaStatusChangeNotification(
+  ideaId: string,
+  actorId: string,
+  participantUserIds: string[],
+  newStatus: string,
+): Promise<void> {
+  for (const userId of participantUserIds) {
+    if (userId === actorId) continue;
+    await createNotification({
+      userId,
+      actorId,
+      type: "idea_status_change",
+      entityType: "idea",
+      entityId: ideaId,
+      title: `Idea status changed to ${newStatus}`,
+    });
+  }
+}

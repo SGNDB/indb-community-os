@@ -8,8 +8,9 @@ import {useSearchParams} from "next/navigation";
 import {useEffect, useRef, useState} from "react";
 import {toast} from "sonner";
 
-import {deleteIdeaAction, shareIdeaAction} from "@/app/[locale]/server-actions";
+import {deleteIdeaAction, shareIdeaAction, getIdeaParticipationDataAction, supportIdeaAction, requestParticipateAction, respondToParticipantAction, updateIdeaStatusAction, getIdeaMessagesAction} from "@/app/[locale]/server-actions";
 import {IdeaComments} from "@/components/ideas/idea-comments";
+import {IdeaDiscussion} from "@/components/ideas/idea-discussion";
 import {VotersModal} from "@/components/ideas/voters-modal";
 import {TranslateButton} from "@/components/shared/translate-button";
 import {VoteButton} from "@/components/ideas/vote-button";
@@ -20,7 +21,7 @@ import {Link, useRouter} from "@/lib/i18n/routing";
 import {cn} from "@/lib/utils/cn";
 import {useContentScroll} from "@/hooks/use-content-scroll";
 import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
-import type {IdeaBadge, IdeaWithAuthor} from "@/types/database";
+import type {IdeaBadge, IdeaMessageWithSender, IdeaParticipantWithUser, IdeaWithAuthor} from "@/types/database";
 import {MediaCarousel} from "@/components/media/media-carousel";
 
 const badgeTranslationKeys: Record<IdeaBadge, string> = {
@@ -89,6 +90,18 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
   const [menuOpen, setMenuOpen] = useState(false);
   const [voterModalOpen, setVoterModalOpen] = useState(false);
   const [sharesCount, setSharesCount] = useState(idea.shares_count ?? 0);
+  const [supportersCount, setSupportersCount] = useState(idea.supporters_count ?? 0);
+  const [userSupported, setUserSupported] = useState(false);
+  const [userParticipation, setUserParticipation] = useState<{status: string; message: string | null} | null>(null);
+  const [participants, setParticipants] = useState<IdeaParticipantWithUser[]>([]);
+  const [messages, setMessages] = useState<IdeaMessageWithSender[]>([]);
+  const [showDiscussion, setShowDiscussion] = useState(false);
+  const [showRequests, setShowRequests] = useState(false);
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const statusMenuRef = useRef<HTMLDivElement>(null);
+  const [loadingParticipation, setLoadingParticipation] = useState(false);
+  const [loadingSupport, setLoadingSupport] = useState(false);
+  const [ideaStatus, setIdeaStatus] = useState(idea.status);
   const articleRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
@@ -97,6 +110,9 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
     function handleClickOutside(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
+      }
+      if (statusMenuRef.current && !statusMenuRef.current.contains(e.target as Node)) {
+        setShowStatusMenu(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -121,6 +137,27 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
     return () => ro.disconnect();
   }, [idea.description, expanded]);
 
+  const {userId: clientUserId, loading} = useCurrentUser();
+  const effectiveCurrentUserId = currentUserId ?? clientUserId ?? null;
+  const isOwner = !!effectiveCurrentUserId && !!idea.author_id && effectiveCurrentUserId === idea.author_id;
+  const canShowActions = isOwner && !loading;
+
+  useEffect(() => {
+    if (!effectiveCurrentUserId) return;
+    setLoadingParticipation(true);
+    setLoadingSupport(true);
+    (async () => {
+      const result = await getIdeaParticipationDataAction(idea.id);
+      if (result.success) {
+        setUserParticipation(result.userParticipation ?? null);
+        setUserSupported(result.userSupported ?? false);
+        setParticipants((result.acceptedParticipants ?? []) as unknown as IdeaParticipantWithUser[]);
+      }
+      setLoadingParticipation(false);
+      setLoadingSupport(false);
+    })();
+  }, [idea.id, effectiveCurrentUserId]);
+
   const {highlight} = useContentScroll({
     searchParams,
     paramName: "idea",
@@ -132,11 +169,6 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
 
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
   const authorUsername = idea.author?.username;
-
-  const {userId: clientUserId, loading} = useCurrentUser();
-  const effectiveCurrentUserId = currentUserId ?? clientUserId ?? null;
-  const isOwner = !!effectiveCurrentUserId && !!idea.author_id && effectiveCurrentUserId === idea.author_id;
-  const canShowActions = isOwner && !loading;
 
   if (process.env.NODE_ENV === "development") {
     console.log({
@@ -322,6 +354,17 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
                 {t(badgeTranslationKeys[badge])}
               </span>
             ) : null}
+            <span className={cn(
+              "rounded-full px-2.5 py-0.5 text-xs font-medium",
+              ideaStatus === "published" && "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400",
+              ideaStatus === "interested" && "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400",
+              ideaStatus === "discussion" && "bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400",
+              ideaStatus === "in_progress" && "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400",
+              ideaStatus === "completed" && "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400",
+              ideaStatus === "archived" && "bg-gray-50 text-gray-600 dark:bg-gray-800/30 dark:text-gray-400",
+            )}>
+              {t(`status.${ideaStatus}`)}
+            </span>
           </div>
 
           <div className="pt-1">
@@ -345,6 +388,71 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
                   <span className="tabular-nums">{idea.votes_count}</span>
                 </button>
               ) : null}
+              <button
+                type="button"
+                onClick={async () => {
+                  if (loadingSupport || !effectiveCurrentUserId) return;
+                  setLoadingSupport(true);
+                  const f = new FormData();
+                  f.set("locale", locale);
+                  f.set("ideaId", idea.id);
+                  const r = await supportIdeaAction(f);
+                  if (r.success) {
+                    setUserSupported(r.supported ?? false);
+                    setSupportersCount(r.supportersCount ?? 0);
+                  }
+                  setLoadingSupport(false);
+                }}
+                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-border/60 px-4 py-2.5 text-sm transition hover:bg-muted hover:text-foreground"
+                title={t("support")}
+              >
+                {loadingSupport ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Lightbulb size={16} className={userSupported ? "text-[#ED2124]" : ""} />
+                )}
+                <span className="tabular-nums">{supportersCount}</span>
+              </button>
+              {!isOwner && effectiveCurrentUserId && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (loadingParticipation) return;
+                    if (userParticipation?.status === "pending") {
+                      toast.info(t("participationPending"));
+                      return;
+                    }
+                    if (userParticipation?.status === "declined") {
+                      toast.error(t("participationDeclined"));
+                      return;
+                    }
+                    if (userParticipation?.status === "accepted") {
+                      setShowDiscussion((p) => !p);
+                      return;
+                    }
+                    const f = new FormData();
+                    f.set("locale", locale);
+                    f.set("ideaId", idea.id);
+                    f.set("message", "");
+                    const r = await requestParticipateAction(f);
+                    if (r.success) {
+                      setUserParticipation({status: "pending", message: null});
+                      toast.success(t("participationRequested"));
+                    } else {
+                      toast.error(r.error ?? t("participationError"));
+                    }
+                  }}
+                  className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-border/60 px-4 py-2.5 text-sm transition hover:bg-muted hover:text-foreground"
+                >
+                  {userParticipation?.status === "accepted" ? (
+                    <><ChevronUpIcon size={16} />{t("discussion")}</>
+                  ) : userParticipation?.status === "pending" ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <>{t("participate")}</>
+                  )}
+                </button>
+              )}
               <IdeaComments
                 ideaId={idea.id}
                 contentOwnerId={idea.author_id}
@@ -362,6 +470,151 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
               </button>
             </div>
           </div>
+
+          {isOwner && (
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <div className="relative" ref={statusMenuRef}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowStatusMenu((p) => !p)}
+                  className="text-xs"
+                >
+                  {t("changeStatus")}
+                </Button>
+                {showStatusMenu && (
+                  <div className="absolute left-0 top-full z-10 mt-1 min-w-[160px] rounded-xl border border-border/60 bg-card py-1 shadow-lg">
+                    {(["published", "interested", "discussion", "in_progress", "completed", "archived"] as const).map((s) => (
+                      s !== ideaStatus ? (
+                        <button
+                          key={s}
+                          type="button"
+                          className="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                          onClick={async () => {
+                            setShowStatusMenu(false);
+                            const f = new FormData();
+                            f.set("locale", locale);
+                            f.set("ideaId", idea.id);
+                            f.set("status", s);
+                            const r = await updateIdeaStatusAction(f);
+                            if (r.success) {
+                              setIdeaStatus(s);
+                              toast.success(t("statusUpdated"));
+                            } else {
+                              toast.error(r.error ?? t("statusUpdateError"));
+                            }
+                          }}
+                        >
+                          {t(`status.${s}`)}
+                        </button>
+                      ) : null
+                    ))}
+                  </div>
+                )}
+              </div>
+              {participants.filter((p) => p.status === "pending").length > 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowRequests((p) => !p)}
+                  className="text-xs"
+                >
+                  {t("requests", {count: participants.filter((p) => p.status === "pending").length})}
+                </Button>
+              )}
+            </div>
+          )}
+
+          {showRequests && isOwner && (
+            <div className="space-y-2 pt-1">
+              {participants.filter((p) => p.status === "pending").map((p) => (
+                <div key={p.id} className="flex items-center justify-between rounded-xl border border-border/60 p-3">
+                  <div className="flex items-center gap-2">
+                    {p.user?.avatar_url ? (
+                      <Image src={p.user.avatar_url} alt="" width={32} height={32} className="size-8 rounded-full object-cover" />
+                    ) : (
+                      <span className="flex size-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                        {(p.user?.full_name ?? p.user?.username ?? "?").charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                    <div>
+                      <p className="text-sm font-medium">{p.user?.full_name ?? p.user?.username}</p>
+                      {p.message && <p className="text-xs text-muted-foreground">{p.message}</p>}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        const f = new FormData();
+                        f.set("locale", locale);
+                        f.set("participantId", p.id);
+                        f.set("action", "accept");
+                        const r = await respondToParticipantAction(f);
+                        if (r.success) {
+                          setParticipants((prev) =>
+                            prev.map((pp) => pp.id === p.id ? {...pp, status: "accepted" as const} : pp)
+                          );
+                          toast.success(t("participantAccepted"));
+                        }
+                      }}
+                    >
+                      <Button type="submit" size="sm" variant="default" className="text-xs">{t("accept")}</Button>
+                    </form>
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        const f = new FormData();
+                        f.set("locale", locale);
+                        f.set("participantId", p.id);
+                        f.set("action", "decline");
+                        const r = await respondToParticipantAction(f);
+                        if (r.success) {
+                          setParticipants((prev) =>
+                            prev.map((pp) => pp.id === p.id ? {...pp, status: "declined" as const} : pp)
+                          );
+                          toast.success(t("participantDeclined"));
+                        }
+                      }}
+                    >
+                      <Button type="submit" size="sm" variant="ghost" className="text-xs text-destructive">{t("decline")}</Button>
+                    </form>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(userParticipation?.status === "accepted" || isOwner) && (
+            <div className="pt-2">
+              {showDiscussion ? (
+                <IdeaDiscussion
+                  ideaId={idea.id}
+                  currentUserId={effectiveCurrentUserId ?? ""}
+                  locale={locale}
+                  initialMessages={messages}
+                />
+              ) : (participants.some((p) => p.status === "accepted") || isOwner) && effectiveCurrentUserId ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={async () => {
+                    const r = await getIdeaMessagesAction(idea.id);
+                    if (r.success && r.messages) {
+                      setMessages(r.messages);
+                    }
+                    setShowDiscussion(true);
+                  }}
+                  className="text-xs text-muted-foreground"
+                >
+                  {t("openDiscussion")}
+                </Button>
+              ) : null}
+            </div>
+          )}
         </CardContent>
       </Card>
 

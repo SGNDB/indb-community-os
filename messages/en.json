@@ -338,7 +338,13 @@
     "fadlaBothCompleted": "Fadla was completed successfully",
     "fadlaRequestAccepted": "Your request was accepted by {actorName}",
     "someone": "Someone",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "ideaSupported": "{actorName} supported your idea",
+    "ideaParticipateRequest": "{actorName} wants to join your project",
+    "ideaParticipantAccepted": "{actorName} accepted you as a participant",
+    "ideaParticipantDeclined": "{actorName} declined your participation",
+    "ideaMessage": "{actorName} sent a message about your idea",
+    "ideaStatusChange": "{actorName} updated the idea status"
   },
   "RightSidebar": {
     "trendingTopics": "Trending Topics",
@@ -606,20 +612,42 @@
     "editIdea": "Edit idea",
     "deleteIdea": "Delete idea",
     "allIdeas": "All Ideas",
+    "support": "Support",
+    "participate": "Participate",
+    "discussion": "Discussion",
+    "participationPending": "Your request is pending approval",
+    "participationDeclined": "Your request was declined",
+    "participationRequested": "Participation request sent",
+    "participationError": "Failed to request participation",
+    "changeStatus": "Change Status",
+    "statusUpdated": "Status updated",
+    "statusUpdateError": "Failed to update status",
+    "requests": "Requests ({count})",
+    "accept": "Accept",
+    "decline": "Decline",
+    "participantAccepted": "Participant accepted",
+    "participantDeclined": "Participant declined",
+    "openDiscussion": "Open discussion",
     "status": {
-      "submitted": "Submitted",
-      "underReview": "Under Review",
-      "accepted": "Accepted",
-      "inProgress": "In Progress",
+      "published": "Published",
+      "interested": "Interested",
+      "discussion": "Discussion",
+      "in_progress": "In Progress",
       "completed": "Completed",
-      "rejected": "Rejected"
+      "archived": "Archived"
     },
     "editComment": "Edit comment",
     "deleteComment": "Delete comment",
     "save": "Save",
     "commentUpdated": "Comment updated",
     "commentDeleted": "Comment deleted",
-    "commentUpdateFailed": "Failed to update comment"
+    "commentUpdateFailed": "Failed to update comment",
+    "discussion": {
+      "empty": "No messages yet. Start the conversation.",
+      "inputPlaceholder": "Type a message...",
+      "send": "Send",
+      "sendError": "Too many messages. Please wait."
+    }
   },
   "IdeaForm": {
     "title": "Submit a civic idea",

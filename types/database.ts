@@ -7,7 +7,7 @@ export type ProjectStatus = "planning" | "in_progress" | "recruiting" | "complet
 export type PostStatus = "published" | "hidden" | "archived";
 export type CommentStatus = "published" | "hidden";
 export type MemoryVerificationStatus = "pending" | "approved" | "rejected" | "needs_more_info";
-export type IdeaStatus = "submitted" | "under_review" | "accepted" | "in_progress" | "completed" | "rejected";
+export type IdeaStatus = "published" | "interested" | "discussion" | "in_progress" | "completed" | "archived";
 export type IdeaBadge = "new_idea" | "growing_support" | "popular" | "community_priority" | "top_priority";
 export type ReactionType = "like" | "love" | "support" | "celebrate" | "insightful" | "sad";
 export type MemoryReactionType = ReactionType;
@@ -204,6 +204,8 @@ export interface IdeaRow {
   status: IdeaStatus;
   votes_count: number;
   shares_count: number;
+  supporters_count: number;
+  participants_count: number;
   image_url: string | null;
   created_at: string;
   updated_at: string;
@@ -220,6 +222,32 @@ export interface IdeaCommentRow {
 }
 
 export interface IdeaVoteRow {
+  id: string;
+  idea_id: string;
+  user_id: string;
+  created_at: string;
+}
+
+export type IdeaParticipantStatus = "pending" | "accepted" | "declined";
+
+export interface IdeaParticipantRow {
+  id: string;
+  idea_id: string;
+  user_id: string;
+  status: IdeaParticipantStatus;
+  message: string | null;
+  created_at: string;
+}
+
+export interface IdeaMessageRow {
+  id: string;
+  idea_id: string;
+  sender_id: string;
+  message: string;
+  created_at: string;
+}
+
+export interface IdeaSupporterRow {
   id: string;
   idea_id: string;
   user_id: string;
@@ -451,6 +479,14 @@ export interface IdeaWithSupport extends IdeaWithAuthor {
   supportPercentage: number;
   badge: IdeaBadge;
   rank: number | null;
+}
+
+export interface IdeaParticipantWithUser extends IdeaParticipantRow {
+  user: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
+}
+
+export interface IdeaMessageWithSender extends IdeaMessageRow {
+  sender: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
 }
 
 export interface IdeaCommentWithAuthor extends IdeaCommentRow {

@@ -338,7 +338,13 @@
     "fadlaSenderConfirmed": "أكد {actorName} أنه سلّم الفظلة",
     "fadlaBothCompleted": "تم اكتمال استلام الفظلة",
     "fadlaRequestAccepted": "تم قبول طلبك من قبل {actorName}",
-    "loadMore": "عرض المزيد"
+    "loadMore": "عرض المزيد",
+    "ideaSupported": "{actorName} دعم فكرتك",
+    "ideaParticipateRequest": "{actorName} يريد الانضمام إلى مشروعك",
+    "ideaParticipantAccepted": "{actorName} قبلك كمشارك",
+    "ideaParticipantDeclined": "{actorName} رفض مشاركتك",
+    "ideaMessage": "{actorName} أرسل رسالة عن فكرتك",
+    "ideaStatusChange": "{actorName} قام بتحديث حالة الفكرة"
   },
   "RightSidebar": {
     "trendingTopics": "المواضيع الرائجة",
@@ -606,20 +612,42 @@
     "editIdea": "تعديل الفكرة",
     "deleteIdea": "حذف الفكرة",
     "allIdeas": "كل الأفكار",
+    "support": "دعم",
+    "participate": "مشاركة",
+    "discussion": "نقاش",
+    "participationPending": "طلبك قيد المراجعة",
+    "participationDeclined": "تم رفض طلبك",
+    "participationRequested": "تم إرسال طلب المشاركة",
+    "participationError": "فشل إرسال طلب المشاركة",
+    "changeStatus": "تغيير الحالة",
+    "statusUpdated": "تم تحديث الحالة",
+    "statusUpdateError": "فشل تحديث الحالة",
+    "requests": "الطلبات ({count})",
+    "accept": "قبول",
+    "decline": "رفض",
+    "participantAccepted": "تم قبول المشارك",
+    "participantDeclined": "تم رفض المشارك",
+    "openDiscussion": "فتح النقاش",
     "status": {
-      "submitted": "مقدمة",
-      "underReview": "قيد المراجعة",
-      "accepted": "مقبولة",
-      "inProgress": "قيد التنفيذ",
-      "completed": "مكتملة",
-      "rejected": "مرفوضة"
+      "published": "منشور",
+      "interested": "مهتم",
+      "discussion": "نقاش",
+      "in_progress": "قيد التنفيذ",
+      "completed": "مكتمل",
+      "archived": "مؤرشف"
     },
     "editComment": "تعديل التعليق",
     "deleteComment": "حذف التعليق",
     "save": "حفظ",
     "commentUpdated": "تم تحديث التعليق",
     "commentDeleted": "تم حذف التعليق",
-    "commentUpdateFailed": "فشل تحديث التعليق"
+    "commentUpdateFailed": "فشل تحديث التعليق",
+    "discussion": {
+      "empty": "لا توجد رسائل بعد. ابدأ المحادثة.",
+      "inputPlaceholder": "اكتب رسالة...",
+      "send": "إرسال",
+      "sendError": "رسائل كثيرة جداً. يرجى الانتظار."
+    }
   },
   "IdeaForm": {
     "title": "إرسال فكرة مدنية",

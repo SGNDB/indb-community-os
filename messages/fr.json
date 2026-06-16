@@ -338,7 +338,13 @@
     "fadlaSenderConfirmed": "{actorName} a confirmé avoir remis Fadla",
     "fadlaBothCompleted": "Fadla a été terminée avec succès",
     "fadlaRequestAccepted": "Votre demande a été acceptée par {actorName}",
-    "loadMore": "Charger plus"
+    "loadMore": "Charger plus",
+    "ideaSupported": "{actorName} a soutenu votre idée",
+    "ideaParticipateRequest": "{actorName} veut rejoindre votre projet",
+    "ideaParticipantAccepted": "{actorName} vous a accepté comme participant",
+    "ideaParticipantDeclined": "{actorName} a refusé votre participation",
+    "ideaMessage": "{actorName} a envoyé un message à propos de votre idée",
+    "ideaStatusChange": "{actorName} a mis à jour le statut de l'idée"
   },
   "RightSidebar": {
     "trendingTopics": "Sujets tendance",
@@ -606,20 +612,42 @@
     "editIdea": "Modifier l'idée",
     "deleteIdea": "Supprimer l'idée",
     "allIdeas": "Toutes les idées",
+    "support": "Soutenir",
+    "participate": "Participer",
+    "discussion": "Discussion",
+    "participationPending": "Votre demande est en attente",
+    "participationDeclined": "Votre demande a été refusée",
+    "participationRequested": "Demande de participation envoyée",
+    "participationError": "Échec de la demande de participation",
+    "changeStatus": "Changer le statut",
+    "statusUpdated": "Statut mis à jour",
+    "statusUpdateError": "Échec de la mise à jour du statut",
+    "requests": "Demandes ({count})",
+    "accept": "Accepter",
+    "decline": "Refuser",
+    "participantAccepted": "Participant accepté",
+    "participantDeclined": "Participant refusé",
+    "openDiscussion": "Ouvrir la discussion",
     "status": {
-      "submitted": "Soumise",
-      "underReview": "En révision",
-      "accepted": "Acceptée",
-      "inProgress": "En cours",
-      "completed": "Terminée",
-      "rejected": "Rejetée"
+      "published": "Publié",
+      "interested": "Intéressé",
+      "discussion": "Discussion",
+      "in_progress": "En cours",
+      "completed": "Terminé",
+      "archived": "Archivé"
     },
     "editComment": "Modifier le commentaire",
     "deleteComment": "Supprimer le commentaire",
     "save": "Enregistrer",
     "commentUpdated": "Commentaire mis ? jour",
     "commentDeleted": "Commentaire supprim?",
-    "commentUpdateFailed": "?chec de la mise ? jour du commentaire"
+    "commentUpdateFailed": "?chec de la mise ? jour du commentaire",
+    "discussion": {
+      "empty": "Aucun message pour l'instant. Lancez la conversation.",
+      "inputPlaceholder": "Écrivez un message...",
+      "send": "Envoyer",
+      "sendError": "Trop de messages. Veuillez patienter."
+    }
   },
   "IdeaForm": {
     "title": "Soumettre une idée citoyenne",

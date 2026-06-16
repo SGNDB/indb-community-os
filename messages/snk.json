@@ -233,7 +233,13 @@
     "fadlaBothCompleted": "Fadla was completed successfully",
     "fadlaRequestAccepted": "Your request was accepted by {actorName}",
     "someone": "Nkunto",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "ideaSupported": "{actorName} supported your idea",
+    "ideaParticipateRequest": "{actorName} wants to join your project",
+    "ideaParticipantAccepted": "{actorName} accepted you as a participant",
+    "ideaParticipantDeclined": "{actorName} declined your participation",
+    "ideaMessage": "{actorName} sent a message about your idea",
+    "ideaStatusChange": "{actorName} updated the idea status"
   },
   "RightSidebar": {
     "trendingTopics": "Jeli No Mberlin",
@@ -479,20 +485,42 @@
     "editIdea": "Taƴtu miijo",
     "deleteIdea": "Tun miijo",
     "allIdeas": "Miiji Fuu",
+    "support": "Support",
+    "participate": "Participate",
+    "discussion": "Discussion",
+    "participationPending": "Your request is pending approval",
+    "participationDeclined": "Your request was declined",
+    "participationRequested": "Participation request sent",
+    "participationError": "Failed to request participation",
+    "changeStatus": "Change Status",
+    "statusUpdated": "Status updated",
+    "statusUpdateError": "Failed to update status",
+    "requests": "Requests ({count})",
+    "accept": "Accept",
+    "decline": "Decline",
+    "participantAccepted": "Participant accepted",
+    "participantDeclined": "Participant declined",
+    "openDiscussion": "Open discussion",
     "status": {
-      "submitted": "Ntenxinta",
-      "underReview": "No ɲaaxun",
-      "accepted": "Daminta",
-      "inProgress": "No Goyun",
-      "completed": "Banta",
-      "rejected": "Yeppa"
+      "published": "Published",
+      "interested": "Interested",
+      "discussion": "Discussion",
+      "in_progress": "In Progress",
+      "completed": "Completed",
+      "archived": "Archived"
     },
     "editComment": "Taƴtu siiwu",
     "deleteComment": "Tun siiwu",
     "save": "Mar",
     "commentUpdated": "Siiwu sagalinta",
     "commentDeleted": "Siiwu tunta",
-    "commentUpdateFailed": "Wa sagalin siiwu"
+    "commentUpdateFailed": "Wa sagalin siiwu",
+    "discussion": {
+      "empty": "No messages yet. Start the conversation.",
+      "inputPlaceholder": "Type a message...",
+      "send": "Send",
+      "sendError": "Too many messages. Please wait."
+    }
   },
   "IdeaForm": {
     "title": "Ntene miijo siwil",
