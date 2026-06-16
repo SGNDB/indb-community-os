@@ -3,6 +3,15 @@
 -- Adds participation, discussion, supporters, and new statuses
 -- ============================================================
 
+-- Migrate existing statuses to new lifecycle values
+update public.ideas
+  set status = 'published'
+  where status in ('submitted', 'rejected', 'under_review');
+
+update public.ideas
+  set status = 'in_progress'
+  where status = 'accepted' ;
+
 -- Update status constraint to new lifecycle
 alter table public.ideas
   drop constraint if exists ideas_status_check;
