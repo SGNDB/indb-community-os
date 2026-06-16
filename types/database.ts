@@ -300,6 +300,8 @@ export interface FadlaItemRow {
     completed_at: string | null;
     archived_at: string | null;
     accepted_request_id: string | null;
+    receiver_confirmed_at: string | null;
+    sender_confirmed_at: string | null;
   }
 
 export interface FadlaRequestRow {

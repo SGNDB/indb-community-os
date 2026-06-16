@@ -1203,6 +1203,10 @@
     },
     "accept": "قبول",
     "decline": "رفض",
+    "confirmReceived": "استلمت الفظلة",
+    "confirmHandedOver": "سلّمت الفظلة",
+    "waitingOtherConfirmation": "في انتظار تأكيد الطرف الآخر",
+    "requestCompleted": "مكتمل",
     "form": {
       "createTitle": "شارك شيئًا مفيدًا",
       "editTitle": "تعديل العنصر المشارك",
@@ -1223,7 +1227,8 @@
       "requested": "تم إرسال الطلب إلى المالك",
       "accepted": "تم قبول الطلب",
       "declined": "تم رفض الطلب",
-      "completed": "تم الإكتمال"
+      "completed": "تم الإكتمال",
+      "confirmed": "تم إرسال التأكيد"
     },
     "errors": {
       "saveFailed": "تعذر حفظ العنصر المشارك",
@@ -1263,7 +1268,11 @@
       "withOwner": "المحادثة مع صاحب الفظلة",
       "withReceiver": "المحادثة مع المستلم"
     },
-    "requestAcceptedBanner": "تم قبول طلبك. يمكنك الآن التواصل لترتيب الاستلام."
+    "requestAcceptedBanner": "تم قبول طلبك. يمكنك الآن التواصل لترتيب الاستلام.",
+    "notifications": {
+      "receiverConfirmed": "قام المستلم بتأكيد استلام الفظلة",
+      "senderConfirmed": "قام صاحب الفظلة بتأكيد التسليم"
+    }
   },
   "Translating": {
     "seeTranslation": "عرض الترجمة",

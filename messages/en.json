@@ -1197,6 +1197,10 @@
     },
     "accept": "Accept",
     "decline": "Decline",
+    "confirmReceived": "I received it",
+    "confirmHandedOver": "I handed it over",
+    "waitingOtherConfirmation": "Waiting for the other person to confirm",
+    "requestCompleted": "Completed",
     "form": {
       "createTitle": "Share something useful",
       "editTitle": "Edit shared item",
@@ -1217,7 +1221,8 @@
       "requested": "Request sent to the owner",
       "accepted": "Request accepted",
       "declined": "Request declined",
-      "completed": "Item completed"
+      "completed": "Item completed",
+      "confirmed": "Confirmation sent"
     },
     "errors": {
       "saveFailed": "Could not save shared item",
@@ -1257,7 +1262,11 @@
       "withOwner": "Discussion with owner",
       "withReceiver": "Discussion with receiver"
     },
-    "requestAcceptedBanner": "Your request was accepted. You can now discuss pickup details."
+    "requestAcceptedBanner": "Your request was accepted. You can now discuss pickup details.",
+    "notifications": {
+      "receiverConfirmed": "The recipient confirmed receiving the item",
+      "senderConfirmed": "The owner confirmed handing over the item"
+    }
   },
   "ConfirmDialog": {
     "title": "Discard changes?",

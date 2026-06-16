@@ -20,6 +20,8 @@ import { toast } from 'sonner';
 
 import {
   acceptFadlaRequestAction,
+  confirmFadlaHandedOverAction,
+  confirmFadlaReceivedAction,
   declineFadlaRequestAction,
   deleteFadlaItemAction,
   requestFadlaItemAction,
@@ -101,6 +103,7 @@ export function FadlaCard({
     item.requested_by_current_user ? 'requested' : 'idle',
   );
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [confirmActionLoading, setConfirmActionLoading] = useState(false);
   const [showRequests, setShowRequests] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
 
@@ -245,6 +248,38 @@ export function FadlaCard({
       toast.error(result.error);
     }
     setActionLoading(null);
+  }
+
+  async function handleConfirmReceived() {
+    if (confirmActionLoading) return;
+    setConfirmActionLoading(true);
+    const formData = new FormData();
+    formData.set('locale', locale);
+    formData.set('shareId', item.id);
+    const result = await confirmFadlaReceivedAction(formData);
+    if (result.success) {
+      toast.success(t('toasts.confirmed'));
+      router.refresh();
+    } else {
+      toast.error(result.error);
+    }
+    setConfirmActionLoading(false);
+  }
+
+  async function handleConfirmHandedOver() {
+    if (confirmActionLoading) return;
+    setConfirmActionLoading(true);
+    const formData = new FormData();
+    formData.set('locale', locale);
+    formData.set('shareId', item.id);
+    const result = await confirmFadlaHandedOverAction(formData);
+    if (result.success) {
+      toast.success(t('toasts.confirmed'));
+      router.refresh();
+    } else {
+      toast.error(result.error);
+    }
+    setConfirmActionLoading(false);
   }
 
   return (
@@ -469,7 +504,7 @@ export function FadlaCard({
               </div>
             )}
 
-            {item.status === 'completed' && acceptedRequest && (
+            {acceptedRequest && (
               <div className="rounded-2xl border border-green-200 bg-green-50/70 p-3 text-sm dark:border-green-900/50 dark:bg-green-950/20">
                 <div className="flex items-center gap-2.5">
                   <UserAvatar
@@ -479,7 +514,7 @@ export function FadlaCard({
                   />
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-green-900 dark:text-green-100">
-                      {t('requestAccepted')}
+                      {item.status === 'completed' ? t('requestCompleted') : t('requestAccepted')}
                     </p>
                     <p className="truncate text-xs text-green-800/70 dark:text-green-200/70">
                       {acceptedRequest.requester?.username
@@ -488,6 +523,26 @@ export function FadlaCard({
                     </p>
                   </div>
                 </div>
+                {item.status !== 'completed' && (
+                  <div className="mt-3">
+                    {!item.sender_confirmed_at ? (
+                      <Button
+                        type="button"
+                        disabled={confirmActionLoading}
+                        onClick={handleConfirmHandedOver}
+                        className="min-h-11 w-full rounded-full bg-[#22c55e] text-white hover:bg-[#16a34a]"
+                      >
+                        {confirmActionLoading ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
+                        {t('confirmHandedOver')}
+                      </Button>
+                    ) : (
+                      <div className="flex items-center gap-2 text-xs text-green-700 dark:text-green-300">
+                        <Check size={14} />
+                        {t('waitingOtherConfirmation')}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -530,8 +585,28 @@ export function FadlaCard({
             {!isOwner && isRecipient && (
               <div className="mb-3 rounded-2xl border border-green-200 bg-green-50/70 p-3 text-sm dark:border-green-900/50 dark:bg-green-950/20">
                 <p className="font-semibold text-green-900 dark:text-green-100">
-                  {t('requestAcceptedBanner')}
+                  {item.status === 'completed' ? t('requestCompleted') : t('requestAcceptedBanner')}
                 </p>
+                {item.status !== 'completed' && (
+                  <div className="mt-3">
+                    {!item.receiver_confirmed_at ? (
+                      <Button
+                        type="button"
+                        disabled={confirmActionLoading}
+                        onClick={handleConfirmReceived}
+                        className="min-h-11 w-full rounded-full bg-[#22c55e] text-white hover:bg-[#16a34a]"
+                      >
+                        {confirmActionLoading ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
+                        {t('confirmReceived')}
+                      </Button>
+                    ) : (
+                      <div className="flex items-center gap-2 text-xs text-green-700 dark:text-green-300">
+                        <Check size={14} />
+                        {t('waitingOtherConfirmation')}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
             <div id={`discussion-${item.id}`}>

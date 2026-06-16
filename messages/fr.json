@@ -1203,6 +1203,10 @@
     },
     "accept": "Accepter",
     "decline": "Refuser",
+    "confirmReceived": "J'ai reçu Fadla",
+    "confirmHandedOver": "J'ai remis Fadla",
+    "waitingOtherConfirmation": "En attente de la confirmation de l'autre personne",
+    "requestCompleted": "Terminé",
     "form": {
       "createTitle": "Partager un objet utile",
       "editTitle": "Modifier l'objet partage",
@@ -1223,7 +1227,8 @@
       "requested": "Demande envoyee au proprietaire",
       "accepted": "Demande acceptee",
       "declined": "Demand refuse",
-      "completed": "Objet termine"
+      "completed": "Objet termine",
+      "confirmed": "Confirmation envoyée"
     },
     "errors": {
       "saveFailed": "Impossible d'enregistrer l'objet partage",
@@ -1263,7 +1268,11 @@
       "withOwner": "Discussion avec le propriétaire",
       "withReceiver": "Discussion avec le bénéficiaire"
     },
-    "requestAcceptedBanner": "Votre demande a été acceptée. Vous pouvez maintenant discuter pour organiser la récupération."
+    "requestAcceptedBanner": "Votre demande a été acceptée. Vous pouvez maintenant discuter pour organiser la récupération.",
+    "notifications": {
+      "receiverConfirmed": "Le bénéficiaire a confirmé la réception de Fadla",
+      "senderConfirmed": "Le propriétaire a confirmé la remise de Fadla"
+    }
   },
   "Translating": {
     "seeTranslation": "Voir la traduction",
