@@ -394,24 +394,23 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
                   e.preventDefault();
                   if (loadingSupport || !effectiveCurrentUserId) return;
                   setLoadingSupport(true);
+                  const prevSupported = userSupported;
+                  const prevCount = supportersCount;
+                  setUserSupported((p) => !p);
+                  setSupportersCount((p) => (userSupported ? p - 1 : p + 1));
                   const f = new FormData();
-                  f.set("locale", locale);
                   f.set("ideaId", idea.id);
                   const r = await supportIdeaAction(f);
-                  if (r.success) {
-                    setUserSupported(r.supported ?? false);
-                    setSupportersCount(r.supportersCount ?? 0);
+                  if (!r.success) {
+                    setUserSupported(prevSupported);
+                    setSupportersCount(prevCount);
                   }
                   setLoadingSupport(false);
                 }}
                 className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-border/60 px-4 py-2.5 text-sm transition hover:bg-muted hover:text-foreground"
                 title={t("support")}
               >
-                {loadingSupport ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : (
-                  <Lightbulb size={16} className={userSupported ? "text-[#ED2124]" : ""} />
-                )}
+                <Lightbulb size={16} className={userSupported ? "text-[#ED2124]" : ""} />
                 <span className="tabular-nums">{supportersCount}</span>
               </button>
               {!isOwner && effectiveCurrentUserId && (

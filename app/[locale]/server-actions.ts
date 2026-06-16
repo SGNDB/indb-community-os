@@ -2009,7 +2009,6 @@ export async function updateIdeaCommentAction(
 export async function voteIdeaAction(
   formData: FormData,
 ): Promise<{ success: boolean; voted?: boolean; votes?: number; error?: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
   const ideaId = formData.get('ideaId');
   const supabase = await createClient();
 
@@ -2055,13 +2054,26 @@ export async function voteIdeaAction(
     .update({ votes_count: count ?? 0 })
     .eq('id', ideaId);
 
-  revalidatePath(toPath(locale, '/ideas'));
-
   return {
     success: true,
     voted: !existing,
     votes: count ?? 0,
   };
+}
+
+export async function getUserVoteAction(
+  ideaId: string,
+): Promise<{ success: boolean; voted?: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  const { data: existing } = await supabase
+    .from('idea_votes')
+    .select('id')
+    .eq('idea_id', ideaId)
+    .eq('user_id', user.id)
+    .maybeSingle();
+  return { success: true, voted: !!existing };
 }
 
 export async function reactToMemoryAction(formData: FormData): Promise<{

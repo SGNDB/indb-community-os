@@ -3,10 +3,10 @@
 import {motion, AnimatePresence} from "framer-motion";
 import {Check, ChevronUp, Flame, Loader2, Sparkles, Star, TrendingUp, Trophy} from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
-import {useState, useTransition} from "react";
+import {useEffect, useState} from "react";
 import {toast} from "sonner";
 
-import {voteIdeaAction} from "@/app/[locale]/server-actions";
+import {voteIdeaAction, getUserVoteAction} from "@/app/[locale]/server-actions";
 import {calculateIdeaSupport} from "@/lib/ideas/support";
 import {cn} from "@/lib/utils/cn";
 import type {IdeaBadge} from "@/types/database";
@@ -31,12 +31,23 @@ const badgeConfig: Record<IdeaBadge, {icon: typeof Flame; bg: string; text: stri
 export function VoteButton({ideaId, votes: initialVotes, supportPercentage: initialSupport, badge: initialBadge, totalUsers, hideDetails}: VoteButtonProps) {
   const t = useTranslations("Ideas");
   const locale = useLocale();
-  const [pending, startTransition] = useTransition();
+  const [pending, setPending] = useState(false);
   const [votes, setVotes] = useState(initialVotes);
   const [supportPercentage, setSupportPercentage] = useState(initialSupport);
   const [currentBadge, setCurrentBadge] = useState(initialBadge);
   const [voted, setVoted] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [pulse, setPulse] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const result = await getUserVoteAction(ideaId);
+      if (result.success) {
+        setVoted(result.voted ?? false);
+      }
+      setInitialLoading(false);
+    })();
+  }, [ideaId]);
 
   function recomputeSupport(newVotes: number) {
     const {supportPercentage: pct, badge} = calculateIdeaSupport(newVotes, totalUsers);
@@ -47,44 +58,58 @@ export function VoteButton({ideaId, votes: initialVotes, supportPercentage: init
   async function handleVote() {
     if (pending) return;
 
+    const prevVoted = voted;
+    const prevVotes = votes;
+    const prevSupport = supportPercentage;
+    const prevBadge = currentBadge;
+
+    const newVotes = prevVoted ? prevVotes - 1 : prevVotes + 1;
+    setVoted(!prevVoted);
+    setVotes(newVotes);
+    setPulse(true);
+    recomputeSupport(newVotes);
+    setPending(true);
+
     const formData = new FormData();
     formData.set("ideaId", ideaId);
-    formData.set("locale", locale);
 
-    startTransition(async () => {
-      const prevVoted = voted;
-      const prevVotes = votes;
-      const prevSupport = supportPercentage;
-      const prevBadge = currentBadge;
+    const result = await voteIdeaAction(formData);
 
-      const newVotes = prevVoted ? prevVotes - 1 : prevVotes + 1;
-      setVoted(!prevVoted);
-      setVotes(newVotes);
-      setPulse(true);
-      recomputeSupport(newVotes);
+    setPending(false);
 
-      const result = await voteIdeaAction(formData);
-
-      if (!result.success) {
-        setVoted(prevVoted);
-        setVotes(prevVotes);
-        setSupportPercentage(prevSupport);
-        setCurrentBadge(prevBadge);
-        if (result.error === "unauthorized") {
-          window.location.href = `/${locale}/login?next=/ideas`;
-          return;
-        }
-        toast.error(t("voteFailed") ?? "Vote failed");
+    if (!result.success) {
+      setVoted(prevVoted);
+      setVotes(prevVotes);
+      setSupportPercentage(prevSupport);
+      setCurrentBadge(prevBadge);
+      if (result.error === "unauthorized") {
+        window.location.href = `/${locale}/login?next=/ideas`;
         return;
       }
+      toast.error(t("voteFailed") ?? "Vote failed");
+      return;
+    }
 
-      setVotes(result.votes ?? votes);
-      recomputeSupport(result.votes ?? votes);
-      setVoted(result.voted ?? false);
-    });
+    setVotes(result.votes ?? votes);
+    recomputeSupport(result.votes ?? votes);
+    setVoted(result.voted ?? false);
   }
 
   const BadgeIcon = badgeConfig[currentBadge].icon;
+
+  if (initialLoading) {
+    return (
+      <div className="flex items-center gap-2">
+        <div className="inline-flex h-[48px] w-[120px] animate-pulse items-center justify-center rounded-2xl border-2 border-primary/10 bg-muted" />
+        {hideDetails ? null : (
+          <>
+            <div className="h-5 w-16 animate-pulse rounded bg-muted" />
+            <div className="h-6 w-20 animate-pulse rounded-full bg-muted" />
+          </>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-2">
