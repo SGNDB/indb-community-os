@@ -3,6 +3,10 @@
 -- Adds participation, discussion, supporters, and new statuses
 -- ============================================================
 
+-- Drop old status constraint first so we can set new statuses freely
+alter table public.ideas
+  drop constraint if exists ideas_status_check;
+
 -- Migrate existing statuses to new lifecycle values
 update public.ideas
   set status = 'published'
@@ -12,10 +16,7 @@ update public.ideas
   set status = 'in_progress'
   where status = 'accepted' ;
 
--- Update status constraint to new lifecycle
-alter table public.ideas
-  drop constraint if exists ideas_status_check;
-
+-- Add new status constraint
 alter table public.ideas
   add constraint ideas_status_check
     check (status in ('published', 'interested', 'discussion', 'in_progress', 'completed', 'archived'));
