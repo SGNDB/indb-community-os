@@ -336,7 +336,7 @@
     "fadlaMessage": "أرسل لك {actorName} رسالة حول الفظلة",
     "fadlaReceiverConfirmed": "أكد {actorName} أنه استلم الفظلة",
     "fadlaSenderConfirmed": "أكد {actorName} أنه سلّم الفظلة",
-    "fadlaBothCompleted": "تم إكمال الفظلة بنجاح",
+    "fadlaBothCompleted": "تم اكتمال استلام الفظلة",
     "fadlaRequestAccepted": "تم قبول طلبك من قبل {actorName}",
     "loadMore": "عرض المزيد"
   },
@@ -1272,7 +1272,7 @@
       "notificationTitle": "رسالة جديدة في الفظلة",
       "withOwner": "المحادثة مع صاحب الفظلة",
       "withReceiver": "المحادثة مع المستلم",
-      "completedTitle": "تم إكمال الفظلة بنجاح",
+      "completedTitle": "تم اكتمال استلام الفظلة",
       "completedSubtitle": "تم إغلاق المحادثة بعد تأكيد الطرفين.",
       "viewHistory": "عرض سجل المحادثة",
       "hideHistory": "إخفاء سجل المحادثة"
@@ -1281,7 +1281,7 @@
     "notifications": {
       "receiverConfirmed": "قام المستلم بتأكيد استلام الفظلة",
       "senderConfirmed": "قام صاحب الفظلة بتأكيد التسليم",
-      "bothCompleted": "تم إكمال الفظلة بنجاح"
+      "bothCompleted": "تم اكتمال استلام الفظلة"
     }
   },
   "Translating": {
