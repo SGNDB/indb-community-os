@@ -18,10 +18,11 @@ import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {useCurrentUser} from "@/hooks/use-current-user";
 import {Link, useRouter} from "@/lib/i18n/routing";
+import {createClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils/cn";
 import {useContentScroll} from "@/hooks/use-content-scroll";
 import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
-import type {IdeaBadge, IdeaMessageWithSender, IdeaParticipantWithUser, IdeaWithAuthor} from "@/types/database";
+import type {IdeaBadge, IdeaMessageWithSender, IdeaParticipantWithUser, IdeaStatus, IdeaWithAuthor} from "@/types/database";
 import {MediaCarousel} from "@/components/media/media-carousel";
 
 const badgeTranslationKeys: Record<IdeaBadge, string> = {
@@ -84,6 +85,7 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleted, setDeleted] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -142,6 +144,112 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
   const effectiveCurrentUserId = currentUserId ?? clientUserId ?? null;
   const isOwner = !!effectiveCurrentUserId && !!idea.author_id && effectiveCurrentUserId === idea.author_id;
   const canShowActions = isOwner && !loading;
+
+  useEffect(() => {
+    setSharesCount(idea.shares_count ?? 0);
+    setSupportersCount(idea.supporters_count ?? 0);
+    setIdeaStatus(idea.status);
+  }, [idea.shares_count, idea.status, idea.supporters_count]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase.channel(`idea-card-${idea.id}`);
+
+    async function fetchParticipant(participantId: string) {
+      const {data} = await supabase
+        .from("idea_participants")
+        .select("*, user:user_id(id, username, full_name, avatar_url)")
+        .eq("id", participantId)
+        .maybeSingle();
+
+      return data as unknown as IdeaParticipantWithUser | null;
+    }
+
+    async function syncParticipant(participantId: string, fallback?: {user_id?: string; status?: string; message?: string | null}) {
+      const participant = await fetchParticipant(participantId);
+      const nextParticipant = participant ?? ({
+        id: participantId,
+        idea_id: idea.id,
+        user_id: fallback?.user_id ?? "",
+        status: fallback?.status ?? "pending",
+        message: fallback?.message ?? null,
+        created_at: new Date().toISOString(),
+        user: null,
+      } as IdeaParticipantWithUser);
+
+      if (isOwner) {
+        setParticipants((prev) => {
+          const exists = prev.some((item) => item.id === nextParticipant.id);
+          return exists
+            ? prev.map((item) => (item.id === nextParticipant.id ? {...item, ...nextParticipant} : item))
+            : [...prev, nextParticipant];
+        });
+      } else if (nextParticipant.status === "accepted") {
+        setParticipants((prev) => {
+          const exists = prev.some((item) => item.id === nextParticipant.id);
+          return exists
+            ? prev.map((item) => (item.id === nextParticipant.id ? {...item, ...nextParticipant} : item))
+            : [...prev, nextParticipant];
+        });
+      }
+
+      if (nextParticipant.user_id === effectiveCurrentUserId) {
+        setUserParticipation({status: nextParticipant.status, message: nextParticipant.message});
+        if (nextParticipant.status === "accepted") {
+          const result = await getIdeaMessagesAction(idea.id);
+          if (result.success && result.messages) setMessages(result.messages);
+          setShowDiscussion(true);
+        }
+      }
+    }
+
+    channel
+      .on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "ideas",
+        filter: `id=eq.${idea.id}`,
+      }, (payload) => {
+        const updated = payload.new as Partial<{status: IdeaStatus; supporters_count: number; shares_count: number}>;
+        if (updated.status) setIdeaStatus(updated.status);
+        if (typeof updated.supporters_count === "number") setSupportersCount(updated.supporters_count);
+        if (typeof updated.shares_count === "number") setSharesCount(updated.shares_count);
+      })
+      .on("postgres_changes", {
+        event: "INSERT",
+        schema: "public",
+        table: "idea_participants",
+        filter: `idea_id=eq.${idea.id}`,
+      }, (payload) => {
+        const row = payload.new as {id?: string; user_id?: string; status?: string; message?: string | null};
+        if (row.id) void syncParticipant(row.id, row);
+      })
+      .on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "idea_participants",
+        filter: `idea_id=eq.${idea.id}`,
+      }, (payload) => {
+        const row = payload.new as {id?: string; user_id?: string; status?: string; message?: string | null};
+        if (row.id) void syncParticipant(row.id, row);
+      })
+      .on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "idea_supporters",
+        filter: `idea_id=eq.${idea.id}`,
+      }, (payload) => {
+        const newRow = payload.new as {user_id?: string} | null;
+        const oldRow = payload.old as {user_id?: string} | null;
+        if (newRow?.user_id === effectiveCurrentUserId) setUserSupported(true);
+        if (oldRow?.user_id === effectiveCurrentUserId) setUserSupported(false);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [effectiveCurrentUserId, idea.id, isOwner]);
 
   useEffect(() => {
     if (!effectiveCurrentUserId) return;
@@ -244,6 +352,8 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
     });
   }
 
+  if (deleted) return null;
+
   const ideaExtra = idea as IdeaWithAuthor & {supportPercentage?: number; badge?: IdeaBadge};
   const supportPercentage = ideaExtra.supportPercentage ?? 0;
   const badge = ideaExtra.badge ?? "new_idea";
@@ -303,7 +413,7 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
     const result = await shareIdeaAction(formData);
     if (!result.success && result.error === "unauthorized") {
       setSharesCount((c) => Math.max(0, c - 1));
-      window.location.href = `/${locale}/login?next=/ideas`;
+      router.push(`/login?next=${encodeURIComponent("/ideas")}`);
     }
   }
 
@@ -467,6 +577,9 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
                   if (!r.success) {
                     setUserSupported(prevSupported);
                     setSupportersCount(prevCount);
+                  } else {
+                    setUserSupported(r.supported ?? !prevSupported);
+                    setSupportersCount(r.supportersCount ?? prevCount);
                   }
                   setLoadingSupport(false);
                 }}
@@ -582,15 +695,18 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
                           className="flex w-full items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
                           onClick={async () => {
                             setShowStatusMenu(false);
+                            const previousStatus = ideaStatus;
+                            setIdeaStatus(s);
                             const f = new FormData();
                             f.set("locale", locale);
                             f.set("ideaId", idea.id);
                             f.set("status", s);
                             const r = await updateIdeaStatusAction(f);
                             if (r.success) {
-                              setIdeaStatus(s);
+                              setIdeaStatus(r.status ?? s);
                               toast.success(t("statusUpdated"));
                             } else {
+                              setIdeaStatus(previousStatus);
                               toast.error(r.error ?? t("statusUpdateError"));
                             }
                           }}
@@ -734,7 +850,7 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
                   setDeleting(false);
                   if (result.success) {
                     toast.success(t("ideaDeleted") ?? "Idea deleted");
-                    router.refresh();
+                    setDeleted(true);
                   } else {
                     toast.error(t("deleteFailed") ?? result.error ?? "Failed to delete");
                   }

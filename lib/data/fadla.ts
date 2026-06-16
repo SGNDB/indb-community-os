@@ -146,7 +146,7 @@ export async function getPublishedItems({
   if (status && status !== 'all') {
     query = query.eq('status', status);
   } else {
-    query = query.in('status', ['published', 'requested', 'completed']);
+    query = query.in('status', ['published', 'requested', 'reserved', 'collected', 'completed']);
   }
 
   if (category && category !== 'all') query = query.eq('category', category);

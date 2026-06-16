@@ -3238,7 +3238,7 @@ export async function deleteFadlaItemAction(formData: FormData) {
 
 export async function requestFadlaItemAction(
   formData: FormData,
-): Promise<{ success: true; requestId: string } | { success: false; error: string }> {
+): Promise<{ success: true; requestId: string; shareStatus: string } | { success: false; error: string }> {
   const locale = normalizeLocale(formData.get('locale'));
   const errorsT = await getTranslations({ locale, namespace: 'Errors' });
   const fadlaT = await getTranslations({ locale, namespace: 'Fadla' });
@@ -3322,12 +3322,12 @@ export async function requestFadlaItemAction(
   });
 
   revalidatePath(toPath(locale, '/fadla'));
-  return { success: true, requestId };
+  return { success: true, requestId, shareStatus: item.status === 'published' ? 'requested' : item.status };
 }
 
 export async function acceptFadlaRequestAction(
   formData: FormData,
-): Promise<{ success: true } | { success: false; error: string }> {
+): Promise<{ success: true; requestId: string; shareId: string; shareStatus: string; acceptedRequestId: string } | { success: false; error: string }> {
   const locale = normalizeLocale(formData.get('locale'));
   const requestId = formData.get('requestId');
   const supabase = await createClient();
@@ -3386,6 +3386,7 @@ export async function acceptFadlaRequestAction(
     .from('community_shares')
     .update({
       accepted_request_id: requestId,
+      status: 'reserved',
       updated_at: now,
     })
     .eq('id', req.share_id);
@@ -3405,12 +3406,12 @@ export async function acceptFadlaRequestAction(
 
   revalidatePath(toPath(locale, '/fadla'));
   revalidatePath(toPath(locale, '/profile'));
-  return { success: true };
+  return { success: true, requestId, shareId: req.share_id, shareStatus: 'reserved', acceptedRequestId: requestId };
 }
 
 export async function confirmFadlaReceivedAction(
   formData: FormData,
-): Promise<{ success: true } | { success: false; error: string }> {
+): Promise<{ success: true; shareId: string; receiverConfirmedAt: string; senderConfirmedAt: string | null; shareStatus: string } | { success: false; error: string }> {
   const locale = normalizeLocale(formData.get('locale'));
   const shareId = formData.get('shareId');
   const supabase = await createClient();
@@ -3501,12 +3502,18 @@ export async function confirmFadlaReceivedAction(
   }
 
   revalidatePath(toPath(locale, '/fadla'));
-  return { success: true };
+  return {
+    success: true,
+    shareId,
+    receiverConfirmedAt: freshShare?.receiver_confirmed_at ?? now,
+    senderConfirmedAt: freshShare?.sender_confirmed_at ?? null,
+    shareStatus: bothConfirmed ? 'completed' : share.status,
+  };
 }
 
 export async function confirmFadlaHandedOverAction(
   formData: FormData,
-): Promise<{ success: true } | { success: false; error: string }> {
+): Promise<{ success: true; shareId: string; senderConfirmedAt: string; receiverConfirmedAt: string | null; shareStatus: string } | { success: false; error: string }> {
   const locale = normalizeLocale(formData.get('locale'));
   const shareId = formData.get('shareId');
   const supabase = await createClient();
@@ -3599,12 +3606,18 @@ export async function confirmFadlaHandedOverAction(
   }
 
   revalidatePath(toPath(locale, '/fadla'));
-  return { success: true };
+  return {
+    success: true,
+    shareId,
+    senderConfirmedAt: freshShare?.sender_confirmed_at ?? now,
+    receiverConfirmedAt: freshShare?.receiver_confirmed_at ?? null,
+    shareStatus: bothConfirmed ? 'completed' : share.status,
+  };
 }
 
 export async function declineFadlaRequestAction(
   formData: FormData,
-): Promise<{ success: true } | { success: false; error: string }> {
+): Promise<{ success: true; requestId: string; shareId: string; shareStatus: string } | { success: false; error: string }> {
   const locale = normalizeLocale(formData.get('locale'));
   const requestId = formData.get('requestId');
   const supabase = await createClient();
@@ -3662,7 +3675,7 @@ export async function declineFadlaRequestAction(
 
   revalidatePath(toPath(locale, '/fadla'));
   revalidatePath(toPath(locale, '/profile'));
-  return { success: true };
+  return { success: true, requestId, shareId: req.share_id, shareStatus: (!remaining || remaining === 0) ? 'published' : 'requested' };
 }
 
 export async function sendFadlaMessageAction(
@@ -3926,7 +3939,7 @@ export async function supportIdeaAction(
 
 export async function requestParticipateAction(
   formData: FormData,
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; participantId?: string; status?: string; error?: string }> {
   const ideaId = formData.get('ideaId');
   const message = formData.get('message');
   const supabase = await createClient();
@@ -3957,12 +3970,12 @@ export async function requestParticipateAction(
     return { success: false, error: 'not_found' };
   }
 
-  const { error } = await supabase.from('idea_participants').insert({
+  const { data: participant, error } = await supabase.from('idea_participants').insert({
     idea_id: ideaId,
     user_id: user.id,
     status: 'pending',
     message: typeof message === 'string' && message.length > 0 ? message.slice(0, 500) : null,
-  });
+  }).select('id, status').single();
 
   if (error) {
     return { success: false, error: error.message };
@@ -3977,12 +3990,12 @@ export async function requestParticipateAction(
     .update({ participants_count: (await getIdeaAcceptedParticipants(ideaId)).length })
     .eq('id', ideaId);
 
-  return { success: true };
+  return { success: true, participantId: participant?.id, status: participant?.status ?? 'pending' };
 }
 
 export async function respondToParticipantAction(
   formData: FormData,
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; status?: string; participantsCount?: number; error?: string }> {
   const participantId = formData.get('participantId');
   const action = formData.get('action'); // "accept" or "decline"
   const supabase = await createClient();
@@ -4030,12 +4043,18 @@ export async function respondToParticipantAction(
     await createIdeaParticipantDeclinedNotification(participant.user_id, user.id, participant.idea_id);
   }
 
-  return { success: true };
+  const acceptedCount = (await getIdeaAcceptedParticipants(participant.idea_id)).length;
+  await supabase
+    .from('ideas')
+    .update({ participants_count: acceptedCount })
+    .eq('id', participant.idea_id);
+
+  return { success: true, status, participantsCount: acceptedCount };
 }
 
 export async function updateIdeaStatusAction(
   formData: FormData,
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; status?: IdeaStatus; error?: string }> {
   const ideaId = formData.get('ideaId');
   const newStatus = formData.get('status');
   const supabase = await createClient();
@@ -4080,7 +4099,7 @@ export async function updateIdeaStatusAction(
     await createIdeaStatusChangeNotification(ideaId, user.id, participantIds, newStatus);
   }
 
-  return { success: true };
+  return { success: true, status: newStatus as IdeaStatus };
 }
 
 export async function getIdeaMessagesAction(
@@ -4147,7 +4166,7 @@ export async function getIdeaParticipationDataAction(
 
 export async function sendIdeaMessageAction(
   formData: FormData,
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; message?: {id: string; created_at: string}; error?: string }> {
   const ideaId = formData.get('ideaId');
   const message = formData.get('message');
   const supabase = await createClient();
@@ -4180,14 +4199,14 @@ export async function sendIdeaMessageAction(
     return { success: false, error: 'unauthorized' };
   }
 
-  const { error } = await supabase.from('idea_messages').insert({
+  const { data: newMessage, error } = await supabase.from('idea_messages').insert({
     idea_id: ideaId,
     sender_id: user.id,
     message: trimmed,
-  });
+  }).select('id, created_at').single();
 
-  if (error) {
-    return { success: false, error: error.message };
+  if (error || !newMessage) {
+    return { success: false, error: error?.message ?? 'insert_failed' };
   }
 
   const acceptedParticipants = await getIdeaAcceptedParticipants(ideaId);
@@ -4195,7 +4214,11 @@ export async function sendIdeaMessageAction(
     .map((p) => p.user?.id)
     .filter((id): id is string => !!id);
 
-  await createIdeaMessageNotification(ideaId, user.id, participantIds);
+  const recipientIds = new Set(participantIds);
+  if (idea.author_id) recipientIds.add(idea.author_id);
+  recipientIds.delete(user.id);
 
-  return { success: true };
+  await createIdeaMessageNotification(ideaId, user.id, [...recipientIds]);
+
+  return { success: true, message: {id: newMessage.id, created_at: newMessage.created_at} };
 }

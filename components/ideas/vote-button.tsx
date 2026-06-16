@@ -2,11 +2,12 @@
 
 import {motion, AnimatePresence} from "framer-motion";
 import {Check, ChevronUp, Flame, Loader2, Sparkles, Star, TrendingUp, Trophy} from "lucide-react";
-import {useLocale, useTranslations} from "next-intl";
+import {useTranslations} from "next-intl";
 import {useEffect, useState} from "react";
 import {toast} from "sonner";
 
 import {voteIdeaAction, getUserVoteAction} from "@/app/[locale]/server-actions";
+import {useRouter} from "@/lib/i18n/routing";
 import {calculateIdeaSupport} from "@/lib/ideas/support";
 import {cn} from "@/lib/utils/cn";
 import type {IdeaBadge} from "@/types/database";
@@ -30,7 +31,7 @@ const badgeConfig: Record<IdeaBadge, {icon: typeof Flame; bg: string; text: stri
 
 export function VoteButton({ideaId, votes: initialVotes, supportPercentage: initialSupport, badge: initialBadge, totalUsers, hideDetails}: VoteButtonProps) {
   const t = useTranslations("Ideas");
-  const locale = useLocale();
+  const router = useRouter();
   const [pending, setPending] = useState(false);
   const [votes, setVotes] = useState(initialVotes);
   const [supportPercentage, setSupportPercentage] = useState(initialSupport);
@@ -83,7 +84,7 @@ export function VoteButton({ideaId, votes: initialVotes, supportPercentage: init
       setSupportPercentage(prevSupport);
       setCurrentBadge(prevBadge);
       if (result.error === "unauthorized") {
-        window.location.href = `/${locale}/login?next=/ideas`;
+        router.push(`/login?next=${encodeURIComponent("/ideas")}`);
         return;
       }
       toast.error(t("voteFailed") ?? "Vote failed");

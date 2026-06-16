@@ -63,6 +63,7 @@ export function IdeaDiscussion({ideaId, currentUserId, currentUserName, locale, 
   const channelRef = useRef<RealtimeChannel | null>(null);
   const typingTimeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const lastTypingBroadcastRef = useRef(0);
+  const senderNameCacheRef = useRef<Map<string, string>>(new Map());
 
   useEffect(() => {
     if (isNearBottomRef.current) {
@@ -87,6 +88,21 @@ export function IdeaDiscussion({ideaId, currentUserId, currentUserName, locale, 
     const typingTimeouts = typingTimeoutsRef.current;
     channelRef.current = channel;
 
+    async function getSenderName(senderId: string) {
+      const cached = senderNameCacheRef.current.get(senderId);
+      if (cached) return cached;
+
+      const {data} = await supabase
+        .from("profiles")
+        .select("full_name, username")
+        .eq("id", senderId)
+        .maybeSingle();
+
+      const senderName = data?.full_name ?? data?.username ?? t("someone");
+      senderNameCacheRef.current.set(senderId, senderName);
+      return senderName;
+    }
+
     function clearTypingUser(userId: string) {
       const timeout = typingTimeouts.get(userId);
       if (timeout) clearTimeout(timeout);
@@ -100,16 +116,22 @@ export function IdeaDiscussion({ideaId, currentUserId, currentUserName, locale, 
         schema: "public",
         table: "idea_messages",
         filter: `idea_id=eq.${ideaId}`,
-      }, (payload) => {
+      }, async (payload) => {
         const newMsg = payload.new as IdeaMessageRow;
         if (newMsg.sender_id !== currentUserId) {
+          const senderName = await getSenderName(newMsg.sender_id);
           clearTypingUser(newMsg.sender_id);
-          setMessages((prev) => [...prev, {
-            id: newMsg.id,
-            sender_id: newMsg.sender_id,
-            message: newMsg.message,
-            created_at: newMsg.created_at,
-          }]);
+          setMessages((prev) =>
+            prev.some((msg) => msg.id === newMsg.id)
+              ? prev
+              : [...prev, {
+                  id: newMsg.id,
+                  sender_id: newMsg.sender_id,
+                  sender_name: senderName,
+                  message: newMsg.message,
+                  created_at: newMsg.created_at,
+                }],
+          );
         }
       })
       .on("broadcast", {event: "typing"}, (payload) => {
@@ -154,7 +176,14 @@ export function IdeaDiscussion({ideaId, currentUserId, currentUserName, locale, 
     const optimisticId = `opt-${Date.now()}`;
     setMessages((prev) => [
       ...prev,
-      {id: optimisticId, sender_id: currentUserId, message: trimmed, created_at: new Date().toISOString(), pending: true},
+      {
+        id: optimisticId,
+        sender_id: currentUserId,
+        sender_name: currentUserName ?? undefined,
+        message: trimmed,
+        created_at: new Date().toISOString(),
+        pending: true,
+      },
     ]);
     setInput("");
 
@@ -166,7 +195,16 @@ export function IdeaDiscussion({ideaId, currentUserId, currentUserName, locale, 
 
     if (result.success) {
       setMessages((prev) =>
-        prev.map((m) => (m.id === optimisticId ? {...m, pending: false} : m)),
+        prev.map((m) =>
+          m.id === optimisticId
+            ? {
+                ...m,
+                id: result.message?.id ?? m.id,
+                created_at: result.message?.created_at ?? m.created_at,
+                pending: false,
+              }
+            : m,
+        ),
       );
     } else {
       setMessages((prev) => prev.filter((m) => m.id !== optimisticId));

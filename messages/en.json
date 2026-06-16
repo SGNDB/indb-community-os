@@ -1227,6 +1227,8 @@
     "status": {
       "published": "Available",
       "requested": "Requested",
+      "reserved": "Reserved",
+      "collected": "Collected",
       "completed": "Completed"
     },
     "actions": {

@@ -3,7 +3,7 @@
 import {Gift, HandHeart, Loader2, Plus, Search, Sparkles, X} from "lucide-react";
 import {useTranslations} from "next-intl";
 import type {FormEvent} from "react";
-import {useMemo, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {toast} from "sonner";
 
 import {submitFadlaItemAction, updateFadlaItemAction} from "@/app/[locale]/server-actions";
@@ -13,6 +13,7 @@ import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
 import {useRouter} from "@/lib/i18n/routing";
+import {createClient} from "@/lib/supabase/client";
 import type {FadlaCategory, FadlaWithOwner} from "@/types/database";
 
 const FADLA_CATEGORIES: FadlaCategory[] = [
@@ -77,7 +78,6 @@ function ItemForm({
       if (!result.success) { toast.error(result.error || t("errors.saveFailed")); return; }
       toast.success(initialItem ? t("toasts.updated") : t("toasts.created"));
       onDone();
-      router.refresh();
       router.push(initialItem ? "/fadla?shareUpdated=1" : "/fadla?shareCreated=1");
     } catch {
       toast.error(t("errors.saveFailed"));
@@ -159,10 +159,73 @@ export function FadlaClient({
   const [category, setCategory] = useState<FadlaCategory | "all">("all");
   const [urgency, setUrgency] = useState<string>("all");
   const [status, setStatus] = useState<string>("all");
+  const [liveItems, setLiveItems] = useState<FadlaWithOwner[]>(items);
+
+  useEffect(() => {
+    setLiveItems(items);
+  }, [items]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase.channel("fadla-list-realtime");
+
+    async function fetchAndUpsertItem(itemId: string) {
+      const {data} = await supabase
+        .from("community_shares")
+        .select("*, owner:profiles!community_shares_owner_id_fkey(id, username, full_name, avatar_url)")
+        .eq("id", itemId)
+        .maybeSingle();
+
+      if (!data) {
+        setLiveItems((prev) => prev.filter((item) => item.id !== itemId));
+        return;
+      }
+
+      const nextItem = data as unknown as FadlaWithOwner;
+
+      setLiveItems((prev) => {
+        const existingItem = prev.find((item) => item.id === itemId);
+        return existingItem
+          ? prev.map((item) => (item.id === itemId ? {...item, ...nextItem, requests: item.requests} : item))
+          : [nextItem, ...prev];
+      });
+    }
+
+    channel
+      .on("postgres_changes", {
+        event: "INSERT",
+        schema: "public",
+        table: "community_shares",
+      }, (payload) => {
+        const row = payload.new as {id?: string};
+        if (row.id) void fetchAndUpsertItem(row.id);
+      })
+      .on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "community_shares",
+      }, (payload) => {
+        const row = payload.new as {id?: string};
+        if (row.id) void fetchAndUpsertItem(row.id);
+      })
+      .on("postgres_changes", {
+        event: "DELETE",
+        schema: "public",
+        table: "community_shares",
+      }, (payload) => {
+        const row = payload.old as {id?: string};
+        if (row.id) setLiveItems((prev) => prev.filter((item) => item.id !== row.id));
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const filteredItems = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    return items.filter((item) => {
+    return liveItems.filter((item) => {
       if (category !== "all" && item.category !== category) return false;
       if (urgency !== "all" && item.urgency_level !== urgency) return false;
       if (status !== "all" && item.status !== status) return false;
@@ -171,7 +234,7 @@ export function FadlaClient({
         .filter(Boolean)
         .some((value) => value?.toLowerCase().includes(normalized));
     });
-  }, [category, urgency, status, query, items]);
+  }, [category, urgency, status, query, liveItems]);
 
   function openCreate() { setEditingItem(null); setOpen(true); }
   function openEdit(item: FadlaWithOwner) { setEditingItem(item); setOpen(true); }
@@ -225,7 +288,7 @@ export function FadlaClient({
         </select>
         <select value={status} onChange={(e) => setStatus(e.target.value)} className="h-12 rounded-full border border-border bg-card px-4 text-sm">
           <option value="all">{t("allStatus")}</option>
-          {["published", "requested", "completed"].map((s) => (
+          {["published", "requested", "reserved", "collected", "completed"].map((s) => (
             <option key={s} value={s}>{t(`status.${s}`)}</option>
           ))}
         </select>

@@ -32,10 +32,9 @@ import { UserAvatar } from '@/components/layout/user-avatar';
 import { MediaCarousel } from '@/components/media/media-carousel';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useRouter } from '@/lib/i18n/routing';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils/cn';
-import type { FadlaRequestMessageWithSender, FadlaWithOwner } from '@/types/database';
+import type { FadlaRequestMessageWithSender, FadlaRequestWithRequester, FadlaStatus, FadlaWithOwner } from '@/types/database';
 
 const CATEGORY_EMOJI: Record<string, string> = {
   food: '🍲',
@@ -55,8 +54,14 @@ const STATUS_STYLE: Record<string, string> = {
     'bg-gray-50 text-gray-700 border-gray-300 dark:bg-gray-800/50 dark:text-gray-300 dark:border-gray-600',
   requested:
     'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-800/50',
+  reserved:
+    'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-800/50',
+  collected:
+    'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-800/50',
   completed:
     'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/30 dark:text-green-300 dark:border-green-800/50',
+  archived:
+    'bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700',
 };
 
 const REQUEST_STATUS_STYLE: Record<string, string> = {
@@ -84,7 +89,6 @@ export function FadlaCard({
   currentUserId,
   locale,
   onEdit,
-  compact: _compact,
 }: {
   item: FadlaWithOwner;
   currentUserId?: string | null;
@@ -94,11 +98,12 @@ export function FadlaCard({
 }) {
   const t = useTranslations('Fadla');
   const feed = useTranslations('Feed');
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [highlight, setHighlight] = useState(false);
   const [sharesCount, setSharesCount] = useState(item.shares_count ?? 0);
+  const [requests, setRequests] = useState<FadlaRequestWithRequester[]>(item.requests ?? []);
+  const [acceptedRequestId, setAcceptedRequestId] = useState<string | null>(item.accepted_request_id);
   const [requestState, setRequestState] = useState<'idle' | 'loading' | 'requested'>(
     item.requested_by_current_user ? 'requested' : 'idle',
   );
@@ -107,8 +112,27 @@ export function FadlaCard({
   const [showRequests, setShowRequests] = useState(false);
   const [liveSenderConfirmedAt, setLiveSenderConfirmedAt] = useState<string | null>(item.sender_confirmed_at);
   const [liveReceiverConfirmedAt, setLiveReceiverConfirmedAt] = useState<string | null>(item.receiver_confirmed_at);
-  const [liveStatus, setLiveStatus] = useState(item.status);
+  const [liveStatus, setLiveStatus] = useState<FadlaStatus>(item.status);
   const articleRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    setSharesCount(item.shares_count ?? 0);
+    setRequests(item.requests ?? []);
+    setAcceptedRequestId(item.accepted_request_id);
+    setLiveSenderConfirmedAt(item.sender_confirmed_at);
+    setLiveReceiverConfirmedAt(item.receiver_confirmed_at);
+    setLiveStatus(item.status);
+    setRequestState(item.requested_by_current_user ? 'requested' : 'idle');
+  }, [
+    item.accepted_request_id,
+    item.id,
+    item.receiver_confirmed_at,
+    item.requests,
+    item.requested_by_current_user,
+    item.sender_confirmed_at,
+    item.shares_count,
+    item.status,
+  ]);
 
   useEffect(() => {
     const targetItem = searchParams.get('item');
@@ -139,49 +163,99 @@ export function FadlaCard({
       { month: 'short', day: 'numeric' },
     );
 
-  const pendingRequests = (item.requests ?? []).filter((request) => request.status === 'pending');
+  const pendingRequests = requests.filter((request) => request.status === 'pending');
   const acceptedRequest =
-    (item.requests ?? []).find((request) => request.status === 'accepted') ?? null;
+    requests.find((request) => request.status === 'accepted') ??
+    (acceptedRequestId ? requests.find((request) => request.id === acceptedRequestId) : null) ??
+    null;
   const acceptedRequesterName =
     acceptedRequest?.requester?.full_name ??
     acceptedRequest?.requester?.username ??
     t('unknownOwner');
   const isRecipient = acceptedRequest?.requester_id === currentUserId;
   const isRequestLoading = requestState === 'loading';
-  const hasRequestSent = requestState === 'requested' || Boolean(item.requested_by_current_user);
+  const currentUserRequest = requests.find((request) => request.requester_id === currentUserId);
+  const hasRequestSent =
+    requestState === 'requested' ||
+    Boolean(item.requested_by_current_user) ||
+    currentUserRequest?.status === 'pending' ||
+    currentUserRequest?.status === 'accepted';
 
   const canRequest =
-    (item.status === 'published' || item.status === 'requested') && !isOwner && !hasRequestSent;
+    (liveStatus === 'published' || liveStatus === 'requested') && !isOwner && !hasRequestSent;
   const requestSent = !isOwner && hasRequestSent;
-  const ownerCanViewRequests = isOwner && item.status === 'requested' && pendingRequests.length > 0;
+  const ownerCanViewRequests = isOwner && pendingRequests.length > 0;
   const ownerCanManageRequests =
     isOwner &&
     pendingRequests.length > 0 &&
-    (item.status === 'published' || item.status === 'requested');
+    (liveStatus === 'published' || liveStatus === 'requested');
 
-  const acceptedRequestId = acceptedRequest?.id ?? null;
+  const activeAcceptedRequestId = acceptedRequest?.id ?? null;
   const [discussionMessages, setDiscussionMessages] = useState<FadlaRequestMessageWithSender[]>([]);
   const [discussionLoading, setDiscussionLoading] = useState(false);
 
   useEffect(() => {
-    if (!acceptedRequestId) return;
+    if (!activeAcceptedRequestId) return;
     setDiscussionLoading(true);
     const supabase = createClient();
     supabase
       .from('fadla_request_messages')
       .select('*, sender:sender_id(id, username, full_name, avatar_url)')
-      .eq('request_id', acceptedRequestId)
+      .eq('request_id', activeAcceptedRequestId)
       .order('created_at', {ascending: true})
       .then(({data}) => {
         if (data) setDiscussionMessages(data);
         setDiscussionLoading(false);
       });
-  }, [acceptedRequestId]);
+  }, [activeAcceptedRequestId]);
 
   useEffect(() => {
     if (!currentUserId) return;
     const supabase = createClient();
     const channel = supabase.channel(`fadla-card-${item.id}`);
+
+    function upsertRequest(request: FadlaRequestWithRequester) {
+      setRequests((prev) => {
+        const exists = prev.some((item) => item.id === request.id);
+        return exists
+          ? prev.map((item) => (item.id === request.id ? {...item, ...request} : item))
+          : [...prev, request].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      });
+
+      if (request.status === 'accepted') {
+        setAcceptedRequestId(request.id);
+        setLiveStatus((status) => (status === 'completed' ? status : 'reserved'));
+      }
+
+      if (request.requester_id === currentUserId) {
+        setRequestState(request.status === 'pending' || request.status === 'accepted' ? 'requested' : 'idle');
+      }
+    }
+
+    async function fetchAndUpsertRequest(requestId: string, fallback?: Partial<FadlaRequestWithRequester>) {
+      const {data} = await supabase
+        .from('community_share_requests')
+        .select('*, requester:profiles!community_share_requests_requester_id_fkey(id, username, full_name, avatar_url)')
+        .eq('id', requestId)
+        .maybeSingle();
+
+      if (data) {
+        upsertRequest(data as unknown as FadlaRequestWithRequester);
+      } else if (fallback?.id && fallback.share_id && fallback.requester_id && fallback.status) {
+        upsertRequest({
+          id: fallback.id,
+          share_id: fallback.share_id,
+          requester_id: fallback.requester_id,
+          message: fallback.message ?? null,
+          status: fallback.status,
+          collected_at: fallback.collected_at ?? null,
+          handed_over_at: fallback.handed_over_at ?? null,
+          created_at: fallback.created_at ?? new Date().toISOString(),
+          updated_at: fallback.updated_at ?? new Date().toISOString(),
+          requester: fallback.requester ?? null,
+        } as FadlaRequestWithRequester);
+      }
+    }
 
     channel
       .on("postgres_changes", {
@@ -190,28 +264,47 @@ export function FadlaCard({
         table: "community_shares",
         filter: `id=eq.${item.id}`,
       }, (payload) => {
-        const updated = payload.new as { status?: string; sender_confirmed_at?: string | null; receiver_confirmed_at?: string | null };
+        const updated = payload.new as {
+          status?: FadlaStatus;
+          sender_confirmed_at?: string | null;
+          receiver_confirmed_at?: string | null;
+          accepted_request_id?: string | null;
+          shares_count?: number;
+        };
         if (updated.sender_confirmed_at !== undefined) setLiveSenderConfirmedAt(updated.sender_confirmed_at);
         if (updated.receiver_confirmed_at !== undefined) setLiveReceiverConfirmedAt(updated.receiver_confirmed_at);
-        if (updated.status) setLiveStatus(updated.status as typeof liveStatus);
-        router.refresh();
+        if (updated.accepted_request_id !== undefined) setAcceptedRequestId(updated.accepted_request_id);
+        if (typeof updated.shares_count === 'number') setSharesCount(updated.shares_count);
+        if (updated.status) setLiveStatus(updated.status);
       })
       .on("postgres_changes", {
         event: "*",
         schema: "public",
         table: "community_share_requests",
         filter: `share_id=eq.${item.id}`,
-      }, () => {
-        router.refresh();
+      }, (payload) => {
+        const eventType = payload.eventType;
+        const newRow = payload.new as Partial<FadlaRequestWithRequester> | null;
+        const oldRow = payload.old as Partial<FadlaRequestWithRequester> | null;
+        const row = newRow ?? oldRow;
+        if (!row?.id) return;
+
+        if (eventType === 'DELETE') {
+          setRequests((prev) => prev.filter((request) => request.id !== row.id));
+          return;
+        }
+
+        void fetchAndUpsertRequest(row.id, row);
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [item.id, currentUserId, router]);
+  }, [item.id, currentUserId]);
 
   async function handleRequest() {
     if (!canRequest) return;
     setRequestState('loading');
+    const previousStatus = liveStatus;
     const formData = new FormData();
     formData.set('locale', locale);
     formData.set('shareId', item.id);
@@ -219,24 +312,44 @@ export function FadlaCard({
     if (result.success) {
       toast.success(t('toasts.requested'));
       setRequestState('requested');
+      setLiveStatus(result.shareStatus as FadlaStatus);
     } else {
       toast.error(result.error);
       setRequestState('idle');
+      setLiveStatus(previousStatus);
     }
   }
 
   async function handleAccept(requestId: string) {
     if (actionLoading) return;
     setActionLoading(`accept-${requestId}`);
+    const previousRequests = requests;
+    const previousStatus = liveStatus;
+    const previousAcceptedRequestId = acceptedRequestId;
+    setRequests((prev) =>
+      prev.map((request) =>
+        request.id === requestId
+          ? {...request, status: 'accepted' as const, updated_at: new Date().toISOString()}
+          : request.status === 'pending'
+            ? {...request, status: 'declined' as const, updated_at: new Date().toISOString()}
+            : request,
+      ),
+    );
+    setAcceptedRequestId(requestId);
+    setLiveStatus('reserved');
     const formData = new FormData();
     formData.set('locale', locale);
     formData.set('requestId', requestId);
     const result = await acceptFadlaRequestAction(formData);
     if (result.success) {
       toast.success(t('toasts.accepted'));
-      router.refresh();
+      setAcceptedRequestId(result.acceptedRequestId);
+      setLiveStatus(result.shareStatus as FadlaStatus);
     } else {
       toast.error(result.error);
+      setRequests(previousRequests);
+      setLiveStatus(previousStatus);
+      setAcceptedRequestId(previousAcceptedRequestId);
     }
     setActionLoading(null);
   }
@@ -244,15 +357,26 @@ export function FadlaCard({
   async function handleDecline(requestId: string) {
     if (actionLoading) return;
     setActionLoading(`decline-${requestId}`);
+    const previousRequests = requests;
+    const previousStatus = liveStatus;
+    setRequests((prev) =>
+      prev.map((request) =>
+        request.id === requestId
+          ? {...request, status: 'declined' as const, updated_at: new Date().toISOString()}
+          : request,
+      ),
+    );
     const formData = new FormData();
     formData.set('locale', locale);
     formData.set('requestId', requestId);
     const result = await declineFadlaRequestAction(formData);
     if (result.success) {
       toast.success(t('toasts.declined'));
-      router.refresh();
+      setLiveStatus(result.shareStatus as FadlaStatus);
     } else {
       toast.error(result.error);
+      setRequests(previousRequests);
+      setLiveStatus(previousStatus);
     }
     setActionLoading(null);
   }
@@ -260,15 +384,24 @@ export function FadlaCard({
   async function handleConfirmReceived() {
     if (confirmActionLoading) return;
     setConfirmActionLoading(true);
+    const previousReceiverConfirmedAt = liveReceiverConfirmedAt;
+    const previousStatus = liveStatus;
+    const now = new Date().toISOString();
+    setLiveReceiverConfirmedAt(now);
+    if (liveSenderConfirmedAt) setLiveStatus('completed');
     const formData = new FormData();
     formData.set('locale', locale);
     formData.set('shareId', item.id);
     const result = await confirmFadlaReceivedAction(formData);
     if (result.success) {
       toast.success(t('toasts.confirmed'));
-      router.refresh();
+      setLiveReceiverConfirmedAt(result.receiverConfirmedAt);
+      setLiveSenderConfirmedAt(result.senderConfirmedAt);
+      setLiveStatus(result.shareStatus as FadlaStatus);
     } else {
       toast.error(result.error);
+      setLiveReceiverConfirmedAt(previousReceiverConfirmedAt);
+      setLiveStatus(previousStatus);
     }
     setConfirmActionLoading(false);
   }
@@ -276,15 +409,24 @@ export function FadlaCard({
   async function handleConfirmHandedOver() {
     if (confirmActionLoading) return;
     setConfirmActionLoading(true);
+    const previousSenderConfirmedAt = liveSenderConfirmedAt;
+    const previousStatus = liveStatus;
+    const now = new Date().toISOString();
+    setLiveSenderConfirmedAt(now);
+    if (liveReceiverConfirmedAt) setLiveStatus('completed');
     const formData = new FormData();
     formData.set('locale', locale);
     formData.set('shareId', item.id);
     const result = await confirmFadlaHandedOverAction(formData);
     if (result.success) {
       toast.success(t('toasts.confirmed'));
-      router.refresh();
+      setLiveSenderConfirmedAt(result.senderConfirmedAt);
+      setLiveReceiverConfirmedAt(result.receiverConfirmedAt);
+      setLiveStatus(result.shareStatus as FadlaStatus);
     } else {
       toast.error(result.error);
+      setLiveSenderConfirmedAt(previousSenderConfirmedAt);
+      setLiveStatus(previousStatus);
     }
     setConfirmActionLoading(false);
   }
@@ -558,7 +700,7 @@ export function FadlaCard({
             )}
 
             {/* Edit / Delete (published only) */}
-            {item.status === 'published' && (
+            {liveStatus === 'published' && (
               <div className="flex gap-2">
                 <Button
                   type="button"
@@ -639,12 +781,14 @@ export function FadlaCard({
                 </div>
               ) : (
                 <FadlaDiscussion
+                  key={acceptedRequest.id}
                   requestId={acceptedRequest.id}
                   shareId={item.id}
                   currentUserId={currentUserId}
+                  currentUserName={isOwner ? ownerName : acceptedRequesterName}
                   locale={locale}
                   initialMessages={discussionMessages}
-                  status={item.status}
+                  status={liveStatus}
                 />
               )}
             </div>

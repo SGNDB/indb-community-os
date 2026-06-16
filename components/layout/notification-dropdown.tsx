@@ -180,6 +180,23 @@ export function NotificationDropdown({
       if (!cancelled) setUnreadCount(count ?? 0);
     }
 
+    async function fetchNotification(notificationId: string) {
+      const {data} = await supabase
+        .from("notifications")
+        .select("*, actor:profiles!actor_id(id, username, full_name, avatar_url)")
+        .eq("id", notificationId)
+        .single();
+
+      return data as unknown as NotificationWithActor | null;
+    }
+
+    function upsertNotification(notification: NotificationWithActor) {
+      setNotifications((prev) => {
+        const withoutCurrent = prev.filter((item) => item.id !== notification.id);
+        return [notification, ...withoutCurrent].slice(0, PAGE_SIZE);
+      });
+    }
+
     async function setupRealtime() {
       const {data: {user}} = await supabase.auth.getUser();
       if (!user || cancelled) return;
@@ -189,24 +206,29 @@ export function NotificationDropdown({
         .on(
           "postgres_changes",
           {
-            event: "INSERT",
+            event: "*",
             schema: "public",
             table: "notifications",
             filter: `user_id=eq.${user.id}`,
           },
           async (payload) => {
-            if (openRef.current) {
-              const {data} = await supabase
-                .from("notifications")
-                .select("*, actor:profiles!actor_id(id, username, full_name, avatar_url)")
-                .eq("id", payload.new.id)
-                .single();
-
-              if (data) {
-                setNotifications((prev) => [data as unknown as NotificationWithActor, ...prev].slice(0, PAGE_SIZE));
+            if (payload.eventType === "DELETE") {
+              const oldRow = payload.old as {id?: string};
+              if (oldRow.id) {
+                setNotifications((prev) => prev.filter((item) => item.id !== oldRow.id));
               }
+              void pollCount();
+              return;
             }
-            setUnreadCount((c) => c + 1);
+
+            const row = payload.new as {id?: string; read?: boolean};
+            if (!row.id) return;
+
+            const notification = await fetchNotification(row.id);
+            if (notification && openRef.current) {
+              upsertNotification(notification);
+            }
+            void pollCount();
           },
         )
         .subscribe();

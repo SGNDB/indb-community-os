@@ -14,6 +14,7 @@ interface Props {
   requestId: string;
   shareId: string;
   currentUserId: string;
+  currentUserName?: string | null;
   locale: string;
   initialMessages: FadlaRequestMessageWithSender[];
   status: string;
@@ -28,7 +29,7 @@ interface DisplayMessage {
   pending?: boolean;
 }
 
-export function FadlaDiscussion({requestId, shareId, currentUserId, locale, initialMessages, status: initialStatus}: Props) {
+export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserName, locale, initialMessages, status: initialStatus}: Props) {
   const t = useTranslations("Fadla.discussion");
   const [messages, setMessages] = useState<DisplayMessage[]>(() =>
     initialMessages.map((m) => ({
@@ -52,6 +53,7 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, locale, init
   const channelRef = useRef<RealtimeChannel | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTypingBroadcastRef = useRef(0);
+  const senderNameCacheRef = useRef<Map<string, string>>(new Map());
 
   useEffect(() => {
     if (isNearBottomRef.current) {
@@ -84,21 +86,42 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, locale, init
     const channel = supabase.channel(`fadla-discussion-${requestId}`);
     channelRef.current = channel;
 
+    async function getSenderName(senderId: string) {
+      const cached = senderNameCacheRef.current.get(senderId);
+      if (cached) return cached;
+
+      const {data} = await supabase
+        .from("profiles")
+        .select("full_name, username")
+        .eq("id", senderId)
+        .maybeSingle();
+
+      const senderName = data?.full_name ?? data?.username ?? "";
+      if (senderName) senderNameCacheRef.current.set(senderId, senderName);
+      return senderName;
+    }
+
     channel
       .on("postgres_changes", {
         event: "INSERT",
         schema: "public",
         table: "fadla_request_messages",
         filter: `request_id=eq.${requestId}`,
-      }, (payload) => {
+      }, async (payload) => {
         const newMsg = payload.new as FadlaRequestMessageRow;
         if (newMsg.sender_id !== currentUserId) {
-          setMessages((prev) => [...prev, {
-            id: newMsg.id,
-            sender_id: newMsg.sender_id,
-            message: newMsg.message,
-            created_at: newMsg.created_at,
-          }]);
+          const senderName = await getSenderName(newMsg.sender_id);
+          setMessages((prev) =>
+            prev.some((msg) => msg.id === newMsg.id)
+              ? prev
+              : [...prev, {
+                  id: newMsg.id,
+                  sender_id: newMsg.sender_id,
+                  sender_name: senderName || undefined,
+                  message: newMsg.message,
+                  created_at: newMsg.created_at,
+                }],
+          );
         }
       })
       .on("postgres_changes", {
@@ -113,7 +136,9 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, locale, init
         }
       })
       .on("broadcast", {event: "typing"}, (payload) => {
-        if (payload.sender_id !== currentUserId) {
+        const eventPayload = payload as {payload?: {sender_id?: string}; sender_id?: string};
+        const senderId = eventPayload.payload?.sender_id ?? eventPayload.sender_id;
+        if (senderId && senderId !== currentUserId) {
           setOtherUserTyping(true);
           if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
           typingTimeoutRef.current = setTimeout(() => setOtherUserTyping(false), 2500);
@@ -138,7 +163,14 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, locale, init
     const optimisticId = `opt-${Date.now()}`;
     setMessages((prev) => [
       ...prev,
-      {id: optimisticId, sender_id: currentUserId, message: trimmed, created_at: new Date().toISOString(), pending: true},
+      {
+        id: optimisticId,
+        sender_id: currentUserId,
+        sender_name: currentUserName ?? undefined,
+        message: trimmed,
+        created_at: new Date().toISOString(),
+        pending: true,
+      },
     ]);
     setInput("");
 

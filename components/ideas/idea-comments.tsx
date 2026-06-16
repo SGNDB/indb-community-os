@@ -21,7 +21,7 @@ import {
 import {TranslateButton} from "@/components/shared/translate-button";
 import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
 import {UserAvatar} from "@/components/layout/user-avatar";
-import {Link} from "@/lib/i18n/routing";
+import {Link, useRouter} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils/cn";
 import type {IdeaCommentWithAuthor} from "@/types/database";
@@ -81,6 +81,7 @@ export function IdeaComments({
 }) {
   const t = useTranslations("Ideas");
   const locale = useLocale();
+  const router = useRouter();
   const LOCALE_TO_CONTENT_LANG: Record<string, ContentLanguage> = {ar:"ar",fr:"fr",wo:"wo",ff:"ff",snk:"snk"};
   const uiLanguage: ContentLanguage = LOCALE_TO_CONTENT_LANG[locale] ?? "en";
   const supabase = useRef(createClient()).current;
@@ -188,7 +189,7 @@ export function IdeaComments({
 
       if (!result.success) {
         if (result.error === "unauthorized") {
-          window.location.href = `/${locale}/login?next=/ideas`;
+          router.push(`/login?next=${encodeURIComponent("/ideas")}`);
           return;
         }
         toast.error(t("commentFailed") ?? "Failed to add comment");

@@ -1233,6 +1233,8 @@
     "status": {
       "published": "متاح",
       "requested": "تم الطلب",
+      "reserved": "محجوز",
+      "collected": "تم الاستلام",
       "completed": "مكتمل"
     },
     "actions": {
