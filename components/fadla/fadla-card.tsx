@@ -629,6 +629,7 @@ export function FadlaCard({
                   currentUserId={currentUserId}
                   locale={locale}
                   initialMessages={discussionMessages}
+                  status={item.status}
                 />
               )}
             </div>

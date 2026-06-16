@@ -291,7 +291,7 @@ export function NotificationDropdown({
         case "community_share": {
           let focusParam = "";
           if (n.type === "fadla_request") focusParam = "&focus=requests";
-          else if (n.type === "fadla_message") focusParam = "&focus=discussion";
+          else if (["fadla_message", "fadla_receiver_confirmed", "fadla_sender_confirmed", "fadla_both_completed", "fadla_completed"].includes(n.type)) focusParam = "&focus=discussion";
           router.push(`/fadla?item=${n.entity_id}&notification=${n.id}${focusParam}#fadla-${n.entity_id}`);
           return;
         }
@@ -362,7 +362,7 @@ export function NotificationDropdown({
     const Icon = getNotificationIcon(n.type);
     const displayName = n.actor?.full_name ?? n.actor?.username ?? t("someone");
 
-    function getMessage() {
+      function getMessage() {
       const actorName = displayName;
       switch (n.type) {
         case "follow":
@@ -380,10 +380,17 @@ export function NotificationDropdown({
         case "community_share_request":
         case "fadla_request":
           return t("fadlaRequested", {actorName});
+        case "fadla_message":
+          return t("fadlaMessage", {actorName});
         case "fadla_completed":
+        case "fadla_both_completed":
           return t("fadlaCompleted", {actorName});
+        case "fadla_receiver_confirmed":
+          return t("fadlaReceiverConfirmed", {actorName});
+        case "fadla_sender_confirmed":
+          return t("fadlaSenderConfirmed", {actorName});
         default:
-          return n.message ?? "";
+          return n.title ?? n.message ?? "";
       }
     }
 

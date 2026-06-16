@@ -333,6 +333,10 @@
     "communityShareRequested": "طلب شخص الاستفادة من العنصر الذي شاركته",
     "fadlaRequested": "طلب {actorName} عنصرًا تشاركه",
     "fadlaCompleted": "أكمل {actorName} عنصر الفظلة الخاص بك",
+    "fadlaMessage": "أرسل لك {actorName} رسالة حول الفظلة",
+    "fadlaReceiverConfirmed": "أكد {actorName} أنه استلم الفظلة",
+    "fadlaSenderConfirmed": "أكد {actorName} أنه سلّم الفظلة",
+    "fadlaBothCompleted": "تم إكمال الفظلة بنجاح",
     "loadMore": "عرض المزيد"
   },
   "RightSidebar": {
@@ -1257,7 +1261,7 @@
     },
     "discussion": {
       "title": "المحادثة",
-      "inputPlaceholder": "اكتب رسالة",
+      "inputPlaceholder": "اكتب رسالة...",
       "send": "إرسال",
       "empty": "لا توجد رسائل بعد. ابدأ المحادثة.",
       "loading": "جارٍ تحميل المحادثة...",
@@ -1266,12 +1270,17 @@
       "sendError": "تعذر إرسال الرسالة",
       "notificationTitle": "رسالة جديدة في الفظلة",
       "withOwner": "المحادثة مع صاحب الفظلة",
-      "withReceiver": "المحادثة مع المستلم"
+      "withReceiver": "المحادثة مع المستلم",
+      "completedTitle": "تم إكمال الفظلة بنجاح",
+      "completedSubtitle": "تم إغلاق المحادثة بعد تأكيد الطرفين.",
+      "viewHistory": "عرض سجل المحادثة",
+      "hideHistory": "إخفاء سجل المحادثة"
     },
     "requestAcceptedBanner": "تم قبول طلبك. يمكنك الآن التواصل لترتيب الاستلام.",
     "notifications": {
       "receiverConfirmed": "قام المستلم بتأكيد استلام الفظلة",
-      "senderConfirmed": "قام صاحب الفظلة بتأكيد التسليم"
+      "senderConfirmed": "قام صاحب الفظلة بتأكيد التسليم",
+      "bothCompleted": "تم إكمال الفظلة بنجاح"
     }
   },
   "Translating": {

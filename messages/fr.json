@@ -332,7 +332,11 @@
     "someone": "Quelqu'un",
     "communityShareRequested": "Quelqu'un souhaite recevoir l'objet que vous avez partage",
     "fadlaRequested": "{actorName} a demande l'objet que vous partagez",
-    "fadlaCompleted": "{actorName} a termine votre objet Fadla",
+    "fadlaCompleted": "{actorName} a terminé votre objet Fadla",
+    "fadlaMessage": "{actorName} vous a envoyé un message à propos de Fadla",
+    "fadlaReceiverConfirmed": "{actorName} a confirmé avoir reçu Fadla",
+    "fadlaSenderConfirmed": "{actorName} a confirmé avoir remis Fadla",
+    "fadlaBothCompleted": "Fadla a été terminée avec succès",
     "loadMore": "Charger plus"
   },
   "RightSidebar": {
@@ -1257,21 +1261,26 @@
     },
     "discussion": {
       "title": "Discussion",
-      "inputPlaceholder": "\u00c9crire un message",
+      "inputPlaceholder": "Écrire un message...",
       "send": "Envoyer",
       "empty": "Aucun message pour l'instant. Lancez la discussion.",
       "loading": "Chargement de la discussion...",
       "error": "Impossible de charger la discussion",
-      "maxLength": "500 caract\u00e8res maximum",
+      "maxLength": "500 caractères maximum",
       "sendError": "Impossible d'envoyer le message",
       "notificationTitle": "Nouveau message sur votre annonce Fadla",
       "withOwner": "Discussion avec le propriétaire",
-      "withReceiver": "Discussion avec le bénéficiaire"
+      "withReceiver": "Discussion avec le bénéficiaire",
+      "completedTitle": "Fadla terminée avec succès",
+      "completedSubtitle": "La discussion a été fermée après confirmation des deux personnes.",
+      "viewHistory": "Afficher l'historique de la discussion",
+      "hideHistory": "Masquer l'historique de la discussion"
     },
     "requestAcceptedBanner": "Votre demande a été acceptée. Vous pouvez maintenant discuter pour organiser la récupération.",
     "notifications": {
       "receiverConfirmed": "Le bénéficiaire a confirmé la réception de Fadla",
-      "senderConfirmed": "Le propriétaire a confirmé la remise de Fadla"
+      "senderConfirmed": "Le propriétaire a confirmé la remise de Fadla",
+      "bothCompleted": "Fadla a été terminée avec succès"
     }
   },
   "Translating": {

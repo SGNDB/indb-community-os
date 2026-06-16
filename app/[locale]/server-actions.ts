@@ -3407,14 +3407,17 @@ export async function confirmFadlaReceivedAction(
     return { success: false, error: fadlaT('errors.actionFailed') };
   }
 
+  const bothConfirmed = !!share.sender_confirmed_at;
+
   // If both confirmed, complete the item
-  if (share.sender_confirmed_at) {
+  if (bothConfirmed) {
     await supabase
       .from('community_shares')
       .update({ status: 'completed', completed_at: now, updated_at: now })
       .eq('id', shareId);
   }
 
+  // Notify receiver that receiver confirmed
   await createNotification({
     userId: share.owner_id,
     actorId: user.id,
@@ -3423,6 +3426,18 @@ export async function confirmFadlaReceivedAction(
     entityId: shareId,
     title: fadlaT('notifications.receiverConfirmed'),
   });
+
+  // If both confirmed, notify both parties
+  if (bothConfirmed) {
+    await createNotification({
+      userId: requestRow.requester_id,
+      actorId: user.id,
+      type: 'fadla_both_completed',
+      entityType: 'community_share',
+      entityId: shareId,
+      title: fadlaT('notifications.bothCompleted'),
+    });
+  }
 
   revalidatePath(toPath(locale, '/fadla'));
   return { success: true };
@@ -3472,30 +3487,44 @@ export async function confirmFadlaHandedOverAction(
     return { success: false, error: fadlaT('errors.actionFailed') };
   }
 
+  const bothConfirmed = !!share.receiver_confirmed_at;
+
   // If both confirmed, complete the item
-  if (share.receiver_confirmed_at) {
+  if (bothConfirmed) {
     await supabase
       .from('community_shares')
       .update({ status: 'completed', completed_at: now, updated_at: now })
       .eq('id', shareId);
-  } else {
-    // Notify receiver that sender confirmed
-    const { data: req } = await supabase
-      .from('community_share_requests')
-      .select('requester_id')
-      .eq('id', share.accepted_request_id)
-      .single();
+  }
 
-    if (req) {
-      await createNotification({
-        userId: req.requester_id,
-        actorId: user.id,
-        type: 'fadla_sender_confirmed',
-        entityType: 'community_share',
-        entityId: shareId,
-        title: fadlaT('notifications.senderConfirmed'),
-      });
-    }
+  // Notify receiver that sender confirmed
+  const { data: req } = await supabase
+    .from('community_share_requests')
+    .select('requester_id')
+    .eq('id', share.accepted_request_id)
+    .single();
+
+  if (req) {
+    await createNotification({
+      userId: req.requester_id,
+      actorId: user.id,
+      type: bothConfirmed ? 'fadla_both_completed' : 'fadla_sender_confirmed',
+      entityType: 'community_share',
+      entityId: shareId,
+      title: bothConfirmed ? fadlaT('notifications.bothCompleted') : fadlaT('notifications.senderConfirmed'),
+    });
+  }
+
+  // If both confirmed, also notify the owner
+  if (bothConfirmed) {
+    await createNotification({
+      userId: share.owner_id,
+      actorId: user.id,
+      type: 'fadla_both_completed',
+      entityType: 'community_share',
+      entityId: shareId,
+      title: fadlaT('notifications.bothCompleted'),
+    });
   }
 
   revalidatePath(toPath(locale, '/fadla'));
@@ -3593,12 +3622,16 @@ export async function sendFadlaMessageAction(
 
   const item = await supabase
     .from('community_shares')
-    .select('owner_id, title, accepted_request_id')
+    .select('owner_id, title, accepted_request_id, status')
     .eq('id', shareId)
     .single()
     .then(r => r.data);
 
   if (!item || item.accepted_request_id !== requestId) {
+    return {success: false, error: 'submitFailed'};
+  }
+
+  if (item.status === 'completed') {
     return {success: false, error: 'submitFailed'};
   }
 
@@ -3631,15 +3664,14 @@ export async function sendFadlaMessageAction(
   }
 
   const otherUserId = isOwner ? requestRow.requester_id : item.owner_id;
-  const fadlaT = await getTranslations({locale, namespace: 'Fadla'});
   await createNotification({
     userId: otherUserId,
     actorId: user.id,
     type: 'fadla_message',
     entityType: 'community_share',
     entityId: shareId,
-    title: fadlaT('discussion.notificationTitle'),
-    metadata: {requestId, message: trimmed.slice(0, 100)},
+    title: 'sent you a message about Fadla',
+    metadata: {requestId, message: trimmed.slice(0, 100), senderId: user.id},
   });
 
   revalidatePath(toPath(locale, '/fadla'));

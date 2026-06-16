@@ -332,6 +332,10 @@
     "communityShareRequested": "Someone requested the item you shared",
     "fadlaRequested": "{actorName} requested an item you shared",
     "fadlaCompleted": "{actorName} completed your Fadla item",
+    "fadlaMessage": "{actorName} sent you a message about Fadla",
+    "fadlaReceiverConfirmed": "{actorName} confirmed they received the item",
+    "fadlaSenderConfirmed": "{actorName} confirmed they handed over the item",
+    "fadlaBothCompleted": "Fadla was completed successfully",
     "someone": "Someone",
     "loadMore": "Load more"
   },
@@ -1251,7 +1255,7 @@
     },
     "discussion": {
       "title": "Discussion",
-      "inputPlaceholder": "Write a message",
+      "inputPlaceholder": "Write a message...",
       "send": "Send",
       "empty": "No messages yet. Start the conversation.",
       "loading": "Loading discussion...",
@@ -1260,12 +1264,17 @@
       "sendError": "Failed to send message",
       "notificationTitle": "New message on your Fadla item",
       "withOwner": "Discussion with owner",
-      "withReceiver": "Discussion with receiver"
+      "withReceiver": "Discussion with receiver",
+      "completedTitle": "Fadla completed successfully",
+      "completedSubtitle": "The discussion was closed after both people confirmed.",
+      "viewHistory": "View conversation history",
+      "hideHistory": "Hide conversation history"
     },
     "requestAcceptedBanner": "Your request was accepted. You can now discuss pickup details.",
     "notifications": {
       "receiverConfirmed": "The recipient confirmed receiving the item",
-      "senderConfirmed": "The owner confirmed handing over the item"
+      "senderConfirmed": "The owner confirmed handing over the item",
+      "bothCompleted": "Fadla was completed successfully"
     }
   },
   "ConfirmDialog": {
