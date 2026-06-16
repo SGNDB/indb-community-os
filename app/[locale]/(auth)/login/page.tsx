@@ -19,7 +19,6 @@ export default async function LoginPage({
       <div className="flex flex-col items-center gap-2 pb-8">
         <Logo size="md" priority />
       </div>
-
       <LoginForm locale={locale} next={next} phone={phone} registered={registered} />
     </div>
   );
