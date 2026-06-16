@@ -3822,7 +3822,6 @@ export async function updateOnboardingProfileAction(
 export async function supportIdeaAction(
   formData: FormData,
 ): Promise<{ success: boolean; supported?: boolean; supportersCount?: number; error?: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
   const ideaId = formData.get('ideaId');
   const supabase = await createClient();
 
@@ -3885,7 +3884,6 @@ export async function supportIdeaAction(
 export async function requestParticipateAction(
   formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
   const ideaId = formData.get('ideaId');
   const message = formData.get('message');
   const supabase = await createClient();
@@ -3942,7 +3940,6 @@ export async function requestParticipateAction(
 export async function respondToParticipantAction(
   formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
   const participantId = formData.get('participantId');
   const action = formData.get('action'); // "accept" or "decline"
   const supabase = await createClient();
@@ -3996,7 +3993,6 @@ export async function respondToParticipantAction(
 export async function updateIdeaStatusAction(
   formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
   const ideaId = formData.get('ideaId');
   const newStatus = formData.get('status');
   const supabase = await createClient();
@@ -4100,7 +4096,6 @@ export async function getIdeaParticipationDataAction(
 export async function sendIdeaMessageAction(
   formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
   const ideaId = formData.get('ideaId');
   const message = formData.get('message');
   const supabase = await createClient();
