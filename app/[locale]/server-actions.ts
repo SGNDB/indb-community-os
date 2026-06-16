@@ -3875,8 +3875,6 @@ export async function supportIdeaAction(
     }
   }
 
-  revalidatePath(toPath(locale, '/ideas'));
-
   return {
     success: true,
     supported: !existing,
@@ -3938,8 +3936,6 @@ export async function requestParticipateAction(
     .update({ participants_count: (await getIdeaAcceptedParticipants(ideaId)).length })
     .eq('id', ideaId);
 
-  revalidatePath(toPath(locale, `/ideas/${ideaId}`));
-
   return { success: true };
 }
 
@@ -3994,9 +3990,6 @@ export async function respondToParticipantAction(
     await createIdeaParticipantDeclinedNotification(participant.user_id, user.id, participant.idea_id);
   }
 
-  revalidatePath(toPath(locale, `/ideas/${participant.idea_id}`));
-  revalidatePath(toPath(locale, '/ideas'));
-
   return { success: true };
 }
 
@@ -4047,9 +4040,6 @@ export async function updateIdeaStatusAction(
   if (participantIds.length > 0) {
     await createIdeaStatusChangeNotification(ideaId, user.id, participantIds, newStatus);
   }
-
-  revalidatePath(toPath(locale, `/ideas/${ideaId}`));
-  revalidatePath(toPath(locale, '/ideas'));
 
   return { success: true };
 }
@@ -4159,8 +4149,6 @@ export async function sendIdeaMessageAction(
     .filter((id): id is string => !!id);
 
   await createIdeaMessageNotification(ideaId, user.id, participantIds);
-
-  revalidatePath(toPath(locale, `/ideas/${ideaId}`));
 
   return { success: true };
 }
