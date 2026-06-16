@@ -419,6 +419,7 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
                   type="button"
                   onClick={async (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     if (loadingParticipation) return;
                     if (userParticipation?.status === "pending") {
                       toast.info(t("participationPending"));
@@ -432,16 +433,20 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
                       setShowDiscussion((p) => !p);
                       return;
                     }
-                    const f = new FormData();
-                    f.set("locale", locale);
-                    f.set("ideaId", idea.id);
-                    f.set("message", "");
-                    const r = await requestParticipateAction(f);
-                    if (r.success) {
-                      setUserParticipation({status: "pending", message: null});
-                      toast.success(t("participationRequested"));
-                    } else {
-                      toast.error(r.error ?? t("participationError"));
+                    try {
+                      const f = new FormData();
+                      f.set("ideaId", idea.id);
+                      f.set("message", "");
+                      const r = await requestParticipateAction(f);
+                      if (r.success) {
+                        setUserParticipation({status: "pending", message: null});
+                        toast.success(t("participationRequested"));
+                      } else {
+                        toast.error(r.error ?? t("participationError"));
+                      }
+                    } catch (err) {
+                      console.error("participate error", err);
+                      toast.error(t("participationError"));
                     }
                   }}
                   className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-border/60 px-4 py-2.5 text-sm transition hover:bg-muted hover:text-foreground"
