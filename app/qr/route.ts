@@ -1,16 +1,23 @@
-import {cookies} from "next/headers";
-
-import {routing} from "@/lib/i18n/routing";
-
 export async function GET() {
-  const cookieStore = await cookies();
-  cookieStore.set("qr_ref", "1", {
-    path: "/",
-    maxAge: 86400,
-    httpOnly: false,
-    sameSite: "lax",
-  });
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<script>
+(function(){
+  document.cookie="qr_ref=1;path=/;max-age=86400;samesite=lax";
+  try{localStorage.setItem("theme","light")}catch(e){}
+  document.documentElement.style.colorScheme="light";
+  location.replace("/ar");
+})();
+<\/script>
+</head>
+<body></body>
+</html>`;
 
-  const url = new URL(`/${routing.defaultLocale}`, process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000");
-  return Response.redirect(url, 307);
+  return new Response(html, {
+    status: 200,
+    headers: {"content-type": "text/html"},
+  });
 }

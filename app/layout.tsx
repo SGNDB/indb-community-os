@@ -79,7 +79,7 @@ export default async function RootLayout({
 )}
 {isQrVisitor && (
   <script dangerouslySetInnerHTML={{
-    __html: `(function(){try{localStorage.setItem("theme","light")}catch(e){}document.documentElement.classList.remove("dark")})()`,
+    __html: `(function(){try{localStorage.setItem("theme","light")}catch(e){}document.documentElement.classList.remove("dark");var o=new MutationObserver(function(){if(document.documentElement.classList.contains("dark"))document.documentElement.classList.remove("dark")});o.observe(document.documentElement,{attributes:true,attributeFilter:["class"]})})()`,
   }} />
 )}
         {children}

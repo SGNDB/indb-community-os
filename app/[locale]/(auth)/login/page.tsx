@@ -15,8 +15,8 @@ export default async function LoginPage({
   const registered = sp.registered === "1";
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-5 py-8">
-      <div className="flex flex-col items-center gap-2 pb-8">
+    <div className="mx-auto flex min-h-dvh max-h-dvh max-w-sm flex-col justify-center overflow-y-auto px-5 py-4">
+      <div className="flex flex-col items-center gap-1 pb-4">
         <Logo size="md" priority />
       </div>
       <LoginForm locale={locale} next={next} phone={phone} registered={registered} />
