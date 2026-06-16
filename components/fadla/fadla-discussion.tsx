@@ -2,7 +2,8 @@
 
 import {AlertCircle, Check, ChevronDown, ChevronUp, Loader2, Send} from "lucide-react";
 import {useTranslations} from "next-intl";
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
+import type {RealtimeChannel} from "@supabase/supabase-js";
 
 import {sendFadlaMessageAction} from "@/app/[locale]/server-actions";
 import {Button} from "@/components/ui/button";
@@ -43,10 +44,14 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, locale, init
   const [error, setError] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [isCompleted, setIsCompleted] = useState(initialStatus === "completed");
+  const [otherUserTyping, setOtherUserTyping] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isNearBottomRef = useRef(true);
+  const channelRef = useRef<RealtimeChannel | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTypingBroadcastRef = useRef(0);
 
   useEffect(() => {
     if (isNearBottomRef.current) {
@@ -77,6 +82,7 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, locale, init
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase.channel(`fadla-discussion-${requestId}`);
+    channelRef.current = channel;
 
     channel
       .on("postgres_changes", {
@@ -106,9 +112,20 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, locale, init
           setIsCompleted(true);
         }
       })
+      .on("broadcast", {event: "typing"}, (payload) => {
+        if (payload.sender_id !== currentUserId) {
+          setOtherUserTyping(true);
+          if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+          typingTimeoutRef.current = setTimeout(() => setOtherUserTyping(false), 2500);
+        }
+      })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      supabase.removeChannel(channel);
+      channelRef.current = null;
+    };
   }, [requestId, shareId, currentUserId]);
 
   async function handleSend() {
@@ -143,6 +160,25 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, locale, init
     }
     setSending(false);
     inputRef.current?.focus();
+  }
+
+  const broadcastTyping = useCallback(() => {
+    const now = Date.now();
+    if (now - lastTypingBroadcastRef.current > 1500) {
+      lastTypingBroadcastRef.current = now;
+      channelRef.current?.send({
+        type: "broadcast",
+        event: "typing",
+        payload: {sender_id: currentUserId},
+      });
+    }
+  }, [currentUserId]);
+
+  function handleInputChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setInput(e.target.value);
+    if (!isCompleted && e.target.value) {
+      broadcastTyping();
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -266,12 +302,23 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, locale, init
         </p>
       )}
 
+      {otherUserTyping && !isCompleted && (
+        <div className="mb-2 flex items-center gap-1.5 text-xs text-muted-foreground" dir={rtl ? "rtl" : "ltr"}>
+          <span className="flex items-center gap-0.5">
+            <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground" style={{animationDelay: "0ms"}} />
+            <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground" style={{animationDelay: "200ms"}} />
+            <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground" style={{animationDelay: "400ms"}} />
+          </span>
+          <span>{rtl ? "يكتب..." : "typing..."}</span>
+        </div>
+      )}
+
       {!isCompleted && (
         <div className="flex items-end gap-2">
           <textarea
             ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder={t("inputPlaceholder")}
             rows={1}
