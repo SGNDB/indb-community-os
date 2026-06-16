@@ -52,7 +52,7 @@ async function hydrateItems(
   for (const req of requests ?? []) {
     countMap.set(req.share_id, (countMap.get(req.share_id) ?? 0) + 1);
     if (currentUserId && req.requester_id === currentUserId) {
-      if (req.status === 'pending') {
+      if (req.status === 'pending' || req.status === 'accepted') {
         requestedByCurrent.add(req.share_id);
       }
       itemsWithParticipant.add(req.share_id);

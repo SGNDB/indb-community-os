@@ -6,7 +6,8 @@ import {useEffect, useRef, useState} from "react";
 
 import {sendFadlaMessageAction} from "@/app/[locale]/server-actions";
 import {Button} from "@/components/ui/button";
-import type {FadlaRequestMessageWithSender} from "@/types/database";
+import {createClient} from "@/lib/supabase/client";
+import type {FadlaRequestMessageRow, FadlaRequestMessageWithSender} from "@/types/database";
 
 interface Props {
   requestId: string;
@@ -38,6 +39,32 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, locale, init
   useEffect(() => {
     bottomRef.current?.scrollIntoView({behavior: "smooth"});
   }, [messages]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase.channel(`fadla-discussion-${requestId}`);
+
+    channel
+      .on("postgres_changes", {
+        event: "INSERT",
+        schema: "public",
+        table: "fadla_request_messages",
+        filter: `request_id=eq.${requestId}`,
+      }, (payload) => {
+        const newMsg = payload.new as FadlaRequestMessageRow;
+        if (newMsg.sender_id !== currentUserId) {
+          setMessages((prev) => [...prev, {
+            id: newMsg.id,
+            sender_id: newMsg.sender_id,
+            message: newMsg.message,
+            created_at: newMsg.created_at,
+          }]);
+        }
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [requestId, currentUserId]);
 
   async function handleSend() {
     const trimmed = input.trim();

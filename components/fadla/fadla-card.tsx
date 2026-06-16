@@ -172,6 +172,33 @@ export function FadlaCard({
       });
   }, [acceptedRequestId]);
 
+  useEffect(() => {
+    if (!currentUserId) return;
+    const supabase = createClient();
+    const channel = supabase.channel(`fadla-card-${item.id}`);
+
+    channel
+      .on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "community_shares",
+        filter: `id=eq.${item.id}`,
+      }, () => {
+        router.refresh();
+      })
+      .on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "community_share_requests",
+        filter: `share_id=eq.${item.id}`,
+      }, () => {
+        router.refresh();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [item.id, currentUserId, router]);
+
   async function handleRequest() {
     if (!canRequest) return;
     setRequestState('loading');
@@ -324,7 +351,7 @@ export function FadlaCard({
             </Button>
           )}
 
-          {!isOwner && requestSent && (
+          {!isOwner && requestSent && !isRecipient && (
             <span className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-[#3b82f6] bg-[#3b82f6] px-4 py-2 text-sm font-medium text-white">
               <Check size={16} />
               {t('requestSent')}
@@ -464,28 +491,6 @@ export function FadlaCard({
               </div>
             )}
 
-            {item.status === 'completed' && acceptedRequest && (isOwner || isRecipient) && currentUserId && (
-              <div id={`discussion-${item.id}`} className="mt-3 border-t border-border/40 pt-3">
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
-                  <MessageCircle size={14} />
-                  <span>{t('discussion.title')}</span>
-                </div>
-                {discussionLoading ? (
-                  <div className="flex items-center justify-center py-6">
-                    <Loader2 size={18} className="animate-spin text-muted-foreground" />
-                  </div>
-                ) : (
-                  <FadlaDiscussion
-                    requestId={acceptedRequest.id}
-                    shareId={item.id}
-                    currentUserId={currentUserId}
-                    locale={locale}
-                    initialMessages={discussionMessages}
-                  />
-                )}
-              </div>
-            )}
-
             {item.status === 'published' && (
               <div className="grid gap-2 sm:grid-cols-2">
                 <Button
@@ -517,6 +522,41 @@ export function FadlaCard({
                 </form>
               </div>
             )}
+          </div>
+        )}
+
+        {acceptedRequest && (isOwner || isRecipient) && currentUserId && (
+          <div className="border-t border-border/60 pt-4">
+            {!isOwner && isRecipient && (
+              <div className="mb-3 rounded-2xl border border-green-200 bg-green-50/70 p-3 text-sm dark:border-green-900/50 dark:bg-green-950/20">
+                <p className="font-semibold text-green-900 dark:text-green-100">
+                  {t('requestAcceptedBanner')}
+                </p>
+              </div>
+            )}
+            <div id={`discussion-${item.id}`}>
+              <div className="mb-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+                <MessageCircle size={14} />
+                <span>
+                  {isOwner
+                    ? t('discussion.withReceiver')
+                    : t('discussion.withOwner')}
+                </span>
+              </div>
+              {discussionLoading ? (
+                <div className="flex items-center justify-center py-6">
+                  <Loader2 size={18} className="animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <FadlaDiscussion
+                  requestId={acceptedRequest.id}
+                  shareId={item.id}
+                  currentUserId={currentUserId}
+                  locale={locale}
+                  initialMessages={discussionMessages}
+                />
+              )}
+            </div>
           </div>
         )}
 

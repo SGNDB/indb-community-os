@@ -1259,8 +1259,11 @@
       "error": "تعذر تحميل المحادثة",
       "maxLength": "الحد الأقصى 500 حرف",
       "sendError": "تعذر إرسال الرسالة",
-      "notificationTitle": "رسالة جديدة في الفظلة"
-    }
+      "notificationTitle": "رسالة جديدة في الفظلة",
+      "withOwner": "المحادثة مع صاحب الفظلة",
+      "withReceiver": "المحادثة مع المستلم"
+    },
+    "requestAcceptedBanner": "تم قبول طلبك. يمكنك الآن التواصل لترتيب الاستلام."
   },
   "Translating": {
     "seeTranslation": "عرض الترجمة",

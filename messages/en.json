@@ -1253,8 +1253,11 @@
       "error": "Failed to load discussion",
       "maxLength": "Maximum 500 characters",
       "sendError": "Failed to send message",
-      "notificationTitle": "New message on your Fadla item"
-    }
+      "notificationTitle": "New message on your Fadla item",
+      "withOwner": "Discussion with owner",
+      "withReceiver": "Discussion with receiver"
+    },
+    "requestAcceptedBanner": "Your request was accepted. You can now discuss pickup details."
   },
   "ConfirmDialog": {
     "title": "Discard changes?",

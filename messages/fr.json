@@ -1259,8 +1259,11 @@
       "error": "Impossible de charger la discussion",
       "maxLength": "500 caract\u00e8res maximum",
       "sendError": "Impossible d'envoyer le message",
-      "notificationTitle": "Nouveau message sur votre annonce Fadla"
-    }
+      "notificationTitle": "Nouveau message sur votre annonce Fadla",
+      "withOwner": "Discussion avec le propriétaire",
+      "withReceiver": "Discussion avec le bénéficiaire"
+    },
+    "requestAcceptedBanner": "Votre demande a été acceptée. Vous pouvez maintenant discuter pour organiser la récupération."
   },
   "Translating": {
     "seeTranslation": "Voir la traduction",
