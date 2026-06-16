@@ -69,19 +69,12 @@ export default async function RootLayout({
     ? requestedLocale
     : routing.defaultLocale;
   const dir = locale === "ar" ? "rtl" : "ltr";
-  const isQrVisitor = cookieStore.get("qr_ref")?.value === "1";
-
   return (
-    <html lang={locale} dir={dir} suppressHydrationWarning data-qr={isQrVisitor ? "1" : undefined}>
+    <html lang={locale} dir={dir} suppressHydrationWarning>
       <body className="antialiased">
-{isQrVisitor && (
-  <script dangerouslySetInnerHTML={{
-    __html: `(function(){try{localStorage.setItem("theme","light")}catch(e){}document.documentElement.classList.remove("dark");var o=new MutationObserver(function(){if(document.documentElement.classList.contains("dark"))document.documentElement.classList.remove("dark")});o.observe(document.documentElement,{attributes:true,attributeFilter:["class"]})})()`,
-  }} />
-)}
-{isQrVisitor && (
-  <style>{`:root[data-qr="1"]{--background:#f5f7fa!important;--foreground:#111827!important;--card:#ffffff!important;--card-elevated:#ffffff!important;--muted:#f8fafc!important;--muted-foreground:#6b7280!important;--border:#e5e7eb!important;color-scheme:light!important}`}</style>
-)}
+<script dangerouslySetInnerHTML={{
+  __html: `(function(){var t;try{t=localStorage.getItem("theme")}catch(e){}var q=document.cookie.indexOf("qr_ref=1")!==-1;if(q||!t){try{localStorage.setItem("theme","light")}catch(e){}}document.documentElement.classList.remove("dark")})()`,
+}} />
         {children}
         <script
           dangerouslySetInnerHTML={{
