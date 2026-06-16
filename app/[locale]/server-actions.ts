@@ -3397,8 +3397,10 @@ export async function confirmFadlaReceivedAction(
   }
 
   const now = new Date().toISOString();
+  const adminClient = createAdminClient();
+  const writeClient = adminClient ?? supabase;
 
-  const { error: updateError } = await supabase
+  const { error: updateError } = await writeClient
     .from('community_shares')
     .update({ receiver_confirmed_at: now, updated_at: now })
     .eq('id', shareId);
@@ -3407,17 +3409,25 @@ export async function confirmFadlaReceivedAction(
     return { success: false, error: fadlaT('errors.actionFailed') };
   }
 
-  const bothConfirmed = !!share.sender_confirmed_at;
+  // Re-read the share to get the latest committed state (race-condition-safe)
+  const readClient = adminClient ?? supabase;
+  const { data: freshShare } = await readClient
+    .from('community_shares')
+    .select('sender_confirmed_at, receiver_confirmed_at')
+    .eq('id', shareId)
+    .single();
+
+  const bothConfirmed = !!freshShare?.sender_confirmed_at && !!freshShare?.receiver_confirmed_at;
 
   // If both confirmed, complete the item
   if (bothConfirmed) {
-    await supabase
+    await writeClient
       .from('community_shares')
       .update({ status: 'completed', completed_at: now, updated_at: now })
       .eq('id', shareId);
   }
 
-  // Notify receiver that receiver confirmed
+  // Notify owner that receiver confirmed
   await createNotification({
     userId: share.owner_id,
     actorId: user.id,
@@ -3477,8 +3487,10 @@ export async function confirmFadlaHandedOverAction(
   }
 
   const now = new Date().toISOString();
+  const adminClient = createAdminClient();
+  const writeClient = adminClient ?? supabase;
 
-  const { error: updateError } = await supabase
+  const { error: updateError } = await writeClient
     .from('community_shares')
     .update({ sender_confirmed_at: now, updated_at: now })
     .eq('id', shareId);
@@ -3487,11 +3499,19 @@ export async function confirmFadlaHandedOverAction(
     return { success: false, error: fadlaT('errors.actionFailed') };
   }
 
-  const bothConfirmed = !!share.receiver_confirmed_at;
+  // Re-read the share to get the latest committed state (race-condition-safe)
+  const readClient = adminClient ?? supabase;
+  const { data: freshShare } = await readClient
+    .from('community_shares')
+    .select('sender_confirmed_at, receiver_confirmed_at')
+    .eq('id', shareId)
+    .single();
+
+  const bothConfirmed = !!freshShare?.sender_confirmed_at && !!freshShare?.receiver_confirmed_at;
 
   // If both confirmed, complete the item
   if (bothConfirmed) {
-    await supabase
+    await writeClient
       .from('community_shares')
       .update({ status: 'completed', completed_at: now, updated_at: now })
       .eq('id', shareId);
