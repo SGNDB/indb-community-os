@@ -390,7 +390,8 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
               ) : null}
               <button
                 type="button"
-                onClick={async () => {
+                onClick={async (e) => {
+                  e.preventDefault();
                   if (loadingSupport || !effectiveCurrentUserId) return;
                   setLoadingSupport(true);
                   const f = new FormData();
@@ -416,7 +417,8 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
               {!isOwner && effectiveCurrentUserId && (
                 <button
                   type="button"
-                  onClick={async () => {
+                  onClick={async (e) => {
+                    e.preventDefault();
                     if (loadingParticipation) return;
                     if (userParticipation?.status === "pending") {
                       toast.info(t("participationPending"));
