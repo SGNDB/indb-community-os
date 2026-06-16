@@ -77,7 +77,8 @@ export default async function LocaleLayout({
   const pathWithoutLocale = stripLocale(pathname);
   const isAdminRoute = pathWithoutLocale === "/admin" || pathWithoutLocale.startsWith("/admin/");
   const isOnboardingRoute = pathWithoutLocale === "/onboarding";
-  const isAuthRoute = pathWithoutLocale === "/login" || pathWithoutLocale === "/register" || pathWithoutLocale === "/forgot-password";
+  const normalizedPath = pathWithoutLocale.replace(/\/+$/, "");
+  const isAuthRoute = normalizedPath === "/login" || normalizedPath === "/register" || normalizedPath === "/forgot-password";
 
   return (
     <ThemeProvider>

@@ -16,7 +16,6 @@ function matchPath(pathname: string, patterns: string[]): boolean {
 
 export default async function middleware(request: NextRequest) {
   const {pathname, searchParams} = request.nextUrl;
-  request.headers.set("x-indb-pathname", pathname);
 
   // QR visitor: force Arabic locale
   const qrRef = request.cookies.get("qr_ref")?.value;
@@ -54,6 +53,7 @@ export default async function middleware(request: NextRequest) {
   const isAuthPage = matchPath(pathWithoutLocale, authPaths);
 
   const response = handleI18nRouting(request);
+  response.headers.set("x-indb-pathname", pathname);
 
   try {
     const env = getSupabaseEnv();
