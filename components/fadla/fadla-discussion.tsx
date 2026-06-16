@@ -218,18 +218,19 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, locale, init
 
   return (
     <div>
+      {/* Messages container — always collapsed when completed (history shown in separate block) */}
       <div
         ref={containerRef}
         className={`mb-3 flex flex-col gap-2 overflow-y-auto rounded-2xl border border-border/60 bg-muted/30 ${
-          isCompleted && !showHistory ? "max-h-0 min-h-0 overflow-hidden border-0 mb-0" : "p-3 max-h-80 min-h-[120px]"
+          isCompleted ? "max-h-0 min-h-0 overflow-hidden border-0 mb-0" : "p-3 max-h-80 min-h-[120px]"
         }`}
         dir={rtl ? "rtl" : "ltr"}
       >
-        {isCompleted && !showHistory ? null : messages.length === 0 && !isCompleted ? (
+        {!isCompleted && messages.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">{t("empty")}</p>
-        ) : (
+        ) : !isCompleted ? (
           renderMessages()
-        )}
+        ) : null}
         <div ref={bottomRef} />
       </div>
 
@@ -295,9 +296,9 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, locale, init
         </p>
       )}
 
+      {/* History shown below the completion banner when user expands it */}
       {isCompleted && showHistory && messages.length > 0 && (
         <div
-          ref={containerRef}
           className="mb-3 flex max-h-80 flex-col gap-2 overflow-y-auto rounded-2xl border border-border/60 bg-muted/30 p-3"
           dir={rtl ? "rtl" : "ltr"}
         >
