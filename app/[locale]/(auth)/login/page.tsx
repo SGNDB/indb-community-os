@@ -21,7 +21,6 @@ export default async function LoginPage({
     <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-5 py-8">
       <div className="flex flex-col items-center gap-2 pb-8">
         <Logo size="md" priority />
-        <p className="text-center text-base text-muted-foreground">{t("welcome")}</p>
       </div>
 
       <LoginForm locale={locale} next={next} phone={phone} registered={registered} />
