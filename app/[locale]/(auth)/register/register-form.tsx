@@ -20,10 +20,16 @@ interface FormErrors {
   general?: string;
 }
 
+const PHONE_PLACEHOLDER: Record<string, string> = {
+  ar: "رقم الهاتف",
+  fr: "Numéro de téléphone",
+  en: "Phone number",
+};
+
 function PasswordRequirement({met, label}: {met: boolean; label: string}) {
   return (
-    <span className={`flex items-center gap-1.5 text-xs transition-colors ${met ? "text-green-600" : "text-muted-foreground"}`}>
-      {met ? <Check size={12} className="text-green-600" /> : <X size={12} />}
+    <span className={`flex items-center gap-1.5 text-[13px] transition-colors ${met ? "text-green-600" : "text-muted-foreground"}`}>
+      {met ? <Check size={13} className="text-green-600" /> : <X size={13} />}
       {label}
     </span>
   );
@@ -45,6 +51,8 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
     password: "",
     confirmPassword: "",
   });
+
+  const phonePlaceholder = PHONE_PLACEHOLDER[locale] ?? "Phone number";
 
   const hasLetter = /[a-zA-Z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
@@ -111,35 +119,34 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       <AuthLanguageSwitcher />
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground/80">{t("fullName")}</label>
         <Input
           name="fullName"
           value={formData.fullName}
           onChange={(e) => updateField("fullName", e.target.value)}
           placeholder={t("fullNamePlaceholder")}
           aria-invalid={Boolean(errors.fullName)}
-          className={`h-11 rounded-xl bg-background px-4 text-sm transition-colors focus-visible:ring-[#ED2124]/20 ${
+          className={`h-12 w-full rounded-2xl border bg-background px-4 text-[15px] transition focus-visible:ring-2 focus-visible:ring-[#ED2124]/25 ${
             errors.fullName
-              ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20"
+              ? "border-red-400 focus-visible:border-red-400"
               : "border-border/60 focus-visible:border-[#ED2124]"
           }`}
           autoComplete="name"
         />
         {errors.fullName && (
-          <p className="flex items-center gap-1.5 text-xs text-red-600">
-            <AlertCircle size={12} />
+          <p className="flex items-center gap-1.5 text-sm text-red-600">
+            <AlertCircle size={14} />
             {errors.fullName}
           </p>
         )}
       </div>
+
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground/80">{t("phone")}</label>
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-medium pointer-events-none select-none">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[15px] font-semibold text-muted-foreground pointer-events-none select-none">
             +222
           </span>
           <Input
@@ -150,11 +157,11 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
             autoCorrect="off"
             spellCheck={false}
             onChange={(e) => updateField("phone", e.target.value)}
-            placeholder="XX XX XX XX"
+            placeholder={phonePlaceholder}
             aria-invalid={Boolean(errors.phone)}
-            className={`h-11 rounded-xl bg-background pl-12 pe-4 text-sm transition-colors focus-visible:ring-[#ED2124]/20 ${
+            className={`h-12 w-full rounded-2xl border bg-background pl-16 pr-4 text-[15px] transition focus-visible:ring-2 focus-visible:ring-[#ED2124]/25 ${
               errors.phone
-                ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20"
+                ? "border-red-400 focus-visible:border-red-400"
                 : "border-border/60 focus-visible:border-[#ED2124]"
             }`}
             autoComplete="tel"
@@ -162,14 +169,14 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
           />
         </div>
         {errors.phone && errors.phone !== "auth_phone_exists" && (
-          <p className="flex items-center gap-1.5 text-xs text-red-600">
-            <AlertCircle size={12} />
+          <p className="flex items-center gap-1.5 text-sm text-red-600">
+            <AlertCircle size={14} />
             {errors.phone}
           </p>
         )}
       </div>
+
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground/80">{t("password")}</label>
         <div className="relative">
           <Input
             type={showPassword ? "text" : "password"}
@@ -181,9 +188,9 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
             }}
             placeholder="••••••••"
             aria-invalid={Boolean(errors.password)}
-            className={`h-11 rounded-xl bg-background pe-12 ps-4 text-sm transition-colors focus-visible:ring-[#ED2124]/20 ${
+            className={`h-12 w-full rounded-2xl border bg-background px-4 pr-12 text-[15px] transition focus-visible:ring-2 focus-visible:ring-[#ED2124]/25 ${
               errors.password
-                ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20"
+                ? "border-red-400 focus-visible:border-red-400"
                 : "border-border/60 focus-visible:border-[#ED2124]"
             }`}
             autoComplete="new-password"
@@ -191,29 +198,29 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
           <button
             type="button"
             onClick={() => setShowPassword((current) => !current)}
-            className="absolute inset-y-0 end-2 my-auto flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-[#ED2124]/35"
+            className="absolute inset-y-0 end-2 my-auto flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-muted active:bg-muted/70"
             aria-label={showPassword ? t("hidePassword") : t("showPassword")}
             tabIndex={-1}
           >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </div>
         {password.length > 0 && (
-          <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1">
+          <div className="flex flex-wrap gap-x-5 gap-y-1 pt-1">
             <PasswordRequirement met={hasMinLen} label={v("password_length")} />
             <PasswordRequirement met={hasLetter} label={v("password_letter")} />
             <PasswordRequirement met={hasNumber} label={v("password_number")} />
           </div>
         )}
         {errors.password && (
-          <p className="flex items-center gap-1.5 text-xs text-red-600">
-            <AlertCircle size={12} />
+          <p className="flex items-center gap-1.5 text-sm text-red-600">
+            <AlertCircle size={14} />
             {errors.password}
           </p>
         )}
       </div>
+
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground/80">{t("confirmPassword")}</label>
         <div className="relative">
           <Input
             type={showConfirmPassword ? "text" : "password"}
@@ -222,9 +229,9 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
             onChange={(e) => updateField("confirmPassword", e.target.value)}
             placeholder="••••••••"
             aria-invalid={Boolean(errors.confirmPassword)}
-            className={`h-11 rounded-xl bg-background pe-12 ps-4 text-sm transition-colors focus-visible:ring-[#ED2124]/20 ${
+            className={`h-12 w-full rounded-2xl border bg-background px-4 pr-12 text-[15px] transition focus-visible:ring-2 focus-visible:ring-[#ED2124]/25 ${
               errors.confirmPassword
-                ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20"
+                ? "border-red-400 focus-visible:border-red-400"
                 : "border-border/60 focus-visible:border-[#ED2124]"
             }`}
             autoComplete="new-password"
@@ -232,44 +239,60 @@ export function RegisterForm({locale, next}: {locale: string; next?: string}) {
           <button
             type="button"
             onClick={() => setShowConfirmPassword((current) => !current)}
-            className="absolute inset-y-0 end-2 my-auto flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-[#ED2124]/35"
+            className="absolute inset-y-0 end-2 my-auto flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-muted active:bg-muted/70"
             aria-label={showConfirmPassword ? t("hidePassword") : t("showPassword")}
             tabIndex={-1}
           >
-            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </div>
         {errors.confirmPassword && (
-          <p className="flex items-center gap-1.5 text-xs text-red-600">
-            <AlertCircle size={12} />
+          <p className="flex items-center gap-1.5 text-sm text-red-600">
+            <AlertCircle size={14} />
             {errors.confirmPassword}
           </p>
         )}
       </div>
+
       {errors.phone === "auth_phone_exists" ? (
-        <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-4 text-sm text-blue-900">
+        <div className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-4 text-sm text-blue-900">
           <p className="font-medium">{errorT("phone_exists_title")}</p>
           <Link
             href={`/login?phone=${normalizePhone(formData.phone).replace(/\D/g, "").slice(3)}`}
-            className="mt-2 inline-flex items-center gap-1.5 font-medium text-blue-700 hover:text-blue-800 hover:underline"
+            className="mt-2 inline-flex items-center gap-1.5 font-semibold text-blue-700 hover:text-blue-800 hover:underline"
           >
-            <LogIn size={14} />
+            <LogIn size={16} />
             {errorT("phone_exists_login")}
           </Link>
         </div>
       ) : errors.general && (
-        <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-          <AlertCircle size={16} className="shrink-0 text-red-600" />
-          <span>{errors.general}</span>
+        <div className="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm text-red-800">
+          <AlertCircle size={18} className="shrink-0 text-red-600" />
+          <span className="font-medium">{errors.general}</span>
         </div>
       )}
-      <Button type="submit" className="w-full bg-[#ED2124] hover:bg-[#ED2124]/90 text-white" disabled={isLoading} style={{touchAction: "manipulation"}}>
-        {isLoading ? <><Loader2 size={16} className="mr-2 inline animate-spin" />{t("submitting")}</> : t("submit")}
+
+      <Button
+        type="submit"
+        className="h-12 w-full rounded-2xl bg-[#ED2124] text-[16px] font-semibold hover:bg-[#ED2124]/90 active:bg-[#ED2124]/80 disabled:opacity-60"
+        disabled={isLoading}
+        style={{touchAction: "manipulation"}}
+      >
+        {isLoading ? (
+          <><Loader2 size={20} className="mr-2 inline animate-spin" />{t("submitting")}</>
+        ) : (
+          t("submit")
+        )}
       </Button>
 
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-center text-[15px] text-muted-foreground">
         {t("hasAccount")}{" "}
-        <Link href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"} className="font-medium text-[#ED2124] hover:underline">{t("login")}</Link>
+        <Link
+          href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"}
+          className="font-semibold text-[#ED2124] hover:underline"
+        >
+          {t("login")}
+        </Link>
       </p>
     </form>
   );

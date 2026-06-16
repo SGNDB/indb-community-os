@@ -439,7 +439,7 @@ export function PostCard({
               onClick={handleCommentClick}
               className="flex flex-1 items-center justify-center gap-1.5 min-h-12 rounded-xl px-3 text-sm text-muted-foreground transition hover:bg-muted sm:gap-2 sm:px-4"
             >
-              <MessageCircle size={18} className="shrink-0" />
+              <MessageCircle size={20} className="shrink-0" />
               <span>{commentsCount > 0 ? commentsCount : t("comments")}</span>
             </button>
 
@@ -452,7 +452,7 @@ export function PostCard({
                   : "text-muted-foreground hover:bg-muted"
               }`}
             >
-              <Bookmark size={18} className="shrink-0" />
+              <Bookmark size={20} className="shrink-0" />
               <span>{isSaved ? t("saved") : t("save")}</span>
             </button>
 
@@ -461,7 +461,7 @@ export function PostCard({
               onClick={handleShare}
               className="flex flex-1 items-center justify-center gap-1.5 min-h-12 rounded-xl px-3 text-sm text-muted-foreground transition hover:bg-muted sm:gap-2 sm:px-4"
             >
-              <Share2 size={18} className="shrink-0" />
+              <Share2 size={20} className="shrink-0" />
               <span className="tabular-nums">{sharesCount}</span>
             </button>
           </div>
@@ -479,7 +479,7 @@ export function PostCard({
                 className="min-h-11"
               />
                 <Button type="submit" size="icon" className="shrink-0" disabled={commentPending}>
-                {commentPending ? <span className="text-xs">{t("sending")}</span> : <Send size={16} />}
+                {commentPending ? <span className="text-xs">{t("sending")}</span> : <Send size={20} />}
               </Button>
             </form>
           ) : null}

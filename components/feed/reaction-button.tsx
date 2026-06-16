@@ -119,7 +119,7 @@ export function ReactionButton({
         {currentEmoji ? (
           <span className="text-xl">{currentEmoji}</span>
         ) : (
-          <Heart size={18} className="shrink-0" />
+          <Heart size={20} className="shrink-0" />
         )}
         {localTotal > 0 ? <span>{localTotal}</span> : null}
       </button>

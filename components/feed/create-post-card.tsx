@@ -121,7 +121,7 @@ export function CreatePostCard({avatarUrl, profileName}: {avatarUrl?: string | n
               onClick={() => setShowForm(true)}
               className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
             >
-              <ImagePlus size={16} />
+              <ImagePlus size={20} />
               {t("quickActions.image")}
             </button>
 

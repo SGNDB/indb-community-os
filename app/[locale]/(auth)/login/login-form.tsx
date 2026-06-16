@@ -17,6 +17,12 @@ interface FormErrors {
   general?: string;
 }
 
+const PHONE_PLACEHOLDER: Record<string, string> = {
+  ar: "رقم الهاتف",
+  fr: "Numéro de téléphone",
+  en: "Phone number",
+};
+
 export function LoginForm({locale, next, phone: prefilledPhone, registered}: {locale: string; next?: string; phone?: string; registered?: boolean}) {
   const t = useTranslations("Auth.login");
   const errorT = useTranslations("Auth.errors");
@@ -25,6 +31,8 @@ export function LoginForm({locale, next, phone: prefilledPhone, registered}: {lo
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [formData, setFormData] = useState({phone: prefilledPhone?.replace(/\D/g, "") ?? "", password: ""});
+
+  const phonePlaceholder = PHONE_PLACEHOLDER[locale] ?? "Phone number";
 
   function updateField(field: "phone" | "password", value: string) {
     setFormData((current) => ({...current, [field]: value}));
@@ -81,19 +89,19 @@ export function LoginForm({locale, next, phone: prefilledPhone, registered}: {lo
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       <AuthLanguageSwitcher />
 
       {registered && (
-        <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-          <CheckCircle2 size={16} className="shrink-0 text-green-600" />
-          <span>{t("registeredSuccess")}</span>
+        <div className="flex items-center gap-2.5 rounded-xl border border-green-200 bg-green-50 px-4 py-3.5 text-sm text-green-800">
+          <CheckCircle2 size={18} className="shrink-0 text-green-600" />
+          <span className="font-medium">{t("registeredSuccess")}</span>
         </div>
       )}
+
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground/80">{t("phone")}</label>
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-medium pointer-events-none select-none">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[15px] font-semibold text-muted-foreground pointer-events-none select-none">
             +222
           </span>
           <Input
@@ -104,11 +112,11 @@ export function LoginForm({locale, next, phone: prefilledPhone, registered}: {lo
             autoCorrect="off"
             spellCheck={false}
             onChange={(e) => updateField("phone", e.target.value)}
-            placeholder="XX XX XX XX"
+            placeholder={phonePlaceholder}
             aria-invalid={Boolean(errors.phone)}
-            className={`h-11 rounded-xl bg-background pl-12 pe-4 text-sm transition-colors focus-visible:ring-[#ED2124]/20 ${
+            className={`h-12 w-full rounded-2xl border bg-background pl-16 pr-4 text-[15px] transition focus-visible:ring-2 focus-visible:ring-[#ED2124]/25 ${
               errors.phone
-                ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20"
+                ? "border-red-400 focus-visible:border-red-400"
                 : "border-border/60 focus-visible:border-[#ED2124]"
             }`}
             autoComplete="tel"
@@ -116,14 +124,14 @@ export function LoginForm({locale, next, phone: prefilledPhone, registered}: {lo
           />
         </div>
         {errors.phone && (
-          <p className="flex items-center gap-1.5 text-xs text-red-600">
-            <AlertCircle size={12} />
+          <p className="flex items-center gap-1.5 text-sm text-red-600">
+            <AlertCircle size={14} />
             {errors.phone}
           </p>
         )}
       </div>
+
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground/80">{t("password")}</label>
         <div className="relative">
           <Input
             type={showPassword ? "text" : "password"}
@@ -132,9 +140,9 @@ export function LoginForm({locale, next, phone: prefilledPhone, registered}: {lo
             onChange={(e) => updateField("password", e.target.value)}
             placeholder="••••••••"
             aria-invalid={Boolean(errors.password)}
-            className={`h-11 rounded-xl bg-background pe-12 ps-4 text-sm transition-colors focus-visible:ring-[#ED2124]/20 ${
+            className={`h-12 w-full rounded-2xl border bg-background px-4 pr-12 text-[15px] transition focus-visible:ring-2 focus-visible:ring-[#ED2124]/25 ${
               errors.password
-                ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20"
+                ? "border-red-400 focus-visible:border-red-400"
                 : "border-border/60 focus-visible:border-[#ED2124]"
             }`}
             autoComplete="current-password"
@@ -142,33 +150,49 @@ export function LoginForm({locale, next, phone: prefilledPhone, registered}: {lo
           <button
             type="button"
             onClick={() => setShowPassword((current) => !current)}
-            className="absolute inset-y-0 end-2 my-auto flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-[#ED2124]/35"
+            className="absolute inset-y-0 end-2 my-auto flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-muted active:bg-muted/70"
             aria-label={showPassword ? t("hidePassword") : t("showPassword")}
             tabIndex={-1}
           >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </div>
         {errors.password && (
-          <p className="flex items-center gap-1.5 text-xs text-red-600">
-            <AlertCircle size={12} />
+          <p className="flex items-center gap-1.5 text-sm text-red-600">
+            <AlertCircle size={14} />
             {errors.password}
           </p>
         )}
       </div>
+
       {errors.general && (
-        <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-          <AlertCircle size={16} className="shrink-0 text-red-600" />
-          <span>{errors.general}</span>
+        <div className="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm text-red-800">
+          <AlertCircle size={18} className="shrink-0 text-red-600" />
+          <span className="font-medium">{errors.general}</span>
         </div>
       )}
-      <Button type="submit" className="w-full bg-[#ED2124] hover:bg-[#ED2124]/90 text-white" disabled={isLoading} style={{touchAction: "manipulation"}}>
-        {isLoading ? <><Loader2 size={16} className="mr-2 inline animate-spin" />{t("submitting")}</> : t("submit")}
+
+      <Button
+        type="submit"
+        className="h-12 w-full rounded-2xl bg-[#ED2124] text-[16px] font-semibold hover:bg-[#ED2124]/90 active:bg-[#ED2124]/80 disabled:opacity-60"
+        disabled={isLoading}
+        style={{touchAction: "manipulation"}}
+      >
+        {isLoading ? (
+          <><Loader2 size={20} className="mr-2 inline animate-spin" />{t("submitting")}</>
+        ) : (
+          t("submit")
+        )}
       </Button>
 
-      <p className="text-center text-sm text-muted-foreground">
+      <p className="text-center text-[15px] text-muted-foreground">
         {t("noAccount")}{" "}
-        <Link href={next ? `/register?next=${encodeURIComponent(next)}` : "/register"} className="font-medium text-[#ED2124] hover:underline">{t("register")}</Link>
+        <Link
+          href={next ? `/register?next=${encodeURIComponent(next)}` : "/register"}
+          className="font-semibold text-[#ED2124] hover:underline"
+        >
+          {t("register")}
+        </Link>
       </p>
     </form>
   );

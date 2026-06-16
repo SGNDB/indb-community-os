@@ -3,7 +3,14 @@
 import {useTransition} from "react";
 import {useLocale, useTranslations} from "next-intl";
 
-import {localeLabels, routing, usePathname, useRouter} from "@/lib/i18n/routing";
+import {usePathname, useRouter} from "@/lib/i18n/routing";
+
+const AUTH_LOCALES = ["ar", "fr", "en"] as const;
+const LOCALE_LABELS: Record<string, string> = {
+  ar: "العربية",
+  fr: "Français",
+  en: "English",
+};
 
 export function AuthLanguageSwitcher() {
   const t = useTranslations("LanguageSwitcher");
@@ -12,9 +19,7 @@ export function AuthLanguageSwitcher() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const locales = routing.locales;
-
-  function changeLanguage(nextLocale: (typeof locales)[number]) {
+  function changeLanguage(nextLocale: (typeof AUTH_LOCALES)[number]) {
     if (nextLocale === locale) return;
 
     document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000; samesite=lax`;
@@ -34,22 +39,26 @@ export function AuthLanguageSwitcher() {
   }
 
   return (
-    <div className="flex items-center justify-center gap-1.5" aria-label={t("label")}>
-      {locales.map((item) => (
-        <button
-          key={item}
-          type="button"
-          onClick={() => changeLanguage(item)}
-          disabled={isPending}
-          className={`min-h-8 rounded-full px-2.5 py-1 text-xs font-medium transition ${
-            item === locale
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground"
-          }`}
-          aria-label={t("changeTo", {language: localeLabels[item]})}
-        >
-          {localeLabels[item]}
-        </button>
+    <div className="flex items-center justify-center" aria-label={t("label")}>
+      {AUTH_LOCALES.map((item, idx) => (
+        <span key={item} className="inline-flex items-center">
+          {idx > 0 && (
+            <span className="mx-1.5 text-sm text-muted-foreground/40">|</span>
+          )}
+          <button
+            type="button"
+            onClick={() => changeLanguage(item)}
+            disabled={isPending}
+            className={`min-h-9 rounded-lg px-3 py-1 text-sm font-medium transition ${
+              item === locale
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground active:text-foreground"
+            }`}
+            aria-label={t("changeTo", {language: LOCALE_LABELS[item]})}
+          >
+            {LOCALE_LABELS[item]}
+          </button>
+        </span>
       ))}
     </div>
   );

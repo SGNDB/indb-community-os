@@ -2,7 +2,6 @@ import {getTranslations} from "next-intl/server";
 
 import {RegisterForm} from "@/app/[locale]/(auth)/register/register-form";
 import {Logo} from "@/components/layout/Logo";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 
 export default async function RegisterPage({
   params,
@@ -16,18 +15,13 @@ export default async function RegisterPage({
   const {next} = await searchParams;
 
   return (
-    <div className="mx-auto max-w-md space-y-6">
-      <div className="flex justify-center pt-4">
+    <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-5 py-8">
+      <div className="flex flex-col items-center gap-2 pb-8">
         <Logo size="md" priority />
+        <p className="text-center text-base text-muted-foreground">{t("welcome")}</p>
       </div>
-      <Card className="border-border/50 shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xl font-semibold tracking-tight">{t("title")}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <RegisterForm locale={locale} next={next} />
-        </CardContent>
-      </Card>
+
+      <RegisterForm locale={locale} next={next} />
     </div>
   );
 }
