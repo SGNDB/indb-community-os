@@ -1,5 +1,3 @@
-import {getTranslations} from "next-intl/server";
-
 import {LoginForm} from "@/app/[locale]/(auth)/login/login-form";
 import {Logo} from "@/components/layout/Logo";
 
@@ -11,7 +9,6 @@ export default async function LoginPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const {locale} = await params;
-  const t = await getTranslations({locale, namespace: "Auth.login"});
   const sp = await searchParams;
   const next = typeof sp.next === "string" ? sp.next : undefined;
   const phone = typeof sp.phone === "string" ? sp.phone : undefined;
