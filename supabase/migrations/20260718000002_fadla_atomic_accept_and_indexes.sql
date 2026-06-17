@@ -73,7 +73,7 @@ create unique index if not exists notifications_unique_active
   where read = false;
 
 -- 6. Allow re-requesting after decline (unique constraint only for active requests)
-drop index if exists public.community_share_requests_unique;
+alter table if exists public.community_share_requests drop constraint if exists community_share_requests_unique;
 create unique index community_share_requests_unique_active
   on public.community_share_requests (share_id, requester_id)
   where status in ('pending', 'accepted');
