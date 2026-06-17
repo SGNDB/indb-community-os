@@ -338,6 +338,7 @@
     "fadlaSenderConfirmed": "أكد {actorName} أنه سلّم الفظلة",
     "fadlaBothCompleted": "تم اكتمال استلام الفظلة",
     "fadlaRequestAccepted": "تم قبول طلبك من قبل {actorName}",
+    "fadlaRequestDeclined": "تم رفض طلبك من قبل {actorName}",
     "loadMore": "عرض المزيد",
     "ideaSupported": "{actorName} دعم فكرتك",
     "ideaParticipateRequest": "{actorName} يريد الانضمام إلى مشروعك",

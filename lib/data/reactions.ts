@@ -51,17 +51,7 @@ export async function toggleReaction(
   }
 
   if (delta !== 0) {
-    const {data: post} = await supabase
-      .from("posts")
-      .select("likes_count")
-      .eq("id", postId)
-      .single();
-    if (post) {
-      await supabase
-        .from("posts")
-        .update({likes_count: Math.max(0, (post.likes_count ?? 0) + delta)})
-        .eq("id", postId);
-    }
+    await supabase.rpc("increment_post_likes", {p_post_id: postId, p_delta: delta});
   }
 
   return {action: delta === -1 ? "deleted" : "inserted"};
@@ -73,12 +63,12 @@ export async function getReactionCounts(
   const supabase = await createClient();
   const {data} = await supabase
     .from("post_reactions")
-    .select("reaction_type")
+    .select("reaction_type, count:reaction_type.count()", {count: "exact"})
     .eq("post_id", postId);
 
   const counts: Record<string, number> = {};
-  for (const row of data ?? []) {
-    counts[row.reaction_type] = (counts[row.reaction_type] ?? 0) + 1;
+  for (const row of (data ?? []) as {reaction_type: string; count: number}[]) {
+    counts[row.reaction_type] = row.count;
   }
   return counts;
 }

@@ -65,6 +65,20 @@ export async function createNotification(
   if (params.userId === params.actorId) return;
 
   const supabase = await createClient();
+
+  // Dedup: skip if an unread notification for the same event already exists
+  const {data: existing} = await supabase
+    .from("notifications")
+    .select("id")
+    .eq("user_id", params.userId)
+    .eq("actor_id", params.actorId)
+    .eq("type", params.type)
+    .eq("entity_type", params.entityType)
+    .eq("entity_id", params.entityId)
+    .eq("read", false)
+    .maybeSingle();
+
+  if (existing) return;
   const {data: actor} = await supabase
     .from("profiles")
     .select("full_name, username, avatar_url")
@@ -107,19 +121,14 @@ export async function createFollowNotification(
 ): Promise<void> {
   if (followedUserId === followerId) return;
 
-  const supabase = await createClient();
-
-  const {error} = await supabase.from("notifications").insert({
-    user_id: followedUserId,
-    actor_id: followerId,
+  await createNotification({
+    userId: followedUserId,
+    actorId: followerId,
     type: "follow",
-    entity_type: "profile",
-    entity_id: followerId,
+    entityType: "profile",
+    entityId: followerId,
     title: "New follower",
-    message: null,
   });
-
-  if (error) console.error("createFollowNotification error:", error);
 }
 
 export async function upsertReactionNotification(

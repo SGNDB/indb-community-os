@@ -338,6 +338,7 @@
     "fadlaSenderConfirmed": "{actorName} a confirmé avoir remis Fadla",
     "fadlaBothCompleted": "Fadla a été terminée avec succès",
     "fadlaRequestAccepted": "Votre demande a été acceptée par {actorName}",
+    "fadlaRequestDeclined": "Votre demande a été refusée par {actorName}",
     "loadMore": "Charger plus",
     "ideaSupported": "{actorName} a soutenu votre idée",
     "ideaParticipateRequest": "{actorName} veut rejoindre votre projet",

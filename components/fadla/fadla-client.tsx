@@ -191,22 +191,29 @@ export function FadlaClient({
       });
     }
 
+    const visibleStatuses = ["published", "requested", "reserved", "collected", "completed"];
+
     channel
       .on("postgres_changes", {
         event: "INSERT",
         schema: "public",
         table: "community_shares",
       }, (payload) => {
-        const row = payload.new as {id?: string};
-        if (row.id) void fetchAndUpsertItem(row.id);
+        const row = payload.new as {id?: string; status?: string};
+        if (row.id && row.status && visibleStatuses.includes(row.status)) void fetchAndUpsertItem(row.id);
       })
       .on("postgres_changes", {
         event: "UPDATE",
         schema: "public",
         table: "community_shares",
       }, (payload) => {
-        const row = payload.new as {id?: string};
-        if (row.id) void fetchAndUpsertItem(row.id);
+        const row = payload.new as {id?: string; status?: string};
+        if (!row.id) return;
+        const oldRow = payload.old as {status?: string} | null;
+        const wasVisible = oldRow?.status && visibleStatuses.includes(oldRow.status);
+        const isVisible = row.status && visibleStatuses.includes(row.status);
+        if (isVisible) void fetchAndUpsertItem(row.id);
+        else if (wasVisible) setLiveItems((prev) => prev.filter((item) => item.id !== row.id));
       })
       .on("postgres_changes", {
         event: "DELETE",

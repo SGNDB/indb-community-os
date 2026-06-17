@@ -68,25 +68,17 @@ export async function getCommentsForPosts(
 
   const supabase = await createClient();
 
-  const {data} = await supabase
-    .from("comments")
-    .select(`
-      *,
-      author:profiles!comments_author_id_fkey(id, username, full_name, avatar_url)
-    `)
-    .in("post_id", postIds)
-    .eq("status", "published")
-    .not("author_id", "is", null)
-    .order("created_at", {ascending: true});
+  const {data} = await supabase.rpc("get_comments_for_posts", {
+    p_post_ids: postIds,
+    p_max_per_post: maxCommentsPerPost,
+  });
 
   const grouped: Record<string, CommentWithAuthor[]> = {};
   for (const comment of ((data ?? []) as unknown as CommentWithAuthor[])) {
     if (!grouped[comment.post_id]) {
       grouped[comment.post_id] = [];
     }
-    if (grouped[comment.post_id].length < maxCommentsPerPost) {
-      grouped[comment.post_id].push(comment);
-    }
+    grouped[comment.post_id].push(comment);
   }
 
   return grouped;

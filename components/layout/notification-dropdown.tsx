@@ -67,6 +67,7 @@ function getNotificationIcon(type: string) {
     case "community_share_request":
     case "fadla_request":
     case "fadla_completed":
+    case "fadla_request_declined":
       return Gift;
     case "idea_support":
     case "idea_participate_request":
@@ -166,20 +167,6 @@ export function NotificationDropdown({
   useEffect(() => {
     let channel: ReturnType<typeof supabase.channel>;
     let cancelled = false;
-    let interval: ReturnType<typeof setInterval>;
-
-    async function pollCount() {
-      const {data: {user}} = await supabase.auth.getUser();
-      if (!user || cancelled) return;
-
-      const {count} = await supabase
-        .from("notifications")
-        .select("id", {count: "exact", head: true})
-        .eq("user_id", user.id)
-        .eq("read", false);
-
-      if (!cancelled) setUnreadCount(count ?? 0);
-    }
 
     async function fetchNotification(notificationId: string) {
       const {data} = await supabase
@@ -192,6 +179,8 @@ export function NotificationDropdown({
     }
 
     function upsertNotification(notification: NotificationWithActor) {
+      const isUnread = !notification.read;
+      setUnreadCount((prev) => prev + (isUnread ? 1 : 0));
       setNotifications((prev) => {
         const withoutCurrent = prev.filter((item) => item.id !== notification.id);
         return [notification, ...withoutCurrent].slice(0, PAGE_SIZE);
@@ -214,11 +203,11 @@ export function NotificationDropdown({
           },
           async (payload) => {
             if (payload.eventType === "DELETE") {
-              const oldRow = payload.old as {id?: string};
+              const oldRow = payload.old as {id?: string; read?: boolean};
               if (oldRow.id) {
                 setNotifications((prev) => prev.filter((item) => item.id !== oldRow.id));
+                if (!oldRow.read) setUnreadCount((prev) => Math.max(0, prev - 1));
               }
-              void pollCount();
               return;
             }
 
@@ -229,12 +218,9 @@ export function NotificationDropdown({
             if (notification && openRef.current) {
               upsertNotification(notification);
             }
-            void pollCount();
           },
         )
         .subscribe();
-
-      interval = setInterval(pollCount, 30000);
     }
 
     setupRealtime();
@@ -242,7 +228,6 @@ export function NotificationDropdown({
     return () => {
       cancelled = true;
       if (channel) supabase.removeChannel(channel);
-      if (interval) clearInterval(interval);
     };
   }, [supabase]);
 
@@ -334,9 +319,13 @@ export function NotificationDropdown({
           router.push("/profile");
           return;
         case "community_share": {
+          if (n.type === "share") {
+            router.push(`/fadla?item=${n.entity_id}&notification=${n.id}#fadla-${n.entity_id}`);
+            return;
+          }
           let focusParam = "";
           if (n.type === "fadla_request") focusParam = "&focus=requests";
-          else if (["fadla_message", "fadla_receiver_confirmed", "fadla_sender_confirmed", "fadla_both_completed", "fadla_completed"].includes(n.type)) focusParam = "&focus=discussion";
+          else if (["fadla_message", "fadla_receiver_confirmed", "fadla_sender_confirmed", "fadla_both_completed", "fadla_completed", "fadla_request_accepted", "fadla_request_declined"].includes(n.type)) focusParam = "&focus=discussion";
           router.push(`/fadla?item=${n.entity_id}&notification=${n.id}${focusParam}#fadla-${n.entity_id}`);
           return;
         }
@@ -455,6 +444,8 @@ export function NotificationDropdown({
           return t("fadlaSenderConfirmed", {actorName});
         case "fadla_request_accepted":
           return t("fadlaRequestAccepted", {actorName});
+        case "fadla_request_declined":
+          return t("fadlaRequestDeclined", {actorName});
         case "idea_support":
           return t("ideaSupported", {actorName});
         case "idea_participate_request":

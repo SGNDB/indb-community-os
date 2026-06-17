@@ -220,7 +220,6 @@ export async function signOutAction(formData: FormData) {
   const supabase = await createClient();
 
   await supabase.auth.signOut();
-  revalidatePath('/', 'layout');
   redirect(toPath(locale, '/'));
 }
 
@@ -362,7 +361,7 @@ export async function loginAction(formData: FormData) {
   const onboardingCompleted = profile?.onboarding_completed ?? false;
   const redirectPath = getPostAuthRedirectPath(locale, onboardingCompleted);
 
-  revalidatePath('/', 'layout');
+  revalidatePath(toPath(locale, '/'));
   return { success: true, redirect: redirectPath };
 }
 
@@ -755,7 +754,7 @@ export async function createPostAction(
     );
   }
 
-  revalidatePath('/', 'layout');
+  revalidatePath(toPath(locale, '/feed'));
 
   return { success: true, id: newPost.id };
 }
@@ -867,7 +866,7 @@ export async function updatePostAction(
     })
     .eq('id', postId);
 
-  revalidatePath('/', 'layout');
+  revalidatePath(toPath(locale, '/feed'));
 
   return { success: true };
 }
@@ -1109,7 +1108,6 @@ export async function toggleFollowAction(
   if (typeof profileUsername === 'string' && profileUsername.length > 0) {
     revalidatePath(toPath(locale, `/profile/${profileUsername}`));
   }
-  revalidatePath('/', 'layout');
 
   return result;
 }
@@ -1259,7 +1257,6 @@ export async function updateProfileAction(
   }
 
   revalidatePath(toPath(locale, '/profile'));
-  revalidatePath('/', 'layout');
   return { success: true };
 }
 
@@ -1475,7 +1472,7 @@ export async function submitIdeaAction(
     );
   }
 
-  revalidatePath('/', 'layout');
+  revalidatePath(toPath(locale, '/ideas'));
 
   return { success: true, id: newIdea.id };
 }
@@ -1592,7 +1589,7 @@ export async function updateIdeaAction(
     return { success: false, error: updateError.message };
   }
 
-  revalidatePath('/', 'layout');
+  revalidatePath(toPath(locale, '/ideas'));
 
   return { success: true };
 }
@@ -1885,14 +1882,13 @@ export async function sharePostAction(
   }
 
   if (post.author_id && post.author_id !== user.id) {
-    await supabase.from('notifications').insert({
-      user_id: post.author_id,
-      actor_id: user.id,
+    await createNotification({
+      userId: post.author_id,
+      actorId: user.id,
       type: 'share',
-      entity_type: 'post',
-      entity_id: postId,
+      entityType: 'post',
+      entityId: postId,
       title: 'Shared your post',
-      message: null,
     });
   }
 
@@ -2456,7 +2452,7 @@ export async function deleteMemoryAction(
   await deleteMemoryMedia(memoryId);
   await supabase.from('memories').delete().eq('id', memoryId);
 
-  revalidatePath('/', 'layout');
+  revalidatePath('/memory');
 
   return { success: true };
 }
@@ -2642,15 +2638,13 @@ export async function shareMemoryAction(
   }
 
   if (memory.contributor_id && memory.contributor_id !== user.id) {
-    const supabaseNotify = await createClient();
-    await supabaseNotify.from('notifications').insert({
-      user_id: memory.contributor_id,
-      actor_id: user.id,
+    await createNotification({
+      userId: memory.contributor_id,
+      actorId: user.id,
       type: 'share',
-      entity_type: 'memory',
-      entity_id: memoryId,
+      entityType: 'memory',
+      entityId: memoryId,
       title: 'Shared your memory',
-      message: null,
     });
   }
 
@@ -2892,7 +2886,6 @@ export async function updateAdminUserRoleAction(formData: FormData) {
 
   revalidatePath(toPath(locale, '/admin'));
   revalidatePath(toPath(locale, '/admin/users'));
-  revalidatePath('/', 'layout');
   redirectAdmin(locale, 'roleUpdated', '/admin/users');
 }
 
@@ -2934,7 +2927,6 @@ export async function deleteAdminUserAction(formData: FormData) {
 
   revalidatePath(toPath(locale, '/admin'));
   revalidatePath(toPath(locale, '/admin/users'));
-  revalidatePath('/', 'layout');
   redirectAdmin(locale, 'userDeleted', '/admin/users');
 }
 
@@ -2993,7 +2985,6 @@ export async function awardCommunityCreditsAction(formData: FormData) {
 
   revalidatePath(toPath(locale, '/admin'));
   revalidatePath(toPath(locale, '/admin/credits'));
-  revalidatePath('/', 'layout');
   redirectAdmin(locale, 'creditsAwarded', '/admin/credits');
 }
 
@@ -3049,7 +3040,6 @@ export async function deleteAdminContentAction(formData: FormData) {
 
   revalidatePath(toPath(locale, '/admin'));
   revalidatePath(toPath(locale, '/admin/content'));
-  revalidatePath('/', 'layout');
   redirectAdmin(locale, 'contentDeleted', '/admin/content');
 }
 
@@ -3351,72 +3341,37 @@ export async function acceptFadlaRequestAction(
     return { success: false, error: errorsT('submitFailed') };
   }
 
+  const { data: result, error: rpcError } = await supabase.rpc('accept_fadla_request', {
+    p_request_id: requestId,
+    p_owner_id: user.id,
+  });
+
+  if (rpcError || !result?.success) {
+    console.error('accept_fadla_request RPC error:', rpcError, result);
+    return { success: false, error: fadlaT('errors.actionFailed') };
+  }
+
+  // Fetch the requester_id for the notification
   const { data: req } = await supabase
     .from('community_share_requests')
-    .select('id, share_id, requester_id, status')
+    .select('requester_id')
     .eq('id', requestId)
     .single();
 
-  if (!req || req.status !== 'pending') {
-    return { success: false, error: fadlaT('errors.notFound') };
+  if (req) {
+    await createNotification({
+      userId: req.requester_id,
+      actorId: user.id,
+      type: 'fadla_request_accepted',
+      entityType: 'community_share',
+      entityId: result.shareId as string,
+      title: 'Your request was accepted',
+    });
   }
-
-  const { data: item } = await supabase
-    .from('community_shares')
-    .select('owner_id, status')
-    .eq('id', req.share_id)
-    .single();
-
-  if (!item || item.owner_id !== user.id) {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  const now = new Date().toISOString();
-
-  // Accept this request
-  const { error: acceptError } = await supabase
-    .from('community_share_requests')
-    .update({ status: 'accepted', updated_at: now })
-    .eq('id', requestId);
-
-  if (acceptError) {
-    return { success: false, error: fadlaT('errors.actionFailed') };
-  }
-
-  // Decline all other pending requests for this item
-  await supabase
-    .from('community_share_requests')
-    .update({ status: 'declined', updated_at: now })
-    .eq('share_id', req.share_id)
-    .eq('status', 'pending')
-    .neq('id', requestId);
-
-  // Set accepted request (confirmation flow: both parties must confirm to complete)
-  const { error: itemUpdateError } = await supabase
-    .from('community_shares')
-    .update({
-      accepted_request_id: requestId,
-      status: 'reserved',
-      updated_at: now,
-    })
-    .eq('id', req.share_id);
-
-  if (itemUpdateError) {
-    return { success: false, error: fadlaT('errors.actionFailed') };
-  }
-
-  await createNotification({
-    userId: req.requester_id,
-    actorId: user.id,
-    type: 'fadla_request_accepted',
-    entityType: 'community_share',
-    entityId: req.share_id,
-    title: 'Your request was accepted',
-  });
 
   revalidatePath(toPath(locale, '/fadla'));
   revalidatePath(toPath(locale, '/profile'));
-  return { success: true, requestId, shareId: req.share_id, shareStatus: 'reserved', acceptedRequestId: requestId };
+  return { success: true, requestId, shareId: result.shareId as string, shareStatus: 'reserved', acceptedRequestId: requestId };
 }
 
 export async function confirmFadlaReceivedAction(
@@ -3668,6 +3623,16 @@ export async function declineFadlaRequestAction(
     .update({ status: 'declined', updated_at: now })
     .eq('id', requestId);
 
+  // Notify the requester that their request was declined
+  await createNotification({
+    userId: req.requester_id,
+    actorId: user.id,
+    type: 'fadla_request_declined',
+    entityType: 'community_share',
+    entityId: req.share_id,
+    title: 'Your Fadla request was declined',
+  });
+
   // Check if there are any other pending requests for this item
   const { count: remaining } = await supabase
     .from('community_share_requests')
@@ -3780,7 +3745,7 @@ export const requestCommunityShareAction = requestFadlaItemAction;
 
 export async function shareCommunityShareAction(
   formData: FormData,
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; sharesCount?: number }> {
   const shareId = formData.get('shareId');
   const supabase = await createClient();
 
@@ -3798,7 +3763,7 @@ export async function shareCommunityShareAction(
 
   const { data: share } = await supabase
     .from('community_shares')
-    .select('owner_id, shares_count')
+    .select('owner_id')
     .eq('id', shareId)
     .single();
 
@@ -3806,24 +3771,31 @@ export async function shareCommunityShareAction(
     return { success: false, error: 'not_found' };
   }
 
+  const { data: sharesCount, error: shareCountError } = await supabase.rpc(
+    'increment_share_count',
+    {
+      p_entity_type: 'community_share',
+      p_entity_id: shareId,
+    },
+  );
+
+  if (shareCountError || typeof sharesCount !== 'number') {
+    console.error('shareCommunityShareAction increment_share_count error:', shareCountError);
+    return { success: false, error: 'share_count_failed' };
+  }
+
   if (share.owner_id !== user.id) {
-    await supabase.from('notifications').insert({
-      user_id: share.owner_id,
-      actor_id: user.id,
+    await createNotification({
+      userId: share.owner_id,
+      actorId: user.id,
       type: 'share',
-      entity_type: 'community_share',
-      entity_id: shareId,
+      entityType: 'community_share',
+      entityId: shareId,
       title: 'Shared your item',
-      message: null,
     });
   }
 
-  await supabase
-    .from('community_shares')
-    .update({ shares_count: (share.shares_count ?? 0) + 1 })
-    .eq('id', shareId);
-
-  return { success: true };
+  return { success: true, sharesCount };
 }
 
 export async function completeOnboardingAction(
