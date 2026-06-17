@@ -786,6 +786,9 @@ export function FadlaCard({
                   shareId={item.id}
                   currentUserId={currentUserId}
                   currentUserName={isOwner ? ownerName : acceptedRequesterName}
+                  currentUserAvatarUrl={isOwner ? item.owner?.avatar_url : acceptedRequest.requester?.avatar_url}
+                  conversationWithName={isOwner ? acceptedRequesterName : ownerName}
+                  conversationWithAvatarUrl={isOwner ? acceptedRequest.requester?.avatar_url : item.owner?.avatar_url}
                   locale={locale}
                   initialMessages={discussionMessages}
                   status={liveStatus}

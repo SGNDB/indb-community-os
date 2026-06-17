@@ -335,10 +335,25 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
 
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
   const authorUsername = idea.author?.username;
+  const acceptedParticipants = participants.filter((participant) => participant.status === "accepted");
+  const acceptedParticipantNames = acceptedParticipants
+    .map((participant) => participant.user?.full_name ?? participant.user?.username)
+    .filter((name): name is string => Boolean(name));
+  const acceptedParticipantsLabel =
+    acceptedParticipantNames.length > 0
+      ? `${acceptedParticipantNames.slice(0, 2).join(", ")}${acceptedParticipantNames.length > 2 ? ` +${acceptedParticipantNames.length - 2}` : ""}`
+      : t("unknownAuthor");
   const currentParticipant = participants.find((participant) => participant.user_id === effectiveCurrentUserId);
   const currentDiscussionUserName = isOwner
     ? authorName
     : currentParticipant?.user?.full_name ?? currentParticipant?.user?.username ?? null;
+  const currentDiscussionAvatarUrl = isOwner ? idea.author?.avatar_url : currentParticipant?.user?.avatar_url;
+  const conversationWithName = isOwner ? acceptedParticipantsLabel : authorName;
+  const conversationWithAvatarUrl = isOwner && acceptedParticipants.length === 1
+    ? acceptedParticipants[0].user?.avatar_url
+    : !isOwner
+      ? idea.author?.avatar_url
+      : null;
 
   if (process.env.NODE_ENV === "development") {
     console.log({
@@ -799,6 +814,9 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
                   ideaId={idea.id}
                   currentUserId={effectiveCurrentUserId ?? ""}
                   currentUserName={currentDiscussionUserName}
+                  currentUserAvatarUrl={currentDiscussionAvatarUrl}
+                  conversationWithName={conversationWithName}
+                  conversationWithAvatarUrl={conversationWithAvatarUrl}
                   locale={locale}
                   initialMessages={messages}
                 />

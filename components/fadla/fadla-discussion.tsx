@@ -6,6 +6,7 @@ import {useCallback, useEffect, useRef, useState} from "react";
 import type {RealtimeChannel} from "@supabase/supabase-js";
 
 import {sendFadlaMessageAction} from "@/app/[locale]/server-actions";
+import {UserAvatar} from "@/components/layout/user-avatar";
 import {Button} from "@/components/ui/button";
 import {createClient} from "@/lib/supabase/client";
 import type {FadlaRequestMessageRow, FadlaRequestMessageWithSender} from "@/types/database";
@@ -15,6 +16,9 @@ interface Props {
   shareId: string;
   currentUserId: string;
   currentUserName?: string | null;
+  currentUserAvatarUrl?: string | null;
+  conversationWithName?: string | null;
+  conversationWithAvatarUrl?: string | null;
   locale: string;
   initialMessages: FadlaRequestMessageWithSender[];
   status: string;
@@ -24,6 +28,7 @@ interface DisplayMessage {
   id: string;
   sender_id: string;
   sender_name?: string;
+  sender_avatar_url?: string | null;
   message: string;
   created_at: string;
   pending?: boolean;
@@ -33,17 +38,35 @@ interface FadlaMessageBroadcastPayload {
   id?: string;
   sender_id?: string;
   sender_name?: string;
+  sender_avatar_url?: string | null;
   message?: string;
   created_at?: string;
 }
 
-export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserName, locale, initialMessages, status: initialStatus}: Props) {
+interface SenderIdentity {
+  name: string;
+  avatarUrl: string | null;
+}
+
+export function FadlaDiscussion({
+  requestId,
+  shareId,
+  currentUserId,
+  currentUserName,
+  currentUserAvatarUrl,
+  conversationWithName,
+  conversationWithAvatarUrl,
+  locale,
+  initialMessages,
+  status: initialStatus,
+}: Props) {
   const t = useTranslations("Fadla.discussion");
   const [messages, setMessages] = useState<DisplayMessage[]>(() =>
     initialMessages.map((m) => ({
       id: m.id,
       sender_id: m.sender_id,
       sender_name: m.sender?.full_name ?? m.sender?.username ?? undefined,
+      sender_avatar_url: m.sender?.avatar_url ?? null,
       message: m.message,
       created_at: m.created_at,
     })),
@@ -62,7 +85,7 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
   const channelReadyRef = useRef(false);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTypingBroadcastRef = useRef(0);
-  const senderNameCacheRef = useRef<Map<string, string>>(new Map());
+  const senderIdentityCacheRef = useRef<Map<string, SenderIdentity>>(new Map());
 
   function scrollMessagesToBottom(behavior: ScrollBehavior = "smooth") {
     const container = containerRef.current;
@@ -108,19 +131,22 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
     channelRef.current = channel;
     channelReadyRef.current = false;
 
-    async function getSenderName(senderId: string) {
-      const cached = senderNameCacheRef.current.get(senderId);
+    async function getSenderIdentity(senderId: string) {
+      const cached = senderIdentityCacheRef.current.get(senderId);
       if (cached) return cached;
 
       const {data} = await supabase
         .from("profiles")
-        .select("full_name, username")
+        .select("full_name, username, avatar_url")
         .eq("id", senderId)
         .maybeSingle();
 
-      const senderName = data?.full_name ?? data?.username ?? "";
-      if (senderName) senderNameCacheRef.current.set(senderId, senderName);
-      return senderName;
+      const identity = {
+        name: data?.full_name ?? data?.username ?? "",
+        avatarUrl: data?.avatar_url ?? null,
+      };
+      if (identity.name || identity.avatarUrl) senderIdentityCacheRef.current.set(senderId, identity);
+      return identity;
     }
 
     channel
@@ -132,14 +158,16 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
       }, async (payload) => {
         const newMsg = payload.new as FadlaRequestMessageRow;
         if (newMsg.sender_id !== currentUserId) {
-          const senderName = await getSenderName(newMsg.sender_id);
+          const senderIdentity = await getSenderIdentity(newMsg.sender_id);
+          isNearBottomRef.current = true;
           setMessages((prev) =>
             prev.some((msg) => msg.id === newMsg.id)
               ? prev
               : [...prev, {
                   id: newMsg.id,
                   sender_id: newMsg.sender_id,
-                  sender_name: senderName || undefined,
+                  sender_name: senderIdentity.name || undefined,
+                  sender_avatar_url: senderIdentity.avatarUrl,
                   message: newMsg.message,
                   created_at: newMsg.created_at,
                 }],
@@ -174,6 +202,7 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
         setOtherUserTypingName(null);
         if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
+        isNearBottomRef.current = true;
         setMessages((prev) =>
           prev.some((msg) => msg.id === messagePayload.id)
             ? prev
@@ -181,6 +210,7 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
                 id: messagePayload.id!,
                 sender_id: messagePayload.sender_id!,
                 sender_name: messagePayload.sender_name || undefined,
+                sender_avatar_url: messagePayload.sender_avatar_url ?? null,
                 message: messagePayload.message!,
                 created_at: messagePayload.created_at!,
               }],
@@ -220,12 +250,14 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
     setError(null);
 
     const optimisticId = `opt-${Date.now()}`;
+    isNearBottomRef.current = true;
     setMessages((prev) => [
       ...prev,
       {
         id: optimisticId,
         sender_id: currentUserId,
         sender_name: currentUserName ?? undefined,
+        sender_avatar_url: currentUserAvatarUrl ?? null,
         message: trimmed,
         created_at: new Date().toISOString(),
         pending: true,
@@ -253,6 +285,7 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
             id: result.message.id,
             sender_id: currentUserId,
             sender_name: currentUserName?.trim() || undefined,
+            sender_avatar_url: currentUserAvatarUrl ?? null,
             message: trimmed,
             created_at: result.message.created_at,
           },
@@ -308,49 +341,65 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
   }
 
   const rtl = locale === "ar";
+  const youLabel = rtl ? "\u0623\u0646\u062a" : "You";
+  const fallbackSenderName = rtl ? "\u0634\u062e\u0635 \u0645\u0627" : "Someone";
+  const conversationLabel = rtl ? "\u0623\u0646\u062a \u062a\u062a\u062d\u062f\u062b \u0645\u0639:" : "You are talking with:";
+  const firstReceivedMessage = messages.find((msg) => msg.sender_id !== currentUserId);
+  const activeConversationName = conversationWithName?.trim() || firstReceivedMessage?.sender_name || fallbackSenderName;
+  const activeConversationAvatarUrl = conversationWithAvatarUrl ?? firstReceivedMessage?.sender_avatar_url ?? null;
 
   function renderMessages() {
     return messages.map((msg) => {
       const isMine = msg.sender_id === currentUserId;
+      const senderName = isMine ? youLabel : msg.sender_name?.trim() || fallbackSenderName;
+      const sentAt = formatTime(msg.created_at);
       return (
         <div
           key={msg.id}
-          className={`flex ${rtl ? (isMine ? "flex-row-reverse" : "") : (isMine ? "flex-row-reverse" : "")}`}
+          className={`flex w-full ${isMine ? "justify-end" : "justify-start"}`}
+          dir="ltr"
         >
           <div
-            className={`max-w-[85%] sm:max-w-[75%] ${
-              isMine
-                ? "items-end"
-                : "items-start"
+            className={`flex max-w-[86%] gap-2 sm:max-w-[76%] ${
+              isMine ? "justify-end" : "justify-start"
             }`}
           >
-            {!isMine && msg.sender_name && (
-              <p
-                className={`mb-0.5 px-1 text-[11px] font-medium text-muted-foreground ${
-                  rtl ? "text-right" : "text-left"
-                }`}
+            {!isMine && (
+              <UserAvatar
+                label={senderName}
+                avatarUrl={msg.sender_avatar_url}
+                className="mt-5 size-9 shrink-0 text-[10px]"
+              />
+            )}
+            <div className={`flex min-w-0 flex-col ${isMine ? "items-end" : "items-start"}`}>
+              {!isMine && (
+                <div className="mb-1 flex max-w-full items-center gap-2 px-1 text-[11px] leading-none text-muted-foreground">
+                  <span className="truncate font-semibold text-foreground" dir="auto">{senderName}</span>
+                  <span className="shrink-0">{sentAt}</span>
+                </div>
+              )}
+              <div
+                className={`rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-sm ${
+                  isMine
+                    ? "rounded-br-md bg-[#ED2124] text-white"
+                    : "rounded-bl-md border border-border/60 bg-[#f4f5f7] text-slate-900 dark:bg-muted dark:text-foreground"
+                } ${msg.pending ? "opacity-70" : ""}`}
                 dir={rtl ? "rtl" : "ltr"}
               >
-                {msg.sender_name}
-              </p>
-            )}
-            <div
-              className={`rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                isMine
-                  ? "bg-[#ED2124] text-white rounded-br-md"
-                  : "bg-card text-foreground border border-border/60 rounded-bl-md"
-              } ${msg.pending ? "opacity-60" : ""}`}
-              dir={rtl ? "rtl" : "ltr"}
-            >
-              <p className="whitespace-pre-wrap break-words">{msg.message}</p>
-              <div className={`mt-1 flex items-center gap-1 ${rtl ? "flex-row-reverse" : ""}`}>
-                <span className={`text-[10px] ${isMine ? "text-white/70" : "text-muted-foreground"}`}>
-                  {msg.pending ? (
-                    <Loader2 size={10} className="animate-spin" />
-                  ) : (
-                    formatTime(msg.created_at)
-                  )}
-                </span>
+                {isMine && (
+                  <div className="mb-1 flex items-center justify-end gap-2 text-[11px] leading-none text-white/80">
+                    <span className="font-semibold text-white">{youLabel}</span>
+                    <span className="shrink-0">
+                      {msg.pending ? <Loader2 size={10} className="animate-spin" /> : sentAt}
+                    </span>
+                  </div>
+                )}
+                <p className="whitespace-pre-wrap break-words">{msg.message}</p>
+                {!isMine && (
+                  <span className="sr-only">
+                    {senderName} {sentAt}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -359,23 +408,40 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
     });
   }
 
+  function renderConversationHeader() {
+    return (
+      <div className="mb-3 flex items-center gap-2.5 rounded-xl border border-border/60 bg-card px-3 py-2.5" dir={rtl ? "rtl" : "ltr"}>
+        <UserAvatar
+          label={activeConversationName}
+          avatarUrl={activeConversationAvatarUrl}
+          className="size-9 shrink-0 text-[10px]"
+        />
+        <div className="min-w-0">
+          <p className="text-[11px] leading-tight text-muted-foreground">{conversationLabel}</p>
+          <p className="truncate text-sm font-semibold text-foreground" dir="auto">{activeConversationName}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
-      {/* Messages container — always collapsed when completed (history shown in separate block) */}
+      {renderConversationHeader()}
+
+      {/* Messages container - always collapsed when completed (history shown in separate block) */}
       <div
         ref={containerRef}
-        className={`mb-3 flex flex-col gap-2 overflow-y-auto rounded-2xl border border-border/60 bg-muted/30 ${
-          isCompleted ? "max-h-0 min-h-0 overflow-hidden border-0 mb-0" : "p-3 max-h-80 min-h-[120px]"
+        className={`mb-3 flex flex-col gap-3 overflow-y-auto rounded-2xl border border-border/60 bg-muted/30 ${
+          isCompleted ? "max-h-0 min-h-0 overflow-hidden border-0 mb-0" : "p-3.5 max-h-80 min-h-[140px]"
         }`}
-        dir={rtl ? "rtl" : "ltr"}
+        dir="ltr"
       >
         {!isCompleted && messages.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">{t("empty")}</p>
+          <p className="py-6 text-center text-sm text-muted-foreground" dir={rtl ? "rtl" : "ltr"}>{t("empty")}</p>
         ) : !isCompleted ? (
           renderMessages()
         ) : null}
       </div>
-
       {isCompleted && (
         <div className="mb-3 rounded-2xl border border-green-200 bg-green-50/70 p-4 text-center dark:border-green-900/50 dark:bg-green-950/20">
           <div className="flex items-center justify-center gap-2 text-green-700 dark:text-green-300">
@@ -418,10 +484,10 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
           <span>
             {otherUserTypingName
               ? rtl
-                ? `${otherUserTypingName} يكتب...`
+                ? `${otherUserTypingName} \u064a\u0643\u062a\u0628...`
                 : `${otherUserTypingName} typing...`
               : rtl
-                ? "يكتب..."
+                ? "\u064a\u0643\u062a\u0628..."
                 : "typing..."}
           </span>
         </div>
@@ -460,8 +526,8 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
       {/* History shown below the completion banner when user expands it */}
       {isCompleted && showHistory && messages.length > 0 && (
         <div
-          className="mb-3 flex max-h-80 flex-col gap-2 overflow-y-auto rounded-2xl border border-border/60 bg-muted/30 p-3"
-          dir={rtl ? "rtl" : "ltr"}
+          className="mb-3 flex max-h-80 flex-col gap-3 overflow-y-auto rounded-2xl border border-border/60 bg-muted/30 p-3.5"
+          dir="ltr"
         >
           {renderMessages()}
         </div>

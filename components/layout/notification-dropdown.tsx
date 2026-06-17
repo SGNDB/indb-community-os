@@ -57,6 +57,8 @@ function getNotificationIcon(type: string) {
     case "comment":
     case "idea_comment":
     case "memory_comment":
+    case "fadla_message":
+    case "idea_message":
       return MessageCircle;
     case "save":
       return Bookmark;
@@ -70,7 +72,6 @@ function getNotificationIcon(type: string) {
     case "idea_participate_request":
     case "idea_participant_accepted":
     case "idea_participant_declined":
-    case "idea_message":
     case "idea_status_change":
       return Lightbulb;
     default:
@@ -404,9 +405,28 @@ export function NotificationDropdown({
 
   function renderNotificationItem(n: NotificationWithActor) {
     const Icon = getNotificationIcon(n.type);
-    const displayName = n.actor?.full_name ?? n.actor?.username ?? t("someone");
+    const metadata = (n.metadata ?? {}) as {
+      actorName?: unknown;
+      actorAvatarUrl?: unknown;
+      senderName?: unknown;
+      senderAvatarUrl?: unknown;
+    };
+    const metadataName =
+      typeof metadata.actorName === "string"
+        ? metadata.actorName
+        : typeof metadata.senderName === "string"
+          ? metadata.senderName
+          : null;
+    const metadataAvatarUrl =
+      typeof metadata.actorAvatarUrl === "string"
+        ? metadata.actorAvatarUrl
+        : typeof metadata.senderAvatarUrl === "string"
+          ? metadata.senderAvatarUrl
+          : null;
+    const displayName = n.actor?.full_name ?? n.actor?.username ?? metadataName ?? t("someone");
+    const displayAvatarUrl = n.actor?.avatar_url ?? metadataAvatarUrl;
 
-      function getMessage() {
+    function getMessage() {
       const actorName = displayName;
       switch (n.type) {
         case "follow":
@@ -468,7 +488,7 @@ export function NotificationDropdown({
         <div className="relative shrink-0">
           <UserAvatar
             label={displayName}
-            avatarUrl={n.actor?.avatar_url}
+            avatarUrl={displayAvatarUrl}
             className="h-10 w-10"
           />
           <div className="absolute -bottom-0.5 -end-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-card bg-primary text-[10px] text-primary-foreground">

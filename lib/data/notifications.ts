@@ -65,6 +65,18 @@ export async function createNotification(
   if (params.userId === params.actorId) return;
 
   const supabase = await createClient();
+  const {data: actor} = await supabase
+    .from("profiles")
+    .select("full_name, username, avatar_url")
+    .eq("id", params.actorId)
+    .maybeSingle();
+
+  const actorName = actor?.full_name ?? actor?.username ?? null;
+  const metadata = {
+    ...(params.metadata ?? {}),
+    ...(actorName ? {actorName} : {}),
+    ...(actor?.avatar_url ? {actorAvatarUrl: actor.avatar_url} : {}),
+  };
 
   const payload = {
     user_id: params.userId,
@@ -74,7 +86,7 @@ export async function createNotification(
     entity_id: params.entityId,
     title: params.title,
     message: params.message ?? null,
-    metadata: params.metadata ?? {},
+    metadata,
   };
 
   let {error} = await supabase.from("notifications").insert(payload);
