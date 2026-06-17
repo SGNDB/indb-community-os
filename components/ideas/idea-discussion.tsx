@@ -105,7 +105,7 @@ export function IdeaDiscussion({
 
   useEffect(() => {
     if (isNearBottomRef.current) {
-      bottomRef.current?.scrollIntoView({behavior: "smooth"});
+      containerRef.current?.scrollTo({top: containerRef.current.scrollHeight, behavior: "smooth"});
     }
   }, [messages]);
 
