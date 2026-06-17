@@ -174,7 +174,7 @@ begin
       where c.rn <= p_max_per_post
       order by c.post_id, c.created_at asc
     ) sub
-  ) into v_result;
+  );
 
   return coalesce(v_result, '[]'::jsonb);
 end;
