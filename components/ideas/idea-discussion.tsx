@@ -41,6 +41,14 @@ interface RealtimeTypingPayload {
   };
 }
 
+interface IdeaMessageBroadcastPayload {
+  id?: string;
+  sender_id?: string;
+  sender_name?: string;
+  message?: string;
+  created_at?: string;
+}
+
 export function IdeaDiscussion({ideaId, currentUserId, currentUserName, locale, initialMessages}: Props) {
   const t = useTranslations("Ideas.discussion");
   const [messages, setMessages] = useState<DisplayMessage[]>(() =>
@@ -61,6 +69,7 @@ export function IdeaDiscussion({ideaId, currentUserId, currentUserName, locale, 
   const containerRef = useRef<HTMLDivElement>(null);
   const isNearBottomRef = useRef(true);
   const channelRef = useRef<RealtimeChannel | null>(null);
+  const channelReadyRef = useRef(false);
   const typingTimeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const lastTypingBroadcastRef = useRef(0);
   const senderNameCacheRef = useRef<Map<string, string>>(new Map());
@@ -84,9 +93,14 @@ export function IdeaDiscussion({ideaId, currentUserId, currentUserName, locale, 
 
   useEffect(() => {
     const supabase = createClient();
-    const channel = supabase.channel(`idea-discussion-${ideaId}`);
+    const channel = supabase.channel(`idea-discussion-${ideaId}`, {
+      config: {
+        broadcast: {self: false},
+      },
+    });
     const typingTimeouts = typingTimeoutsRef.current;
     channelRef.current = channel;
+    channelReadyRef.current = false;
 
     async function getSenderName(senderId: string) {
       const cached = senderNameCacheRef.current.get(senderId);
@@ -134,6 +148,26 @@ export function IdeaDiscussion({ideaId, currentUserId, currentUserName, locale, 
           );
         }
       })
+      .on("broadcast", {event: "message"}, async (payload) => {
+        const eventPayload = payload as {payload?: IdeaMessageBroadcastPayload} & IdeaMessageBroadcastPayload;
+        const messagePayload = eventPayload.payload ?? eventPayload;
+        const {id, sender_id: senderId, sender_name: sentSenderName, message, created_at: createdAt} = messagePayload;
+        if (!id || !senderId || !message || !createdAt || senderId === currentUserId) return;
+
+        clearTypingUser(senderId);
+        const senderName = sentSenderName?.trim() || await getSenderName(senderId);
+        setMessages((prev) =>
+          prev.some((msg) => msg.id === id)
+            ? prev
+            : [...prev, {
+                id,
+                sender_id: senderId,
+                sender_name: senderName || undefined,
+                message,
+                created_at: createdAt,
+              }],
+        );
+      })
       .on("broadcast", {event: "typing"}, (payload) => {
         const eventPayload = payload as RealtimeTypingPayload;
         const typingPayload = eventPayload.payload ?? eventPayload;
@@ -157,13 +191,16 @@ export function IdeaDiscussion({ideaId, currentUserId, currentUserName, locale, 
         }, 2500);
         typingTimeouts.set(senderId, timeout);
       })
-      .subscribe();
+      .subscribe((status) => {
+        channelReadyRef.current = status === "SUBSCRIBED";
+      });
 
     return () => {
       typingTimeouts.forEach((timeout) => clearTimeout(timeout));
       typingTimeouts.clear();
       supabase.removeChannel(channel);
       channelRef.current = null;
+      channelReadyRef.current = false;
     };
   }, [ideaId, currentUserId, t]);
 
@@ -206,6 +243,19 @@ export function IdeaDiscussion({ideaId, currentUserId, currentUserName, locale, 
             : m,
         ),
       );
+      if (channelReadyRef.current && result.message?.id && result.message.created_at) {
+        void channelRef.current?.send({
+          type: "broadcast",
+          event: "message",
+          payload: {
+            id: result.message.id,
+            sender_id: currentUserId,
+            sender_name: currentUserName?.trim() || undefined,
+            message: trimmed,
+            created_at: result.message.created_at,
+          },
+        });
+      }
     } else {
       setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
       setError(result.error === "rate_limited" ? t("sendError") : (result.error ?? null));
@@ -216,7 +266,7 @@ export function IdeaDiscussion({ideaId, currentUserId, currentUserName, locale, 
 
   const broadcastTyping = useCallback(() => {
     const now = Date.now();
-    if (now - lastTypingBroadcastRef.current > 1500) {
+    if (channelReadyRef.current && now - lastTypingBroadcastRef.current > 1500) {
       lastTypingBroadcastRef.current = now;
       channelRef.current?.send({
         type: "broadcast",

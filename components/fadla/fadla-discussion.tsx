@@ -29,6 +29,14 @@ interface DisplayMessage {
   pending?: boolean;
 }
 
+interface FadlaMessageBroadcastPayload {
+  id?: string;
+  sender_id?: string;
+  sender_name?: string;
+  message?: string;
+  created_at?: string;
+}
+
 export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserName, locale, initialMessages, status: initialStatus}: Props) {
   const t = useTranslations("Fadla.discussion");
   const [messages, setMessages] = useState<DisplayMessage[]>(() =>
@@ -46,10 +54,12 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
   const [showHistory, setShowHistory] = useState(false);
   const [isCompleted, setIsCompleted] = useState(initialStatus === "completed");
   const [otherUserTyping, setOtherUserTyping] = useState(false);
+  const [otherUserTypingName, setOtherUserTypingName] = useState<string | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isNearBottomRef = useRef(true);
   const channelRef = useRef<RealtimeChannel | null>(null);
+  const channelReadyRef = useRef(false);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTypingBroadcastRef = useRef(0);
   const senderNameCacheRef = useRef<Map<string, string>>(new Map());
@@ -90,8 +100,13 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
 
   useEffect(() => {
     const supabase = createClient();
-    const channel = supabase.channel(`fadla-discussion-${requestId}`);
+    const channel = supabase.channel(`fadla-discussion-${requestId}`, {
+      config: {
+        broadcast: {self: false},
+      },
+    });
     channelRef.current = channel;
+    channelReadyRef.current = false;
 
     async function getSenderName(senderId: string) {
       const cached = senderNameCacheRef.current.get(senderId);
@@ -142,21 +157,58 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
           setIsCompleted(true);
         }
       })
+      .on("broadcast", {event: "message"}, (payload) => {
+        const eventPayload = payload as {payload?: FadlaMessageBroadcastPayload} & FadlaMessageBroadcastPayload;
+        const messagePayload = eventPayload.payload ?? eventPayload;
+        if (
+          !messagePayload.id ||
+          !messagePayload.sender_id ||
+          !messagePayload.message ||
+          !messagePayload.created_at ||
+          messagePayload.sender_id === currentUserId
+        ) {
+          return;
+        }
+
+        setOtherUserTyping(false);
+        setOtherUserTypingName(null);
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
+        setMessages((prev) =>
+          prev.some((msg) => msg.id === messagePayload.id)
+            ? prev
+            : [...prev, {
+                id: messagePayload.id!,
+                sender_id: messagePayload.sender_id!,
+                sender_name: messagePayload.sender_name || undefined,
+                message: messagePayload.message!,
+                created_at: messagePayload.created_at!,
+              }],
+        );
+      })
       .on("broadcast", {event: "typing"}, (payload) => {
-        const eventPayload = payload as {payload?: {sender_id?: string}; sender_id?: string};
+        const eventPayload = payload as {payload?: {sender_id?: string; sender_name?: string}; sender_id?: string; sender_name?: string};
         const senderId = eventPayload.payload?.sender_id ?? eventPayload.sender_id;
+        const senderName = eventPayload.payload?.sender_name ?? eventPayload.sender_name ?? null;
         if (senderId && senderId !== currentUserId) {
           setOtherUserTyping(true);
+          setOtherUserTypingName(senderName);
           if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-          typingTimeoutRef.current = setTimeout(() => setOtherUserTyping(false), 2500);
+          typingTimeoutRef.current = setTimeout(() => {
+            setOtherUserTyping(false);
+            setOtherUserTypingName(null);
+          }, 2500);
         }
       })
-      .subscribe();
+      .subscribe((status) => {
+        channelReadyRef.current = status === "SUBSCRIBED";
+      });
 
     return () => {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       supabase.removeChannel(channel);
       channelRef.current = null;
+      channelReadyRef.current = false;
     };
   }, [requestId, shareId, currentUserId]);
 
@@ -193,6 +245,19 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
       setMessages((prev) =>
         prev.map((m) => (m.id === optimisticId ? {...m, id: result.message.id, created_at: result.message.created_at, pending: false} : m)),
       );
+      if (channelReadyRef.current) {
+        void channelRef.current?.send({
+          type: "broadcast",
+          event: "message",
+          payload: {
+            id: result.message.id,
+            sender_id: currentUserId,
+            sender_name: currentUserName?.trim() || undefined,
+            message: trimmed,
+            created_at: result.message.created_at,
+          },
+        });
+      }
     } else {
       setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
       setError(result.error === "rate_limited" ? t("sendError") : result.error);
@@ -203,15 +268,18 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
 
   const broadcastTyping = useCallback(() => {
     const now = Date.now();
-    if (now - lastTypingBroadcastRef.current > 1500) {
+    if (channelReadyRef.current && now - lastTypingBroadcastRef.current > 1500) {
       lastTypingBroadcastRef.current = now;
       channelRef.current?.send({
         type: "broadcast",
         event: "typing",
-        payload: {sender_id: currentUserId},
+        payload: {
+          sender_id: currentUserId,
+          sender_name: currentUserName?.trim() || undefined,
+        },
       });
     }
-  }, [currentUserId]);
+  }, [currentUserId, currentUserName]);
 
   function handleInputChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setInput(e.target.value);
@@ -347,7 +415,15 @@ export function FadlaDiscussion({requestId, shareId, currentUserId, currentUserN
             <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground" style={{animationDelay: "200ms"}} />
             <span className="size-1.5 animate-bounce rounded-full bg-muted-foreground" style={{animationDelay: "400ms"}} />
           </span>
-          <span>{rtl ? "يكتب..." : "typing..."}</span>
+          <span>
+            {otherUserTypingName
+              ? rtl
+                ? `${otherUserTypingName} يكتب...`
+                : `${otherUserTypingName} typing...`
+              : rtl
+                ? "يكتب..."
+                : "typing..."}
+          </span>
         </div>
       )}
 
