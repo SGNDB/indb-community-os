@@ -9,7 +9,26 @@
     "lint": "eslint",
     "admin:audit": "node scripts/admin-account-maintenance.mjs audit",
     "admin:promote-phone": "node scripts/admin-account-maintenance.mjs promote-phone",
-    "admin:remove-legacy": "node scripts/admin-account-maintenance.mjs remove-legacy"
+    "admin:remove-legacy": "node scripts/admin-account-maintenance.mjs remove-legacy",
+    "seed": "node scripts/seed.mjs",
+    "seed:report": "node scripts/generate-report.mjs",
+    "qa:fadla": "node scripts/qa-fadla-migration.mjs",
+    "qa:migration-check": "node scripts/check-migration-20000000.mjs",
+    "test": "node --test tests/*.test.ts",
+    "test:e2e": "npx playwright test e2e/ --config=e2e/playwright.config.ts",
+    "test:e2e:ui": "npx playwright test --ui --config=e2e/playwright.config.ts",
+    "test:e2e:auth": "npx playwright test e2e/auth.spec.ts --config=e2e/playwright.config.ts",
+    "test:e2e:feed": "npx playwright test e2e/feed.spec.ts --config=e2e/playwright.config.ts",
+    "test:e2e:ideas": "npx playwright test e2e/ideas.spec.ts --config=e2e/playwright.config.ts",
+    "test:e2e:fadla": "npx playwright test e2e/fadla.spec.ts --config=e2e/playwright.config.ts",
+    "test:e2e:notifications": "npx playwright test e2e/notifications.spec.ts --config=e2e/playwright.config.ts",
+    "test:k6:feed": "k6 run k6/scenarios/feed-browsing.js",
+    "test:k6:posts": "k6 run k6/scenarios/post-creation.js",
+    "test:k6:comments": "k6 run k6/scenarios/comment-creation.js",
+    "test:k6:fadla": "k6 run k6/scenarios/fadla-workflow.js",
+    "test:k6:ideas": "k6 run k6/scenarios/ideas-workflow.js",
+    "test:k6:notifications": "k6 run k6/scenarios/notifications.js",
+    "test:k6:all": "k6 run k6/run-all.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -34,6 +53,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

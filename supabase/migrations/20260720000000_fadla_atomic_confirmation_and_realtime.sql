@@ -1,3 +1,10 @@
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Migration 20260720000000: Fadla Atomic Confirmation + Realtime Publication
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Instructions: Copy this entire file into Supabase Dashboard → SQL Editor
+--   https://supabase.com/dashboard/project/oanwmlouezwtcirrhbyl/sql/new
+-- ═══════════════════════════════════════════════════════════════════════════════
+
 -- 1. Atomic Fadla confirmation RPC: handles both receiver and sender confirmation
 -- with row locking to prevent race conditions on two-sided completion.
 create or replace function public.confirm_fadla_action(
@@ -82,8 +89,7 @@ begin
     return jsonb_build_object('success', false, 'error', 'invalid_confirmation_type');
   end if;
 
-  -- Check if both sides have now confirmed (v_share was read before the update,
-  -- so it has the other side's committed state)
+  -- Check if both sides have now confirmed
   v_both_confirmed := v_receiver_confirmed_at is not null and v_sender_confirmed_at is not null;
 
   if v_both_confirmed then
