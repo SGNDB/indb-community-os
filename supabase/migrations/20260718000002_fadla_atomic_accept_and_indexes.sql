@@ -56,8 +56,9 @@ alter table if exists public.ideas replica identity full;
 alter table if exists public.community_shares replica identity full;
 
 -- 5. Prevent duplicate active notifications
+-- entity_id is uuid, so cast to text for coalesce
 create unique index if not exists notifications_unique_active
-  on public.notifications (user_id, actor_id, type, coalesce(entity_type, ''), coalesce(entity_id, ''))
+  on public.notifications (user_id, actor_id, type, coalesce(entity_type, ''), coalesce(entity_id::text, ''))
   where read = false;
 
 -- 6. Allow re-requesting after decline (unique constraint only for active requests)
