@@ -82,7 +82,6 @@ export function FadlaDiscussion({
   const containerRef = useRef<HTMLDivElement>(null);
   const isNearBottomRef = useRef(true);
   const channelRef = useRef<RealtimeChannel | null>(null);
-  const channelReadyRef = useRef(false);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTypingBroadcastRef = useRef(0);
   const senderIdentityCacheRef = useRef<Map<string, SenderIdentity>>(new Map());
@@ -129,7 +128,6 @@ export function FadlaDiscussion({
       },
     });
     channelRef.current = channel;
-    channelReadyRef.current = false;
 
     async function getSenderIdentity(senderId: string) {
       const cached = senderIdentityCacheRef.current.get(senderId);
@@ -159,6 +157,9 @@ export function FadlaDiscussion({
         const newMsg = payload.new as FadlaRequestMessageRow;
         if (newMsg.sender_id !== currentUserId) {
           const senderIdentity = await getSenderIdentity(newMsg.sender_id);
+          setOtherUserTyping(false);
+          setOtherUserTypingName(null);
+          if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
           isNearBottomRef.current = true;
           setMessages((prev) =>
             prev.some((msg) => msg.id === newMsg.id)
@@ -230,15 +231,21 @@ export function FadlaDiscussion({
           }, 2500);
         }
       })
-      .subscribe((status) => {
-        channelReadyRef.current = status === "SUBSCRIBED";
-      });
+      .on("broadcast", {event: "typing_stop"}, (payload) => {
+        const eventPayload = payload as {payload?: {sender_id?: string}; sender_id?: string};
+        const senderId = eventPayload.payload?.sender_id ?? eventPayload.sender_id;
+        if (senderId && senderId !== currentUserId) {
+          setOtherUserTyping(false);
+          setOtherUserTypingName(null);
+          if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+        }
+      })
+      .subscribe();
 
     return () => {
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       supabase.removeChannel(channel);
       channelRef.current = null;
-      channelReadyRef.current = false;
     };
   }, [requestId, shareId, currentUserId]);
 
@@ -248,6 +255,11 @@ export function FadlaDiscussion({
     if (!trimmed || sending || trimmed.length > 500) return;
     setSending(true);
     setError(null);
+    void channelRef.current?.send({
+      type: "broadcast",
+      event: "typing_stop",
+      payload: {sender_id: currentUserId},
+    });
 
     const optimisticId = `opt-${Date.now()}`;
     isNearBottomRef.current = true;
@@ -277,20 +289,18 @@ export function FadlaDiscussion({
       setMessages((prev) =>
         prev.map((m) => (m.id === optimisticId ? {...m, id: result.message.id, created_at: result.message.created_at, pending: false} : m)),
       );
-      if (channelReadyRef.current) {
-        void channelRef.current?.send({
-          type: "broadcast",
-          event: "message",
-          payload: {
-            id: result.message.id,
-            sender_id: currentUserId,
-            sender_name: currentUserName?.trim() || undefined,
-            sender_avatar_url: currentUserAvatarUrl ?? null,
-            message: trimmed,
-            created_at: result.message.created_at,
-          },
-        });
-      }
+      void channelRef.current?.send({
+        type: "broadcast",
+        event: "message",
+        payload: {
+          id: result.message.id,
+          sender_id: currentUserId,
+          sender_name: currentUserName?.trim() || undefined,
+          sender_avatar_url: currentUserAvatarUrl ?? null,
+          message: trimmed,
+          created_at: result.message.created_at,
+        },
+      });
     } else {
       setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
       setError(result.error === "rate_limited" ? t("sendError") : result.error);
@@ -301,9 +311,9 @@ export function FadlaDiscussion({
 
   const broadcastTyping = useCallback(() => {
     const now = Date.now();
-    if (channelReadyRef.current && now - lastTypingBroadcastRef.current > 1500) {
+    if (now - lastTypingBroadcastRef.current > 700) {
       lastTypingBroadcastRef.current = now;
-      channelRef.current?.send({
+      void channelRef.current?.send({
         type: "broadcast",
         event: "typing",
         payload: {
@@ -314,10 +324,22 @@ export function FadlaDiscussion({
     }
   }, [currentUserId, currentUserName]);
 
+  const broadcastTypingStop = useCallback(() => {
+    void channelRef.current?.send({
+      type: "broadcast",
+      event: "typing_stop",
+      payload: {sender_id: currentUserId},
+    });
+  }, [currentUserId]);
+
   function handleInputChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    setInput(e.target.value);
-    if (!isCompleted && e.target.value) {
+    const nextValue = e.target.value;
+    setInput(nextValue);
+    if (isCompleted) return;
+    if (nextValue) {
       broadcastTyping();
+    } else {
+      broadcastTypingStop();
     }
   }
 
