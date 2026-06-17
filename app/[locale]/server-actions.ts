@@ -3388,91 +3388,34 @@ export async function confirmFadlaReceivedAction(
     return { success: false, error: errorsT('submitFailed') };
   }
 
-  const { data: share } = await supabase
-    .from('community_shares')
-    .select('owner_id, accepted_request_id, status, receiver_confirmed_at, sender_confirmed_at')
-    .eq('id', shareId)
-    .single();
+  const { data: result, error: rpcError } = await supabase.rpc('confirm_fadla_action', {
+    p_share_id: shareId,
+    p_user_id: user.id,
+    p_confirmation_type: 'received',
+  });
 
-  if (!share || !share.accepted_request_id) {
-    return { success: false, error: fadlaT('errors.notFound') };
-  }
-
-  // Verify caller is the accepted requester
-  const { data: requestRow } = await supabase
-    .from('community_share_requests')
-    .select('requester_id, status')
-    .eq('id', share.accepted_request_id)
-    .single();
-
-  if (!requestRow || requestRow.status !== 'accepted' || requestRow.requester_id !== user.id) {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  if (share.receiver_confirmed_at) {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  const now = new Date().toISOString();
-  const adminClient = createAdminClient();
-  const writeClient = adminClient ?? supabase;
-
-  const { error: updateError } = await writeClient
-    .from('community_shares')
-    .update({ receiver_confirmed_at: now, updated_at: now })
-    .eq('id', shareId);
-
-  if (updateError) {
+  if (rpcError || !result?.success) {
+    console.error('confirm_fadla_action RPC error:', rpcError, result);
     return { success: false, error: fadlaT('errors.actionFailed') };
   }
 
-  // Re-read the share to get the latest committed state (race-condition-safe)
-  const readClient = adminClient ?? supabase;
-  const { data: freshShare } = await readClient
-    .from('community_shares')
-    .select('sender_confirmed_at, receiver_confirmed_at')
-    .eq('id', shareId)
-    .single();
+  const bothConfirmed = result.bothConfirmed as boolean;
 
-  const bothConfirmed = !!freshShare?.sender_confirmed_at && !!freshShare?.receiver_confirmed_at;
-
-  // If both confirmed, complete the item
-  if (bothConfirmed) {
-    await writeClient
-      .from('community_shares')
-      .update({ status: 'completed', completed_at: now, updated_at: now })
-      .eq('id', shareId);
-  }
-
-  // Notify owner that receiver confirmed
   await createNotification({
-    userId: share.owner_id,
+    userId: result.ownerId as string,
     actorId: user.id,
-    type: 'fadla_receiver_confirmed',
+    type: bothConfirmed ? 'fadla_both_completed' : 'fadla_receiver_confirmed',
     entityType: 'community_share',
     entityId: shareId,
-    title: fadlaT('notifications.receiverConfirmed'),
+    title: bothConfirmed ? fadlaT('notifications.bothCompleted') : fadlaT('notifications.receiverConfirmed'),
   });
 
-  // If both confirmed, notify both parties
-  if (bothConfirmed) {
-    await createNotification({
-      userId: requestRow.requester_id,
-      actorId: user.id,
-      type: 'fadla_both_completed',
-      entityType: 'community_share',
-      entityId: shareId,
-      title: fadlaT('notifications.bothCompleted'),
-    });
-  }
-
-  revalidatePath(toPath(locale, '/fadla'));
   return {
     success: true,
     shareId,
-    receiverConfirmedAt: freshShare?.receiver_confirmed_at ?? now,
-    senderConfirmedAt: freshShare?.sender_confirmed_at ?? null,
-    shareStatus: bothConfirmed ? 'completed' : share.status,
+    receiverConfirmedAt: result.receiverConfirmedAt as string,
+    senderConfirmedAt: result.senderConfirmedAt as string | null,
+    shareStatus: result.shareStatus as string,
   };
 }
 
@@ -3490,93 +3433,51 @@ export async function confirmFadlaHandedOverAction(
     return { success: false, error: errorsT('submitFailed') };
   }
 
-  const { data: share } = await supabase
-    .from('community_shares')
-    .select('owner_id, accepted_request_id, status, receiver_confirmed_at, sender_confirmed_at')
-    .eq('id', shareId)
-    .single();
+  const { data: result, error: rpcError } = await supabase.rpc('confirm_fadla_action', {
+    p_share_id: shareId,
+    p_user_id: user.id,
+    p_confirmation_type: 'handed_over',
+  });
 
-  if (!share || !share.accepted_request_id) {
-    return { success: false, error: fadlaT('errors.notFound') };
-  }
-
-  // Verify caller is the owner
-  if (share.owner_id !== user.id) {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  if (share.sender_confirmed_at) {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  const now = new Date().toISOString();
-  const adminClient = createAdminClient();
-  const writeClient = adminClient ?? supabase;
-
-  const { error: updateError } = await writeClient
-    .from('community_shares')
-    .update({ sender_confirmed_at: now, updated_at: now })
-    .eq('id', shareId);
-
-  if (updateError) {
+  if (rpcError || !result?.success) {
+    console.error('confirm_fadla_action RPC error:', rpcError, result);
     return { success: false, error: fadlaT('errors.actionFailed') };
   }
 
-  // Re-read the share to get the latest committed state (race-condition-safe)
-  const readClient = adminClient ?? supabase;
-  const { data: freshShare } = await readClient
+  const bothConfirmed = result.bothConfirmed as boolean;
+
+  // Fetch requester_id for notification target (only needed for owner action)
+  const { data: share } = await supabase
     .from('community_shares')
-    .select('sender_confirmed_at, receiver_confirmed_at')
+    .select('accepted_request_id, owner_id')
     .eq('id', shareId)
     .single();
 
-  const bothConfirmed = !!freshShare?.sender_confirmed_at && !!freshShare?.receiver_confirmed_at;
+  if (share?.accepted_request_id) {
+    const { data: req } = await supabase
+      .from('community_share_requests')
+      .select('requester_id')
+      .eq('id', share.accepted_request_id)
+      .single();
 
-  // If both confirmed, complete the item
-  if (bothConfirmed) {
-    await writeClient
-      .from('community_shares')
-      .update({ status: 'completed', completed_at: now, updated_at: now })
-      .eq('id', shareId);
+    if (req) {
+      await createNotification({
+        userId: req.requester_id,
+        actorId: user.id,
+        type: bothConfirmed ? 'fadla_both_completed' : 'fadla_sender_confirmed',
+        entityType: 'community_share',
+        entityId: shareId,
+        title: bothConfirmed ? fadlaT('notifications.bothCompleted') : fadlaT('notifications.senderConfirmed'),
+      });
+    }
   }
 
-  // Notify receiver that sender confirmed
-  const { data: req } = await supabase
-    .from('community_share_requests')
-    .select('requester_id')
-    .eq('id', share.accepted_request_id)
-    .single();
-
-  if (req) {
-    await createNotification({
-      userId: req.requester_id,
-      actorId: user.id,
-      type: bothConfirmed ? 'fadla_both_completed' : 'fadla_sender_confirmed',
-      entityType: 'community_share',
-      entityId: shareId,
-      title: bothConfirmed ? fadlaT('notifications.bothCompleted') : fadlaT('notifications.senderConfirmed'),
-    });
-  }
-
-  // If both confirmed, also notify the owner
-  if (bothConfirmed) {
-    await createNotification({
-      userId: share.owner_id,
-      actorId: user.id,
-      type: 'fadla_both_completed',
-      entityType: 'community_share',
-      entityId: shareId,
-      title: fadlaT('notifications.bothCompleted'),
-    });
-  }
-
-  revalidatePath(toPath(locale, '/fadla'));
   return {
     success: true,
     shareId,
-    senderConfirmedAt: freshShare?.sender_confirmed_at ?? now,
-    receiverConfirmedAt: freshShare?.receiver_confirmed_at ?? null,
-    shareStatus: bothConfirmed ? 'completed' : share.status,
+    senderConfirmedAt: result.senderConfirmedAt as string,
+    receiverConfirmedAt: result.receiverConfirmedAt as string | null,
+    shareStatus: result.shareStatus as string,
   };
 }
 
