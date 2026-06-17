@@ -167,7 +167,6 @@ export function IdeaDiscussion({
         if (newMsg.sender_id !== currentUserId) {
           const senderIdentity = await getSenderIdentity(newMsg.sender_id);
           clearTypingUser(newMsg.sender_id);
-          isNearBottomRef.current = true;
           setMessages((prev) =>
             prev.some((msg) => msg.id === newMsg.id)
               ? prev
@@ -192,7 +191,6 @@ export function IdeaDiscussion({
         const senderIdentity = sentSenderName?.trim()
           ? {name: sentSenderName.trim(), avatarUrl: messagePayload.sender_avatar_url ?? null}
           : await getSenderIdentity(senderId);
-        isNearBottomRef.current = true;
         setMessages((prev) =>
           prev.some((msg) => msg.id === id)
             ? prev

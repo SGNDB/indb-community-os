@@ -165,7 +165,6 @@ export function FadlaDiscussion({
           setOtherUserTyping(false);
           setOtherUserTypingName(null);
           if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-          isNearBottomRef.current = true;
           setMessages((prev) =>
             prev.some((msg) => msg.id === newMsg.id)
               ? prev
@@ -208,7 +207,6 @@ export function FadlaDiscussion({
         setOtherUserTypingName(null);
         if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
-        isNearBottomRef.current = true;
         setMessages((prev) =>
           prev.some((msg) => msg.id === messagePayload.id)
             ? prev
