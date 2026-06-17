@@ -1,5 +1,4 @@
--- Keep share counters accurate under concurrent shares.
--- This intentionally supports only public share targets used by the app.
+-- Add 'idea' entity type support to the atomic share count function
 create or replace function public.increment_share_count(
   p_entity_type text,
   p_entity_id uuid

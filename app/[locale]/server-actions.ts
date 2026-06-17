@@ -20,7 +20,6 @@ import {
   createNotification,
   upsertReactionNotification,
   createCommentNotification,
-  createShareNotification,
   createIdeaCommentNotification,
   createIdeaSupportNotification,
   createIdeaParticipateRequestNotification,
@@ -1798,7 +1797,7 @@ export async function deletePostCommentAction(
 
 export async function shareIdeaAction(
   formData: FormData,
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; sharesCount?: number }> {
   const ideaId = formData.get('ideaId');
   const supabase = await createClient();
 
@@ -1820,21 +1819,32 @@ export async function shareIdeaAction(
     return { success: false, error: 'not_found' };
   }
 
-  await createShareNotification(idea.author_id, user.id, ideaId);
+  const { data: sharesCount, error: shareCountError } = await supabase.rpc(
+    'increment_share_count',
+    {
+      p_entity_type: 'idea',
+      p_entity_id: ideaId,
+    },
+  );
 
-  const { data: ideaRow } = await supabase
-    .from('ideas')
-    .select('shares_count')
-    .eq('id', ideaId)
-    .single();
-  if (ideaRow) {
-    await supabase
-      .from('ideas')
-      .update({ shares_count: (ideaRow.shares_count ?? 0) + 1 })
-      .eq('id', ideaId);
+  if (shareCountError || typeof sharesCount !== 'number') {
+    console.error('shareIdeaAction increment_share_count error:', shareCountError);
+    return { success: false, error: 'share_count_failed' };
   }
 
-  return { success: true };
+  if (idea.author_id && idea.author_id !== user.id) {
+    await supabase.from('notifications').insert({
+      user_id: idea.author_id,
+      actor_id: user.id,
+      type: 'share',
+      entity_type: 'idea',
+      entity_id: ideaId,
+      title: 'Shared your idea',
+      message: null,
+    });
+  }
+
+  return { success: true, sharesCount };
 }
 
 export async function sharePostAction(
