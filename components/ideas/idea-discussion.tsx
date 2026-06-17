@@ -71,16 +71,24 @@ export function IdeaDiscussion({
   initialMessages,
 }: Props) {
   const t = useTranslations("Ideas.discussion");
-  const [messages, setMessages] = useState<DisplayMessage[]>(() =>
-    initialMessages.map((m) => ({
+  const [messages, setMessages] = useState<DisplayMessage[]>(() => {
+    const mapped = initialMessages.map((m) => ({
       id: m.id,
       sender_id: m.sender_id,
       sender_name: m.sender?.full_name ?? m.sender?.username ?? undefined,
       sender_avatar_url: m.sender?.avatar_url ?? null,
       message: m.message,
       created_at: m.created_at,
-    })),
-  );
+    }));
+    if (mapped.length > 0 && typeof window !== 'undefined') {
+      console.log('[IdeaDiscussion] currentUserId:', currentUserId, 'type:', typeof currentUserId);
+      console.log('[IdeaDiscussion] raw initialMessage sample:', JSON.stringify(initialMessages[0]));
+      mapped.forEach((m) => {
+        console.log('[IdeaDiscussion] message:', m.id, 'sender_id:', m.sender_id, 'type:', typeof m.sender_id, 'isMine:', m.sender_id === currentUserId);
+      });
+    }
+    return mapped;
+  });
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -61,16 +61,21 @@ export function FadlaDiscussion({
   status: initialStatus,
 }: Props) {
   const t = useTranslations("Fadla.discussion");
-  const [messages, setMessages] = useState<DisplayMessage[]>(() =>
-    initialMessages.map((m) => ({
+  const [messages, setMessages] = useState<DisplayMessage[]>(() => {
+    const mapped = initialMessages.map((m) => ({
       id: m.id,
       sender_id: m.sender_id,
       sender_name: m.sender?.full_name ?? m.sender?.username ?? undefined,
       sender_avatar_url: m.sender?.avatar_url ?? null,
       message: m.message,
       created_at: m.created_at,
-    })),
-  );
+    }));
+    if (mapped.length > 0 && typeof window !== 'undefined') {
+      console.log('[FadlaDiscussion] currentUserId:', currentUserId);
+      console.log('[FadlaDiscussion] message sender_ids:', mapped.map((m) => ({id: m.id, sender_id: m.sender_id, type: typeof m.sender_id})));
+    }
+    return mapped;
+  });
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -360,6 +365,13 @@ export function FadlaDiscussion({
     } catch {
       return "";
     }
+  }
+
+  if (typeof window !== 'undefined' && messages.length > 0) {
+    console.log('[FadlaDiscussion] currentUserId type:', typeof currentUserId, 'value:', currentUserId);
+    messages.forEach((msg) => {
+      console.log('[FadlaDiscussion] msg sender_id type:', typeof msg.sender_id, 'value:', msg.sender_id, 'isMine:', msg.sender_id === currentUserId);
+    });
   }
 
   const rtl = locale === "ar";
