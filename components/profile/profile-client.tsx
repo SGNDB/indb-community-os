@@ -1,6 +1,6 @@
 "use client";
 
-import {useState} from "react";
+import {useCallback, useState} from "react";
 import Image from "next/image";
 import {useTranslations} from "next-intl";
 import {
@@ -103,11 +103,22 @@ export function ProfileClient({
   const emptyFadla = useTranslations("EmptyStates.fadla");
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("about");
+  const [profileData, setProfileData] = useState(profile);
+  const [workData, setWorkData] = useState(work);
+  const [educationData, setEducationData] = useState(education);
+  const [interestsData, setInterestsData] = useState(interests);
+  const [hobbiesData, setHobbiesData] = useState(hobbies);
+  const [linksData, setLinksData] = useState(links);
+  const [travelData, setTravelData] = useState(travel);
 
-  const displayName = profile.full_name ?? profile.username ?? "?";
+  const handleProfileUpdate = useCallback((updated: Partial<ProfileWithCounts>) => {
+    setProfileData((prev) => ({...prev, ...updated}));
+  }, []);
+
+  const displayName = profileData.full_name ?? profileData.username ?? "?";
   const initials = getInitials(displayName);
-  const joinDate = formatJoinDate(profile.created_at, locale);
-  const contributionScore = profile.contribution_score ?? 0;
+  const joinDate = formatJoinDate(profileData.created_at, locale);
+  const contributionScore = profileData.contribution_score ?? 0;
   const contributionRank = getContributionRankKey(contributionScore);
 
   const tabs = [
@@ -123,9 +134,9 @@ export function ProfileClient({
       <div className="mx-auto max-w-4xl">
         {/* Cover Image */}
         <div className="relative h-48 overflow-hidden rounded-2xl sm:h-56 md:h-64">
-          {profile.cover_image_url ? (
+          {profileData.cover_image_url ? (
             <Image
-              src={profile.cover_image_url}
+              src={profileData.cover_image_url}
               alt=""
               fill
               sizes="(max-width: 768px) 100vw, 896px"
@@ -165,9 +176,9 @@ export function ProfileClient({
                 onClick={() => setEditModalOpen(true)}
                 className="group relative inline-block"
               >
-                {profile.avatar_url ? (
+                {profileData.avatar_url ? (
                   <Image
-                    src={profile.avatar_url}
+                    src={profileData.avatar_url}
                     alt={displayName}
                     width={144}
                     height={144}
@@ -201,8 +212,8 @@ export function ProfileClient({
               <div className="flex flex-col items-center gap-1 sm:flex-row sm:items-center sm:gap-3">
                 <div>
                   <h1 className="text-xl font-bold sm:text-2xl md:text-3xl">{displayName}</h1>
-                  {profile.username ? (
-                    <p className="text-base text-muted-foreground">@{profile.username}</p>
+                  {profileData.username ? (
+                    <p className="text-base text-muted-foreground">@{profileData.username}</p>
                   ) : null}
                 </div>
                 {profile.role && profile.role !== "member" ? (
@@ -212,17 +223,17 @@ export function ProfileClient({
                 ) : null}
               </div>
 
-              {profile.bio ? (
-                <p className="mt-2 text-base text-foreground/85 sm:text-lg">{profile.bio}</p>
+              {profileData.bio ? (
+                <p className="mt-2 text-base text-foreground/85 sm:text-lg">{profileData.bio}</p>
               ) : (
                 <p className="mt-2 text-base italic text-muted-foreground">{t("noBioYet")}</p>
               )}
 
               <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-base text-muted-foreground sm:justify-start">
-                {profile.city ? (
+                {profileData.city ? (
                   <span className="inline-flex items-center gap-1">
                     <MapPin size={16} />
-                    {profile.city}
+                    {profileData.city}
                   </span>
                 ) : null}
                 <span className="inline-flex items-center gap-1">
@@ -238,13 +249,13 @@ export function ProfileClient({
               </div>
               <div className="mt-3">
                 <FollowSummary
-                  profileId={profile.id}
-                  username={profile.username}
+                  profileId={profileData.id}
+                  username={profileData.username}
                   locale={locale}
                   currentUserId={currentUserId}
                   initialIsFollowing={false}
-                  initialFollowersCount={profile.followers_count}
-                  followingCount={profile.following_count}
+                  initialFollowersCount={profileData.followers_count}
+                  followingCount={profileData.following_count}
                   showButton={false}
                 />
               </div>
@@ -282,23 +293,23 @@ export function ProfileClient({
               <p className="text-sm text-muted-foreground">{t("stats.ideas")}</p>
             </div>
             <div className="py-3 text-center">
-              <p className="text-xl font-bold sm:text-2xl">{profile.comments_count ?? 0}</p>
+              <p className="text-xl font-bold sm:text-2xl">{profileData.comments_count ?? 0}</p>
               <p className="text-sm text-muted-foreground">{t("stats.comments")}</p>
             </div>
           </div>
 
           {/* Profile Completeness */}
-          {currentUserId === profile.id && (
+          {currentUserId === profileData.id && (
             <div className="mt-4">
               <ProfileCompleteness
-                hasAvatar={!!profile.avatar_url}
-                hasCover={!!profile.cover_image_url}
-                hasBio={!!profile.bio}
-                hasCity={!!profile.city}
-                hasWork={work.length > 0}
-                hasEducation={education.length > 0}
-                hasInterests={interests.length > 0}
-                hasLinks={links.length > 0}
+                hasAvatar={!!profileData.avatar_url}
+                hasCover={!!profileData.cover_image_url}
+                hasBio={!!profileData.bio}
+                hasCity={!!profileData.city}
+                hasWork={workData.length > 0}
+                hasEducation={educationData.length > 0}
+                hasInterests={interestsData.length > 0}
+                hasLinks={linksData.length > 0}
               />
             </div>
           )}
@@ -415,23 +426,23 @@ export function ProfileClient({
             {activeTab === "about" ? (
               <ProfileAbout
                 profile={{
-                  id: profile.id,
-                  full_name: profile.full_name,
-                  username: profile.username,
-                  avatar_url: profile.avatar_url,
-                  bio: profile.bio,
-                  city: profile.city,
-                  hometown: profile.hometown ?? null,
-                  languages_spoken: profile.languages_spoken ?? [],
+                  id: profileData.id,
+                  full_name: profileData.full_name,
+                  username: profileData.username,
+                  avatar_url: profileData.avatar_url,
+                  bio: profileData.bio,
+                  city: profileData.city,
+                  hometown: profileData.hometown ?? null,
+                  languages_spoken: profileData.languages_spoken ?? [],
                   contribution_score: contributionScore,
-                  created_at: profile.created_at,
+                  created_at: profileData.created_at,
                 }}
-                work={work}
-                education={education}
-                interests={interests}
-                hobbies={hobbies}
-                links={links}
-                travel={travel}
+                work={workData}
+                education={educationData}
+                interests={interestsData}
+                hobbies={hobbiesData}
+                links={linksData}
+                travel={travelData}
                 isOwnProfile={true}
               />
             ) : null}
@@ -442,14 +453,21 @@ export function ProfileClient({
       <EditProfileModal
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
-        profile={profile}
-        work={work}
-        education={education}
-        interests={interests}
-        hobbies={hobbies}
-        links={links}
-        travel={travel}
+        profile={profileData}
+        work={workData}
+        education={educationData}
+        interests={interestsData}
+        hobbies={hobbiesData}
+        links={linksData}
+        travel={travelData}
         locale={locale}
+        onProfileUpdate={handleProfileUpdate}
+        onWorkChange={setWorkData}
+        onEducationChange={setEducationData}
+        onInterestsChange={setInterestsData}
+        onHobbiesChange={setHobbiesData}
+        onLinksChange={setLinksData}
+        onTravelChange={setTravelData}
       />
     </>
   );

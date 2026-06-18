@@ -46,7 +46,7 @@
           "description": "Wattin baawo ngam yahude wuro ngam e dooɓe."
         },
         "fadla": {
-          "title": "Fadla",
+          "title": "Gar3tak",
           "description": "Yel huɗe goɗɗe nde aɗa waɗii e yimɓe nde ɓe haaɓii."
         },
         "profile": {
@@ -93,11 +93,11 @@
       "description": "Suɓo e tawtu e miijooji kuuɓtuɗi ngam Nuwaadibu."
     },
     "fadla": {
-      "title": "Fadla",
+      "title": "Gar3tak",
       "description": "Yeɗ ko njiɗaa koo ko heddii e juuɗe maa, yo heɓo ɗum en ngantooɓe."
     },
     "fadlaArchive": {
-      "title": "Fadla Archive",
+      "title": "Gar3tak Archive",
       "description": "Yiylo huɗe timmaaɗe e marƴaaɗe, rewr nafuuda maa e kuurdu."
     },
     "timeline": {
@@ -159,8 +159,8 @@
         "short": "Miijooji"
       },
       "fadla": {
-        "label": "Fadla",
-        "short": "Yeɗ"
+        "label": "Gar3tak",
+        "short": "Gar3tak"
       },
       "polls": {
         "label": "Nootorgal",
@@ -197,14 +197,14 @@
       "posts": "Blaŋtooji",
       "ideas": "Miijooji",
       "memories": "Jikkuuji",
-      "fadla": "Yeɗitine",
+      "fadla": "Gar3tak",
       "people": "Yimɓe"
     },
     "types": {
       "post": "Blaŋto",
       "idea": "Miijo",
       "memory": "Jikku",
-      "fadla": "Huunde yeɗaande",
+      "fadla": "Huunde Gar3tak",
       "profile": "Neɗɗo"
     }
   },
@@ -226,11 +226,11 @@
     "creditAwarded": "Heɓii {points} kiredi ballondiral",
     "communityShareRequested": "Goɗɗo ƴami huunde nde yeɗuɗaa",
     "fadlaRequested": "{actorName} ƴami huunde nde yeɗuɗaa",
-    "fadlaCompleted": "{actorName} yaltini huunde nde Fadla maa",
-    "fadlaMessage": "{actorName} sent you a message about Fadla",
+    "fadlaCompleted": "{actorName} yaltini huunde nde Gar3tak maa",
+    "fadlaMessage": "{actorName} sent you a message about Gar3tak",
     "fadlaReceiverConfirmed": "{actorName} confirmed they received the item",
     "fadlaSenderConfirmed": "{actorName} confirmed they handed over the item",
-    "fadlaBothCompleted": "Fadla was completed successfully",
+    "fadlaBothCompleted": "Gar3tak was completed successfully",
     "fadlaRequestAccepted": "Your request was accepted by {actorName}",
     "fadlaRequestDeclined": "Your request was declined by {actorName}",
     "someone": "Goɗɗo",
@@ -593,7 +593,7 @@
       "posts": "Blaŋtooji",
       "memories": "Jikkuuji",
       "ideas": "Miijooji",
-      "shares": "Yeɗitine",
+      "shares": "Gar3tak",
       "about": "Ko woni"
     },
     "joined": "Tawtike",
@@ -1058,7 +1058,7 @@
     }
   },
   "Fadla": {
-    "title": "Fadla",
+    "title": "Gar3tak",
     "eyebrow": "Yeɗitine kuurdu",
     "description": "Yeɗit ko njiɗaa koo ko heddii e juuɗe maa ngam heɓooɓe ɗum en. Paɗi lootere, ɓeydu tiiɗndiral, Nuwaadibu ɓurngu.",
     "notMarketplace": "Alaa coggu. Alaa njoɓdi. Ko yeɗitde e ballondirde tan.",
@@ -1077,7 +1077,7 @@
     "markCompleted": "Waɗu timmude",
     "archive": "Marƴu e profil",
     "requests": "Ƴamle",
-    "archiveTitle": "Fadla Archive",
+    "archiveTitle": "Gar3tak Archive",
     "archiveDescription": "Yiylo huɗe timmaaɗe e marƴaaɗe, rewr nafuuda maa e kuurdu.",
     "completedOn": "Timmi e",
     "archivedOn": "Marƴaa e",

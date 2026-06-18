@@ -51,7 +51,6 @@ import {
 import {prepareImageForUpload, ImageUploadError} from "@/lib/images/client-compression";
 import {ACCEPTED_IMAGE_EXTENSIONS} from "@/lib/images/upload-config";
 import {cn} from "@/lib/utils/cn";
-import {useRouter} from "@/lib/i18n/routing";
 
 import type {
   ProfileEducationRow,
@@ -154,6 +153,13 @@ interface EditProfileModalProps {
   links: ProfileLinkRow[];
   travel: ProfileTravelRow[];
   locale: string;
+  onProfileUpdate?: (updated: Partial<ProfileRow>) => void;
+  onWorkChange?: (work: ProfileWorkRow[]) => void;
+  onEducationChange?: (education: ProfileEducationRow[]) => void;
+  onInterestsChange?: (interests: ProfileInterestRow[]) => void;
+  onHobbiesChange?: (hobbies: ProfileHobbyRow[]) => void;
+  onLinksChange?: (links: ProfileLinkRow[]) => void;
+  onTravelChange?: (travel: ProfileTravelRow[]) => void;
 }
 
 export function EditProfileModal({
@@ -167,12 +173,55 @@ export function EditProfileModal({
   links,
   travel,
   locale,
+  onProfileUpdate,
+  onWorkChange,
+  onEducationChange,
+  onInterestsChange,
+  onHobbiesChange,
+  onLinksChange,
+  onTravelChange,
 }: EditProfileModalProps) {
   const t = useTranslations("Profile");
   const aboutT = useTranslations("ProfileAbout");
   const errorsT = useTranslations("Errors");
   const imageT = useTranslations("ImageUpload");
-  const router = useRouter();
+
+  const [workItems, setWorkItems] = useState(work);
+  const [educationItems, setEducationItems] = useState(education);
+  const [interestItems, setInterestItems] = useState(interests);
+  const [hobbyItems, setHobbyItems] = useState(hobbies);
+  const [linkItems, setLinkItems] = useState(links);
+  const [travelItems, setTravelItems] = useState(travel);
+
+  function syncWorkItems(items: ProfileWorkRow[]) {
+    setWorkItems(items);
+    onWorkChange?.(items);
+  }
+
+  function syncEducationItems(items: ProfileEducationRow[]) {
+    setEducationItems(items);
+    onEducationChange?.(items);
+  }
+
+  function syncInterestItems(items: ProfileInterestRow[]) {
+    setInterestItems(items);
+    onInterestsChange?.(items);
+  }
+
+  function syncHobbyItems(items: ProfileHobbyRow[]) {
+    setHobbyItems(items);
+    onHobbiesChange?.(items);
+  }
+
+  function syncLinkItems(items: ProfileLinkRow[]) {
+    setLinkItems(items);
+    onLinksChange?.(items);
+  }
+
+  function syncTravelItems(items: ProfileTravelRow[]) {
+    setTravelItems(items);
+    onTravelChange?.(items);
+  }
 
   // Image upload
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatar_url);
@@ -269,7 +318,6 @@ export function EditProfileModal({
         return;
       }
       toast.success(t("photoUpdated"));
-      router.refresh();
     } catch {
       toast.error(errorsT("saveFailed"));
     } finally {
@@ -321,7 +369,11 @@ export function EditProfileModal({
       }
       toast.success(t("updated"));
       setEditingField(null);
-      router.refresh();
+      const fieldMap: Record<string, string> = {
+        fullName: "full_name",
+        languages: "languages_spoken",
+      };
+      onProfileUpdate?.({[fieldMap[field] || field]: editValue});
     } catch {
       toast.error(errorsT("saveFailed"));
     } finally {
@@ -337,7 +389,7 @@ export function EditProfileModal({
     const res = await deleteWorkAction(fd);
     if (!res.error) {
       setDeletingWorkId(null);
-      router.refresh();
+      syncWorkItems(workItems.filter((w) => w.id !== id));
     }
   }
 
@@ -349,7 +401,7 @@ export function EditProfileModal({
     const res = await deleteEducationAction(fd);
     if (!res.error) {
       setDeletingEduId(null);
-      router.refresh();
+      syncEducationItems(educationItems.filter((e) => e.id !== id));
     }
   }
 
@@ -359,7 +411,7 @@ export function EditProfileModal({
     fd.set("locale", locale);
     fd.set("id", id);
     await deleteLinkAction(fd);
-    router.refresh();
+    syncLinkItems(linkItems.filter((l) => l.id !== id));
   }
 
   if (!open) return null;
@@ -620,8 +672,23 @@ export function EditProfileModal({
                 <form
                   action={async (fd) => {
                     const res = await addWorkAction(fd);
-                    if (!res.error) setShowWorkForm(false);
-                    router.refresh();
+                    if (!res.error) {
+                      setShowWorkForm(false);
+                      if (res.data) {
+                        syncWorkItems([...workItems, {
+                          id: res.data.id,
+                          profile_id: profile.id,
+                          company: fd.get("company") as string,
+                          position: fd.get("position") as string,
+                          start_year: parseInt(fd.get("startYear") as string),
+                          end_year: fd.get("endYear") ? parseInt(fd.get("endYear") as string) : null,
+                          is_current: fd.get("isCurrent") === "true",
+                          sort_order: 0,
+                          created_at: new Date().toISOString(),
+                          updated_at: new Date().toISOString(),
+                        }]);
+                      }
+                    }
                   }}
                   className="mb-3 space-y-2 rounded-xl border border-border/60 bg-muted/30 p-3"
                 >
@@ -653,11 +720,11 @@ export function EditProfileModal({
                 </form>
               )}
 
-              {work.length === 0 && !showWorkForm ? (
+              {workItems.length === 0 && !showWorkForm ? (
                 <p className="py-1 text-xs italic text-muted-foreground">{aboutT("noWork")}</p>
               ) : (
                 <div className="space-y-2">
-                  {work.map((entry) => (
+                  {workItems.map((entry) => (
                     <WorkEntry
                       key={entry.id}
                       entry={entry}
@@ -671,7 +738,6 @@ export function EditProfileModal({
                       onDeleteConfirm={() => handleDeleteWork(entry.id)}
                       onSaved={() => {
                         setEditingWorkId(null);
-                        router.refresh();
                       }}
                     />
                   ))}
@@ -704,8 +770,23 @@ export function EditProfileModal({
                 <form
                   action={async (fd) => {
                     const res = await addEducationAction(fd);
-                    if (!res.error) setShowEduForm(false);
-                    router.refresh();
+                    if (!res.error) {
+                      setShowEduForm(false);
+                      if (res.data) {
+                        syncEducationItems([...educationItems, {
+                          id: res.data.id,
+                          profile_id: profile.id,
+                          school: fd.get("school") as string,
+                          degree: fd.get("degree") as string || null,
+                          field_of_study: fd.get("fieldOfStudy") as string || null,
+                          start_year: parseInt(fd.get("startYear") as string),
+                          end_year: fd.get("endYear") ? parseInt(fd.get("endYear") as string) : null,
+                          sort_order: 0,
+                          created_at: new Date().toISOString(),
+                          updated_at: new Date().toISOString(),
+                        }]);
+                      }
+                    }
                   }}
                   className="mb-3 space-y-2 rounded-xl border border-border/60 bg-muted/30 p-3"
                 >
@@ -752,7 +833,6 @@ export function EditProfileModal({
                       onDeleteConfirm={() => handleDeleteEducation(entry.id)}
                       onSaved={() => {
                         setEditingEduId(null);
-                        router.refresh();
                       }}
                     />
                   ))}
@@ -852,9 +932,16 @@ export function EditProfileModal({
 
               <form
                 action={async (fd) => {
-                  await addTravelAction(fd);
+                  const res = await addTravelAction(fd);
+                  if (res.data) {
+                    syncTravelItems([...travelItems, {
+                      id: res.data.id,
+                      profile_id: profile.id,
+                      country: fd.get("country") as string,
+                      created_at: new Date().toISOString(),
+                    }]);
+                  }
                   setTravelInput("");
-                  router.refresh();
                 }}
                 className="mb-3 flex gap-2"
               >
@@ -884,7 +971,7 @@ export function EditProfileModal({
                           fd.set("locale", locale);
                           fd.set("country", tr.country);
                           await removeTravelAction(fd);
-                          router.refresh();
+                          syncTravelItems(travelItems.filter((t) => t.id !== tr.id));
                         }}
                         className="inline"
                       >
@@ -923,7 +1010,6 @@ export function EditProfileModal({
                   onDelete={() => handleDeleteLink(link.id)}
                   onSaved={() => {
                     setEditingLinkId(null);
-                    router.refresh();
                   }}
                 />
               ))}
@@ -936,7 +1022,7 @@ export function EditProfileModal({
                   type="tel"
                   placeholder="+222 ..."
                   locale={locale}
-                  onSaved={() => router.refresh()}
+                  onSaved={() => {}}
                 />
               )}
               {!links.some((l) => l.platform === "email") && (
@@ -946,7 +1032,7 @@ export function EditProfileModal({
                   type="email"
                   placeholder="name@example.com"
                   locale={locale}
-                  onSaved={() => router.refresh()}
+                  onSaved={() => {}}
                 />
               )}
             </div>
@@ -958,9 +1044,16 @@ export function EditProfileModal({
               <h4 className="mb-2 text-sm font-medium text-foreground">{aboutT("interests_title")}</h4>
               <form
                 action={async (fd) => {
-                  await addInterestAction(fd);
+                  const res = await addInterestAction(fd);
+                  if (res.data) {
+                    syncInterestItems([...interestItems, {
+                      id: res.data.id,
+                      profile_id: profile.id,
+                      name: fd.get("name") as string,
+                      created_at: new Date().toISOString(),
+                    }]);
+                  }
                   setInterestInput("");
-                  router.refresh();
                 }}
                 className="mb-2 flex gap-2"
               >
@@ -989,7 +1082,7 @@ export function EditProfileModal({
                           fd.set("locale", locale);
                           fd.set("name", interest.name);
                           await removeInterestAction(fd);
-                          router.refresh();
+                          syncInterestItems(interestItems.filter((i) => i.id !== interest.id));
                         }}
                         className="inline"
                       >
@@ -1010,9 +1103,16 @@ export function EditProfileModal({
               <h4 className="mb-2 text-sm font-medium text-foreground">{aboutT("hobbies_title")}</h4>
               <form
                 action={async (fd) => {
-                  await addHobbyAction(fd);
+                  const res = await addHobbyAction(fd);
+                  if (res.data) {
+                    syncHobbyItems([...hobbyItems, {
+                      id: res.data.id,
+                      profile_id: profile.id,
+                      name: fd.get("name") as string,
+                      created_at: new Date().toISOString(),
+                    }]);
+                  }
                   setHobbyInput("");
-                  router.refresh();
                 }}
                 className="mb-2 flex gap-2"
               >
@@ -1041,7 +1141,7 @@ export function EditProfileModal({
                           fd.set("locale", locale);
                           fd.set("name", hobby.name);
                           await removeHobbyAction(fd);
-                          router.refresh();
+                          syncHobbyItems(hobbyItems.filter((h) => h.id !== hobby.id));
                         }}
                         className="inline"
                       >
@@ -1083,10 +1183,19 @@ export function EditProfileModal({
                   const res = await addLinkAction(fd);
                   if (!res.error) {
                     setShowLinkForm(false);
-                    const form = document.getElementById("link-add-form") as HTMLFormElement;
-                    form?.reset();
+                    if (res.data) {
+                      syncLinkItems([...linkItems, {
+                        id: res.data.id,
+                        profile_id: profile.id,
+                        platform: fd.get("platform") as string,
+                        label: null,
+                        value: fd.get("value") as string,
+                        visibility: fd.get("visibility") as string || "only_me",
+                        sort_order: 0,
+                        created_at: new Date().toISOString(),
+                      }]);
+                    }
                   }
-                  router.refresh();
                 }}
                 id="link-add-form"
                 className="mb-3 space-y-2 rounded-xl border border-border/60 bg-muted/30 p-3"
@@ -1145,8 +1254,12 @@ export function EditProfileModal({
                           key={link.id}
                           action={async (fd) => {
                             const res = await updateLinkAction(fd);
-                            if (!res.error) setEditingLinkId(null);
-                            router.refresh();
+                            if (!res.error) {
+                              setEditingLinkId(null);
+                              syncLinkItems(linkItems.map((l) =>
+                                l.id === link.id ? {...l, value: fd.get("value") as string, visibility: fd.get("visibility") as string || "only_me"} : l
+                              ));
+                            }
                           }}
                           className="space-y-2 rounded-xl border border-border/60 bg-muted/30 p-3"
                         >

@@ -1,11 +1,6 @@
 "use server";
 
-import {revalidatePath} from "next/cache";
 import {createClient} from "@/lib/supabase/server";
-
-function toPath(locale: string, path: string) {
-  return `/${locale}${path}`;
-}
 
 // ---- Work ----
 
@@ -28,19 +23,18 @@ export async function addWorkAction(formData: FormData) {
     return {error: "Missing required fields"};
   }
 
-  const {error} = await supabase.from("profile_work").insert({
+  const {data: inserted, error} = await supabase.from("profile_work").insert({
     profile_id: user.id,
     company,
     position,
     start_year: startYear,
     end_year: endYear,
     is_current: isCurrent,
-  });
+  }).select("id").single();
 
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
-  return {success: true};
+  return {success: true, data: inserted};
 }
 
 export async function updateWorkAction(formData: FormData) {
@@ -68,7 +62,6 @@ export async function updateWorkAction(formData: FormData) {
 
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
   return {success: true};
 }
 
@@ -84,7 +77,6 @@ export async function deleteWorkAction(formData: FormData) {
   const {error} = await supabase.from("profile_work").delete().eq("id", id).eq("profile_id", user.id);
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
   return {success: true};
 }
 
@@ -106,19 +98,18 @@ export async function addEducationAction(formData: FormData) {
     return {error: "Missing required fields"};
   }
 
-  const {error} = await supabase.from("profile_education").insert({
+  const {data: inserted, error} = await supabase.from("profile_education").insert({
     profile_id: user.id,
     school,
     degree: degree || null,
     field_of_study: fieldOfStudy || null,
     start_year: startYear,
     end_year: endYear,
-  });
+  }).select("id").single();
 
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
-  return {success: true};
+  return {success: true, data: inserted};
 }
 
 export async function updateEducationAction(formData: FormData) {
@@ -146,7 +137,6 @@ export async function updateEducationAction(formData: FormData) {
 
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
   return {success: true};
 }
 
@@ -162,7 +152,6 @@ export async function deleteEducationAction(formData: FormData) {
   const {error} = await supabase.from("profile_education").delete().eq("id", id).eq("profile_id", user.id);
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
   return {success: true};
 }
 
@@ -177,12 +166,11 @@ export async function addInterestAction(formData: FormData) {
   const name = (formData.get("name") as string)?.trim();
   if (!name) return {error: "Missing name"};
 
-  const {error} = await supabase.from("profile_interests").insert({profile_id: user.id, name});
+  const {data: inserted, error} = await supabase.from("profile_interests").insert({profile_id: user.id, name}).select("id").single();
   if (error && error.code === "23505") return {success: true};
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
-  return {success: true};
+  return {success: true, data: inserted};
 }
 
 export async function removeInterestAction(formData: FormData) {
@@ -197,7 +185,6 @@ export async function removeInterestAction(formData: FormData) {
   const {error} = await supabase.from("profile_interests").delete().eq("profile_id", user.id).eq("name", name);
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
   return {success: true};
 }
 
@@ -212,12 +199,11 @@ export async function addHobbyAction(formData: FormData) {
   const name = (formData.get("name") as string)?.trim();
   if (!name) return {error: "Missing name"};
 
-  const {error} = await supabase.from("profile_hobbies").insert({profile_id: user.id, name});
+  const {data: inserted, error} = await supabase.from("profile_hobbies").insert({profile_id: user.id, name}).select("id").single();
   if (error && error.code === "23505") return {success: true};
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
-  return {success: true};
+  return {success: true, data: inserted};
 }
 
 export async function removeHobbyAction(formData: FormData) {
@@ -232,7 +218,6 @@ export async function removeHobbyAction(formData: FormData) {
   const {error} = await supabase.from("profile_hobbies").delete().eq("profile_id", user.id).eq("name", name);
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
   return {success: true};
 }
 
@@ -250,18 +235,17 @@ export async function addLinkAction(formData: FormData) {
 
   if (!platform || !value) return {error: "Missing required fields"};
 
-  const {error} = await supabase.from("profile_links").insert({
+  const {data: inserted, error} = await supabase.from("profile_links").insert({
     profile_id: user.id,
     platform,
     value,
     visibility,
-  });
+  }).select("id").single();
 
   if (error && error.code === "23505") return {success: true};
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
-  return {success: true};
+  return {success: true, data: inserted};
 }
 
 export async function updateLinkAction(formData: FormData) {
@@ -284,7 +268,6 @@ export async function updateLinkAction(formData: FormData) {
 
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
   return {success: true};
 }
 
@@ -300,7 +283,6 @@ export async function deleteLinkAction(formData: FormData) {
   const {error} = await supabase.from("profile_links").delete().eq("id", id).eq("profile_id", user.id);
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
   return {success: true};
 }
 
@@ -315,12 +297,11 @@ export async function addTravelAction(formData: FormData) {
   const country = (formData.get("country") as string)?.trim();
   if (!country) return {error: "Missing country"};
 
-  const {error} = await supabase.from("profile_travel").insert({profile_id: user.id, country});
+  const {data: inserted, error} = await supabase.from("profile_travel").insert({profile_id: user.id, country}).select("id").single();
   if (error && error.code === "23505") return {success: true};
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
-  return {success: true};
+  return {success: true, data: inserted};
 }
 
 export async function removeTravelAction(formData: FormData) {
@@ -335,7 +316,6 @@ export async function removeTravelAction(formData: FormData) {
   const {error} = await supabase.from("profile_travel").delete().eq("profile_id", user.id).eq("country", country);
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
   return {success: true};
 }
 
@@ -362,6 +342,5 @@ export async function updateProfileFieldsAction(formData: FormData) {
   const {error} = await supabase.from("profiles").update(fields).eq("id", user.id);
   if (error) return {error: error.message};
 
-  revalidatePath(toPath(locale, "/profile"));
   return {success: true};
 }

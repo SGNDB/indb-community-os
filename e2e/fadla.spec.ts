@@ -14,8 +14,8 @@ async function loginAs(page, phoneSuffix) {
   await page.waitForURL(/\/feed$/, { timeout: 15000 });
 }
 
-test.describe("Fadla (Community Sharing)", () => {
-  test("should load Fadla items list", async ({ page }) => {
+test.describe("Gar3tak (Community Sharing)", () => {
+  test("should load Gar3tak items list", async ({ page }) => {
     await loginAs(page, "30000003");
     await page.goto(FADLA_URL);
     await page.waitForLoadState("networkidle");
@@ -25,7 +25,7 @@ test.describe("Fadla (Community Sharing)", () => {
     await expect(items).toBeVisible({ timeout: 15000 });
   });
 
-  test("should navigate to create Fadla item page", async ({ page }) => {
+  test("should navigate to create Gar3tak item page", async ({ page }) => {
     await loginAs(page, "30000004");
     await page.goto(FADLA_URL);
     await page.waitForLoadState("networkidle");
@@ -38,7 +38,7 @@ test.describe("Fadla (Community Sharing)", () => {
     }
   });
 
-  test("should view archived Fadla items", async ({ page }) => {
+  test("should view archived Gar3tak items", async ({ page }) => {
     await loginAs(page, "30000005");
     await page.goto(`${FADLA_URL}/archive`);
     await page.waitForLoadState("networkidle");
@@ -47,19 +47,19 @@ test.describe("Fadla (Community Sharing)", () => {
     await expect(page).toHaveURL(/\/archive/);
   });
 
-  test("should complete a Fadla workflow end-to-end", async ({ page }) => {
+  test("should complete a Gar3tak workflow end-to-end", async ({ page }) => {
     // User A (owner) creates item
     await loginAs(page, "30000100");
     await page.goto(FADLA_URL);
     await page.waitForLoadState("networkidle");
 
-    // Rest of the workflow depends on UI specifics of the Fadla component.
+    // Rest of the workflow depends on UI specifics of the Gar3tak component.
     // This test verifies the page loads without error.
     const heading = page.locator("h1, h2").first();
     await expect(heading).toBeVisible({ timeout: 5000 });
   });
 
-  test("should filter Fadla by category", async ({ page }) => {
+  test("should filter Gar3tak by category", async ({ page }) => {
     await loginAs(page, "30000006");
     await page.goto(FADLA_URL);
     await page.waitForLoadState("networkidle");
