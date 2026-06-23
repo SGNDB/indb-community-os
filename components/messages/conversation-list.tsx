@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Archive, Inbox, MessageSquare, Search } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 
 import { UserAvatar } from "@/components/layout/user-avatar";
 import { Link, usePathname } from "@/lib/i18n/routing";
@@ -49,34 +50,51 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
   const t = useTranslations("Messages");
   const locale = useLocale();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [conversations, setConversations] = useState(initialConversations);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterArchived, setFilterArchived] = useState(false);
 
-  const filtered = conversations.filter((conversation) => {
-    if (!filterArchived && conversation.archived_at) return false;
-    if (filterArchived && !conversation.archived_at) return false;
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    const otherName = (
-      conversation.other_participant?.full_name ??
-      conversation.other_participant?.username ??
-      ""
-    ).toLowerCase();
-    return (
-      otherName.includes(q) ||
-      conversation.title.toLowerCase().includes(q) ||
-      (conversation.idea_title ?? "").toLowerCase().includes(q)
-    );
-  });
+  const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
 
-  const activeConvId = pathname?.startsWith("/messages/")
-    ? pathname.split("/messages/")[1]?.split("/")[0]
-    : null;
+    return conversations.filter((conversation) => {
+      if (!filterArchived && conversation.archived_at) return false;
+      if (filterArchived && !conversation.archived_at) return false;
+      if (!q) return true;
+
+      const otherName = (
+        conversation.other_participant?.full_name ??
+        conversation.other_participant?.username ??
+        ""
+      ).toLowerCase();
+
+      return (
+        otherName.includes(q) ||
+        conversation.title.toLowerCase().includes(q) ||
+        (conversation.idea_title ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [conversations, filterArchived, searchQuery]);
+
+  const activeConvId = pathname?.match(/\/messages\/([^/?#]+)/)?.[1] ?? searchParams.get("conversation");
+  const activeConvIdRef = useRef(activeConvId);
 
   useEffect(() => {
     setConversations(initialConversations);
   }, [initialConversations]);
+
+  useEffect(() => {
+    activeConvIdRef.current = activeConvId;
+    if (!activeConvId) return;
+    setConversations((prev) =>
+      prev.map((conversation) =>
+        conversation.id === activeConvId
+          ? { ...conversation, unread_count: 0 }
+          : conversation,
+      ),
+    );
+  }, [activeConvId]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -93,9 +111,37 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
       }
     }
 
+    function applyInsertedMessage(payload: { new: Record<string, unknown> }) {
+      const row = payload.new;
+      const conversationId = typeof row.conversation_id === "string" ? row.conversation_id : null;
+      if (!conversationId) return;
+
+      setConversations((prev) => {
+        const index = prev.findIndex((conversation) => conversation.id === conversationId);
+        if (index === -1) return prev;
+        const current = prev[index];
+        const senderId = typeof row.sender_id === "string" ? row.sender_id : "";
+        const updated: ConversationListItem = {
+          ...current,
+          last_message: {
+            message: typeof row.message === "string" ? row.message : null,
+            message_type: row.message_type === "image" ? "image" : "text",
+            image_url: typeof row.image_url === "string" ? row.image_url : null,
+            created_at: typeof row.created_at === "string" ? row.created_at : new Date().toISOString(),
+            sender_id: senderId,
+          },
+          unread_count:
+            senderId === currentUserId || conversationId === activeConvIdRef.current
+              ? 0
+              : current.unread_count + 1,
+        };
+        return [updated, ...prev.slice(0, index), ...prev.slice(index + 1)];
+      });
+    }
+
     const channel = supabase
       .channel("inbox-updates")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "conversation_messages" }, refresh)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "conversation_messages" }, applyInsertedMessage)
       .on(
         "postgres_changes",
         {
@@ -147,7 +193,7 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto scroll-smooth">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
             <MessageSquare size={36} className="mb-3 opacity-30" />
@@ -187,7 +233,7 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
                       isActive ? "border-primary bg-primary/[0.07]" : "border-transparent",
                     )}
                   >
-                    <UserAvatar label={name} avatarUrl={avatarUrl} className="h-11 w-11 shrink-0" />
+                    <UserAvatar label={name} avatarUrl={avatarUrl} className="h-10 w-10 shrink-0 md:h-11 md:w-11" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex min-w-0 items-center gap-1.5">

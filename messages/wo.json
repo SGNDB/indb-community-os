@@ -46,7 +46,7 @@
           "description": "Waxal yoon ngam dëkk dëpp ak dox."
         },
         "fadla": {
-          "title": "Gar3tak",
+          "title": "Graatek",
           "description": "Bind lu am solo nga doon def tey ak ñi ko soxla."
         },
         "profile": {
@@ -93,11 +93,11 @@
       "description": "Tontu ak tawtu ci xalaat yu am solo ngir Nuwadibu."
     },
     "fadla": {
-      "title": "Gar3tak",
+      "title": "Graatek",
       "description": "Ngalif ay mbariy yu gën a tàmbali ngir ñu koy soxla."
     },
     "fadlaArchive": {
-      "title": "Gar3tak Archive",
+      "title": "Graatek Archive",
       "description": "Gis mbariy yu mukk ak yu tank, topp sa njariñ ci mbootaay bi."
     },
     "timeline": {
@@ -159,8 +159,8 @@
         "short": "Xalaat"
       },
       "fadla": {
-        "label": "Gar3tak",
-        "short": "Gar3tak"
+        "label": "Graatek",
+        "short": "Graatek"
       },
       "polls": {
         "label": "Noot",
@@ -201,14 +201,14 @@
       "posts": "Mbaal",
       "ideas": "Xalaat",
       "memories": "Jikku",
-      "fadla": "Gar3tak",
+      "fadla": "Graatek",
       "people": "Nit"
     },
     "types": {
       "post": "Mbaal",
       "idea": "Xalaat",
       "memory": "Jikku",
-      "fadla": "Mbariy Gar3tak",
+      "fadla": "Mbariy Graatek",
       "profile": "Nit"
     }
   },
@@ -230,11 +230,11 @@
     "creditAwarded": "Yagg nga am {points} credi tawtital",
     "communityShareRequested": "Nit ñaari laaj na mbariy bu ngalif",
     "fadlaRequested": "{actorName} laaj na mbariy bu ngalif",
-    "fadlaCompleted": "{actorName} yees na mbariy bu Gar3tak bi",
-    "fadlaMessage": "{actorName} sent you a message about Gar3tak",
+    "fadlaCompleted": "{actorName} yees na mbariy bu Graatek bi",
+    "fadlaMessage": "{actorName} sent you a message about Graatek",
     "fadlaReceiverConfirmed": "{actorName} confirmed they received the item",
     "fadlaSenderConfirmed": "{actorName} confirmed they handed over the item",
-    "fadlaBothCompleted": "Gar3tak was completed successfully",
+    "fadlaBothCompleted": "Graatek was completed successfully",
     "fadlaRequestAccepted": "Your request was accepted by {actorName}",
     "fadlaRequestDeclined": "Your request was declined by {actorName}",
     "someone": "Nit",
@@ -604,7 +604,7 @@
       "posts": "Mbaal",
       "memories": "Jikku",
       "ideas": "Xalaat",
-      "shares": "Gar3tak",
+      "shares": "Graatek",
       "about": "Ci bi"
     },
     "joined": "Tawtu na",
@@ -1069,7 +1069,7 @@
     }
   },
   "Fadla": {
-    "title": "Gar3tak",
+    "title": "Graatek",
     "eyebrow": "Ngalifte mbootaay",
     "description": "Ngalif lu am solo nga bàyyi ngir ñu koy soxla. Ménu taari, yoo dimbali, Nuwadibu bu mag.",
     "notMarketplace": "Amul ñaata. Amul fecc. Ngalifte ak dimbali rekk.",
@@ -1088,7 +1088,7 @@
     "markCompleted": "Wone mukk na",
     "archive": "Tank ci profil",
     "requests": "Laaj",
-    "archiveTitle": "Gar3tak Archive",
+    "archiveTitle": "Graatek Archive",
     "archiveDescription": "Gis mbariy yu mukk ak yu tank, topp sa njariñ ci mbootaay bi.",
     "completedOn": "Mukk na ci",
     "archivedOn": "Tank nañu ko ci",
@@ -1301,7 +1301,7 @@
     "selectConversation": "Tonton benn waxtaan",
     "selectConversationHint": "Tonton benn waxtaan ci limngal bi ngay gis messages",
     "emptyTitle": "Messages & Coordination",
-    "emptyDescription": "Mbooloo ak mbootaay bi ci xalaat yi ak Gar3tak.",
+    "emptyDescription": "Mbooloo ak mbootaay bi ci xalaat yi ak Graatek.",
     "activeConversations": "{count} waxtaan yu ngi dox",
     "unreadMessages": "{count} messages xaatu xeetul",
     "typing": "bing bind...",
@@ -1325,7 +1325,7 @@
       "sendMessage": "Yónnee bataaxal",
       "ideaStatus": "Nekkinu xalaat",
       "leaveGroup": "Génn ci groupe",
-      "gar3tak": "Gar3tak",
+      "gar3tak": "Graatek",
       "image": "Nataal",
       "imageWithCaption": "Nataal: {caption}",
       "statuses": {

@@ -194,6 +194,11 @@ export function ConversationChat({
   const participantById = useMemo(() => {
     return new Map(participants.map((participant) => [participant.user_id, participant]));
   }, [participants]);
+  const participantByIdRef = useRef(participantById);
+
+  useEffect(() => {
+    participantByIdRef.current = participantById;
+  }, [participantById]);
 
   useEffect(() => {
     setMessages(initialMessages);
@@ -294,7 +299,7 @@ export function ConversationChat({
                 image_storage_path: (newMsg.image_storage_path as string | null) ?? null,
                 created_at: newMsg.created_at as string,
                 read_at: (newMsg.read_at as string | null) ?? null,
-                sender: participantById.get(senderId)?.user ?? null,
+                sender: participantByIdRef.current.get(senderId)?.user ?? null,
               },
             ];
           });
@@ -313,7 +318,7 @@ export function ConversationChat({
       supabase.removeChannel(channel);
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
-  }, [conversationId, currentUserId, memberFallback, participantById]);
+  }, [conversationId, currentUserId, memberFallback]);
 
   useEffect(() => {
     async function markRead() {
@@ -565,7 +570,7 @@ export function ConversationChat({
   }
 
   const headerSubtitle = isIdeaGroup
-    ? `${t("groupChat.memberCount", { count: effectiveMemberCount })} • ${statusLabel(localIdeaStatus, t)}`
+    ? `${t("groupChat.memberCount", { count: effectiveMemberCount })} - ${statusLabel(localIdeaStatus, t)}`
     : t("groupChat.memberCount", { count: effectiveMemberCount });
   const readOnlyMessage = isCompleted ? t("groupChat.closedAfterCompletion") : t("groupChat.readOnlyNotice");
   const groupTypeLabel = isIdeaGroup ? t("idea") : t("groupChat.gar3tak");
@@ -617,19 +622,20 @@ export function ConversationChat({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto bg-muted/20 px-3 py-4">
-        {isReadOnly && (
-          <div className="mx-auto mb-4 flex max-w-md items-center justify-center gap-2 rounded-full bg-background/90 px-3 py-2 text-center text-xs text-muted-foreground shadow-sm">
-            <Archive size={14} />
-            <span>{readOnlyMessage}</span>
-          </div>
-        )}
-        {messages.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-sm text-muted-foreground/60">
-            {t("noMessagesYet")}
-          </div>
-        ) : (
-          messages.map((msg, index) => {
+      <div className="flex-1 overflow-y-auto scroll-smooth bg-muted/20 px-3 py-4 md:px-5">
+        <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col">
+          {isReadOnly && (
+            <div className="mx-auto mb-4 flex max-w-md items-center justify-center gap-2 rounded-full bg-background/90 px-3 py-2 text-center text-xs text-muted-foreground shadow-sm">
+              <Archive size={14} />
+              <span>{readOnlyMessage}</span>
+            </div>
+          )}
+          {messages.length === 0 ? (
+            <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground/60">
+              {t("noMessagesYet")}
+            </div>
+          ) : (
+            messages.map((msg, index) => {
             const isMine = msg.sender_id === currentUserId;
             const participant = participantById.get(msg.sender_id);
             const sender = msg.sender ?? participant?.user ?? null;
@@ -649,9 +655,9 @@ export function ConversationChat({
                   index === 0 ? "mt-0" : isFirstInGroup ? "mt-3.5" : "mt-1",
                 )}
               >
-                <div className={cn("flex max-w-[86%] items-end gap-2 md:max-w-[68%]", isMine && "flex-row-reverse")}>
+                <div className={cn("flex max-w-[88%] items-end gap-2 sm:max-w-[78%] md:max-w-[70%]", isMine && "flex-row-reverse")}>
                   {!isMine && (
-                    <div className="w-8 shrink-0">
+                    <div className="w-8 shrink-0 md:w-9">
                       {isFirstInGroup && senderProfileHref && (
                         <Link
                           href={senderProfileHref}
@@ -661,7 +667,7 @@ export function ConversationChat({
                           <UserAvatar
                             label={senderName}
                             avatarUrl={sender?.avatar_url ?? null}
-                            className="h-8 w-8"
+                            className="h-8 w-8 md:h-9 md:w-9"
                           />
                         </Link>
                       )}
@@ -669,7 +675,7 @@ export function ConversationChat({
                         <UserAvatar
                           label={senderName}
                           avatarUrl={sender?.avatar_url ?? null}
-                          className="h-8 w-8"
+                          className="h-8 w-8 md:h-9 md:w-9"
                         />
                       )}
                     </div>
@@ -679,20 +685,20 @@ export function ConversationChat({
                       senderProfileHref ? (
                         <Link
                           href={senderProfileHref}
-                          className="mb-0.5 block w-fit max-w-full truncate text-[11px] font-semibold text-muted-foreground transition hover:text-foreground"
+                          className="mb-1 block w-fit max-w-full truncate text-xs font-semibold text-muted-foreground transition hover:text-foreground"
                         >
                           {senderName}
                         </Link>
                       ) : (
-                        <p className="mb-0.5 text-[11px] font-semibold text-muted-foreground">
+                        <p className="mb-1 text-xs font-semibold text-muted-foreground">
                           {senderName}
                         </p>
                       )
                     )}
                     <div
                       className={cn(
-                        "min-w-[4.5rem] overflow-hidden rounded-2xl text-sm leading-relaxed shadow-sm",
-                        hasImage ? "p-1.5" : "px-3.5 py-2",
+                        "min-w-[4.5rem] overflow-hidden rounded-2xl text-[14px] leading-relaxed shadow-sm",
+                        hasImage ? "p-1.5" : "px-3.5 py-2.5",
                         isMine
                           ? "rounded-ee-[5px] bg-primary text-primary-foreground"
                           : "rounded-es-[5px] border border-border/50 bg-card text-foreground",
@@ -729,7 +735,8 @@ export function ConversationChat({
             );
           })
         )}
-        <div ref={bottomRef} />
+          <div ref={bottomRef} />
+        </div>
       </div>
 
       {typingName && (
