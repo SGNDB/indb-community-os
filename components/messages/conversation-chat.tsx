@@ -178,71 +178,73 @@ export function ConversationChat({
 
       {/* messages */}
       <div className="flex-1 overflow-y-auto px-3">
-        {messages.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-sm text-muted-foreground/60">
-            {t("noMessagesYet")}
-          </div>
-        ) : (
-          messages.map((msg, index) => {
-            const isMine = msg.sender_id === currentUserId;
-            const prevMsg = index > 0 ? messages[index - 1] : null;
-            const isSameSenderAsPrev = prevMsg && prevMsg.sender_id === msg.sender_id;
-            const isFirstInGroup = !isSameSenderAsPrev;
+        <div className="flex min-h-full flex-col">
+          {messages.length === 0 ? (
+            <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground/60">
+              {t("noMessagesYet")}
+            </div>
+          ) : (
+            <>
+              <div className="flex-1" />
+              {messages.map((msg, index) => {
+                const isMine = msg.sender_id === currentUserId;
+                const prevMsg = index > 0 ? messages[index - 1] : null;
+                const isSameSenderAsPrev = prevMsg && prevMsg.sender_id === msg.sender_id;
+                const isFirstInGroup = !isSameSenderAsPrev;
 
-            return (
-              <div
-                key={msg.id}
-                className={cn(
-                  "flex w-full",
-                  isMine ? "justify-end" : "justify-start",
-                  index === 0 ? "mt-0" : isFirstInGroup ? "mt-3" : "mt-0.5",
-                )}
-              >
-                <div className={cn("flex max-w-[85%]", isMine ? "flex-row-reverse" : "gap-2")}>
-                  {/* Avatar column (other user only) */}
-                  {!isMine && (
-                    <div className="w-6 shrink-0">
-                      {isFirstInGroup && (
-                        <UserAvatar label={otherUserName} avatarUrl={otherUserAvatarUrl} className="h-6 w-6" />
-                      )}
-                    </div>
-                  )}
-
-                  {/* Bubble column */}
-                  <div className="min-w-0">
-                    {!isMine && isFirstInGroup && (
-                      <p className="mb-0.5 text-[11px] font-semibold text-muted-foreground">
-                        {otherUserName}
-                      </p>
+                return (
+                  <div
+                    key={msg.id}
+                    className={cn(
+                      "flex w-full",
+                      isMine ? "justify-end" : "justify-start",
+                      index === 0 ? "mt-0" : isFirstInGroup ? "mt-2" : "mt-0.5",
                     )}
-                    <div
-                      className={cn(
-                        "rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
-                        isMine
-                          ? "bg-primary text-primary-foreground rounded-br-[6px]"
-                          : "bg-card text-foreground shadow-sm rounded-bl-[6px]",
+                  >
+                    <div className={cn("flex max-w-[85%]", isMine ? "flex-row-reverse" : "gap-2")}>
+                      {!isMine && (
+                        <div className="w-6 shrink-0">
+                          {isFirstInGroup && (
+                            <UserAvatar label={otherUserName} avatarUrl={otherUserAvatarUrl} className="h-6 w-6" />
+                          )}
+                        </div>
                       )}
-                      dir="auto"
-                    >
-                      {msg.message}
-                    </div>
-                    <div className={cn("mt-0.5 flex items-center gap-1.5 px-1", isMine && "justify-end")}>
-                      <span className="text-[10px] text-muted-foreground/50">
-                        {formatTime(msg.created_at)}
-                      </span>
-                      {isMine && (
-                        <span className="text-[10px] font-medium text-muted-foreground/40">
-                          {selfLabel}
-                        </span>
-                      )}
+                      <div className="min-w-0">
+                        {!isMine && isFirstInGroup && (
+                          <p className="mb-0.5 text-[11px] font-semibold text-muted-foreground">
+                            {otherUserName}
+                          </p>
+                        )}
+                        <div
+                          className={cn(
+                            "rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
+                            isMine
+                              ? "bg-primary text-primary-foreground rounded-br-[6px]"
+                              : "bg-card text-foreground shadow-sm rounded-bl-[6px]",
+                          )}
+                          dir="auto"
+                        >
+                          {msg.message}
+                        </div>
+                        <div className={cn("mt-0.5 flex items-center gap-1.5 px-1", isMine && "justify-end")}>
+                          <span className="text-[10px] text-muted-foreground/50">
+                            {formatTime(msg.created_at)}
+                          </span>
+                          {isMine && (
+                            <span className="text-[10px] font-medium text-muted-foreground/40">
+                              {selfLabel}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            );
-          })
-        )}
-        <div ref={bottomRef} />
+                );
+              })}
+              <div ref={bottomRef} />
+            </>
+          )}
+        </div>
       </div>
 
       {/* input */}
