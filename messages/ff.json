@@ -1354,7 +1354,8 @@
         "leave_failed": "Waawaa yaltude e dental ngal.",
         "admin_cannot_leave": "Jom miijo oo waawaa yaltude e dental ngal.",
         "image_upload_failed": "Natal waawaa joleede.",
-        "group_image_upload_failed": "Natal dental ngal waawaa joleede."
+        "group_image_upload_failed": "Natal dental ngal waawaa joleede.",
+        "name_too_short": "Huutoro alkule ɗiɗi walla ɓuri."
       },
       "you": "Aan",
       "backToMessages": "Rutto e ɓatakuuje",
@@ -1366,7 +1367,11 @@
       "ideaTitleLabel": "Miijo",
       "groupName": "Innde dental",
       "closedAfterCompletion": "Jakku nguu uddiima caggal nde miijo oo timmi.",
-      "viewImage": "Yiy natal"
+      "viewImage": "Yiy natal",
+      "cancel": "Haaytu",
+      "editName": "Taƴto innde",
+      "nameTooShort": "Huutoro alkule ɗiɗi walla ɓuri.",
+      "uploadingPhoto": "Nana yolla natal"
     }
   }
 }

@@ -1497,7 +1497,8 @@
         "leave_failed": "Could not leave the group.",
         "admin_cannot_leave": "The idea owner cannot leave the group.",
         "image_upload_failed": "Image could not be uploaded.",
-        "group_image_upload_failed": "Group image could not be uploaded."
+        "group_image_upload_failed": "Group image could not be uploaded.",
+        "name_too_short": "Use at least 2 characters."
       },
       "you": "You",
       "backToMessages": "Back to messages",
@@ -1509,7 +1510,11 @@
       "ideaTitleLabel": "Idea",
       "groupName": "Group name",
       "closedAfterCompletion": "This conversation was closed after the idea was completed.",
-      "viewImage": "View image"
+      "viewImage": "View image",
+      "cancel": "Cancel",
+      "editName": "Edit name",
+      "nameTooShort": "Use at least 2 characters.",
+      "uploadingPhoto": "Uploading photo"
     }
   }
 }

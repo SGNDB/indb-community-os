@@ -1497,7 +1497,8 @@
         "leave_failed": "تعذر مغادرة المجموعة.",
         "admin_cannot_leave": "مالك الفكرة لا يمكنه مغادرة المجموعة.",
         "image_upload_failed": "تعذر رفع الصورة.",
-        "group_image_upload_failed": "تعذر رفع صورة المجموعة."
+        "group_image_upload_failed": "تعذر رفع صورة المجموعة.",
+        "name_too_short": "استخدم حرفين على الأقل."
       },
       "you": "أنت",
       "backToMessages": "العودة إلى الرسائل",
@@ -1509,7 +1510,11 @@
       "ideaTitleLabel": "الفكرة",
       "groupName": "اسم المجموعة",
       "closedAfterCompletion": "تم إغلاق المحادثة بعد إكمال الفكرة",
-      "viewImage": "عرض الصورة"
+      "viewImage": "عرض الصورة",
+      "cancel": "إلغاء",
+      "editName": "تعديل الاسم",
+      "nameTooShort": "استخدم حرفين على الأقل.",
+      "uploadingPhoto": "جارٍ رفع الصورة"
     }
   }
 }

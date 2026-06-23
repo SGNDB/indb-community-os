@@ -1351,7 +1351,8 @@
         "leave_failed": "Gure katta nta a ra.",
         "admin_cannot_leave": "Miijo jom nta gure katta ra.",
         "image_upload_failed": "Foto jooli nta a ra.",
-        "group_image_upload_failed": "Gure foto jooli nta a ra."
+        "group_image_upload_failed": "Gure foto jooli nta a ra.",
+        "name_too_short": "Harafi filli walla me be."
       },
       "you": "Anke",
       "backToMessages": "Karu xibaarun ŋa",
@@ -1363,7 +1364,11 @@
       "ideaTitleLabel": "Miijo",
       "groupName": "Gurupu toxo",
       "closedAfterCompletion": "Karu xibaare ya daabundi miijo banbanta koota.",
-      "viewImage": "Foto wari"
+      "viewImage": "Foto wari",
+      "cancel": "Faayi",
+      "editName": "Toxo yaŋqinde",
+      "nameTooShort": "Harafi filli walla me be.",
+      "uploadingPhoto": "Foto di yille"
     }
   }
 }

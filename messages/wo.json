@@ -1351,7 +1351,8 @@
         "leave_failed": "Manuloo génn ci groupe bi.",
         "admin_cannot_leave": "Boroom xalaat bi manu génn ci groupe bi.",
         "image_upload_failed": "Nataal bi manuñu ko yeb.",
-        "group_image_upload_failed": "Nataalu groupe bi manuñu ko yeb."
+        "group_image_upload_failed": "Nataalu groupe bi manuñu ko yeb.",
+        "name_too_short": "Jëfandikoo lu néew-néew ñaari araf."
       },
       "you": "Yaw",
       "backToMessages": "Delluwaat ci bataaxal yi",
@@ -1363,7 +1364,11 @@
       "ideaTitleLabel": "Xalaat",
       "groupName": "Turug gurup",
       "closedAfterCompletion": "Waxtaan wi dañu ko tëj bi xalaat bi paree.",
-      "viewImage": "Xool nataal bi"
+      "viewImage": "Xool nataal bi",
+      "cancel": "Neenal",
+      "editName": "Soppi tur wi",
+      "nameTooShort": "Jëfandikoo lu néew-néew ñaari araf.",
+      "uploadingPhoto": "Yebum nataal bi"
     }
   }
 }

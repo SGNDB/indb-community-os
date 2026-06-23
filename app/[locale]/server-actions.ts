@@ -4349,8 +4349,13 @@ export async function updateIdeaGroupProfileAction(
   const currentUser = conversation.participants.find((p) => p.user_id === user.id);
   if (currentUser?.role !== 'admin') return { success: false, error: 'unauthorized' };
 
+  const cleanedTitle = typeof title === 'string' ? title.trim() : null;
+  if (cleanedTitle !== null && (cleanedTitle.length < 2 || cleanedTitle.length > 120)) {
+    return { success: false, error: 'name_too_short' };
+  }
+
   const ok = await updateIdeaGroupProfile(conversationId, user.id, {
-    title: typeof title === 'string' ? title.trim().slice(0, 120) : null,
+    title: cleanedTitle,
     imageUrl: typeof imageUrl === 'string' && imageUrl ? imageUrl : null,
     imageStoragePath: typeof imageStoragePath === 'string' && imageStoragePath ? imageStoragePath : null,
   });

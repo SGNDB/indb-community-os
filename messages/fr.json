@@ -1497,7 +1497,8 @@
         "leave_failed": "Impossible de quitter le groupe.",
         "admin_cannot_leave": "Le propriétaire de l’idée ne peut pas quitter le groupe.",
         "image_upload_failed": "L’image n’a pas pu être téléversée.",
-        "group_image_upload_failed": "L’image du groupe n’a pas pu être téléversée."
+        "group_image_upload_failed": "L’image du groupe n’a pas pu être téléversée.",
+        "name_too_short": "Utilisez au moins 2 caractères."
       },
       "you": "Vous",
       "backToMessages": "Retour aux messages",
@@ -1509,7 +1510,11 @@
       "ideaTitleLabel": "Idée",
       "groupName": "Nom du groupe",
       "closedAfterCompletion": "Cette conversation a été fermée après l’achèvement de l’idée.",
-      "viewImage": "Voir l’image"
+      "viewImage": "Voir l’image",
+      "cancel": "Annuler",
+      "editName": "Modifier le nom",
+      "nameTooShort": "Utilisez au moins 2 caractères.",
+      "uploadingPhoto": "Photo en cours d’envoi"
     }
   }
 }

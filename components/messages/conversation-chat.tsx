@@ -13,6 +13,7 @@ import {
   Loader2,
   LogOut,
   MoreVertical,
+  Pencil,
   Send,
   Shield,
   UserMinus,
@@ -72,6 +73,7 @@ function friendlyError(error: string | null, t: TranslationFn) {
     "admin_cannot_leave",
     "image_upload_failed",
     "group_image_upload_failed",
+    "name_too_short",
   ];
   return errorKeys.includes(error) ? t(`groupChat.errors.${error}`) : error;
 }
@@ -162,6 +164,7 @@ export function ConversationChat({
   const [error, setError] = useState<string | null>(null);
   const [typingName, setTypingName] = useState<string | null>(null);
   const [showGroupInfo, setShowGroupInfo] = useState(false);
+  const [isRenaming, setIsRenaming] = useState(false);
   const [imageViewerUrl, setImageViewerUrl] = useState<string | null>(null);
   const [groupTitle, setGroupTitle] = useState(conversationTitle);
   const [draftTitle, setDraftTitle] = useState(conversationTitle);
@@ -364,13 +367,18 @@ export function ConversationChat({
 
   async function handleGroupImagePick(file: File | undefined) {
     if (!file || !isAdmin || groupImageUploading) return;
+    const previousImageUrl = draftImageUrl;
+    const previousImageStoragePath = draftImageStoragePath;
     setGroupImageUploading(true);
     setError(null);
     try {
       const uploaded = await uploadMediaItem(file, "conversation");
       if (uploaded.type !== "image") throw new Error("invalid");
-      setDraftImageUrl(uploaded.url);
-      setDraftImageStoragePath(uploaded.storagePath);
+      const ok = await saveGroupProfile(draftTitle.trim() || groupTitle, uploaded.url, uploaded.storagePath);
+      if (!ok) {
+        setDraftImageUrl(previousImageUrl);
+        setDraftImageStoragePath(previousImageStoragePath);
+      }
     } catch (e) {
       console.error("group image upload error:", e);
       setError("group_image_upload_failed");
@@ -435,31 +443,58 @@ export function ConversationChat({
     }
   }
 
-  async function handleSaveProfile() {
-    if (!isAdmin || profileSaving) return;
+  async function saveGroupProfile(
+    nextTitle = draftTitle,
+    nextImageUrl = draftImageUrl,
+    nextImageStoragePath = draftImageStoragePath,
+  ) {
+    if (!isAdmin) return false;
+    const cleanedTitle = nextTitle.trim();
+    if (cleanedTitle.length < 2) {
+      setError("name_too_short");
+      return false;
+    }
+
     setProfileSaving(true);
     setError(null);
     const formData = new FormData();
     formData.set("conversationId", conversationId);
-    formData.set("title", draftTitle.trim());
-    if (draftImageUrl) formData.set("imageUrl", draftImageUrl);
-    if (draftImageStoragePath) formData.set("imageStoragePath", draftImageStoragePath);
+    formData.set("title", cleanedTitle);
+    if (nextImageUrl) formData.set("imageUrl", nextImageUrl);
+    if (nextImageStoragePath) formData.set("imageStoragePath", nextImageStoragePath);
 
     try {
       const { updateIdeaGroupProfileAction } = await import("@/app/[locale]/server-actions");
       const res = await updateIdeaGroupProfileAction(formData);
       if (!res.success) {
         setError(res.error ?? "update_failed");
-        return;
+        return false;
       }
-      setGroupTitle(draftTitle.trim() || groupTitle);
-      setGroupImageUrl(draftImageUrl);
+      setGroupTitle(cleanedTitle);
+      setDraftTitle(cleanedTitle);
+      setGroupImageUrl(nextImageUrl);
+      setDraftImageUrl(nextImageUrl);
+      setDraftImageStoragePath(nextImageStoragePath);
+      return true;
     } catch (e) {
       console.error("profile update error:", e);
       setError("update_failed");
+      return false;
     } finally {
       setProfileSaving(false);
     }
+  }
+
+  async function handleSaveProfile() {
+    if (!isAdmin || profileSaving) return;
+    const ok = await saveGroupProfile();
+    if (ok) setIsRenaming(false);
+  }
+
+  function handleCancelRename() {
+    setDraftTitle(groupTitle);
+    setError(null);
+    setIsRenaming(false);
   }
 
   async function handleRemoveMember(memberId: string) {
@@ -533,6 +568,13 @@ export function ConversationChat({
     ? `${t("groupChat.memberCount", { count: effectiveMemberCount })} • ${statusLabel(localIdeaStatus, t)}`
     : t("groupChat.memberCount", { count: effectiveMemberCount });
   const readOnlyMessage = isCompleted ? t("groupChat.closedAfterCompletion") : t("groupChat.readOnlyNotice");
+  const groupTypeLabel = isIdeaGroup ? t("idea") : t("groupChat.gar3tak");
+  const groupStatusLabel = isIdeaGroup
+    ? statusLabel(localIdeaStatus, t)
+    : isReadOnly
+      ? t("groupChat.readOnly")
+      : t("groupChat.active");
+  const canSaveName = draftTitle.trim().length >= 2 && draftTitle.trim() !== groupTitle;
 
   return (
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-background">
@@ -767,9 +809,9 @@ export function ConversationChat({
       )}
 
       {showGroupInfo && (
-        <div className="absolute inset-0 z-30 flex bg-black/35 md:justify-end">
-          <div className="flex h-full w-full flex-col bg-background shadow-2xl md:max-w-md">
-            <div className="flex min-h-[56px] items-center gap-2 border-b border-border/70 px-3">
+        <div className="absolute inset-0 z-30 flex bg-background md:bg-muted/25">
+          <div className="flex h-full w-full flex-col">
+            <div className="flex min-h-[56px] items-center gap-2 border-b border-border/70 bg-card/95 px-3 shadow-sm backdrop-blur">
               <button
                 type="button"
                 onClick={() => setShowGroupInfo(false)}
@@ -781,157 +823,214 @@ export function ConversationChat({
               <p className="min-w-0 flex-1 truncate text-base font-semibold">{t("groupChat.groupInfo")}</p>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-4 py-5">
-              <div className="flex flex-col items-center text-center">
-                <ConversationAvatar
-                  title={draftTitle}
-                  imageUrl={draftImageUrl}
-                  participants={participants}
-                  isGroup={isIdeaGroup}
-                  memberFallback={memberFallback}
-                  className="h-24 w-24"
-                />
-                {isIdeaGroup && isAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => groupImageInputRef.current?.click()}
-                    disabled={groupImageUploading}
-                    className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-muted disabled:opacity-50"
-                  >
-                    {groupImageUploading ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
-                    {t("groupChat.changeImage")}
-                  </button>
-                )}
-                <input
-                  ref={groupImageInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  className="hidden"
-                  onChange={(event) => handleGroupImagePick(event.target.files?.[0])}
-                />
-              </div>
-
-              <div className="mt-6 space-y-4">
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                    {t("groupChat.groupName")}
-                  </label>
-                  {isIdeaGroup && isAdmin ? (
-                    <div className="flex gap-2">
-                      <input
-                        value={draftTitle}
-                        onChange={(event) => setDraftTitle(event.target.value)}
-                        maxLength={120}
-                        className="min-h-11 min-w-0 flex-1 rounded-lg border border-border/70 bg-card px-3 text-sm outline-none focus:border-primary/50"
-                      />
+            <div className="flex-1 overflow-y-auto px-3 py-4 md:px-5 md:py-6">
+              <div className="mx-auto w-full max-w-[520px] space-y-4">
+                <section className="rounded-lg border border-border/70 bg-card px-4 py-5 text-center shadow-sm">
+                  <div className="relative mx-auto h-28 w-28">
+                    {isIdeaGroup && isAdmin ? (
                       <button
                         type="button"
-                        onClick={handleSaveProfile}
-                        disabled={profileSaving}
-                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
-                        aria-label={t("groupChat.save")}
+                        onClick={() => groupImageInputRef.current?.click()}
+                        disabled={groupImageUploading || profileSaving}
+                        className="group relative block h-28 w-28 rounded-full outline-none ring-primary/30 transition focus-visible:ring-2 disabled:opacity-70"
+                        aria-label={t("groupChat.changeImage")}
                       >
-                        {profileSaving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                        <ConversationAvatar
+                          title={draftTitle}
+                          imageUrl={draftImageUrl}
+                          participants={participants}
+                          isGroup={isIdeaGroup}
+                          memberFallback={memberFallback}
+                          className="h-28 w-28"
+                        />
+                        <span className="absolute inset-x-0 bottom-0 flex h-10 items-center justify-center rounded-b-full bg-black/55 text-white opacity-100 transition group-hover:bg-black/65">
+                          {groupImageUploading ? <Loader2 size={18} className="animate-spin" /> : <Camera size={18} />}
+                        </span>
                       </button>
-                    </div>
-                  ) : (
-                    <p className="rounded-lg bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">{groupTitle}</p>
-                  )}
-                </div>
-
-                {isIdeaGroup && (
-                  <div className="rounded-lg bg-muted/50 px-3 py-2">
-                    <p className="text-xs font-medium text-muted-foreground">{t("groupChat.ideaTitleLabel")}</p>
-                    <p className="mt-1 text-sm font-medium text-foreground">{ideaTitle ?? groupTitle}</p>
-                  </div>
-                )}
-
-                {isIdeaGroup && (
-                  <div>
-                    <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                      {t("groupChat.ideaStatus")}
-                    </label>
-                    {isAdmin && ideaId ? (
-                      <select
-                        value={localIdeaStatus ?? "published"}
-                        onChange={(event) => handleStatusChange(event.target.value)}
-                        className="min-h-11 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-primary/50"
-                      >
-                        <option value="published">{t("groupChat.statuses.published")}</option>
-                        <option value="interested">{t("groupChat.statuses.interested")}</option>
-                        <option value="discussion">{t("groupChat.statuses.discussion")}</option>
-                        <option value="in_progress">{t("groupChat.statuses.in_progress")}</option>
-                        <option value="completed">{t("groupChat.statuses.completed")}</option>
-                        <option value="archived">{t("groupChat.statuses.archived")}</option>
-                      </select>
                     ) : (
-                      <p className="rounded-lg bg-muted/50 px-3 py-2 text-sm font-medium text-foreground">
-                        {statusLabel(localIdeaStatus, t)}
-                      </p>
+                      <ConversationAvatar
+                        title={groupTitle}
+                        imageUrl={groupImageUrl}
+                        participants={participants}
+                        isGroup={isIdeaGroup}
+                        memberFallback={memberFallback}
+                        className="h-28 w-28"
+                      />
                     )}
                   </div>
-                )}
-              </div>
+                  <input
+                    ref={groupImageInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(event) => handleGroupImagePick(event.target.files?.[0])}
+                  />
 
-              <div className="mt-6">
-                <div className="mb-2 flex items-center justify-between">
-                  <p className="text-sm font-semibold text-foreground">{t("groupChat.members")}</p>
-                  <span className="text-xs text-muted-foreground">{t("groupChat.memberCount", { count: effectiveMemberCount })}</span>
-                </div>
-                <div className="divide-y divide-border/60 rounded-lg border border-border/70 bg-card">
-                  {participants.map((participant) => {
-                    const name = displayName(participant.user, memberFallback);
-                    const isSelf = participant.user_id === currentUserId;
-                    const memberProfileHref = profileHref(participant.user, participant.user_id);
-                    return (
-                      <div key={participant.user_id} className="flex items-center gap-3 px-3 py-2.5">
-                        {memberProfileHref ? (
-                          <Link
-                            href={memberProfileHref}
-                            className="shrink-0 rounded-full outline-none ring-primary/40 focus-visible:ring-2"
-                            aria-label={t("groupChat.openProfile", { name })}
-                          >
-                            <UserAvatar label={name} avatarUrl={participant.user?.avatar_url ?? null} className="h-10 w-10" />
-                          </Link>
-                        ) : (
-                          <UserAvatar label={name} avatarUrl={participant.user?.avatar_url ?? null} className="h-10 w-10" />
-                        )}
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-foreground">
-                            {name}
-                            {isSelf ? ` (${t("groupChat.you")})` : ""}
-                          </p>
-                          <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-muted-foreground">
-                            {participant.role === "admin" && <Shield size={12} />}
-                            {participant.role === "admin" ? t("groupChat.roles.admin") : t("groupChat.roles.member")}
-                          </p>
-                        </div>
-                        {isIdeaGroup && isAdmin && participant.role !== "admin" && !isSelf && (
+                  <div className="mt-4">
+                    {isRenaming && isIdeaGroup && isAdmin ? (
+                      <div className="mx-auto max-w-sm">
+                        <input
+                          value={draftTitle}
+                          onChange={(event) => setDraftTitle(event.target.value)}
+                          maxLength={120}
+                          autoFocus
+                          className="min-h-11 w-full rounded-lg border border-border/70 bg-background px-3 text-center text-base font-semibold outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+                        />
+                        <div className="mt-2 flex items-center justify-center gap-2">
                           <button
                             type="button"
-                            onClick={() => handleRemoveMember(participant.user_id)}
-                            className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
-                            aria-label={t("groupChat.removeMember", { name })}
+                            onClick={handleCancelRename}
+                            disabled={profileSaving}
+                            className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-border px-3 text-xs font-medium text-muted-foreground transition hover:bg-muted disabled:opacity-50"
                           >
-                            <UserMinus size={16} />
+                            <X size={14} />
+                            {t("groupChat.cancel")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleSaveProfile}
+                            disabled={!canSaveName || profileSaving}
+                            className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-primary px-3 text-xs font-medium text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
+                          >
+                            {profileSaving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                            {t("groupChat.save")}
+                          </button>
+                        </div>
+                        {draftTitle.trim().length < 2 && (
+                          <p className="mt-2 text-xs text-destructive">{t("groupChat.errors.name_too_short")}</p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center gap-2">
+                        <h2 className="min-w-0 truncate text-xl font-semibold tracking-tight text-foreground">{groupTitle}</h2>
+                        {isIdeaGroup && isAdmin && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDraftTitle(groupTitle);
+                              setIsRenaming(true);
+                            }}
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                            aria-label={t("groupChat.editName")}
+                          >
+                            <Pencil size={15} />
                           </button>
                         )}
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
+                    )}
+                  </div>
 
-              {isIdeaGroup && !isAdmin && (
-                <button
-                  type="button"
-                  onClick={handleLeaveGroup}
-                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 px-3 py-2.5 text-sm font-medium text-destructive transition hover:bg-destructive/10"
-                >
-                  <LogOut size={16} />
-                  {t("groupChat.leaveGroup")}
-                </button>
-              )}
+                  <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                      {groupTypeLabel}
+                    </span>
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                      {groupStatusLabel}
+                    </span>
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                      {t("groupChat.memberCount", { count: effectiveMemberCount })}
+                    </span>
+                  </div>
+                </section>
+
+                {error && (
+                  <p className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                    {friendlyError(error, t)}
+                  </p>
+                )}
+
+                {isIdeaGroup && (
+                  <section className="rounded-lg border border-border/70 bg-card p-3 shadow-sm">
+                    <p className="text-xs font-medium text-muted-foreground">{t("groupChat.ideaTitleLabel")}</p>
+                    <p className="mt-1 text-sm font-medium text-foreground">{ideaTitle ?? groupTitle}</p>
+                  </section>
+                )}
+
+                {isIdeaGroup && (
+                  <section className="rounded-lg border border-border/70 bg-card p-3 shadow-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium text-muted-foreground">{t("groupChat.ideaStatus")}</p>
+                        <p className="mt-1 text-sm font-medium text-foreground">{groupStatusLabel}</p>
+                      </div>
+                      {isAdmin && ideaId && (
+                        <select
+                          value={localIdeaStatus ?? "published"}
+                          onChange={(event) => handleStatusChange(event.target.value)}
+                          className="min-h-10 max-w-[12rem] rounded-full border border-border bg-background px-3 text-xs font-medium outline-none focus:border-primary/50"
+                        >
+                          <option value="published">{t("groupChat.statuses.published")}</option>
+                          <option value="interested">{t("groupChat.statuses.interested")}</option>
+                          <option value="discussion">{t("groupChat.statuses.discussion")}</option>
+                          <option value="in_progress">{t("groupChat.statuses.in_progress")}</option>
+                          <option value="completed">{t("groupChat.statuses.completed")}</option>
+                          <option value="archived">{t("groupChat.statuses.archived")}</option>
+                        </select>
+                      )}
+                    </div>
+                  </section>
+                )}
+
+                <section className="rounded-lg border border-border/70 bg-card shadow-sm">
+                  <div className="flex items-center justify-between border-b border-border/60 px-3 py-2.5">
+                    <p className="text-sm font-semibold text-foreground">{t("groupChat.members")}</p>
+                    <span className="text-xs text-muted-foreground">{t("groupChat.memberCount", { count: effectiveMemberCount })}</span>
+                  </div>
+                  <div className="divide-y divide-border/60">
+                    {participants.map((participant) => {
+                      const name = displayName(participant.user, memberFallback);
+                      const isSelf = participant.user_id === currentUserId;
+                      const memberProfileHref = profileHref(participant.user, participant.user_id);
+                      return (
+                        <div key={participant.user_id} className="flex min-h-[64px] items-center gap-3 px-3 py-2.5">
+                          {memberProfileHref ? (
+                            <Link
+                              href={memberProfileHref}
+                              className="shrink-0 rounded-full outline-none ring-primary/40 focus-visible:ring-2"
+                              aria-label={t("groupChat.openProfile", { name })}
+                            >
+                              <UserAvatar label={name} avatarUrl={participant.user?.avatar_url ?? null} className="h-11 w-11" />
+                            </Link>
+                          ) : (
+                            <UserAvatar label={name} avatarUrl={participant.user?.avatar_url ?? null} className="h-11 w-11" />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium text-foreground">
+                              {name}
+                              {isSelf ? ` (${t("groupChat.you")})` : ""}
+                            </p>
+                            <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-muted-foreground">
+                              {participant.role === "admin" && <Shield size={12} />}
+                              {participant.role === "admin" ? t("groupChat.roles.admin") : t("groupChat.roles.member")}
+                            </p>
+                          </div>
+                          {isIdeaGroup && isAdmin && participant.role !== "admin" && !isSelf && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveMember(participant.user_id)}
+                              className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
+                              aria-label={t("groupChat.removeMember", { name })}
+                            >
+                              <UserMinus size={16} />
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+
+                {isIdeaGroup && !isAdmin && (
+                  <button
+                    type="button"
+                    onClick={handleLeaveGroup}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 bg-card px-3 py-2.5 text-sm font-medium text-destructive transition hover:bg-destructive/10"
+                  >
+                    <LogOut size={16} />
+                    {t("groupChat.leaveGroup")}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
