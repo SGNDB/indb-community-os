@@ -7,7 +7,7 @@ import {
   Lightbulb,
   Newspaper,
   UserRound,
-  MessageSquare,
+  MessageCircleMore,
 } from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
 
@@ -22,7 +22,7 @@ const navItems = [
   {href: "/memory", key: "memory", icon: Images},
   {href: "/ideas", key: "ideas", icon: Lightbulb},
   {href: "/fadla", key: "fadla", icon: Gift},
-  {href: "/messages", key: "messages", icon: MessageSquare},
+  {href: "/messages", key: "messages", icon: MessageCircleMore},
   {href: "/profile", key: "profile", icon: UserRound},
 ] as const;
 
@@ -89,4 +89,3 @@ export function Sidebar() {
     </div>
   );
 }
-

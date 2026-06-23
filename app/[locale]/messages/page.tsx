@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getUserConversations, getConversationById, getConversationMessages } from "@/lib/data/conversations";
 import { ConversationList } from "@/components/messages/conversation-list";
 import { ConversationChat } from "@/components/messages/conversation-chat";
-import { MessageSquare } from "lucide-react";
+import { MessageCircleMore } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 export default async function MessagesPage({
@@ -73,7 +73,7 @@ export default async function MessagesPage({
         <div className="hidden min-h-0 min-w-0 flex-1 items-center justify-center md:flex md:w-[70%]">
           <div className="mx-auto max-w-sm px-6 text-center">
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10">
-              <MessageSquare size={40} className="text-primary/60" />
+              <MessageCircleMore size={42} strokeWidth={2.2} className="text-primary/70" />
             </div>
             <h2 className="text-xl font-semibold text-foreground">{t("emptyTitle")}</h2>
             <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
