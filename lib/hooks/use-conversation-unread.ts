@@ -3,8 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 
+let hookId = 0;
+
 export function useUnreadConversationsCount(): number {
   const [count, setCount] = useState(0);
+  const [id] = useState(() => ++hookId);
 
   const refresh = useCallback(async () => {
     try {
@@ -26,7 +29,7 @@ export function useUnreadConversationsCount(): number {
     const supabase = createClient();
 
     const channel = supabase
-      .channel("unread-count")
+      .channel(`unread-count-${id}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "conversation_participants" },
@@ -40,7 +43,7 @@ export function useUnreadConversationsCount(): number {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [refresh]);
+  }, [refresh, id]);
 
   return count;
 }
