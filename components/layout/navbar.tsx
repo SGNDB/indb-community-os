@@ -1,10 +1,11 @@
 import {AuthNav} from "@/components/layout/auth-nav";
 import {LanguageSwitcher} from "@/components/layout/language-switcher";
 import {Logo} from "@/components/layout/Logo";
+import {MessagesIcon} from "@/components/layout/messages-icon";
+import {MobileMenuSheet} from "@/components/layout/mobile-menu-sheet";
 import {NotificationDropdown} from "@/components/layout/notification-dropdown";
 import {SearchBar} from "@/components/layout/search-bar";
 import {ThemeToggle} from "@/components/layout/theme-toggle";
-import {UserAvatar} from "@/components/layout/user-avatar";
 import {Link} from "@/lib/i18n/routing";
 import {getUnreadNotificationsCount} from "@/lib/data/notifications";
 import {getCurrentProfile} from "@/lib/data/profile";
@@ -29,10 +30,8 @@ export async function Navbar({locale}: {locale: string}) {
         <div className="flex h-12 items-center justify-between gap-1 md:hidden">
           {isLoggedIn ? (
             <>
-              <div className="flex items-center gap-0.5">
-                <Link href="/profile" className="flex min-h-11 min-w-11 items-center justify-center rounded-full active:scale-95 transition-transform duration-100">
-                  <UserAvatar label={profileName} avatarUrl={avatarUrl} className="h-9 w-9" />
-                </Link>
+              <div className="flex items-center">
+                <MobileMenuSheet />
               </div>
 
               <Link href="/" className="flex items-center">
@@ -40,9 +39,8 @@ export async function Navbar({locale}: {locale: string}) {
               </Link>
 
               <div className="flex items-center gap-0">
+                <MessagesIcon />
                 <NotificationDropdown locale={locale} initialUnreadCount={initialUnreadCount} />
-                <LanguageSwitcher />
-                <ThemeToggle />
               </div>
             </>
           ) : (
