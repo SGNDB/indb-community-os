@@ -324,6 +324,7 @@ export async function createIdeaParticipantAcceptedNotification(
   participantUserId: string,
   actorId: string,
   ideaId: string,
+  conversationId?: string,
 ): Promise<void> {
   if (participantUserId === actorId) return;
   await createNotification({
@@ -332,7 +333,8 @@ export async function createIdeaParticipantAcceptedNotification(
     type: "idea_participant_accepted",
     entityType: "idea",
     entityId: ideaId,
-    title: "You were accepted to participate",
+    title: conversationId ? 'participantAcceptedMessage' : "You were accepted to participate",
+    metadata: conversationId ? { conversationId } : undefined,
   });
 }
 

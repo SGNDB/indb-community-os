@@ -1298,6 +1298,7 @@
     "emptyTitle": "Mesaase & Jokkondire",
     "emptyDescription": "Jokkondir renge renndo ba ideyaaji e Gar3tak.",
     "activeConversations": "{count} ndotooje golleje",
-    "unreadMessages": "{count} mesaase xaatu xeete"
+    "unreadMessages": "{count} mesaase xaatu xeete",
+    "typing": "a winndu..."
   }
 }

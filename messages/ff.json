@@ -1301,6 +1301,7 @@
     "emptyTitle": "Mesaje & Jokkondiral",
     "emptyDescription": "Jokkondir e terɗe renndo ngam ideji e Gar3tak.",
     "activeConversations": "{count} ndotooje golleeje",
-    "unreadMessages": "{count} mesaje njaɓaaka"
+    "unreadMessages": "{count} mesaje njaɓaaka",
+    "typing": "no winndude..."
   }
 }

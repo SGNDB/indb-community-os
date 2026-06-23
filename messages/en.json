@@ -1444,6 +1444,7 @@
     "emptyTitle": "Messages & Coordination",
     "emptyDescription": "Connect with community members about ideas and Gar3tak.",
     "activeConversations": "{count} active conversations",
-    "unreadMessages": "{count} unread messages"
+    "unreadMessages": "{count} unread messages",
+    "typing": "is typing..."
   }
 }

@@ -7,7 +7,7 @@ import {
   Loader2,
   ListFilter,
   MapPin,
-  MessageCircle,
+
   Pencil,
   Share2,
   Trash2,
@@ -27,14 +27,13 @@ import {
   requestFadlaItemAction,
   shareCommunityShareAction,
 } from '@/app/[locale]/server-actions';
-import { FadlaDiscussion } from '@/components/fadla/fadla-discussion';
 import { UserAvatar } from '@/components/layout/user-avatar';
 import { MediaCarousel } from '@/components/media/media-carousel';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils/cn';
-import type { FadlaRequestMessageWithSender, FadlaRequestWithRequester, FadlaStatus, FadlaWithOwner } from '@/types/database';
+import type { FadlaRequestWithRequester, FadlaStatus, FadlaWithOwner } from '@/types/database';
 
 const CATEGORY_EMOJI: Record<string, string> = {
   food: '🍲',
@@ -113,6 +112,7 @@ export function FadlaCard({
   const [liveSenderConfirmedAt, setLiveSenderConfirmedAt] = useState<string | null>(item.sender_confirmed_at);
   const [liveReceiverConfirmedAt, setLiveReceiverConfirmedAt] = useState<string | null>(item.receiver_confirmed_at);
   const [liveStatus, setLiveStatus] = useState<FadlaStatus>(item.status);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const articleRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -123,6 +123,12 @@ export function FadlaCard({
     setLiveReceiverConfirmedAt(item.receiver_confirmed_at);
     setLiveStatus(item.status);
     setRequestState(item.requested_by_current_user ? 'requested' : 'idle');
+    if (item.accepted_request_id && !conversationId) {
+      const supabase = createClient();
+      supabase.from('conversations').select('id').eq('graatek_id', item.id).maybeSingle().then(({data}) => {
+        if (data) setConversationId(data.id);
+      });
+    }
   }, [
     item.accepted_request_id,
     item.id,
@@ -191,23 +197,6 @@ export function FadlaCard({
     (liveStatus === 'published' || liveStatus === 'requested');
 
   const activeAcceptedRequestId = acceptedRequest?.id ?? null;
-  const [discussionMessages, setDiscussionMessages] = useState<FadlaRequestMessageWithSender[]>([]);
-  const [discussionLoading, setDiscussionLoading] = useState(false);
-
-  useEffect(() => {
-    if (!activeAcceptedRequestId) return;
-    setDiscussionLoading(true);
-    const supabase = createClient();
-    supabase
-      .from('fadla_request_messages')
-      .select('*, sender:sender_id(id, username, full_name, avatar_url)')
-      .eq('request_id', activeAcceptedRequestId)
-      .order('created_at', {ascending: true})
-      .then(({data}) => {
-        if (data) setDiscussionMessages(data);
-        setDiscussionLoading(false);
-      });
-  }, [activeAcceptedRequestId]);
 
   useEffect(() => {
     if (!currentUserId) return;
@@ -345,6 +334,7 @@ export function FadlaCard({
       toast.success(t('toasts.accepted'));
       setAcceptedRequestId(result.acceptedRequestId);
       setLiveStatus(result.shareStatus as FadlaStatus);
+      if (result.conversationId) setConversationId(result.conversationId);
     } else {
       toast.error(result.error);
       setRequests(previousRequests);
@@ -766,35 +756,7 @@ export function FadlaCard({
                 )}
               </div>
             )}
-            <div id={`discussion-${item.id}`}>
-              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                <MessageCircle size={13} />
-                <span>
-                  {isOwner
-                    ? t('discussion.withReceiver')
-                    : t('discussion.withOwner')}
-                </span>
-              </div>
-              {discussionLoading ? (
-                <div className="flex items-center justify-center py-4">
-                  <Loader2 size={16} className="animate-spin text-muted-foreground" />
-                </div>
-              ) : (
-                <FadlaDiscussion
-                  key={acceptedRequest.id}
-                  requestId={acceptedRequest.id}
-                  shareId={item.id}
-                  currentUserId={currentUserId}
-                  currentUserName={isOwner ? ownerName : acceptedRequesterName}
-                  currentUserAvatarUrl={isOwner ? item.owner?.avatar_url : acceptedRequest.requester?.avatar_url}
-                  conversationWithName={isOwner ? acceptedRequesterName : ownerName}
-                  conversationWithAvatarUrl={isOwner ? acceptedRequest.requester?.avatar_url : item.owner?.avatar_url}
-                  locale={locale}
-                  initialMessages={discussionMessages}
-                  status={liveStatus}
-                />
-              )}
-            </div>
+
           </div>
         )}
 

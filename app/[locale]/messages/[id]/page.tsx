@@ -27,11 +27,6 @@ export default async function ConversationPage({
   if (!isParticipant) notFound();
 
   const messages = await getConversationMessages(id);
-
-  const otherParticipant = conversation.participants.find((p) => p.user_id !== user.id);
-  const otherName = otherParticipant?.user?.full_name ?? otherParticipant?.user?.username ?? "?";
-  const otherAvatarUrl = otherParticipant?.user?.avatar_url ?? null;
-
   const conversations = await getUserConversations(user.id);
 
   return (
@@ -45,11 +40,16 @@ export default async function ConversationPage({
           conversationId={id}
           initialMessages={messages}
           currentUserId={user.id}
-          otherUserName={otherName}
-          otherUserAvatarUrl={otherAvatarUrl}
           isArchived={!!conversation.archived_at}
           conversationTitle={conversation.title}
           conversationType={conversation.type}
+          conversationImageUrl={conversation.image_url}
+          conversationImageStoragePath={conversation.image_storage_path}
+          ideaId={conversation.idea_id}
+          ideaTitle={conversation.idea_title}
+          ideaStatus={conversation.idea_status}
+          memberCount={conversation.member_count}
+          participants={conversation.participants}
         />
       </div>
     </>

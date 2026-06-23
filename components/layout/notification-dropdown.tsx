@@ -59,6 +59,7 @@ function getNotificationIcon(type: string) {
     case "memory_comment":
     case "fadla_message":
     case "idea_message":
+    case "idea_group_message":
       return MessageCircle;
     case "save":
       return Bookmark;
@@ -74,6 +75,10 @@ function getNotificationIcon(type: string) {
     case "idea_participant_accepted":
     case "idea_participant_declined":
     case "idea_status_change":
+    case "idea_group_updated":
+    case "idea_group_removed":
+    case "idea_group_left":
+    case "idea_completed":
       return Lightbulb;
     default:
       return Bell;
@@ -273,8 +278,13 @@ export function NotificationDropdown({
     setOpen(false);
 
     if (n.entity_type && n.entity_id) {
-      const metadata = (n.metadata ?? {}) as {commentId?: string};
+      const metadata = (n.metadata ?? {}) as {commentId?: string; conversationId?: string};
       const commentQuery = metadata.commentId ? `&comment=${encodeURIComponent(metadata.commentId)}` : "";
+      // If notification has a conversationId, navigate directly to messages
+      if (metadata.conversationId) {
+        router.push(`/messages?conversation=${metadata.conversationId}`);
+        return;
+      }
       switch (n.entity_type) {
         case "memory": {
           const memoryFocus = n.type === "reaction" ? "reactions" : n.type === "memory_comment" ? "comments" : "";
@@ -303,7 +313,7 @@ export function NotificationDropdown({
             ? "comments"
             : n.type === "idea_participate_request"
               ? "requests"
-              : ["idea_participant_accepted", "idea_message", "idea_status_change"].includes(n.type)
+              : ["idea_participant_accepted", "idea_message", "idea_status_change", "idea_group_message", "idea_group_updated", "idea_group_removed", "idea_group_left", "idea_completed"].includes(n.type)
                 ? "discussion"
                 : n.type === "idea_participant_declined"
                   ? "participation"
@@ -456,8 +466,18 @@ export function NotificationDropdown({
           return t("ideaParticipantDeclined", {actorName});
         case "idea_message":
           return t("ideaMessage", {actorName});
+        case "idea_group_message":
+          return `${actorName} sent a message in the idea group`;
+        case "idea_group_updated":
+          return `${actorName} updated the idea group`;
+        case "idea_group_removed":
+          return `${actorName} removed you from an idea group`;
+        case "idea_group_left":
+          return `${actorName} left the idea group`;
         case "idea_status_change":
           return t("ideaStatusChange", {actorName});
+        case "idea_completed":
+          return `${actorName} completed the idea`;
         case "share":
           return n.entity_type === "memory"
             ? t("sharedYourMemory", {actorName})

@@ -1298,6 +1298,7 @@
     "emptyTitle": "Messages & Coordination",
     "emptyDescription": "Mbooloo ak mbootaay bi ci xalaat yi ak Gar3tak.",
     "activeConversations": "{count} waxtaan yu ngi dox",
-    "unreadMessages": "{count} messages xaatu xeetul"
+    "unreadMessages": "{count} messages xaatu xeetul",
+    "typing": "bing bind..."
   }
 }

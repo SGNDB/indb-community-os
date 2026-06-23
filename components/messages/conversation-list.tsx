@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Inbox, Search, MessageSquare, Archive } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Archive, Inbox, MessageSquare, Search } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { Link, usePathname } from "@/lib/i18n/routing";
+
 import { UserAvatar } from "@/components/layout/user-avatar";
-import { cn } from "@/lib/utils/cn";
+import { Link, usePathname } from "@/lib/i18n/routing";
 import { createClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils/cn";
 import type { ConversationListItem } from "@/lib/data/conversations";
 
 function timeAgo(dateStr: string, locale: string): string {
@@ -14,18 +15,20 @@ function timeAgo(dateStr: string, locale: string): string {
   const d = new Date(dateStr).getTime();
   const diff = now - d;
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return locale === "ar" ? "الآن" : "now";
+  if (mins < 1) return "now";
   if (mins < 60) return `${mins}m`;
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}h`;
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d`;
-  return new Date(dateStr).toLocaleDateString(locale === "ar" ? "ar" : "en", { day: "numeric", month: "short" });
+  return new Date(dateStr).toLocaleDateString(locale === "ar" ? "ar" : "en", {
+    day: "numeric",
+    month: "short",
+  });
 }
 
-function typeBadge(type: string, t: (key: string) => string): { emoji: string; label: string } {
-  if (type === "graatek") return { emoji: "🎁", label: "Gar3tak" };
-  return { emoji: "💡", label: t("idea") };
+function typeBadge(type: string, t: (key: string) => string): string {
+  return type === "graatek" ? "Gar3tak" : t("idea");
 }
 
 interface ConversationListProps {
@@ -41,16 +44,26 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
   const [searchQuery, setSearchQuery] = useState("");
   const [filterArchived, setFilterArchived] = useState(false);
 
-  const filtered = conversations.filter((c) => {
-    if (!filterArchived && c.archived_at) return false;
-    if (filterArchived && !c.archived_at) return false;
+  const filtered = conversations.filter((conversation) => {
+    if (!filterArchived && conversation.archived_at) return false;
+    if (filterArchived && !conversation.archived_at) return false;
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
-    const name = (c.other_participant?.full_name ?? c.other_participant?.username ?? "").toLowerCase();
-    return name.includes(q) || c.title.toLowerCase().includes(q);
+    const otherName = (
+      conversation.other_participant?.full_name ??
+      conversation.other_participant?.username ??
+      ""
+    ).toLowerCase();
+    return (
+      otherName.includes(q) ||
+      conversation.title.toLowerCase().includes(q) ||
+      (conversation.idea_title ?? "").toLowerCase().includes(q)
+    );
   });
 
-  const activeConvId = pathname?.startsWith("/messages/") ? pathname.split("/messages/")[1]?.split("/")[0] : null;
+  const activeConvId = pathname?.startsWith("/messages/")
+    ? pathname.split("/messages/")[1]?.split("/")[0]
+    : null;
 
   useEffect(() => {
     setConversations(initialConversations);
@@ -59,56 +72,37 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
   useEffect(() => {
     const supabase = createClient();
 
+    async function refresh() {
+      try {
+        const { getMyConversationsAction } = await import("@/app/[locale]/server-actions");
+        const res = await getMyConversationsAction();
+        if (res.success && res.conversations) {
+          setConversations(res.conversations);
+        }
+      } catch (e) {
+        console.error("realtime refresh error:", e);
+      }
+    }
+
     const channel = supabase
       .channel("inbox-updates")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "conversation_messages" }, refresh)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "conversation_messages" },
-        async () => {
-           try {
-             const { getMyConversationsAction } = await import("@/app/[locale]/server-actions");
-             const res = await getMyConversationsAction();
-             if (res.success && res.conversations) {
-               setConversations(res.conversations);
-             }
-           } catch (e) {
-             console.error("realtime refresh error:", e);
-           }
-         },
-       )
-       .on(
-         "postgres_changes",
-         { event: "UPDATE", schema: "public", table: "conversation_participants", filter: `user_id=eq.${currentUserId}` },
-         async () => {
-           try {
-             const { getMyConversationsAction } = await import("@/app/[locale]/server-actions");
-             const res = await getMyConversationsAction();
-             if (res.success && res.conversations) {
-               setConversations(res.conversations);
-             }
-           } catch (e) {
-             console.error("realtime refresh error:", e);
-           }
-         },
-       )
-       .on(
-         "postgres_changes",
-         { event: "UPDATE", schema: "public", table: "conversations" },
-         async () => {
-           try {
-             const { getMyConversationsAction } = await import("@/app/[locale]/server-actions");
-             const res = await getMyConversationsAction();
-             if (res.success && res.conversations) {
-               setConversations(res.conversations);
-             }
-           } catch (e) {
-             console.error("realtime refresh error:", e);
-           }
-         },
-       )
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "conversation_participants",
+          filter: `user_id=eq.${currentUserId}`,
+        },
+        refresh,
+      )
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "conversations" }, refresh)
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [currentUserId]);
 
   return (
@@ -121,7 +115,7 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
         <button
           onClick={() => setFilterArchived((v) => !v)}
           className={cn(
-            "rounded-lg p-1.5 text-muted-foreground hover:bg-muted transition",
+            "rounded-lg p-1.5 text-muted-foreground transition hover:bg-muted",
             filterArchived && "bg-muted text-foreground",
           )}
           title={filterArchived ? t("showActive") : t("showArchived")}
@@ -152,18 +146,33 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
           </div>
         ) : (
           <ul>
-            {filtered.map((conv) => {
-              const isActive = activeConvId === conv.id;
-              const name = conv.other_participant?.full_name ?? conv.other_participant?.username ?? (conv.title || t("unknown"));
-              const avatarUrl = conv.other_participant?.avatar_url ?? null;
-              const lastMsg = conv.last_message?.message ?? "";
-              const lastTime = conv.last_message?.created_at ?? conv.created_at;
-              const badge = typeBadge(conv.type, t);
+            {filtered.map((conversation) => {
+              const isActive = activeConvId === conversation.id;
+              const isIdeaGroup = conversation.type === "idea";
+              const name = isIdeaGroup
+                ? conversation.title || conversation.idea_title || t("idea")
+                : (conversation.other_participant?.full_name ??
+                    conversation.other_participant?.username ??
+                    conversation.title) ||
+                  t("unknown");
+              const avatarUrl = isIdeaGroup
+                ? conversation.image_url
+                : conversation.other_participant?.avatar_url ?? null;
+              const lastMessage = conversation.last_message?.message_type === "image"
+                ? conversation.last_message.message
+                  ? `Image: ${conversation.last_message.message}`
+                  : "Image"
+                : conversation.last_message?.message ?? "";
+              const lastTime = conversation.last_message?.created_at ?? conversation.created_at;
+              const badge = typeBadge(conversation.type, t);
+              const secondary = isIdeaGroup
+                ? `${conversation.member_count || 1} members`
+                : conversation.title;
 
               return (
-                <li key={conv.id}>
+                <li key={conversation.id}>
                   <Link
-                    href={`/messages/${conv.id}`}
+                    href={`/messages/${conversation.id}`}
                     className={cn(
                       "flex items-start gap-2.5 border-s-2 px-3 py-2.5 transition hover:bg-muted/50",
                       isActive ? "border-primary bg-primary/[0.04]" : "border-transparent",
@@ -172,9 +181,11 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
                     <UserAvatar label={name} avatarUrl={avatarUrl} className="mt-0.5 h-9 w-9 shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-1.5">
-                        <span className="inline-flex items-center gap-1 rounded-[4px] bg-muted px-1.5 py-[2px] text-[10px] leading-none text-muted-foreground">
-                          <span>{badge.emoji}</span>
-                          <span>{badge.label}</span>
+                        <span className="inline-flex min-w-0 items-center gap-1 rounded-[4px] bg-muted px-1.5 py-[2px] text-[10px] leading-none text-muted-foreground">
+                          <span>{badge}</span>
+                          {isIdeaGroup && conversation.idea_status && (
+                            <span className="truncate">- {conversation.idea_status.replace(/_/g, " ")}</span>
+                          )}
                         </span>
                         {lastTime && (
                           <span className="shrink-0 text-[11px] text-muted-foreground">
@@ -183,13 +194,14 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
                         )}
                       </div>
                       <p className="mt-1 truncate text-sm font-medium text-foreground">{name}</p>
+                      <p className="truncate text-[11px] text-muted-foreground/70">{secondary}</p>
                       <div className="mt-0.5 flex items-center gap-2">
                         <p className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
-                          {lastMsg || t("noMessagesYet")}
+                          {lastMessage || t("noMessagesYet")}
                         </p>
-                        {conv.unread_count > 0 && (
+                        {conversation.unread_count > 0 && (
                           <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">
-                            {conv.unread_count > 99 ? "99+" : conv.unread_count}
+                            {conversation.unread_count > 99 ? "99+" : conversation.unread_count}
                           </span>
                         )}
                       </div>

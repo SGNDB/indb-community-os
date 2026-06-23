@@ -1444,6 +1444,7 @@
     "emptyTitle": "الرسائل والتنسيق",
     "emptyDescription": "تواصل مع أعضاء المجتمع حول الأفكار وگرعتك.",
     "activeConversations": "{count} محادثة نشطة",
-    "unreadMessages": "{count} رسالة غير مقروءة"
+    "unreadMessages": "{count} رسالة غير مقروءة",
+    "typing": "يكتب..."
   }
 }

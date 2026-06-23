@@ -8,9 +8,8 @@ import {useSearchParams} from "next/navigation";
 import {useEffect, useRef, useState} from "react";
 import {toast} from "sonner";
 
-import {deleteIdeaAction, shareIdeaAction, getIdeaParticipationDataAction, supportIdeaAction, requestParticipateAction, respondToParticipantAction, updateIdeaStatusAction, getIdeaMessagesAction} from "@/app/[locale]/server-actions";
+import {deleteIdeaAction, shareIdeaAction, getIdeaParticipationDataAction, supportIdeaAction, requestParticipateAction, respondToParticipantAction, updateIdeaStatusAction} from "@/app/[locale]/server-actions";
 import {IdeaComments} from "@/components/ideas/idea-comments";
-import {IdeaDiscussion} from "@/components/ideas/idea-discussion";
 import {VotersModal} from "@/components/ideas/voters-modal";
 import {TranslateButton} from "@/components/shared/translate-button";
 import {VoteButton} from "@/components/ideas/vote-button";
@@ -22,7 +21,7 @@ import {createClient} from "@/lib/supabase/client";
 import {cn} from "@/lib/utils/cn";
 import {useContentScroll} from "@/hooks/use-content-scroll";
 import {detectContentLanguage, type ContentLanguage} from "@/lib/i18n/detectContentLanguage";
-import type {IdeaBadge, IdeaMessageWithSender, IdeaParticipantWithUser, IdeaStatus, IdeaWithAuthor} from "@/types/database";
+import type {IdeaBadge, IdeaParticipantWithUser, IdeaStatus, IdeaWithAuthor} from "@/types/database";
 import {MediaCarousel} from "@/components/media/media-carousel";
 
 const badgeTranslationKeys: Record<IdeaBadge, string> = {
@@ -96,8 +95,7 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
   const [userSupported, setUserSupported] = useState(false);
   const [userParticipation, setUserParticipation] = useState<{status: string; message: string | null} | null>(null);
   const [participants, setParticipants] = useState<IdeaParticipantWithUser[]>([]);
-  const [messages, setMessages] = useState<IdeaMessageWithSender[]>([]);
-  const [showDiscussion, setShowDiscussion] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const [showRequests, setShowRequests] = useState(false);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const statusMenuRef = useRef<HTMLDivElement>(null);
@@ -195,10 +193,10 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
 
       if (nextParticipant.user_id === effectiveCurrentUserId) {
         setUserParticipation({status: nextParticipant.status, message: nextParticipant.message});
-        if (nextParticipant.status === "accepted") {
-          const result = await getIdeaMessagesAction(idea.id);
-          if (result.success && result.messages) setMessages(result.messages);
-          setShowDiscussion(true);
+        if (nextParticipant.status === "accepted" && !conversationId) {
+          const supabase = createClient();
+          const {data: conv} = await supabase.from('conversations').select('id').eq('idea_id', idea.id).maybeSingle();
+          if (conv) setConversationId(conv.id);
         }
       }
     }
@@ -311,49 +309,29 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
       return;
     }
 
-    let cancelled = false;
-    (async () => {
-      if (messages.length === 0) {
-        const result = await getIdeaMessagesAction(idea.id);
-        if (!cancelled && result.success && result.messages) {
-          setMessages(result.messages);
-        }
+    // Navigate to messages conversation instead of showing embedded chat
+    const supabase = createClient();
+    supabase.from('conversations').select('id').eq('idea_id', idea.id).maybeSingle().then(({data}) => {
+      if (data) {
+        router.push(`/messages?conversation=${data.id}`);
       }
-
-      if (!cancelled) {
-        setShowDiscussion(true);
-        window.setTimeout(() => {
-          document.getElementById(`idea-${idea.id}-discussion`)?.scrollIntoView({behavior: "smooth", block: "center"});
-        }, 350);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [effectiveCurrentUserId, idea.id, isOwner, messages.length, searchParams, userParticipation?.status]);
+    });
+  }, [effectiveCurrentUserId, idea.id, isOwner, searchParams, userParticipation?.status]);
 
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
   const authorUsername = idea.author?.username;
-  const acceptedParticipants = participants.filter((participant) => participant.status === "accepted");
-  const acceptedParticipantNames = acceptedParticipants
-    .map((participant) => participant.user?.full_name ?? participant.user?.username)
-    .filter((name): name is string => Boolean(name));
-  const acceptedParticipantsLabel =
-    acceptedParticipantNames.length > 0
-      ? `${acceptedParticipantNames.slice(0, 2).join(", ")}${acceptedParticipantNames.length > 2 ? ` +${acceptedParticipantNames.length - 2}` : ""}`
-      : t("unknownAuthor");
   const currentParticipant = participants.find((participant) => participant.user_id === effectiveCurrentUserId);
-  const currentDiscussionUserName = isOwner
-    ? authorName
-    : currentParticipant?.user?.full_name ?? currentParticipant?.user?.username ?? null;
-  const currentDiscussionAvatarUrl = isOwner ? idea.author?.avatar_url : currentParticipant?.user?.avatar_url;
-  const conversationWithName = isOwner ? acceptedParticipantsLabel : authorName;
-  const conversationWithAvatarUrl = isOwner && acceptedParticipants.length === 1
-    ? acceptedParticipants[0].user?.avatar_url
-    : !isOwner
-      ? idea.author?.avatar_url
-      : null;
+
+  // Load conversationId on mount if the user is an accepted participant or owner
+  useEffect(() => {
+    if (conversationId) return;
+    if (userParticipation?.status === "accepted" || isOwner) {
+      const supabase = createClient();
+      supabase.from('conversations').select('id').eq('idea_id', idea.id).maybeSingle().then(({data}) => {
+        if (data) setConversationId(data.id);
+      });
+    }
+  }, [idea.id, userParticipation?.status, isOwner]);
 
   if (process.env.NODE_ENV === "development") {
     console.log({
@@ -603,23 +581,13 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
               >
                 <span className="tabular-nums">{supportersCount}</span>
               </button>
-              {!isOwner && effectiveCurrentUserId && (
+              {!isOwner && effectiveCurrentUserId && userParticipation?.status !== "accepted" && (
                 <button
                   type="button"
                   onClick={async (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     if (participationBusy || participationPending || participationDeclined) return;
-                    if (userParticipation?.status === "accepted") {
-                      if (!showDiscussion && messages.length === 0) {
-                        const r = await getIdeaMessagesAction(idea.id);
-                        if (r.success && r.messages) {
-                          setMessages(r.messages);
-                        }
-                      }
-                      setShowDiscussion((p) => !p);
-                      return;
-                    }
                     try {
                       setSubmittingParticipation(true);
                       const f = new FormData();
@@ -659,8 +627,6 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
                 >
                   {participationBusy ? (
                     <>{t("participate")}</>
-                  ) : userParticipation?.status === "accepted" ? (
-                    <><ChevronUpIcon size={16} />{t("discussionButton")}</>
                   ) : userParticipation?.status === "pending" ? (
                     <><Clock3 size={16} />{t("participationPendingShort")}</>
                   ) : userParticipation?.status === "declined" ? (
@@ -778,6 +744,7 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
                             prev.map((pp) => pp.id === p.id ? {...pp, status: "accepted" as const} : pp)
                           );
                           toast.success(t("participantAccepted"));
+                          if (r.conversationId) setConversationId(r.conversationId);
                         }
                       }}
                     >
@@ -807,38 +774,7 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
             </div>
           )}
 
-          {(userParticipation?.status === "accepted" || isOwner) && (
-            <div id={`idea-${idea.id}-discussion`} className="pt-2 scroll-mt-28">
-              {showDiscussion ? (
-                <IdeaDiscussion
-                  ideaId={idea.id}
-                  currentUserId={effectiveCurrentUserId ?? ""}
-                  currentUserName={currentDiscussionUserName}
-                  currentUserAvatarUrl={currentDiscussionAvatarUrl}
-                  conversationWithName={conversationWithName}
-                  conversationWithAvatarUrl={conversationWithAvatarUrl}
-                  locale={locale}
-                  initialMessages={messages}
-                />
-              ) : (participants.some((p) => p.status === "accepted") || isOwner) && effectiveCurrentUserId ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={async () => {
-                    const r = await getIdeaMessagesAction(idea.id);
-                    if (r.success && r.messages) {
-                      setMessages(r.messages);
-                    }
-                    setShowDiscussion(true);
-                  }}
-                  className="text-xs text-muted-foreground"
-                >
-                  {t("openDiscussion")}
-                </Button>
-              ) : null}
-            </div>
-          )}
+
         </CardContent>
       </Card>
 

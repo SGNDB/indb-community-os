@@ -32,7 +32,7 @@ import {
 } from '@/lib/data/notifications';
 import { toggleReaction, getPostReactionDetails } from '@/lib/data/reactions';
 import type { IdeaStatus, IdeaMessageWithSender } from '@/types/database';
-import type { ConversationListItem, ConversationMessageWithSender } from '@/lib/data/conversations';
+import type { ConversationDetails, ConversationListItem, ConversationMessageWithSender } from '@/lib/data/conversations';
 import { getIdeaVoteDetails, getIdeaById, isUserAcceptedParticipant, getIdeaUserParticipation, getIdeaUserSupport, getIdeaAcceptedParticipants, getIdeaParticipants } from '@/lib/data/ideas';
 import { getMemoryReactionDetails } from '@/lib/data/memories';
 import { getTimelineMemoriesByYear } from '@/lib/data/memory-timeline';
@@ -1470,6 +1470,13 @@ export async function submitIdeaAction(
         position: i,
       })),
     );
+  }
+
+  try {
+    const { ensureConversationExists } = await import('@/lib/data/conversations');
+    await ensureConversationExists('idea', newIdea.id);
+  } catch (e) {
+    console.error('submitIdeaAction conversation create error:', e);
   }
 
   revalidatePath(toPath(locale, '/ideas'));
@@ -3327,7 +3334,7 @@ export async function requestFadlaItemAction(
 
 export async function acceptFadlaRequestAction(
   formData: FormData,
-): Promise<{ success: true; requestId: string; shareId: string; shareStatus: string; acceptedRequestId: string } | { success: false; error: string }> {
+): Promise<{ success: true; requestId: string; shareId: string; shareStatus: string; acceptedRequestId: string; conversationId: string } | { success: false; error: string }> {
   const locale = normalizeLocale(formData.get('locale'));
   const requestId = formData.get('requestId');
   const supabase = await createClient();
@@ -3351,6 +3358,16 @@ export async function acceptFadlaRequestAction(
     return { success: false, error: fadlaT('errors.actionFailed') };
   }
 
+  // create or find conversation
+  let conversationId = '';
+  try {
+    const { ensureConversationExists } = await import('@/lib/data/conversations');
+    const convId = await ensureConversationExists('graatek', result.shareId as string);
+    if (convId) conversationId = convId;
+  } catch (e) {
+    console.error('acceptFadlaRequestAction conv create error:', e);
+  }
+
   // Fetch the requester_id for the notification
   const { data: req } = await supabase
     .from('community_share_requests')
@@ -3365,21 +3382,14 @@ export async function acceptFadlaRequestAction(
       type: 'fadla_request_accepted',
       entityType: 'community_share',
       entityId: result.shareId as string,
-      title: 'Your request was accepted',
+      title: conversationId ? 'requestAcceptedMessage' : 'Your request was accepted',
+      metadata: conversationId ? { conversationId } : undefined,
     });
-  }
-
-  // create conversation for unified inbox
-  try {
-    const { ensureConversationExists } = await import('@/lib/data/conversations');
-    await ensureConversationExists('graatek', result.shareId as string);
-  } catch (e) {
-    console.error('acceptFadlaRequestAction conv create error:', e);
   }
 
   revalidatePath(toPath(locale, '/fadla'));
   revalidatePath(toPath(locale, '/profile'));
-  return { success: true, requestId, shareId: result.shareId as string, shareStatus: 'reserved', acceptedRequestId: requestId };
+  return { success: true, requestId, shareId: result.shareId as string, shareStatus: 'reserved', acceptedRequestId: requestId, conversationId };
 }
 
 export async function confirmFadlaReceivedAction(
@@ -3919,7 +3929,7 @@ export async function requestParticipateAction(
 
 export async function respondToParticipantAction(
   formData: FormData,
-): Promise<{ success: boolean; status?: string; participantsCount?: number; error?: string }> {
+): Promise<{ success: boolean; status?: string; participantsCount?: number; conversationId?: string; error?: string }> {
   const participantId = formData.get('participantId');
   const action = formData.get('action'); // "accept" or "decline"
   const supabase = await createClient();
@@ -3961,18 +3971,21 @@ export async function respondToParticipantAction(
     return { success: false, error: error.message };
   }
 
+  let conversationId = '';
+
   if (action === 'accept') {
-    await createIdeaParticipantAcceptedNotification(participant.user_id, user.id, participant.idea_id);
     try {
       const { ensureConversationExists } = await import('@/lib/data/conversations');
       const convId = await ensureConversationExists('idea', participant.idea_id);
       if (convId) {
+        conversationId = convId;
         const sb = await createClient();
         await sb.rpc('add_conversation_participant', { p_conv_id: convId, p_user_id: participant.user_id });
       }
     } catch (e) {
       console.error('respondToParticipantAction conv add error:', e);
     }
+    await createIdeaParticipantAcceptedNotification(participant.user_id, user.id, participant.idea_id, conversationId || undefined);
   } else {
     await createIdeaParticipantDeclinedNotification(participant.user_id, user.id, participant.idea_id);
   }
@@ -3983,7 +3996,7 @@ export async function respondToParticipantAction(
     .update({ participants_count: acceptedCount })
     .eq('id', participant.idea_id);
 
-  return { success: true, status, participantsCount: acceptedCount };
+  return { success: true, status, participantsCount: acceptedCount, conversationId: conversationId || undefined };
 }
 
 export async function updateIdeaStatusAction(
@@ -4024,6 +4037,14 @@ export async function updateIdeaStatusAction(
     return { success: false, error: error.message };
   }
 
+  let ideaConversationId: string | null = null;
+  try {
+    const { ensureConversationExists } = await import('@/lib/data/conversations');
+    ideaConversationId = await ensureConversationExists('idea', ideaId);
+  } catch (e) {
+    console.error('updateIdeaStatusAction conversation ensure error:', e);
+  }
+
   const acceptedParticipants = await getIdeaAcceptedParticipants(ideaId);
   const participantIds = acceptedParticipants
     .map((p) => p.user?.id)
@@ -4033,11 +4054,29 @@ export async function updateIdeaStatusAction(
     await createIdeaStatusChangeNotification(ideaId, user.id, participantIds, newStatus);
   }
 
+  if (newStatus === 'completed') {
+    for (const participantId of participantIds) {
+      await createNotification({
+        userId: participantId,
+        actorId: user.id,
+        type: 'idea_completed',
+        entityType: 'idea',
+        entityId: ideaId,
+        title: 'Idea completed',
+        metadata: ideaConversationId ? { conversationId: ideaConversationId } : undefined,
+      });
+    }
+  }
+
   if (newStatus === 'completed' || newStatus === 'archived') {
     try {
-      const { data: conv } = await supabase.from('conversations').select('id').eq('idea_id', ideaId).maybeSingle();
-      if (conv) {
-        await supabase.rpc('archive_conversation', { p_conv_id: conv.id });
+      if (ideaConversationId) {
+        await supabase.rpc('archive_conversation', { p_conv_id: ideaConversationId });
+      } else {
+        const { data: conv } = await supabase.from('conversations').select('id').eq('idea_id', ideaId).maybeSingle();
+        if (conv) {
+          await supabase.rpc('archive_conversation', { p_conv_id: conv.id });
+        }
       }
     } catch (e) {
       console.error('updateIdeaStatusAction archive error:', e);
@@ -4139,6 +4178,10 @@ export async function sendIdeaMessageAction(
     return { success: false, error: 'not_found' };
   }
 
+  if (idea.status === 'completed' || idea.status === 'archived') {
+    return { success: false, error: 'archived' };
+  }
+
   const isAuthorized = await isUserAcceptedParticipant(ideaId, user.id, idea.author_id ?? '');
   if (!isAuthorized) {
     return { success: false, error: 'unauthorized' };
@@ -4198,15 +4241,7 @@ export async function getConversationMessagesAction(
   conversationId: string,
 ): Promise<{
   success: boolean;
-  conversation?: {
-    id: string;
-    type: string;
-    graatek_id: string | null;
-    idea_id: string | null;
-    title: string;
-    archived_at: string | null;
-    participants: { id: string; user_id: string; last_read_at: string | null; unread_count: number; user: { id: string; username: string | null; full_name: string | null; avatar_url: string | null } | null }[];
-  };
+  conversation?: ConversationDetails;
   messages?: ConversationMessageWithSender[];
   error?: string;
 }> {
@@ -4231,14 +4266,27 @@ export async function sendConversationMessageAction(
 }> {
   const conversationId = formData.get('conversationId');
   const messageText = formData.get('message');
+  const messageTypeRaw = formData.get('messageType');
+  const imageUrlRaw = formData.get('imageUrl');
+  const imageStoragePathRaw = formData.get('imageStoragePath');
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'unauthorized' };
-  if (typeof conversationId !== 'string' || typeof messageText !== 'string') {
+  if (typeof conversationId !== 'string') {
     return { success: false, error: 'invalid' };
   }
-  const trimmed = messageText.trim();
-  if (!trimmed || trimmed.length > 500) return { success: false, error: 'invalid' };
+  const messageType = messageTypeRaw === 'image' ? 'image' : 'text';
+  const trimmed = typeof messageText === 'string' ? messageText.trim() : '';
+  const imageUrl = typeof imageUrlRaw === 'string' && imageUrlRaw ? imageUrlRaw : null;
+  const imageStoragePath = typeof imageStoragePathRaw === 'string' && imageStoragePathRaw ? imageStoragePathRaw : null;
+
+  if (messageType === 'text' && (!trimmed || trimmed.length > 1000)) {
+    return { success: false, error: 'invalid' };
+  }
+  if (messageType === 'image' && (!imageUrl || !imageStoragePath || trimmed.length > 500)) {
+    return { success: false, error: 'invalid' };
+  }
+
   const { allowed } = await checkRateLimit('comment' as RateLimitKind, user.id);
   if (!allowed) return { success: false, error: 'rate_limited' };
   const { sendConversationMessage, getConversationById } = await import('@/lib/data/conversations');
@@ -4246,7 +4294,16 @@ export async function sendConversationMessageAction(
   if (!conv || conv.archived_at) return { success: false, error: 'archived' };
   const isParticipant = conv.participants.some(p => p.user_id === user.id);
   if (!isParticipant) return { success: false, error: 'unauthorized' };
-  const result = await sendConversationMessage(conversationId, user.id, trimmed);
+  if (conv.type === 'idea' && (conv.idea_status === 'completed' || conv.idea_status === 'archived')) {
+    return { success: false, error: 'archived' };
+  }
+
+  const result = await sendConversationMessage(conversationId, user.id, {
+    message: trimmed || null,
+    messageType,
+    imageUrl,
+    imageStoragePath,
+  });
   if (!result) return { success: false, error: 'insert_failed' };
 
   // notify other participants
@@ -4257,15 +4314,138 @@ export async function sendConversationMessageAction(
     await createNotification({
       userId: p.user_id,
       actorId: user.id,
-      type: 'conversation_message',
+      type: conv.type === 'idea' ? 'idea_group_message' : 'conversation_message',
       entityType,
       entityId,
-      title: 'sent you a message',
-      metadata: { conversationId, message: trimmed.slice(0, 100) },
+      title: conv.type === 'idea' ? 'New message in idea group' : 'sent you a message',
+      metadata: {
+        conversationId,
+        message: trimmed.slice(0, 100),
+        hasImage: messageType === 'image',
+      },
     });
   }
 
   return { success: true, message: { id: result.id, created_at: result.created_at } };
+}
+
+export async function updateIdeaGroupProfileAction(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
+  const conversationId = formData.get('conversationId');
+  const title = formData.get('title');
+  const imageUrl = formData.get('imageUrl');
+  const imageStoragePath = formData.get('imageStoragePath');
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: 'unauthorized' };
+  if (typeof conversationId !== 'string') return { success: false, error: 'invalid' };
+
+  const { getConversationById, updateIdeaGroupProfile } = await import('@/lib/data/conversations');
+  const conversation = await getConversationById(conversationId, user.id);
+  if (!conversation || conversation.type !== 'idea') return { success: false, error: 'not_found' };
+
+  const currentUser = conversation.participants.find((p) => p.user_id === user.id);
+  if (currentUser?.role !== 'admin') return { success: false, error: 'unauthorized' };
+
+  const ok = await updateIdeaGroupProfile(conversationId, user.id, {
+    title: typeof title === 'string' ? title.trim().slice(0, 120) : null,
+    imageUrl: typeof imageUrl === 'string' && imageUrl ? imageUrl : null,
+    imageStoragePath: typeof imageStoragePath === 'string' && imageStoragePath ? imageStoragePath : null,
+  });
+  if (!ok) return { success: false, error: 'update_failed' };
+
+  for (const participant of conversation.participants) {
+    if (participant.user_id === user.id) continue;
+    await createNotification({
+      userId: participant.user_id,
+      actorId: user.id,
+      type: 'idea_group_updated',
+      entityType: 'idea',
+      entityId: conversation.idea_id ?? conversationId,
+      title: 'Idea group updated',
+      metadata: { conversationId },
+    });
+  }
+
+  revalidatePath('/messages');
+  return { success: true };
+}
+
+export async function removeIdeaGroupMemberAction(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
+  const conversationId = formData.get('conversationId');
+  const memberId = formData.get('memberId');
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: 'unauthorized' };
+  if (typeof conversationId !== 'string' || typeof memberId !== 'string') return { success: false, error: 'invalid' };
+  if (memberId === user.id) return { success: false, error: 'invalid' };
+
+  const { getConversationById, removeIdeaGroupMember } = await import('@/lib/data/conversations');
+  const conversation = await getConversationById(conversationId, user.id);
+  if (!conversation || conversation.type !== 'idea') return { success: false, error: 'not_found' };
+
+  const currentUser = conversation.participants.find((p) => p.user_id === user.id);
+  const target = conversation.participants.find((p) => p.user_id === memberId);
+  if (currentUser?.role !== 'admin') return { success: false, error: 'unauthorized' };
+  if (!target || target.role === 'admin') return { success: false, error: 'invalid' };
+
+  const ok = await removeIdeaGroupMember(conversationId, user.id, memberId);
+  if (!ok) return { success: false, error: 'remove_failed' };
+
+  await createNotification({
+    userId: memberId,
+    actorId: user.id,
+    type: 'idea_group_removed',
+    entityType: 'idea',
+    entityId: conversation.idea_id ?? conversationId,
+    title: 'Removed from idea group',
+    metadata: { conversationId },
+  });
+
+  revalidatePath('/messages');
+  return { success: true };
+}
+
+export async function leaveIdeaGroupAction(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
+  const conversationId = formData.get('conversationId');
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: 'unauthorized' };
+  if (typeof conversationId !== 'string') return { success: false, error: 'invalid' };
+
+  const { getConversationById, leaveIdeaGroup } = await import('@/lib/data/conversations');
+  const conversation = await getConversationById(conversationId, user.id);
+  if (!conversation || conversation.type !== 'idea') return { success: false, error: 'not_found' };
+
+  const currentUser = conversation.participants.find((p) => p.user_id === user.id);
+  if (currentUser?.role === 'admin') return { success: false, error: 'admin_cannot_leave' };
+
+  const ok = await leaveIdeaGroup(conversationId, user.id);
+  if (!ok) return { success: false, error: 'leave_failed' };
+
+  const admins = conversation.participants.filter((p) => p.role === 'admin' && p.user_id !== user.id);
+  for (const admin of admins) {
+    await createNotification({
+      userId: admin.user_id,
+      actorId: user.id,
+      type: 'idea_group_left',
+      entityType: 'idea',
+      entityId: conversation.idea_id ?? conversationId,
+      title: 'Member left idea group',
+      metadata: { conversationId },
+    });
+  }
+
+  revalidatePath('/messages');
+  return { success: true };
 }
 
 export async function markConversationReadAction(
