@@ -172,18 +172,48 @@ export async function getConversationById(
   userId?: string,
 ): Promise<ConversationDetails | null> {
   const supabase = await createClient();
+  let inboxConversation: ConversationListItem | null = null;
 
-  const { data: conv, error: convError } = await supabase
-    .from('conversations')
-    .select('*')
-    .eq('id', conversationId)
-    .maybeSingle();
+  if (userId) {
+    const { data: inboxRows, error: inboxError } = await supabase.rpc('get_user_inbox', { p_user_id: userId });
+    if (!inboxError) {
+      const row = ((inboxRows ?? []) as Record<string, unknown>[]).find((item) => item.id === conversationId);
+      if (!row) return null;
+      inboxConversation = mapInboxRow(row);
+    } else {
+      console.error('getConversationById inbox error:', inboxError);
+    }
+  }
+
+  const conv = inboxConversation
+    ? {
+        id: inboxConversation.id,
+        type: inboxConversation.type,
+        graatek_id: inboxConversation.graatek_id,
+        idea_id: inboxConversation.idea_id,
+        title: inboxConversation.title,
+        image_url: inboxConversation.image_url,
+        image_storage_path: inboxConversation.image_storage_path,
+        archived_at: inboxConversation.archived_at,
+        created_at: inboxConversation.created_at,
+        updated_at: inboxConversation.updated_at,
+      }
+    : null;
+
+  const { data: directConv, error: convError } = conv
+    ? { data: null, error: null }
+    : await supabase
+        .from('conversations')
+        .select('*')
+        .eq('id', conversationId)
+        .maybeSingle();
 
   if (convError) {
     console.error('getConversationById conversation error:', convError);
     return null;
   }
-  if (!conv) return null;
+  const conversation = conv ?? directConv;
+  if (!conversation) return null;
 
   const { data: participants, error: participantsError } = await supabase
     .from('conversation_participants')
@@ -193,20 +223,23 @@ export async function getConversationById(
 
   if (participantsError) {
     console.error('getConversationById participants error:', participantsError);
-    return null;
   }
 
   let ideaTitle: string | null = null;
   let ideaStatus: string | null = null;
   let ideaAuthorId: string | null = null;
-  if (conv.idea_id) {
+  if (inboxConversation) {
+    ideaTitle = inboxConversation.idea_title;
+    ideaStatus = inboxConversation.idea_status;
+  }
+  if (conversation.idea_id) {
     const { data: idea } = await supabase
       .from('ideas')
       .select('title, status, author_id')
-      .eq('id', conv.idea_id)
+      .eq('id', conversation.idea_id)
       .maybeSingle();
-    ideaTitle = idea?.title ?? null;
-    ideaStatus = idea?.status ?? null;
+    ideaTitle = idea?.title ?? ideaTitle;
+    ideaStatus = idea?.status ?? ideaStatus;
     ideaAuthorId = idea?.author_id ?? null;
   }
 
@@ -218,21 +251,49 @@ export async function getConversationById(
       return (a.created_at ?? '').localeCompare(b.created_at ?? '');
     });
 
+  if (activeParticipants.length === 0 && userId && inboxConversation) {
+    const { data: currentProfile } = await supabase
+      .from('profiles')
+      .select('id, username, full_name, avatar_url')
+      .eq('id', userId)
+      .maybeSingle();
+
+    activeParticipants.push(normalizeParticipant({
+      id: '',
+      conversation_id: conversationId,
+      user_id: userId,
+      role: ideaAuthorId === userId ? 'admin' : 'member',
+      unread_count: inboxConversation.unread_count,
+      user: currentProfile ?? null,
+    }, ideaAuthorId));
+
+    if (inboxConversation.other_participant?.id) {
+      activeParticipants.push(normalizeParticipant({
+        id: '',
+        conversation_id: conversationId,
+        user_id: inboxConversation.other_participant.id,
+        role: 'member',
+        unread_count: 0,
+        user: inboxConversation.other_participant,
+      }, ideaAuthorId));
+    }
+  }
+
   if (userId && !activeParticipants.some((p) => p.user_id === userId)) {
     return null;
   }
 
   return {
-    id: conv.id,
-    type: conv.type,
-    graatek_id: conv.graatek_id,
-    idea_id: conv.idea_id,
-    title: conv.title,
-    image_url: conv.image_url ?? null,
-    image_storage_path: conv.image_storage_path ?? null,
-    archived_at: conv.archived_at,
-    created_at: conv.created_at,
-    updated_at: conv.updated_at ?? null,
+    id: conversation.id,
+    type: conversation.type,
+    graatek_id: conversation.graatek_id,
+    idea_id: conversation.idea_id,
+    title: conversation.title,
+    image_url: conversation.image_url ?? null,
+    image_storage_path: conversation.image_storage_path ?? null,
+    archived_at: conversation.archived_at,
+    created_at: conversation.created_at,
+    updated_at: conversation.updated_at ?? null,
     idea_title: ideaTitle,
     idea_status: ideaStatus,
     member_count: activeParticipants.length,
