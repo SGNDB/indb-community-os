@@ -80,7 +80,7 @@ export async function getUserConversations(userId: string): Promise<Conversation
   }));
 }
 
-export async function getConversationById(conversationId: string): Promise<{
+export async function getConversationById(conversationId: string, userId?: string): Promise<{
   id: string;
   type: string;
   graatek_id: string | null;
@@ -91,11 +91,34 @@ export async function getConversationById(conversationId: string): Promise<{
 } | null> {
   const supabase = await createClient();
 
+  if (userId) {
+    const { data: rows } = await supabase.rpc('get_user_inbox', { p_user_id: userId });
+    if (!rows) return null;
+    const row = (rows as Record<string, unknown>[]).find((r) => r.id as string === conversationId);
+    if (!row) return null;
+
+    const { data: participants } = await supabase
+      .from('conversation_participants')
+      .select('*, user:user_id(id, username, full_name, avatar_url)')
+      .eq('conversation_id', conversationId);
+
+    return {
+      id: row.id as string,
+      type: row.type as string,
+      graatek_id: row.graatek_id as string | null,
+      idea_id: row.idea_id as string | null,
+      title: row.title as string,
+      archived_at: row.archived_at as string | null,
+      participants: (participants ?? []) as unknown as ConversationParticipantInfo[],
+    };
+  }
+
+  // Fallback without userId: use direct queries with RLS
   const { data: conv } = await supabase
     .from('conversations')
     .select('*')
     .eq('id', conversationId)
-    .single();
+    .maybeSingle();
 
   if (!conv) return null;
 

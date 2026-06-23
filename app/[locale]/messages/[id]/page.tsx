@@ -17,8 +17,11 @@ export default async function ConversationPage({
     redirect(`/${locale}/login`);
   }
 
-  const conversation = await getConversationById(id);
-  if (!conversation) notFound();
+  const conversation = await getConversationById(id, user.id);
+  if (!conversation) {
+    console.error("Conversation not found:", id, "userId:", user.id);
+    notFound();
+  }
 
   const isParticipant = conversation.participants.some((p) => p.user_id === user.id);
   if (!isParticipant) notFound();
