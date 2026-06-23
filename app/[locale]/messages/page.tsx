@@ -17,13 +17,7 @@ export default async function MessagesPage({ params }: { params: Promise<{ local
 
   return (
     <>
-      {/* Desktop: show list + empty state */}
-      <div className="hidden w-[380px] shrink-0 border-r border-border/70 md:flex md:flex-col">
-        <ConversationList initialConversations={conversations} currentUserId={currentUserId} />
-      </div>
-
-      {/* Mobile: show list full width */}
-      <div className="flex flex-1 flex-col md:hidden">
+      <div className="flex w-full flex-col md:w-[380px] md:shrink-0 md:border-r md:border-border/70">
         <ConversationList initialConversations={conversations} currentUserId={currentUserId} />
       </div>
 
