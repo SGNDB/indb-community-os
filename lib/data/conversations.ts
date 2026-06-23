@@ -181,33 +181,34 @@ export async function getUserConversations(userId: string): Promise<Conversation
 export async function getConversationById(
   conversationId: string,
   userId?: string,
+  inboxConversation?: ConversationListItem | null,
 ): Promise<ConversationDetails | null> {
   const supabase = await createClient();
-  let inboxConversation: ConversationListItem | null = null;
+  let resolvedInboxConversation: ConversationListItem | null = inboxConversation ?? null;
 
-  if (userId) {
+  if (userId && inboxConversation === undefined) {
     const { data: inboxRows, error: inboxError } = await supabase.rpc('get_user_inbox', { p_user_id: userId });
     if (!inboxError) {
       const row = ((inboxRows ?? []) as Record<string, unknown>[]).find((item) => item.id === conversationId);
       if (!row) return null;
-      inboxConversation = mapInboxRow(row);
+      resolvedInboxConversation = mapInboxRow(row);
     } else {
       console.error('getConversationById inbox error:', inboxError);
     }
   }
 
-  const conv = inboxConversation
+  const conv = resolvedInboxConversation
     ? {
-        id: inboxConversation.id,
-        type: inboxConversation.type,
-        graatek_id: inboxConversation.graatek_id,
-        idea_id: inboxConversation.idea_id,
-        title: inboxConversation.title,
-        image_url: inboxConversation.image_url,
-        image_storage_path: inboxConversation.image_storage_path,
-        archived_at: inboxConversation.archived_at,
-        created_at: inboxConversation.created_at,
-        updated_at: inboxConversation.updated_at,
+        id: resolvedInboxConversation.id,
+        type: resolvedInboxConversation.type,
+        graatek_id: resolvedInboxConversation.graatek_id,
+        idea_id: resolvedInboxConversation.idea_id,
+        title: resolvedInboxConversation.title,
+        image_url: resolvedInboxConversation.image_url,
+        image_storage_path: resolvedInboxConversation.image_storage_path,
+        archived_at: resolvedInboxConversation.archived_at,
+        created_at: resolvedInboxConversation.created_at,
+        updated_at: resolvedInboxConversation.updated_at,
       }
     : null;
 
@@ -239,9 +240,9 @@ export async function getConversationById(
   let ideaTitle: string | null = null;
   let ideaStatus: string | null = null;
   let ideaAuthorId: string | null = null;
-  if (inboxConversation) {
-    ideaTitle = inboxConversation.idea_title;
-    ideaStatus = inboxConversation.idea_status;
+  if (resolvedInboxConversation) {
+    ideaTitle = resolvedInboxConversation.idea_title;
+    ideaStatus = resolvedInboxConversation.idea_status;
   }
   if (conversation.idea_id) {
     const { data: idea } = await supabase
@@ -262,7 +263,7 @@ export async function getConversationById(
       return (a.created_at ?? '').localeCompare(b.created_at ?? '');
     });
 
-  if (activeParticipants.length === 0 && userId && inboxConversation) {
+  if (activeParticipants.length === 0 && userId && resolvedInboxConversation) {
     const { data: currentProfile } = await supabase
       .from('profiles')
       .select('id, username, full_name, avatar_url')
@@ -274,18 +275,18 @@ export async function getConversationById(
       conversation_id: conversationId,
       user_id: userId,
       role: ideaAuthorId === userId ? 'admin' : 'member',
-      unread_count: inboxConversation.unread_count,
+      unread_count: resolvedInboxConversation.unread_count,
       user: currentProfile ?? null,
     }, ideaAuthorId));
 
-    if (inboxConversation.other_participant?.id) {
+    if (resolvedInboxConversation.other_participant?.id) {
       activeParticipants.push(normalizeParticipant({
         id: '',
         conversation_id: conversationId,
-        user_id: inboxConversation.other_participant.id,
+        user_id: resolvedInboxConversation.other_participant.id,
         role: 'member',
         unread_count: 0,
-        user: inboxConversation.other_participant,
+        user: resolvedInboxConversation.other_participant,
       }, ideaAuthorId));
     }
   }
@@ -314,6 +315,7 @@ export async function getConversationById(
 
 export async function getConversationMessages(
   conversationId: string,
+  limit = 80,
 ): Promise<ConversationMessageWithSender[]> {
   const supabase = await createClient();
 
@@ -321,20 +323,23 @@ export async function getConversationMessages(
     .from('conversation_messages')
     .select('*, sender:sender_id(id, username, full_name, avatar_url)')
     .eq('conversation_id', conversationId)
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: false })
+    .limit(limit);
 
   if (error) {
     console.error('getConversationMessages error:', error);
     return [];
   }
 
-  return ((data ?? []) as unknown as ConversationMessageWithSender[]).map((message) => ({
-    ...message,
-    message: message.message ?? null,
-    message_type: normalizeMessageType(message.message_type),
-    image_url: message.image_url ?? null,
-    image_storage_path: message.image_storage_path ?? null,
-  }));
+  return ((data ?? []) as unknown as ConversationMessageWithSender[])
+    .reverse()
+    .map((message) => ({
+      ...message,
+      message: message.message ?? null,
+      message_type: normalizeMessageType(message.message_type),
+      image_url: message.image_url ?? null,
+      image_storage_path: message.image_storage_path ?? null,
+    }));
 }
 
 export async function sendConversationMessage(

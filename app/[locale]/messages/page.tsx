@@ -35,7 +35,8 @@ export default async function MessagesPage({
   let selectedMessages: Awaited<ReturnType<typeof getConversationMessages>> = [];
 
   if (sp.conversation && user) {
-    selectedConversation = await getConversationById(sp.conversation, user.id);
+    const inboxConversation = conversations.find((item) => item.id === sp.conversation) ?? null;
+    selectedConversation = await getConversationById(sp.conversation, user.id, inboxConversation);
     if (selectedConversation) {
       const isParticipant = selectedConversation.participants.some((p) => p.user_id === user.id);
       if (isParticipant) {

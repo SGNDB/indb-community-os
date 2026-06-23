@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { Archive, Inbox, MessageSquare, Search } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
@@ -53,10 +53,11 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
   const searchParams = useSearchParams();
   const [conversations, setConversations] = useState(initialConversations);
   const [searchQuery, setSearchQuery] = useState("");
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const [filterArchived, setFilterArchived] = useState(false);
 
   const filtered = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
+    const q = deferredSearchQuery.trim().toLowerCase();
 
     return conversations.filter((conversation) => {
       if (!filterArchived && conversation.archived_at) return false;
@@ -75,7 +76,7 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
         (conversation.idea_title ?? "").toLowerCase().includes(q)
       );
     });
-  }, [conversations, filterArchived, searchQuery]);
+  }, [conversations, deferredSearchQuery, filterArchived]);
 
   const activeConvId = pathname?.match(/\/messages\/([^/?#]+)/)?.[1] ?? searchParams.get("conversation");
   const activeConvIdRef = useRef(activeConvId);
@@ -228,6 +229,7 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
                 <li key={conversation.id}>
                   <Link
                     href={`/messages/${conversation.id}`}
+                    prefetch={true}
                     className={cn(
                       "flex min-h-[74px] items-center gap-3 border-s-4 px-3 py-2.5 transition active:bg-muted/60 md:min-h-[72px] md:hover:bg-muted/45",
                       isActive ? "border-primary bg-primary/[0.07]" : "border-transparent",

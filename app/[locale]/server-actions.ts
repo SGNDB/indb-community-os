@@ -4257,6 +4257,24 @@ export async function getConversationMessagesAction(
   return { success: true, conversation, messages };
 }
 
+export async function getConversationDetailsAction(
+  conversationId: string,
+): Promise<{
+  success: boolean;
+  conversation?: ConversationDetails;
+  error?: string;
+}> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  const { getConversationById } = await import('@/lib/data/conversations');
+  const conversation = await getConversationById(conversationId, user.id);
+  if (!conversation) return { success: false, error: 'not_found' };
+  const isParticipant = conversation.participants.some(p => p.user_id === user.id);
+  if (!isParticipant) return { success: false, error: 'unauthorized' };
+  return { success: true, conversation };
+}
+
 export async function sendConversationMessageAction(
   formData: FormData,
 ): Promise<{
@@ -4306,25 +4324,27 @@ export async function sendConversationMessageAction(
   });
   if (!result) return { success: false, error: 'insert_failed' };
 
-  // notify other participants
-  for (const p of conv.participants) {
-    if (p.user_id === user.id) continue;
-    const entityType = conv.type === 'graatek' ? 'community_share' : 'idea';
-    const entityId = (conv.graatek_id ?? conv.idea_id ?? conversationId) as string;
-    await createNotification({
-      userId: p.user_id,
-      actorId: user.id,
-      type: conv.type === 'idea' ? 'idea_group_message' : 'conversation_message',
-      entityType,
-      entityId,
-      title: conv.type === 'idea' ? 'New message in idea group' : 'sent you a message',
-      metadata: {
-        conversationId,
-        message: trimmed.slice(0, 100),
-        hasImage: messageType === 'image',
-      },
-    });
-  }
+  const entityType = conv.type === 'graatek' ? 'community_share' : 'idea';
+  const entityId = (conv.graatek_id ?? conv.idea_id ?? conversationId) as string;
+  await Promise.all(
+    conv.participants
+      .filter((p) => p.user_id !== user.id)
+      .map((p) =>
+        createNotification({
+          userId: p.user_id,
+          actorId: user.id,
+          type: conv.type === 'idea' ? 'idea_group_message' : 'conversation_message',
+          entityType,
+          entityId,
+          title: conv.type === 'idea' ? 'New message in idea group' : 'sent you a message',
+          metadata: {
+            conversationId,
+            message: trimmed.slice(0, 100),
+            hasImage: messageType === 'image',
+          },
+        }),
+      ),
+  );
 
   return { success: true, message: { id: result.id, created_at: result.created_at } };
 }

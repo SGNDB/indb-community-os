@@ -235,8 +235,8 @@ export function ConversationChat({
     const supabase = createClient();
     async function refreshConversation() {
       try {
-        const { getConversationMessagesAction } = await import("@/app/[locale]/server-actions");
-        const res = await getConversationMessagesAction(conversationId);
+        const { getConversationDetailsAction } = await import("@/app/[locale]/server-actions");
+        const res = await getConversationDetailsAction(conversationId);
         if (res.success && res.conversation) {
           setParticipants(res.conversation.participants);
           setGroupTitle(res.conversation.title);
@@ -397,16 +397,36 @@ export function ConversationChat({
     e.preventDefault();
     const trimmed = input.trim();
     if ((!trimmed && !pendingImage) || sending || isReadOnly) return;
+    const optimisticImage = pendingImage;
+    const optimisticId = `optimistic-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const optimisticCreatedAt = new Date().toISOString();
     setSending(true);
     setError(null);
+    setInput("");
+    setPendingImage(null);
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: optimisticId,
+        conversation_id: conversationId,
+        sender_id: currentUserId,
+        message: trimmed || null,
+        message_type: optimisticImage ? "image" : "text",
+        image_url: optimisticImage?.url ?? null,
+        image_storage_path: optimisticImage?.storagePath ?? null,
+        created_at: optimisticCreatedAt,
+        read_at: null,
+        sender: currentParticipant?.user ?? null,
+      },
+    ]);
 
     const formData = new FormData();
     formData.set("conversationId", conversationId);
     formData.set("message", trimmed);
-    if (pendingImage) {
+    if (optimisticImage) {
       formData.set("messageType", "image");
-      formData.set("imageUrl", pendingImage.url);
-      formData.set("imageStoragePath", pendingImage.storagePath);
+      formData.set("imageUrl", optimisticImage.url);
+      formData.set("imageStoragePath", optimisticImage.storagePath);
     } else {
       formData.set("messageType", "text");
     }
@@ -416,11 +436,13 @@ export function ConversationChat({
       const res = await sendConversationMessageAction(formData);
 
       if (res.success && res.message) {
-        const optimisticImage = pendingImage;
         setMessages((prev) => {
-          if (prev.some((m) => m.id === res.message!.id)) return prev;
+          const withoutOptimistic = prev.filter((m) => m.id !== optimisticId);
+          if (withoutOptimistic.some((m) => m.id === res.message!.id)) {
+            return withoutOptimistic;
+          }
           return [
-            ...prev,
+            ...withoutOptimistic,
             {
               id: res.message!.id,
               conversation_id: conversationId,
@@ -435,13 +457,17 @@ export function ConversationChat({
             },
           ];
         });
-        setInput("");
-        setPendingImage(null);
       } else {
+        setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
+        setInput(trimmed);
+        setPendingImage(optimisticImage);
         setError(res.error ?? "insert_failed");
       }
     } catch (e) {
       console.error("send error:", e);
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
+      setInput(trimmed);
+      setPendingImage(optimisticImage);
       setError("insert_failed");
     } finally {
       setSending(false);

@@ -17,7 +17,9 @@ export default async function ConversationPage({
     redirect(`/${locale}/login`);
   }
 
-  const conversation = await getConversationById(id, user.id);
+  const conversations = await getUserConversations(user.id);
+  const inboxConversation = conversations.find((item) => item.id === id) ?? null;
+  const conversation = await getConversationById(id, user.id, inboxConversation);
   if (!conversation) {
     console.error("Conversation not found:", id, "userId:", user.id);
     notFound();
@@ -27,7 +29,6 @@ export default async function ConversationPage({
   if (!isParticipant) notFound();
 
   const messages = await getConversationMessages(id);
-  const conversations = await getUserConversations(user.id);
 
   return (
     <section className="flex h-full min-h-0 w-full overflow-hidden bg-background">
