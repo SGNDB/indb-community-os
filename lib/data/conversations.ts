@@ -176,7 +176,29 @@ export async function getUserConversations(userId: string): Promise<Conversation
     return [];
   }
 
-  return ((data ?? []) as Record<string, unknown>[]).map(mapInboxRow);
+  const conversations = ((data ?? []) as Record<string, unknown>[]).map(mapInboxRow);
+  const ideaIdsNeedingImages = conversations
+    .filter((conversation) => conversation.type === 'idea' && !conversation.image_url && conversation.idea_id)
+    .map((conversation) => conversation.idea_id as string);
+
+  if (ideaIdsNeedingImages.length === 0) return conversations;
+
+  const { data: ideas, error: ideasError } = await supabase
+    .from('ideas')
+    .select('id, image_url')
+    .in('id', Array.from(new Set(ideaIdsNeedingImages)));
+
+  if (ideasError) {
+    console.error('getUserConversations idea image fallback error:', ideasError);
+    return conversations;
+  }
+
+  const ideaImages = new Map((ideas ?? []).map((idea) => [idea.id, idea.image_url ?? null]));
+  return conversations.map((conversation) =>
+    conversation.type === 'idea' && !conversation.image_url && conversation.idea_id
+      ? {...conversation, image_url: ideaImages.get(conversation.idea_id) ?? null}
+      : conversation,
+  );
 }
 
 export async function getConversationById(
@@ -241,6 +263,7 @@ export async function getConversationById(
   let ideaTitle: string | null = null;
   let ideaStatus: string | null = null;
   let ideaAuthorId: string | null = null;
+  let ideaImageUrl: string | null = null;
   if (resolvedInboxConversation) {
     ideaTitle = resolvedInboxConversation.idea_title;
     ideaStatus = resolvedInboxConversation.idea_status;
@@ -248,12 +271,13 @@ export async function getConversationById(
   if (conversation.idea_id) {
     const { data: idea } = await supabase
       .from('ideas')
-      .select('title, status, author_id')
+      .select('title, status, author_id, image_url')
       .eq('id', conversation.idea_id)
       .maybeSingle();
     ideaTitle = idea?.title ?? ideaTitle;
     ideaStatus = idea?.status ?? ideaStatus;
     ideaAuthorId = idea?.author_id ?? null;
+    ideaImageUrl = idea?.image_url ?? null;
   }
 
   const activeParticipants = ((participants ?? []) as unknown as RawConversationParticipant[])
@@ -302,7 +326,7 @@ export async function getConversationById(
     graatek_id: conversation.graatek_id,
     idea_id: conversation.idea_id,
     title: conversation.title,
-    image_url: conversation.image_url ?? null,
+    image_url: conversation.image_url ?? ideaImageUrl,
     image_storage_path: conversation.image_storage_path ?? null,
     archived_at: conversation.archived_at,
     created_at: conversation.created_at,
@@ -490,7 +514,13 @@ export async function updateIdeaGroupProfile(
     p_image_storage_path: input.imageStoragePath ?? null,
   });
 
-  if (!error) return true;
+  if (!error) {
+    if (input.imageUrl) {
+      await persistIdeaGroupImageFallbackByConversation(conversationId, input.imageUrl);
+    }
+
+    return true;
+  }
 
   console.error('updateIdeaGroupProfile rpc error:', error);
   return updateIdeaGroupProfileDirect(conversationId, actorId, input);
@@ -503,9 +533,9 @@ async function updateIdeaGroupProfileDirect(
 ): Promise<boolean> {
   const userClient = await createClient();
   const writeClient = createAdminClient() ?? userClient;
-  const isAdmin = await canAdminUpdateIdeaGroupDirect(writeClient, conversationId, actorId);
+  const adminState = await getIdeaGroupAdminStateDirect(writeClient, conversationId, actorId);
 
-  if (!isAdmin) {
+  if (!adminState.isAdmin) {
     console.error('updateIdeaGroupProfile direct error: actor is not an idea group admin');
     return false;
   }
@@ -530,7 +560,13 @@ async function updateIdeaGroupProfileDirect(
       .eq('id', conversationId)
       .eq('type', 'idea');
 
-    if (!error) return true;
+    if (!error) {
+      if (input.imageUrl && adminState.ideaId) {
+        await persistIdeaGroupImageFallback(writeClient, adminState.ideaId, input.imageUrl);
+      }
+
+      return true;
+    }
 
     const message = error.message?.toLowerCase() ?? '';
     const canRetry =
@@ -550,7 +586,7 @@ async function updateIdeaGroupProfileDirect(
   return false;
 }
 
-async function canAdminUpdateIdeaGroupDirect(
+async function getIdeaGroupAdminStateDirect(
   client: Awaited<ReturnType<typeof createClient>>,
   conversationId: string,
   actorId: string,
@@ -561,16 +597,20 @@ async function canAdminUpdateIdeaGroupDirect(
     .eq('id', conversationId)
     .maybeSingle();
 
-  if (conversationError || !conversation || conversation.type !== 'idea') return false;
+  if (conversationError || !conversation || conversation.type !== 'idea') {
+    return {isAdmin: false, ideaId: null};
+  }
 
-  if (conversation.idea_id) {
+  const ideaId = typeof conversation.idea_id === 'string' ? conversation.idea_id : null;
+
+  if (ideaId) {
     const { data: idea } = await client
       .from('ideas')
       .select('author_id')
-      .eq('id', conversation.idea_id)
+      .eq('id', ideaId)
       .maybeSingle();
 
-    if (idea?.author_id === actorId) return true;
+    if (idea?.author_id === actorId) return {isAdmin: true, ideaId};
   }
 
   const { data: participant } = await client
@@ -580,7 +620,42 @@ async function canAdminUpdateIdeaGroupDirect(
     .eq('user_id', actorId)
     .maybeSingle();
 
-  return participant?.role === 'admin' && !participant.left_at && !participant.removed_at;
+  return {
+    isAdmin: participant?.role === 'admin' && !participant.left_at && !participant.removed_at,
+    ideaId,
+  };
+}
+
+async function persistIdeaGroupImageFallback(
+  client: Awaited<ReturnType<typeof createClient>>,
+  ideaId: string,
+  imageUrl: string,
+) {
+  const { error } = await client
+    .from('ideas')
+    .update({image_url: imageUrl})
+    .eq('id', ideaId);
+
+  if (error) {
+    console.error('persistIdeaGroupImageFallback error:', error);
+  }
+}
+
+async function persistIdeaGroupImageFallbackByConversation(conversationId: string, imageUrl: string) {
+  const userClient = await createClient();
+  const client = createAdminClient() ?? userClient;
+  const { data: conversation, error } = await client
+    .from('conversations')
+    .select('idea_id')
+    .eq('id', conversationId)
+    .maybeSingle();
+
+  if (error || !conversation?.idea_id) {
+    if (error) console.error('persistIdeaGroupImageFallbackByConversation error:', error);
+    return;
+  }
+
+  await persistIdeaGroupImageFallback(client, conversation.idea_id, imageUrl);
 }
 
 function withoutKey(source: Record<string, string>, key: string) {
