@@ -1291,6 +1291,9 @@
     "invalid": "Bind bu baaxul",
     "showActive": "Wone yu ngi dox",
     "showArchived": "Wone yu mofn",
-    "archivedTitle": "Ndotooje yu mofn"
+    "archivedTitle": "Ndotooje yu mofn",
+    "noMessagesYet": "Amul message ba leegi",
+    "selectConversation": "Tonton benn waxtaan",
+    "selectConversationHint": "Tonton benn waxtaan ci limngal bi ngay gis messages"
   }
 }

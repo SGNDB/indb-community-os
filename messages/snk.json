@@ -1291,6 +1291,9 @@
     "invalid": "Sebe a manko",
     "showActive": "Hollu golleje",
     "showArchived": "Hollu moofteje",
-    "archivedTitle": "Ndotooje moofteje"
+    "archivedTitle": "Ndotooje moofteje",
+    "noMessagesYet": "Xaatu mesaase",
+    "selectConversation": "Tonton ndotoo",
+    "selectConversationHint": "Tonton ndotoo yiini ga yelle mesaase"
   }
 }

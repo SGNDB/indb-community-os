@@ -1294,6 +1294,9 @@
     "invalid": "Winndugo moƴƴaaki",
     "showActive": "Hollu golleeje",
     "showArchived": "Hollu mooftaaɗe",
-    "archivedTitle": "Ndotooje mooftaaɗe"
+    "archivedTitle": "Ndotooje mooftaaɗe",
+    "noMessagesYet": "Alaa mesaje haa jooni",
+    "selectConversation": "Suɓo ndotoo",
+    "selectConversationHint": "Suɓo ndotoo e limngal ngam yi'de mesaje"
   }
 }

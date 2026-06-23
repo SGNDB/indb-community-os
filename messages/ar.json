@@ -1437,6 +1437,9 @@
     "invalid": "إدخال غير صالح",
     "showActive": "إظهار النشطة",
     "showArchived": "إظهار المؤرشفة",
-    "archivedTitle": "المحادثات المؤرشفة"
+    "archivedTitle": "المحادثات المؤرشفة",
+    "noMessagesYet": "لا توجد رسائل بعد",
+    "selectConversation": "اختر محادثة",
+    "selectConversationHint": "اختر محادثة من القائمة لعرض الرسائل"
   }
 }

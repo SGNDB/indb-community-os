@@ -1437,6 +1437,9 @@
     "invalid": "Invalid input",
     "showActive": "Show active",
     "showArchived": "Show archived",
-    "archivedTitle": "Archived conversations"
+    "archivedTitle": "Archived conversations",
+    "noMessagesYet": "No messages yet",
+    "selectConversation": "Select a conversation",
+    "selectConversationHint": "Choose a conversation from the list to view messages"
   }
 }

@@ -2,10 +2,8 @@ import { ReactNode } from "react";
 
 export default function MessagesLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="mx-auto max-w-7xl px-3 sm:px-4 py-4">
-      <div className="flex h-[calc(100dvh-8rem)] overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
-        {children}
-      </div>
+    <div className="-mx-3 -mb-4 flex h-dvh flex-col bg-card sm:-mx-4 sm:-mb-5 md:mx-0 md:mb-0 md:h-[calc(100dvh-9rem)] md:flex-row md:overflow-hidden md:rounded-2xl md:border md:border-border/70 md:bg-card md:shadow-sm">
+      {children}
     </div>
   );
 }

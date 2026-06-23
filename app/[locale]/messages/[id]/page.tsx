@@ -36,12 +36,10 @@ export default async function ConversationPage({
 
   return (
     <>
-      {/* Desktop: conversation list */}
-      <div className="hidden w-[380px] shrink-0 border-r border-border/70 md:flex md:flex-col">
+      <div className="hidden w-full flex-col md:flex md:w-[30%] md:min-w-0 md:shrink-0 md:border-e md:border-border/70">
         <ConversationList initialConversations={conversations} currentUserId={user.id} />
       </div>
 
-      {/* Chat */}
       <div className="flex flex-1 flex-col">
         <ConversationChat
           conversationId={id}

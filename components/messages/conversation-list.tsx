@@ -23,12 +23,6 @@ function timeAgo(dateStr: string, locale: string): string {
   return new Date(dateStr).toLocaleDateString(locale === "ar" ? "ar" : "en", { day: "numeric", month: "short" });
 }
 
-function getTypeLabel(type: string, t: (key: string) => string): string {
-  if (type === "graatek") return "Gar3tak";
-  if (type === "idea") return t("idea");
-  return type;
-}
-
 interface ConversationListProps {
   initialConversations: ConversationListItem[];
   currentUserId: string;
@@ -114,32 +108,33 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
-        <h2 className="text-lg font-semibold flex items-center gap-2">
-          <Inbox size={20} />
+      <div className="flex items-center justify-between border-b border-border/70 px-3 py-2.5">
+        <h2 className="flex items-center gap-1.5 text-base font-semibold">
+          <Inbox size={18} />
           {t("title")}
         </h2>
         <button
           onClick={() => setFilterArchived((v) => !v)}
           className={cn(
-            "rounded-lg p-2 text-muted-foreground hover:bg-muted transition",
+            "rounded-lg p-1.5 text-muted-foreground hover:bg-muted transition",
             filterArchived && "bg-muted text-foreground",
           )}
           title={filterArchived ? t("showActive") : t("showArchived")}
         >
-          <Archive size={18} />
+          <Archive size={16} />
         </button>
       </div>
 
-      <div className="border-b border-border/70 px-3 py-2">
+      <div className="border-b border-border/70 px-2 py-1.5">
         <div className="relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search size={14} className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("search")}
-            className="w-full rounded-lg border border-border/60 bg-muted/50 py-2 pl-9 pr-3 text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+            style={{ paddingInlineStart: "2rem", paddingInlineEnd: "0.625rem" }}
+            className="w-full rounded-lg border border-border/60 bg-muted/50 py-1.5 text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
           />
         </div>
       </div>
@@ -147,11 +142,11 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
       <div className="flex-1 overflow-y-auto">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-            <MessageSquare size={40} className="mb-3 opacity-30" />
+            <MessageSquare size={36} className="mb-3 opacity-30" />
             <p className="text-sm">{t("empty")}</p>
           </div>
         ) : (
-          <ul className="divide-y divide-border/50">
+          <ul>
             {filtered.map((conv) => {
               const isActive = activeConvId === conv.id;
               const name = conv.other_participant?.full_name ?? conv.other_participant?.username ?? (conv.title || t("unknown"));
@@ -164,32 +159,31 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
                   <Link
                     href={`/messages/${conv.id}`}
                     className={cn(
-                      "flex items-start gap-3 px-4 py-3 transition hover:bg-muted/50",
-                      isActive && "bg-primary/5",
+                      "flex items-start gap-2.5 border-s-2 px-3 py-2.5 transition hover:bg-muted/50",
+                      isActive ? "border-primary bg-primary/[0.04]" : "border-transparent",
                     )}
                   >
-                    <UserAvatar label={name} avatarUrl={avatarUrl} className="mt-0.5 h-10 w-10 shrink-0" />
+                    <UserAvatar label={name} avatarUrl={avatarUrl} className="mt-0.5 h-9 w-9 shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-baseline justify-between gap-2">
+                      <div className="flex items-baseline justify-between gap-1.5">
                         <span className="truncate text-sm font-medium">{name}</span>
                         {lastTime && (
-                          <span className="shrink-0 text-xs text-muted-foreground">
+                          <span className="shrink-0 text-[11px] text-muted-foreground">
                             {timeAgo(lastTime, locale)}
                           </span>
                         )}
                       </div>
-                      <span className="text-xs text-muted-foreground/80">
-                        {getTypeLabel(conv.type, t)}: {conv.title || t("noTitle")}
-                      </span>
-                      {lastMsg && (
-                        <p className="mt-0.5 truncate text-sm text-muted-foreground">{lastMsg}</p>
-                      )}
+                      <div className="mt-0.5 flex items-center gap-2">
+                        <p className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
+                          {lastMsg}
+                        </p>
+                        {conv.unread_count > 0 && (
+                          <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">
+                            {conv.unread_count > 99 ? "99+" : conv.unread_count}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    {conv.unread_count > 0 && (
-                      <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">
-                        {conv.unread_count > 99 ? "99+" : conv.unread_count}
-                      </span>
-                    )}
                   </Link>
                 </li>
               );
