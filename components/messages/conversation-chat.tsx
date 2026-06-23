@@ -95,8 +95,12 @@ export function ConversationChat({
 
   useEffect(() => {
     async function markRead() {
-      const { markConversationReadAction } = await import("@/app/[locale]/server-actions");
-      await markConversationReadAction(conversationId);
+      try {
+        const { markConversationReadAction } = await import("@/app/[locale]/server-actions");
+        await markConversationReadAction(conversationId);
+      } catch (e) {
+        console.error("markRead error:", e);
+      }
     }
     markRead();
   }, [conversationId]);
@@ -112,25 +116,30 @@ export function ConversationChat({
     formData.set("conversationId", conversationId);
     formData.set("message", trimmed);
 
-    const { sendConversationMessageAction } = await import("@/app/[locale]/server-actions");
-    const res = await sendConversationMessageAction(formData);
+    try {
+      const { sendConversationMessageAction } = await import("@/app/[locale]/server-actions");
+      const res = await sendConversationMessageAction(formData);
 
-    if (res.success && res.message) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: res.message!.id,
-          conversation_id: conversationId,
-          sender_id: currentUserId,
-          message: trimmed,
-          created_at: res.message!.created_at,
-          read_at: null,
-          sender: null,
-        },
-      ]);
-      setInput("");
-    } else {
-      setError(res.error ?? "submitFailed");
+      if (res.success && res.message) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: res.message!.id,
+            conversation_id: conversationId,
+            sender_id: currentUserId,
+            message: trimmed,
+            created_at: res.message!.created_at,
+            read_at: null,
+            sender: null,
+          },
+        ]);
+        setInput("");
+      } else {
+        setError(res.error ?? "submitFailed");
+      }
+    } catch (e) {
+      console.error("send error:", e);
+      setError("submitFailed");
     }
     setSending(false);
   }

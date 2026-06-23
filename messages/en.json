@@ -587,6 +587,7 @@
     "voteLabel": "Vote",
     "voteLabelVoted": "Voted",
     "supportPercent": "{percent}% support",
+    "showSupporters": "View supporters",
     "top10PopularIdeas": "Top 10 Popular Ideas",
     "showAll": "Show all ({count})",
     "badgeNewIdea": "New Idea",

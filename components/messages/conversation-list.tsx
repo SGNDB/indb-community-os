@@ -66,35 +66,47 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "conversation_messages" },
         async () => {
-          const { getMyConversationsAction } = await import("@/app/[locale]/server-actions");
-          const res = await getMyConversationsAction();
-          if (res.success && res.conversations) {
-            setConversations(res.conversations);
-          }
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "conversation_participants", filter: `user_id=eq.${currentUserId}` },
-        async () => {
-          const { getMyConversationsAction } = await import("@/app/[locale]/server-actions");
-          const res = await getMyConversationsAction();
-          if (res.success && res.conversations) {
-            setConversations(res.conversations);
-          }
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "conversations" },
-        async () => {
-          const { getMyConversationsAction } = await import("@/app/[locale]/server-actions");
-          const res = await getMyConversationsAction();
-          if (res.success && res.conversations) {
-            setConversations(res.conversations);
-          }
-        },
-      )
+           try {
+             const { getMyConversationsAction } = await import("@/app/[locale]/server-actions");
+             const res = await getMyConversationsAction();
+             if (res.success && res.conversations) {
+               setConversations(res.conversations);
+             }
+           } catch (e) {
+             console.error("realtime refresh error:", e);
+           }
+         },
+       )
+       .on(
+         "postgres_changes",
+         { event: "UPDATE", schema: "public", table: "conversation_participants", filter: `user_id=eq.${currentUserId}` },
+         async () => {
+           try {
+             const { getMyConversationsAction } = await import("@/app/[locale]/server-actions");
+             const res = await getMyConversationsAction();
+             if (res.success && res.conversations) {
+               setConversations(res.conversations);
+             }
+           } catch (e) {
+             console.error("realtime refresh error:", e);
+           }
+         },
+       )
+       .on(
+         "postgres_changes",
+         { event: "UPDATE", schema: "public", table: "conversations" },
+         async () => {
+           try {
+             const { getMyConversationsAction } = await import("@/app/[locale]/server-actions");
+             const res = await getMyConversationsAction();
+             if (res.success && res.conversations) {
+               setConversations(res.conversations);
+             }
+           } catch (e) {
+             console.error("realtime refresh error:", e);
+           }
+         },
+       )
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };

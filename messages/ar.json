@@ -587,6 +587,7 @@
     "voteLabel": "تصويت",
     "voteLabelVoted": "تم التصويت",
     "supportPercent": "دعم {percent}%",
+    "showSupporters": "عرض الداعمين",
     "top10PopularIdeas": "أكثر 10 أفكار شعبية",
     "showAll": "عرض الكل ({count})",
     "badgeNewIdea": "فكرة جديدة",
