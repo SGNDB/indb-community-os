@@ -79,6 +79,13 @@ export interface ConversationDetails {
   participants: ConversationParticipantInfo[];
 }
 
+type RawConversationParticipant = Partial<ConversationParticipantInfo> & {
+  id: string;
+  conversation_id: string;
+  user_id: string;
+  user?: ConversationUserProfile | null;
+};
+
 function asString(value: unknown): string | null {
   return typeof value === 'string' ? value : null;
 }
@@ -89,6 +96,25 @@ function asNumber(value: unknown): number {
 
 function normalizeMessageType(value: unknown): ConversationMessageType {
   return value === 'image' ? 'image' : 'text';
+}
+
+function normalizeParticipant(
+  participant: RawConversationParticipant,
+  adminUserId: string | null = null,
+): ConversationParticipantInfo {
+  return {
+    id: participant.id,
+    conversation_id: participant.conversation_id,
+    user_id: participant.user_id,
+    role: participant.role === 'admin' || participant.user_id === adminUserId ? 'admin' : 'member',
+    last_read_at: participant.last_read_at ?? null,
+    unread_count: participant.unread_count ?? 0,
+    left_at: participant.left_at ?? null,
+    removed_at: participant.removed_at ?? null,
+    removed_by: participant.removed_by ?? null,
+    created_at: participant.created_at ?? null,
+    user: participant.user ?? null,
+  };
 }
 
 function mapInboxRow(row: Record<string, unknown>): ConversationListItem {
@@ -163,7 +189,6 @@ export async function getConversationById(
     .from('conversation_participants')
     .select('*, user:user_id(id, username, full_name, avatar_url)')
     .eq('conversation_id', conversationId)
-    .order('role', { ascending: true })
     .order('created_at', { ascending: true });
 
   if (participantsError) {
@@ -171,22 +196,30 @@ export async function getConversationById(
     return null;
   }
 
-  const activeParticipants = ((participants ?? []) as unknown as ConversationParticipantInfo[])
-    .filter((participant) => !participant.left_at && !participant.removed_at);
-  if (userId && !activeParticipants.some((p) => p.user_id === userId)) {
-    return null;
-  }
-
   let ideaTitle: string | null = null;
   let ideaStatus: string | null = null;
+  let ideaAuthorId: string | null = null;
   if (conv.idea_id) {
     const { data: idea } = await supabase
       .from('ideas')
-      .select('title, status')
+      .select('title, status, author_id')
       .eq('id', conv.idea_id)
       .maybeSingle();
     ideaTitle = idea?.title ?? null;
     ideaStatus = idea?.status ?? null;
+    ideaAuthorId = idea?.author_id ?? null;
+  }
+
+  const activeParticipants = ((participants ?? []) as unknown as RawConversationParticipant[])
+    .map((participant) => normalizeParticipant(participant, ideaAuthorId))
+    .filter((participant) => !participant.left_at && !participant.removed_at)
+    .sort((a, b) => {
+      if (a.role !== b.role) return a.role === 'admin' ? -1 : 1;
+      return (a.created_at ?? '').localeCompare(b.created_at ?? '');
+    });
+
+  if (userId && !activeParticipants.some((p) => p.user_id === userId)) {
+    return null;
   }
 
   return {
