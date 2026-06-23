@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { Menu, X, UserRound, Settings, LogOut, MoonStar, SunMedium } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { localeLabels, routing, usePathname, useRouter } from "@/lib/i18n/routing";
@@ -18,7 +17,6 @@ export function MobileMenuSheet() {
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const locales = routing.locales;
@@ -33,10 +31,7 @@ export function MobileMenuSheet() {
       body: JSON.stringify({ locale: nextLocale }),
     });
     startTransition(() => {
-      const query = searchParams.toString();
-      const hash = typeof window !== "undefined" ? window.location.hash : "";
-      const nextPath = `${pathname}${query ? `?${query}` : ""}${hash}`;
-      router.replace(nextPath, { locale: nextLocale });
+      router.replace(pathname, { locale: nextLocale });
     });
     setOpen(false);
   }
@@ -145,7 +140,7 @@ export function MobileMenuSheet() {
                   ) : (
                     <MoonStar size={20} className="text-muted-foreground" />
                   )}
-                  {isDark ? t("Theme.light") : t("Theme.dark")}
+                  {t("Theme.toggle")}
                 </button>
 
                 <div className="my-2 border-t border-border/50" />
