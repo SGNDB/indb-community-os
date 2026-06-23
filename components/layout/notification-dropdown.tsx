@@ -196,8 +196,9 @@ export function NotificationDropdown({
       const {data: {user}} = await supabase.auth.getUser();
       if (!user || cancelled) return;
 
+      const channelName = `notifications-realtime-${user.id}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
       channel = supabase
-        .channel("notifications-realtime")
+        .channel(channelName)
         .on(
           "postgres_changes",
           {
