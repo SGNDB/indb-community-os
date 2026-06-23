@@ -267,6 +267,10 @@
         "label": "Gar3tak",
         "short": "Gar3tak"
       },
+      "messages": {
+        "label": "Messages",
+        "short": "Messages"
+      },
       "polls": {
         "label": "Polls",
         "short": "Polls"
@@ -345,7 +349,8 @@
     "ideaParticipantAccepted": "{actorName} accepted you as a participant",
     "ideaParticipantDeclined": "{actorName} declined your participation",
     "ideaMessage": "{actorName} sent a message about your idea",
-    "ideaStatusChange": "{actorName} updated the idea status"
+    "ideaStatusChange": "{actorName} updated the idea status",
+    "conversationMessage": "{actorName} sent you a message"
   },
   "RightSidebar": {
     "trendingTopics": "Trending Topics",
@@ -1413,5 +1418,24 @@
       "interests": "Interests",
       "links": "Links"
     }
+  },
+  "Messages": {
+    "title": "Messages",
+    "idea": "Idea",
+    "search": "Search conversations...",
+    "empty": "No conversations yet",
+    "noTitle": "No title",
+    "unknown": "Unknown",
+    "placeholder": "Type a message...",
+    "archived": "Archived",
+    "archivedPlaceholder": "This conversation is archived",
+    "submitFailed": "Failed to send message",
+    "rate_limited": "Sending too fast, please wait",
+    "unauthorized": "Not authorized",
+    "not_found": "Conversation not found",
+    "invalid": "Invalid input",
+    "showActive": "Show active",
+    "showArchived": "Show archived",
+    "archivedTitle": "Archived conversations"
   }
 }

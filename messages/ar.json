@@ -282,6 +282,10 @@
       "fadla": {
         "label": "گرعتك",
         "short": "گرعتك"
+      },
+      "messages": {
+        "label": "الرسائل",
+        "short": "الرسائل"
       }
     }
   },
@@ -345,7 +349,8 @@
     "ideaParticipantAccepted": "{actorName} قبلك كمشارك",
     "ideaParticipantDeclined": "{actorName} رفض مشاركتك",
     "ideaMessage": "{actorName} أرسل رسالة عن فكرتك",
-    "ideaStatusChange": "{actorName} قام بتحديث حالة الفكرة"
+    "ideaStatusChange": "{actorName} قام بتحديث حالة الفكرة",
+    "conversationMessage": "{actorName} أرسل لك رسالة"
   },
   "RightSidebar": {
     "trendingTopics": "المواضيع الرائجة",
@@ -1413,5 +1418,24 @@
       "interests": "الاهتمامات",
       "links": "الروابط"
     }
+  },
+  "Messages": {
+    "title": "الرسائل",
+    "idea": "فكرة",
+    "search": "بحث في المحادثات...",
+    "empty": "لا توجد محادثات بعد",
+    "noTitle": "بدون عنوان",
+    "unknown": "غير معروف",
+    "placeholder": "اكتب رسالة...",
+    "archived": "مؤرشفة",
+    "archivedPlaceholder": "هذه المحادثة مؤرشفة",
+    "submitFailed": "فشل إرسال الرسالة",
+    "rate_limited": "الإرسال سريع جداً، الرجاء الانتظار",
+    "unauthorized": "غير مصرح",
+    "not_found": "المحادثة غير موجودة",
+    "invalid": "إدخال غير صالح",
+    "showActive": "إظهار النشطة",
+    "showArchived": "إظهار المؤرشفة",
+    "archivedTitle": "المحادثات المؤرشفة"
   }
 }

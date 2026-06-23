@@ -7,12 +7,14 @@ import {
   Lightbulb,
   Newspaper,
   UserRound,
+  MessageSquare,
 } from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
 
 import {Logo} from "@/components/layout/Logo";
 import {Link, usePathname} from "@/lib/i18n/routing";
 import {cn} from "@/lib/utils/cn";
+import {useUnreadConversationsCount} from "@/lib/hooks/use-conversation-unread";
 
 const navItems = [
   {href: "/", key: "home", icon: Home},
@@ -20,6 +22,7 @@ const navItems = [
   {href: "/memory", key: "memory", icon: Images},
   {href: "/ideas", key: "ideas", icon: Lightbulb},
   {href: "/fadla", key: "fadla", icon: Gift},
+  {href: "/messages", key: "messages", icon: MessageSquare},
   {href: "/profile", key: "profile", icon: UserRound},
 ] as const;
 
@@ -27,6 +30,7 @@ export function Sidebar() {
   const t = useTranslations("Navigation");
   const locale = useLocale();
   const pathname = usePathname();
+  const unreadCount = useUnreadConversationsCount();
 
   const brandTitle = locale === "ar" ? "مجتمع INDB" : "INDB Community";
   const brandTagline = locale === "ar" ? "نحب نواذيبو" : locale === "fr" ? "Je t'aime NDB" : "I Love NDB";
@@ -71,6 +75,11 @@ export function Sidebar() {
                     <Icon size={20} />
                   {t(`items.${item.key}.label`)}
                   </span>
+                  {item.key === "messages" && unreadCount > 0 && (
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
                 </Link>
               </li>
             );

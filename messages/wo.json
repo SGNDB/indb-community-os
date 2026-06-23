@@ -177,6 +177,10 @@
       "profile": {
         "label": "Profil",
         "short": "Profil"
+      },
+      "messages": {
+        "label": "Ndotooje",
+        "short": "Ndot"
       }
     }
   },
@@ -240,7 +244,8 @@
     "ideaParticipantAccepted": "{actorName} accepted you as a participant",
     "ideaParticipantDeclined": "{actorName} declined your participation",
     "ideaMessage": "{actorName} sent a message about your idea",
-    "ideaStatusChange": "{actorName} updated the idea status"
+    "ideaStatusChange": "{actorName} updated the idea status",
+    "conversationMessage": "{actorName} bindu la ndotooje"
   },
   "RightSidebar": {
     "trendingTopics": "Topiku ñu taw",
@@ -1267,5 +1272,24 @@
       "interests": "Meny",
       "links": "Liyee"
     }
+  },
+  "Messages": {
+    "title": "Ndotooje",
+    "idea": "Mbokk",
+    "search": "Seet ndotooje...",
+    "empty": "Amul ndotooje bu bees",
+    "noTitle": "Amul tëriŋ",
+    "unknown": "Xamuñu",
+    "placeholder": "Bindal ndotooje...",
+    "archived": "Mofna",
+    "archivedPlaceholder": "Ndotooje bi mofna",
+    "submitFailed": "Ndotooje binduñu",
+    "rate_limited": "Bind caaw na, ñaawal",
+    "unauthorized": "Amul sañ-sañ",
+    "not_found": "Ndotooje gisuñu",
+    "invalid": "Bind bu baaxul",
+    "showActive": "Wone yu ngi dox",
+    "showArchived": "Wone yu mofn",
+    "archivedTitle": "Ndotooje yu mofn"
   }
 }

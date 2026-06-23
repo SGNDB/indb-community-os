@@ -177,6 +177,10 @@
       "profile": {
         "label": "Profil",
         "short": "Profil"
+      },
+      "messages": {
+        "label": "Ndotooje",
+        "short": "Ndot"
       }
     }
   },
@@ -240,7 +244,8 @@
     "ideaParticipantAccepted": "{actorName} accepted you as a participant",
     "ideaParticipantDeclined": "{actorName} declined your participation",
     "ideaMessage": "{actorName} sent a message about your idea",
-    "ideaStatusChange": "{actorName} updated the idea status"
+    "ideaStatusChange": "{actorName} updated the idea status",
+    "conversationMessage": "{actorName} nunka ndotooje"
   },
   "RightSidebar": {
     "trendingTopics": "Jeli No Mberlin",
@@ -1267,5 +1272,24 @@
       "interests": "Yunfanne",
       "links": "Leenke"
     }
+  },
+  "Messages": {
+    "title": "Ndotooje",
+    "idea": "Miijo",
+    "search": "Ndaar ndotooje...",
+    "empty": "Alaa ndotooje haa jooni",
+    "noTitle": "Alaa togo",
+    "unknown": "A n'a ndaari",
+    "placeholder": "Winndu ndotooje...",
+    "archived": "A mofu",
+    "archivedPlaceholder": "Ndotooje nin mofu",
+    "submitFailed": "Ndotooje nunka",
+    "rate_limited": "Nuldugo too yaawi, hino raɓ",
+    "unauthorized": "A jaabi",
+    "not_found": "Ndotooje tawaaka",
+    "invalid": "Sebe a manko",
+    "showActive": "Hollu golleje",
+    "showArchived": "Hollu moofteje",
+    "archivedTitle": "Ndotooje moofteje"
   }
 }

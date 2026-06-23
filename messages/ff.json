@@ -177,6 +177,10 @@
       "profile": {
         "label": "Profil",
         "short": "Profil"
+      },
+      "messages": {
+        "label": "Ndotooje",
+        "short": "Ndot"
       }
     }
   },
@@ -240,7 +244,8 @@
     "ideaParticipantAccepted": "{actorName} jaɓii ma tawtuɗo",
     "ideaParticipantDeclined": "{actorName} salti tawtital maa",
     "ideaMessage": "{actorName} nelima ɗum ko fayti miijo maa",
-    "ideaStatusChange": "{actorName} waylitii darnde miijo ngo"
+    "ideaStatusChange": "{actorName} waylitii darnde miijo ngo",
+    "conversationMessage": "{actorName} nuldu ndotooje"
   },
   "RightSidebar": {
     "trendingTopics": "Toɓɓe No Mberlaa",
@@ -1270,5 +1275,24 @@
       "interests": "Gimɗi",
       "links": "Jokkorɗe"
     }
+  },
+  "Messages": {
+    "title": "Ndotooje",
+    "idea": "Miijo",
+    "search": "Ndaar ndotooje...",
+    "empty": "Alaa ndotooje haa jooni",
+    "noTitle": "Alaa innde",
+    "unknown": "Anndaaka",
+    "placeholder": "Winndu ndotooje...",
+    "archived": "Mooftaama",
+    "archivedPlaceholder": "Ndotooje nde mooftaama",
+    "submitFailed": "Ndotooje nuldaaki",
+    "rate_limited": "Nuldugo too yaawi, raɓ hino",
+    "unauthorized": "Jaɓaaka",
+    "not_found": "Ndotooje tawaaka",
+    "invalid": "Winndugo moƴƴaaki",
+    "showActive": "Hollu golleeje",
+    "showArchived": "Hollu mooftaaɗe",
+    "archivedTitle": "Ndotooje mooftaaɗe"
   }
 }

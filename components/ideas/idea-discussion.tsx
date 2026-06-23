@@ -84,7 +84,9 @@ export function IdeaDiscussion({
       console.log('[IdeaDiscussion] currentUserId:', currentUserId, 'type:', typeof currentUserId);
       console.log('[IdeaDiscussion] raw initialMessage sample:', JSON.stringify(initialMessages[0]));
       mapped.forEach((m) => {
-        console.log('[IdeaDiscussion] message:', m.id, 'sender_id:', m.sender_id, 'type:', typeof m.sender_id, 'isMine:', m.sender_id === currentUserId);
+        const sameRaw = m.sender_id === currentUserId;
+        const sameCI = m.sender_id?.toLowerCase() === currentUserId?.toLowerCase();
+        console.log('[IdeaDiscussion] msg:', m.id, 'sender_id:', m.sender_id, 'type:', typeof m.sender_id, 'isMine(raw):', sameRaw, 'isMine(ci):', sameCI);
       });
     }
     return mapped;
@@ -357,12 +359,16 @@ export function IdeaDiscussion({
 
   function renderMessages() {
     return messages.map((msg) => {
-      const isMine = msg.sender_id === currentUserId;
+      const isMine = msg.sender_id?.toLowerCase() === currentUserId?.toLowerCase();
       const senderName = isMine ? youLabel : msg.sender_name?.trim() || fallbackSenderName;
       const sentAt = formatTime(msg.created_at);
       return (
         <div
           key={msg.id}
+          data-sender-id={msg.sender_id}
+          data-current-user-id={currentUserId}
+          data-ismine={isMine}
+          data-sender-name={senderName}
           className={`flex w-full ${isMine ? "justify-end" : "justify-start"}`}
           dir="ltr"
         >

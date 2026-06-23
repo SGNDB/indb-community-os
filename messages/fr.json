@@ -282,6 +282,10 @@
       "fadla": {
         "label": "Gar3tak",
         "short": "Gar3tak"
+      },
+      "messages": {
+        "label": "Messages",
+        "short": "Messages"
       }
     }
   },
@@ -345,7 +349,8 @@
     "ideaParticipantAccepted": "{actorName} vous a accepté comme participant",
     "ideaParticipantDeclined": "{actorName} a refusé votre participation",
     "ideaMessage": "{actorName} a envoyé un message à propos de votre idée",
-    "ideaStatusChange": "{actorName} a mis à jour le statut de l'idée"
+    "ideaStatusChange": "{actorName} a mis à jour le statut de l'idée",
+    "conversationMessage": "{actorName} vous a envoyé un message"
   },
   "RightSidebar": {
     "trendingTopics": "Sujets tendance",
@@ -1413,5 +1418,24 @@
       "interests": "Centres d'intérêt",
       "links": "Liens"
     }
+  },
+  "Messages": {
+    "title": "Messages",
+    "idea": "Idée",
+    "search": "Rechercher des conversations...",
+    "empty": "Aucune conversation",
+    "noTitle": "Sans titre",
+    "unknown": "Inconnu",
+    "placeholder": "Écrivez un message...",
+    "archived": "Archivé",
+    "archivedPlaceholder": "Cette conversation est archivée",
+    "submitFailed": "Échec de l'envoi",
+    "rate_limited": "Envoi trop rapide, veuillez patienter",
+    "unauthorized": "Non autorisé",
+    "not_found": "Conversation introuvable",
+    "invalid": "Saisie invalide",
+    "showActive": "Afficher actives",
+    "showArchived": "Afficher archivées",
+    "archivedTitle": "Conversations archivées"
   }
 }

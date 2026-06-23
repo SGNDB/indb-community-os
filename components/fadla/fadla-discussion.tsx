@@ -368,7 +368,9 @@ export function FadlaDiscussion({
   if (typeof window !== 'undefined' && messages.length > 0) {
     console.log('[FadlaDiscussion] currentUserId type:', typeof currentUserId, 'value:', currentUserId);
     messages.forEach((msg) => {
-      console.log('[FadlaDiscussion] msg sender_id type:', typeof msg.sender_id, 'value:', msg.sender_id, 'isMine:', msg.sender_id === currentUserId);
+      const sameRaw = msg.sender_id === currentUserId;
+      const sameCI = msg.sender_id?.toLowerCase() === currentUserId?.toLowerCase();
+      console.log('[FadlaDiscussion] msg sender_id:', msg.sender_id, 'sender_name:', msg.sender_name, 'isMine(raw):', sameRaw, 'isMine(ci):', sameCI);
     });
   }
 
@@ -383,12 +385,16 @@ export function FadlaDiscussion({
 
   function renderMessages() {
     return messages.map((msg) => {
-      const isMine = msg.sender_id === currentUserId;
+      const isMine = msg.sender_id?.toLowerCase() === currentUserId?.toLowerCase();
       const senderName = isMine ? youLabel : msg.sender_name?.trim() || fallbackSenderName;
       const sentAt = formatTime(msg.created_at);
       return (
         <div
           key={msg.id}
+          data-sender-id={msg.sender_id}
+          data-current-user-id={currentUserId}
+          data-ismine={isMine}
+          data-sender-name={senderName}
           className={`flex w-full ${isMine ? "justify-end" : "justify-start"}`}
           dir="ltr"
         >

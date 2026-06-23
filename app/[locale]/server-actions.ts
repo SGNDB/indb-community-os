@@ -32,6 +32,7 @@ import {
 } from '@/lib/data/notifications';
 import { toggleReaction, getPostReactionDetails } from '@/lib/data/reactions';
 import type { IdeaStatus, IdeaMessageWithSender } from '@/types/database';
+import type { ConversationListItem, ConversationMessageWithSender } from '@/lib/data/conversations';
 import { getIdeaVoteDetails, getIdeaById, isUserAcceptedParticipant, getIdeaUserParticipation, getIdeaUserSupport, getIdeaAcceptedParticipants, getIdeaParticipants } from '@/lib/data/ideas';
 import { getMemoryReactionDetails } from '@/lib/data/memories';
 import { getTimelineMemoriesByYear } from '@/lib/data/memory-timeline';
@@ -3368,6 +3369,14 @@ export async function acceptFadlaRequestAction(
     });
   }
 
+  // create conversation for unified inbox
+  try {
+    const { ensureConversationExists } = await import('@/lib/data/conversations');
+    await ensureConversationExists('graatek', result.shareId as string);
+  } catch (e) {
+    console.error('acceptFadlaRequestAction conv create error:', e);
+  }
+
   revalidatePath(toPath(locale, '/fadla'));
   revalidatePath(toPath(locale, '/profile'));
   return { success: true, requestId, shareId: result.shareId as string, shareStatus: 'reserved', acceptedRequestId: requestId };
@@ -3408,6 +3417,17 @@ export async function confirmFadlaReceivedAction(
     entityId: shareId,
     title: bothConfirmed ? fadlaT('notifications.bothCompleted') : fadlaT('notifications.receiverConfirmed'),
   });
+
+  if (bothConfirmed) {
+    try {
+      const { data: conv } = await supabase.from('conversations').select('id').eq('graatek_id', shareId).maybeSingle();
+      if (conv) {
+        await supabase.rpc('archive_conversation', { p_conv_id: conv.id });
+      }
+    } catch (e) {
+      console.error('confirmFadlaReceivedAction archive error:', e);
+    }
+  }
 
   return {
     success: true,
@@ -3468,6 +3488,17 @@ export async function confirmFadlaHandedOverAction(
         entityId: shareId,
         title: bothConfirmed ? fadlaT('notifications.bothCompleted') : fadlaT('notifications.senderConfirmed'),
       });
+    }
+  }
+
+  if (bothConfirmed) {
+    try {
+      const { data: conv } = await supabase.from('conversations').select('id').eq('graatek_id', shareId).maybeSingle();
+      if (conv) {
+        await supabase.rpc('archive_conversation', { p_conv_id: conv.id });
+      }
+    } catch (e) {
+      console.error('confirmFadlaHandedOverAction archive error:', e);
     }
   }
 
@@ -3620,6 +3651,17 @@ export async function sendFadlaMessageAction(
   if (error || !newMessage) {
     console.error('sendFadlaMessageAction error:', error);
     return {success: false, error: 'submitFailed'};
+  }
+
+  // also write to conversation_messages for unified inbox
+  try {
+    const { ensureConversationExists, sendConversationMessage } = await import('@/lib/data/conversations');
+    const convId = await ensureConversationExists('graatek', shareId);
+    if (convId) {
+      await sendConversationMessage(convId, user.id, trimmed);
+    }
+  } catch (e) {
+    console.error('sendFadlaMessageAction conv sync error:', e);
   }
 
   const otherUserId = isOwner ? requestRow.requester_id : item.owner_id;
@@ -3921,6 +3963,16 @@ export async function respondToParticipantAction(
 
   if (action === 'accept') {
     await createIdeaParticipantAcceptedNotification(participant.user_id, user.id, participant.idea_id);
+    try {
+      const { ensureConversationExists } = await import('@/lib/data/conversations');
+      const convId = await ensureConversationExists('idea', participant.idea_id);
+      if (convId) {
+        const sb = await createClient();
+        await sb.rpc('add_conversation_participant', { p_conv_id: convId, p_user_id: participant.user_id });
+      }
+    } catch (e) {
+      console.error('respondToParticipantAction conv add error:', e);
+    }
   } else {
     await createIdeaParticipantDeclinedNotification(participant.user_id, user.id, participant.idea_id);
   }
@@ -3979,6 +4031,17 @@ export async function updateIdeaStatusAction(
 
   if (participantIds.length > 0) {
     await createIdeaStatusChangeNotification(ideaId, user.id, participantIds, newStatus);
+  }
+
+  if (newStatus === 'completed' || newStatus === 'archived') {
+    try {
+      const { data: conv } = await supabase.from('conversations').select('id').eq('idea_id', ideaId).maybeSingle();
+      if (conv) {
+        await supabase.rpc('archive_conversation', { p_conv_id: conv.id });
+      }
+    } catch (e) {
+      console.error('updateIdeaStatusAction archive error:', e);
+    }
   }
 
   return { success: true, status: newStatus as IdeaStatus };
@@ -4091,6 +4154,17 @@ export async function sendIdeaMessageAction(
     return { success: false, error: error?.message ?? 'insert_failed' };
   }
 
+  // also write to conversation_messages for unified inbox
+  try {
+    const { ensureConversationExists, sendConversationMessage } = await import('@/lib/data/conversations');
+    const convId = await ensureConversationExists('idea', ideaId);
+    if (convId) {
+      await sendConversationMessage(convId, user.id, trimmed);
+    }
+  } catch (e) {
+    console.error('sendIdeaMessageAction conv sync error:', e);
+  }
+
   const acceptedParticipants = await getIdeaAcceptedParticipants(ideaId);
   const participantIds = acceptedParticipants
     .map((p) => p.user?.id)
@@ -4103,4 +4177,119 @@ export async function sendIdeaMessageAction(
   await createIdeaMessageNotification(ideaId, user.id, [...recipientIds]);
 
   return { success: true, message: {id: newMessage.id, created_at: newMessage.created_at} };
+}
+
+// ── Messages (Inbox) ──────────────────────────────────────────
+
+export async function getMyConversationsAction(): Promise<{
+  success: boolean;
+  conversations?: ConversationListItem[];
+  error?: string;
+}> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  const { getUserConversations } = await import('@/lib/data/conversations');
+  const conversations = await getUserConversations(user.id);
+  return { success: true, conversations };
+}
+
+export async function getConversationMessagesAction(
+  conversationId: string,
+): Promise<{
+  success: boolean;
+  conversation?: {
+    id: string;
+    type: string;
+    graatek_id: string | null;
+    idea_id: string | null;
+    title: string;
+    archived_at: string | null;
+    participants: { id: string; user_id: string; last_read_at: string | null; unread_count: number; user: { id: string; username: string | null; full_name: string | null; avatar_url: string | null } | null }[];
+  };
+  messages?: ConversationMessageWithSender[];
+  error?: string;
+}> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  const { getConversationById, getConversationMessages } = await import('@/lib/data/conversations');
+  const conversation = await getConversationById(conversationId);
+  if (!conversation) return { success: false, error: 'not_found' };
+  const isParticipant = conversation.participants.some(p => p.user_id === user.id);
+  if (!isParticipant) return { success: false, error: 'unauthorized' };
+  const messages = await getConversationMessages(conversationId);
+  return { success: true, conversation, messages };
+}
+
+export async function sendConversationMessageAction(
+  formData: FormData,
+): Promise<{
+  success: boolean;
+  message?: { id: string; created_at: string };
+  error?: string;
+}> {
+  const conversationId = formData.get('conversationId');
+  const messageText = formData.get('message');
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  if (typeof conversationId !== 'string' || typeof messageText !== 'string') {
+    return { success: false, error: 'invalid' };
+  }
+  const trimmed = messageText.trim();
+  if (!trimmed || trimmed.length > 500) return { success: false, error: 'invalid' };
+  const { allowed } = await checkRateLimit('comment' as RateLimitKind, user.id);
+  if (!allowed) return { success: false, error: 'rate_limited' };
+  const { sendConversationMessage, getConversationById } = await import('@/lib/data/conversations');
+  const conv = await getConversationById(conversationId);
+  if (!conv || conv.archived_at) return { success: false, error: 'archived' };
+  const isParticipant = conv.participants.some(p => p.user_id === user.id);
+  if (!isParticipant) return { success: false, error: 'unauthorized' };
+  const result = await sendConversationMessage(conversationId, user.id, trimmed);
+  if (!result) return { success: false, error: 'insert_failed' };
+
+  // notify other participants
+  for (const p of conv.participants) {
+    if (p.user_id === user.id) continue;
+    const entityType = conv.type === 'graatek' ? 'community_share' : 'idea';
+    const entityId = (conv.graatek_id ?? conv.idea_id ?? conversationId) as string;
+    await createNotification({
+      userId: p.user_id,
+      actorId: user.id,
+      type: 'conversation_message',
+      entityType,
+      entityId,
+      title: 'sent you a message',
+      metadata: { conversationId, message: trimmed.slice(0, 100) },
+    });
+  }
+
+  return { success: true, message: { id: result.id, created_at: result.created_at } };
+}
+
+export async function markConversationReadAction(
+  conversationId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  const { markConversationRead } = await import('@/lib/data/conversations');
+  await markConversationRead(conversationId, user.id);
+  return { success: true };
+}
+
+export async function searchConversationsAction(
+  query: string,
+): Promise<{
+  success: boolean;
+  conversations?: ConversationListItem[];
+  error?: string;
+}> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  const { searchUserConversations } = await import('@/lib/data/conversations');
+  const conversations = await searchUserConversations(user.id, query);
+  return { success: true, conversations };
 }
