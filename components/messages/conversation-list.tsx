@@ -193,7 +193,7 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto scroll-smooth pb-[calc(5.25rem+env(safe-area-inset-bottom))] md:pb-0">
+      <div className="flex-1 overflow-y-auto scroll-smooth pb-[max(0.75rem,env(safe-area-inset-bottom))] md:pb-0">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
             <MessageSquare size={36} className="mb-3 opacity-30" />

@@ -753,7 +753,7 @@ export function ConversationChat({
       )}
 
       {(error || !isReadOnly) && (
-        <div className="sticky bottom-0 z-10 shrink-0 border-t border-border/70 bg-background/95 px-2.5 pb-[calc(5rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur md:px-4 md:pb-3 md:pt-2.5">
+        <div className="sticky bottom-0 z-10 shrink-0 border-t border-border/70 bg-background/95 px-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur md:px-4 md:pb-3 md:pt-2.5">
           {pendingImage && !isReadOnly && (
             <div className="mb-2 flex items-start gap-2 rounded-lg border border-border/70 bg-card p-2 shadow-sm">
               <img src={pendingImage.url} alt="" className="h-16 w-16 rounded-md object-cover" />
