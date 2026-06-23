@@ -30,6 +30,13 @@ function timeAgo(dateStr: string, locale: string): string {
   const now = Date.now();
   const then = new Date(dateStr).getTime();
   const diffSec = Math.floor((now - then) / 1000);
+  const formatter = new Intl.RelativeTimeFormat(locale, {numeric: "auto", style: "short"});
+
+  if (diffSec < 60) return formatter.format(0, "second");
+  if (diffSec < 3600) return formatter.format(-Math.floor(diffSec / 60), "minute");
+  if (diffSec < 86400) return formatter.format(-Math.floor(diffSec / 3600), "hour");
+  if (diffSec < 2592000) return formatter.format(-Math.floor(diffSec / 86400), "day");
+  return formatter.format(-Math.floor(diffSec / 2592000), "month");
 
   if (diffSec < 60) return locale === "ar" ? "الآن" : "now";
   if (diffSec < 3600) {
@@ -60,6 +67,7 @@ function getNotificationIcon(type: string) {
     case "fadla_message":
     case "idea_message":
     case "idea_group_message":
+    case "conversation_message":
       return MessageCircle;
     case "save":
       return Bookmark;
@@ -432,7 +440,9 @@ export function NotificationDropdown({
         case "follow":
           return t("startedFollowing", {actorName});
         case "reaction":
-          return t("reactedToPost", {actorName});
+          return n.entity_type === "memory"
+            ? t("reactedToMemory", {actorName})
+            : t("reactedToPost", {actorName});
         case "comment":
           return t("commentedOnPost", {actorName});
         case "idea_comment":
@@ -447,8 +457,9 @@ export function NotificationDropdown({
         case "fadla_message":
           return t("fadlaMessage", {actorName});
         case "fadla_completed":
-        case "fadla_both_completed":
           return t("fadlaCompleted", {actorName});
+        case "fadla_both_completed":
+          return t("fadlaBothCompleted");
         case "fadla_receiver_confirmed":
           return t("fadlaReceiverConfirmed", {actorName});
         case "fadla_sender_confirmed":
@@ -467,6 +478,8 @@ export function NotificationDropdown({
           return t("ideaParticipantDeclined", {actorName});
         case "idea_message":
           return t("ideaMessage", {actorName});
+        case "conversation_message":
+          return t("conversationMessage", {actorName});
         case "idea_group_message":
           return t("ideaGroupMessage", {actorName});
         case "idea_group_updated":
@@ -480,11 +493,12 @@ export function NotificationDropdown({
         case "idea_completed":
           return t("ideaCompleted", {actorName});
         case "share":
-          return n.entity_type === "memory"
-            ? t("sharedYourMemory", {actorName})
-            : t("sharedYourIdea", {actorName});
+          if (n.entity_type === "memory") return t("sharedYourMemory", {actorName});
+          if (n.entity_type === "post") return t("sharedYourPost", {actorName});
+          if (n.entity_type === "community_share") return t("sharedYourItem", {actorName});
+          return t("sharedYourIdea", {actorName});
         default:
-          return n.title ?? n.message ?? "";
+          return t("genericNotification", {actorName});
       }
     }
 

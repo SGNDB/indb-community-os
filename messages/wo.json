@@ -250,7 +250,10 @@
     "ideaGroupUpdated": "{actorName} yeesal groupe xalaat bi",
     "ideaGroupRemoved": "{actorName} dindi la ci groupe xalaat",
     "ideaGroupLeft": "{actorName} génn ci groupe xalaat bi",
-    "ideaCompleted": "{actorName} jeexal xalaat bi"
+    "ideaCompleted": "{actorName} jeexal xalaat bi",
+    "sharedYourPost": "{actorName} séddoo na sa post",
+    "sharedYourItem": "{actorName} séddoo na sa mbirum Graatek",
+    "genericNotification": "{actorName} yónnee na la ab yégal"
   },
   "RightSidebar": {
     "trendingTopics": "Topiku ñu taw",

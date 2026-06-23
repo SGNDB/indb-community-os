@@ -355,7 +355,10 @@
     "ideaGroupUpdated": "{actorName} updated the idea group",
     "ideaGroupRemoved": "{actorName} removed you from an idea group",
     "ideaGroupLeft": "{actorName} left the idea group",
-    "ideaCompleted": "{actorName} completed the idea"
+    "ideaCompleted": "{actorName} completed the idea",
+    "sharedYourPost": "{actorName} shared your post",
+    "sharedYourItem": "{actorName} shared your Graatek item",
+    "genericNotification": "{actorName} sent you a notification"
   },
   "RightSidebar": {
     "trendingTopics": "Trending Topics",

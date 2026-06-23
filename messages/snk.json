@@ -250,7 +250,10 @@
     "ideaGroupUpdated": "{actorName} miijo gure toxo",
     "ideaGroupRemoved": "{actorName} i dinga miijo gure ra",
     "ideaGroupLeft": "{actorName} miijo gure katta",
-    "ideaCompleted": "{actorName} miijo ban"
+    "ideaCompleted": "{actorName} miijo ban",
+    "sharedYourPost": "{actorName} yaxanu post maa",
+    "sharedYourItem": "{actorName} yaxanu ntene Graatek maa",
+    "genericNotification": "{actorName} toxo i xibaare"
   },
   "RightSidebar": {
     "trendingTopics": "Jeli No Mberlin",

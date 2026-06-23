@@ -355,7 +355,10 @@
     "ideaGroupUpdated": "حدّث {actorName} مجموعة الفكرة",
     "ideaGroupRemoved": "أزالك {actorName} من مجموعة فكرة",
     "ideaGroupLeft": "غادر {actorName} مجموعة الفكرة",
-    "ideaCompleted": "أكمل {actorName} الفكرة"
+    "ideaCompleted": "أكمل {actorName} الفكرة",
+    "sharedYourPost": "شارك {actorName} منشورك",
+    "sharedYourItem": "شارك {actorName} عنصر گرعتك الخاص بك",
+    "genericNotification": "أرسل لك {actorName} إشعارًا"
   },
   "RightSidebar": {
     "trendingTopics": "المواضيع الرائجة",
