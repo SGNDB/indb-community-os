@@ -44,6 +44,11 @@ function displayName(profile: ConversationUserProfile | null | undefined, fallba
   return profile?.full_name ?? profile?.username ?? fallback;
 }
 
+function profileHref(profile: ConversationUserProfile | null | undefined, userId: string) {
+  const handle = profile?.username ?? userId;
+  return handle ? `/profile/${encodeURIComponent(handle)}` : null;
+}
+
 function statusLabel(status: string | null | undefined) {
   const labels: Record<string, string> = {
     published: "Published",
@@ -634,9 +639,20 @@ export function ConversationChat({
             {participants.map((participant) => {
               const name = displayName(participant.user, "Member");
               const isSelf = participant.user_id === currentUserId;
+              const memberProfileHref = profileHref(participant.user, participant.user_id);
               return (
                 <div key={participant.user_id} className="flex items-center gap-2 px-3 py-2">
-                  <UserAvatar label={name} avatarUrl={participant.user?.avatar_url ?? null} className="h-8 w-8" />
+                  {memberProfileHref ? (
+                    <Link
+                      href={memberProfileHref}
+                      className="shrink-0 rounded-full outline-none ring-primary/40 focus-visible:ring-2"
+                      aria-label={`Open ${name} profile`}
+                    >
+                      <UserAvatar label={name} avatarUrl={participant.user?.avatar_url ?? null} className="h-8 w-8" />
+                    </Link>
+                  ) : (
+                    <UserAvatar label={name} avatarUrl={participant.user?.avatar_url ?? null} className="h-8 w-8" />
+                  )}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-foreground">
                       {name}
@@ -691,6 +707,7 @@ export function ConversationChat({
             const participant = participantById.get(msg.sender_id);
             const sender = msg.sender ?? participant?.user ?? null;
             const senderName = displayName(sender, "Member");
+            const senderProfileHref = profileHref(sender, msg.sender_id);
             const prevMsg = index > 0 ? messages[index - 1] : null;
             const isSameSenderAsPrev = prevMsg?.sender_id === msg.sender_id;
             const isFirstInGroup = !isSameSenderAsPrev;
@@ -708,7 +725,20 @@ export function ConversationChat({
                 <div className={cn("flex max-w-[88%]", isMine ? "flex-row-reverse" : "gap-2")}>
                   {!isMine && (
                     <div className="w-7 shrink-0">
-                      {isFirstInGroup && (
+                      {isFirstInGroup && senderProfileHref && (
+                        <Link
+                          href={senderProfileHref}
+                          className="block rounded-full outline-none ring-primary/40 focus-visible:ring-2"
+                          aria-label={`Open ${senderName} profile`}
+                        >
+                          <UserAvatar
+                            label={senderName}
+                            avatarUrl={sender?.avatar_url ?? null}
+                            className="h-7 w-7"
+                          />
+                        </Link>
+                      )}
+                      {isFirstInGroup && !senderProfileHref && (
                         <UserAvatar
                           label={senderName}
                           avatarUrl={sender?.avatar_url ?? null}
@@ -719,9 +749,18 @@ export function ConversationChat({
                   )}
                   <div className="min-w-0">
                     {!isMine && isFirstInGroup && isIdeaGroup && (
-                      <p className="mb-0.5 text-[11px] font-semibold text-muted-foreground">
-                        {senderName}
-                      </p>
+                      senderProfileHref ? (
+                        <Link
+                          href={senderProfileHref}
+                          className="mb-0.5 block w-fit max-w-full truncate text-[11px] font-semibold text-muted-foreground transition hover:text-foreground"
+                        >
+                          {senderName}
+                        </Link>
+                      ) : (
+                        <p className="mb-0.5 text-[11px] font-semibold text-muted-foreground">
+                          {senderName}
+                        </p>
+                      )
                     )}
                     <div
                       className={cn(

@@ -163,8 +163,6 @@ export async function getConversationById(
     .from('conversation_participants')
     .select('*, user:user_id(id, username, full_name, avatar_url)')
     .eq('conversation_id', conversationId)
-    .is('left_at', null)
-    .is('removed_at', null)
     .order('role', { ascending: true })
     .order('created_at', { ascending: true });
 
@@ -173,7 +171,8 @@ export async function getConversationById(
     return null;
   }
 
-  const activeParticipants = (participants ?? []) as unknown as ConversationParticipantInfo[];
+  const activeParticipants = ((participants ?? []) as unknown as ConversationParticipantInfo[])
+    .filter((participant) => !participant.left_at && !participant.removed_at);
   if (userId && !activeParticipants.some((p) => p.user_id === userId)) {
     return null;
   }
@@ -253,7 +252,7 @@ export async function sendConversationMessage(
   if (messageType === 'text' && !message) return null;
   if (messageType === 'image' && (!imageUrl || !imageStoragePath)) return null;
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('conversation_messages')
     .insert({
       conversation_id: conversationId,
@@ -267,8 +266,25 @@ export async function sendConversationMessage(
     .single();
 
   if (error) {
-    console.error('sendConversationMessage error:', error);
-    return null;
+    const messageText = error.message?.toLowerCase() ?? '';
+    if (messageType === 'text' && (messageText.includes('message_type') || messageText.includes('image_url'))) {
+      const fallback = await supabase
+        .from('conversation_messages')
+        .insert({
+          conversation_id: conversationId,
+          sender_id: senderId,
+          message,
+        })
+        .select('id, created_at')
+        .single();
+      data = fallback.data;
+      error = fallback.error;
+    }
+
+    if (error) {
+      console.error('sendConversationMessage error:', error);
+      return null;
+    }
   }
 
   const { error: rpcError } = await supabase.rpc('increment_conv_unread', {
@@ -289,7 +305,13 @@ export async function markConversationRead(
     p_conv_id: conversationId,
     p_user_id: userId,
   });
-  if (error) console.error('markConversationRead error:', error);
+  if (!error) return;
+
+  await supabase
+    .from('conversation_participants')
+    .update({ last_read_at: new Date().toISOString(), unread_count: 0 })
+    .eq('conversation_id', conversationId)
+    .eq('user_id', userId);
 }
 
 export async function searchUserConversations(
@@ -318,9 +340,7 @@ export async function getUnreadConversationsCount(userId: string): Promise<numbe
   const { data } = await supabase
     .from('conversation_participants')
     .select('unread_count')
-    .eq('user_id', userId)
-    .is('left_at', null)
-    .is('removed_at', null);
+    .eq('user_id', userId);
 
   if (!data) return 0;
   return data.reduce((sum, p) => sum + (p.unread_count ?? 0), 0);
