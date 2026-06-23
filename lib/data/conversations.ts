@@ -98,6 +98,17 @@ function normalizeMessageType(value: unknown): ConversationMessageType {
   return value === 'image' ? 'image' : 'text';
 }
 
+function isLegacyConversationMessageSchemaError(error: { code?: string; message?: string } | null) {
+  const message = error?.message?.toLowerCase() ?? '';
+  return (
+    error?.code === 'PGRST204' ||
+    message.includes('schema cache') ||
+    message.includes('message_type') ||
+    message.includes('image_url') ||
+    message.includes('image_storage_path')
+  );
+}
+
 function normalizeParticipant(
   participant: RawConversationParticipant,
   adminUserId: string | null = null,
@@ -360,8 +371,7 @@ export async function sendConversationMessage(
     .single();
 
   if (error) {
-    const messageText = error.message?.toLowerCase() ?? '';
-    if (messageType === 'text' && (messageText.includes('message_type') || messageText.includes('image_url'))) {
+    if (messageType === 'text' && isLegacyConversationMessageSchemaError(error)) {
       const fallback = await supabase
         .from('conversation_messages')
         .insert({
