@@ -45,13 +45,13 @@ export default async function MessagesPage({
   }
 
   return (
-    <section className="mx-auto flex h-[calc(100dvh-8.75rem)] min-h-[560px] w-full overflow-hidden rounded-lg border border-border/70 bg-background shadow-sm md:h-[calc(100dvh-7.5rem)]">
-      <div className={`${selectedConversation ? "hidden md:flex" : "flex"} w-full flex-col md:w-[30%] md:min-w-[17rem] md:shrink-0 md:border-e md:border-border/70`}>
+    <section className="flex h-full min-h-0 w-full overflow-hidden bg-background">
+      <div className={`${selectedConversation ? "hidden md:flex" : "flex"} min-h-0 w-full flex-col md:w-[30%] md:min-w-[17rem] md:shrink-0 md:border-e md:border-border/70`}>
         <ConversationList initialConversations={conversations} currentUserId={currentUserId} />
       </div>
 
       {selectedConversation ? (
-        <div className="flex min-w-0 flex-1 flex-col md:w-[70%]">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col md:w-[70%]">
           <ConversationChat
             conversationId={sp.conversation!}
             initialMessages={selectedMessages}
@@ -69,7 +69,7 @@ export default async function MessagesPage({
           />
         </div>
       ) : (
-        <div className="hidden min-w-0 flex-1 items-center justify-center md:flex md:w-[70%]">
+        <div className="hidden min-h-0 min-w-0 flex-1 items-center justify-center md:flex md:w-[70%]">
           <div className="mx-auto max-w-sm px-6 text-center">
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10">
               <MessageSquare size={40} className="text-primary/60" />

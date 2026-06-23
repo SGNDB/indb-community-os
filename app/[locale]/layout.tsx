@@ -79,6 +79,7 @@ export default async function LocaleLayout({
   const isOnboardingRoute = pathWithoutLocale === "/onboarding";
   const normalizedPath = pathWithoutLocale.replace(/\/+$/, "");
   const isAuthRoute = normalizedPath === "/login" || normalizedPath === "/register" || normalizedPath === "/forgot-password";
+  const isMessagesRoute = normalizedPath === "/messages" || normalizedPath.startsWith("/messages/");
 
   return (
     <ThemeProvider>
@@ -111,11 +112,16 @@ export default async function LocaleLayout({
           ) : (
             <>
               <Navbar locale={locale} />
-              <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-4 px-3 py-4 sm:gap-5 sm:px-4 sm:py-5 lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-6 lg:py-6 xl:grid-cols-[250px_minmax(0,1fr)_310px]">
+              <div
+                className={cn(
+                  "mx-auto grid w-full max-w-7xl grid-cols-1 gap-4 px-3 py-4 sm:gap-5 sm:px-4 sm:py-5 lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-6 lg:py-6 xl:grid-cols-[250px_minmax(0,1fr)_310px]",
+                  isMessagesRoute && "max-lg:gap-0 max-lg:px-0 max-lg:py-0",
+                )}
+              >
                 <aside className="hidden lg:block">
                   <Sidebar />
                 </aside>
-                <main className="min-w-0">
+                <main className={cn("min-w-0", isMessagesRoute && "max-lg:min-h-0")}>
                   <PageTransition>{children}</PageTransition>
                 </main>
                 <aside className="hidden xl:block">
@@ -130,4 +136,3 @@ export default async function LocaleLayout({
     </ThemeProvider>
   );
 }
-

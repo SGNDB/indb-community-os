@@ -162,7 +162,7 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-background">
-      <div className="flex min-h-[56px] items-center justify-between border-b border-border/70 px-3">
+      <div className="flex min-h-[56px] items-center justify-between border-b border-border/70 bg-card/95 px-3 shadow-sm backdrop-blur md:bg-background md:shadow-none">
         <h2 className="flex items-center gap-1.5 text-base font-semibold text-foreground">
           <Inbox size={18} />
           {t("title")}
@@ -179,7 +179,7 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
         </button>
       </div>
 
-      <div className="border-b border-border/70 px-3 py-2">
+      <div className="border-b border-border/70 bg-background px-3 py-2">
         <div className="relative">
           <Search size={14} className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
@@ -193,7 +193,7 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto scroll-smooth">
+      <div className="flex-1 overflow-y-auto scroll-smooth pb-[calc(5.25rem+env(safe-area-inset-bottom))] md:pb-0">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
             <MessageSquare size={36} className="mb-3 opacity-30" />
@@ -229,7 +229,7 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
                   <Link
                     href={`/messages/${conversation.id}`}
                     className={cn(
-                      "flex min-h-[72px] items-center gap-3 border-s-4 px-3 py-2.5 transition hover:bg-muted/45",
+                      "flex min-h-[74px] items-center gap-3 border-s-4 px-3 py-2.5 transition active:bg-muted/60 md:min-h-[72px] md:hover:bg-muted/45",
                       isActive ? "border-primary bg-primary/[0.07]" : "border-transparent",
                     )}
                   >
@@ -238,7 +238,7 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex min-w-0 items-center gap-1.5">
                           <p className="truncate text-sm font-semibold leading-tight text-foreground">{name}</p>
-                          <span className="inline-flex shrink-0 rounded-[4px] bg-muted px-1.5 py-[2px] text-[10px] font-medium leading-none text-muted-foreground">
+                          <span className="inline-flex max-w-[5.5rem] shrink-0 truncate rounded-[4px] bg-muted px-1.5 py-[2px] text-[10px] font-medium leading-none text-muted-foreground">
                             {badge}
                           </span>
                         </div>

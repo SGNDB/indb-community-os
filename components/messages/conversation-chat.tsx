@@ -583,11 +583,11 @@ export function ConversationChat({
 
   return (
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-background">
-      <div className="shrink-0 border-b border-border/70 bg-card/95 px-2.5 py-2 shadow-sm backdrop-blur">
+      <div className="shrink-0 border-b border-border/70 bg-card/95 px-2 py-1.5 shadow-sm backdrop-blur md:px-2.5 md:py-2">
         <div className="flex min-h-[52px] items-center gap-2">
           <Link
             href="/messages"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted md:hidden"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted-foreground transition active:bg-muted md:hidden"
             aria-label={t("groupChat.backToMessages")}
           >
             <ArrowLeft size={21} />
@@ -595,7 +595,7 @@ export function ConversationChat({
           <button
             type="button"
             onClick={() => setShowGroupInfo(true)}
-            className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-1 py-1 text-start transition hover:bg-muted/60"
+            className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-1 py-1 text-start transition active:bg-muted/60 md:hover:bg-muted/60"
             aria-label={t("groupChat.groupInfo")}
           >
             <ConversationAvatar
@@ -604,7 +604,7 @@ export function ConversationChat({
               participants={participants}
               isGroup={isIdeaGroup}
               memberFallback={memberFallback}
-              className="h-10 w-10"
+              className="h-9 w-9 md:h-10 md:w-10"
             />
             <div className="min-w-0 flex-1">
               <p className="truncate text-[15px] font-semibold leading-tight text-foreground">{groupTitle}</p>
@@ -614,7 +614,7 @@ export function ConversationChat({
           <button
             type="button"
             onClick={() => setShowGroupInfo(true)}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted-foreground transition active:bg-muted md:hover:bg-muted md:hover:text-foreground"
             aria-label={t("groupChat.options")}
           >
             <MoreVertical size={20} />
@@ -622,7 +622,7 @@ export function ConversationChat({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto scroll-smooth bg-muted/20 px-3 py-4 md:px-5">
+      <div className="flex-1 overflow-y-auto scroll-smooth bg-muted/20 px-2.5 py-3 md:px-5 md:py-4">
         <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col">
           {isReadOnly && (
             <div className="mx-auto mb-4 flex max-w-md items-center justify-center gap-2 rounded-full bg-background/90 px-3 py-2 text-center text-xs text-muted-foreground shadow-sm">
@@ -655,9 +655,9 @@ export function ConversationChat({
                   index === 0 ? "mt-0" : isFirstInGroup ? "mt-3.5" : "mt-1",
                 )}
               >
-                <div className={cn("flex max-w-[88%] items-end gap-2 sm:max-w-[78%] md:max-w-[70%]", isMine && "flex-row-reverse")}>
+                <div className={cn("flex max-w-[86%] items-end gap-1.5 sm:max-w-[78%] md:max-w-[70%] md:gap-2", isMine && "flex-row-reverse")}>
                   {!isMine && (
-                    <div className="w-8 shrink-0 md:w-9">
+                    <div className="w-7 shrink-0 md:w-9">
                       {isFirstInGroup && senderProfileHref && (
                         <Link
                           href={senderProfileHref}
@@ -667,7 +667,7 @@ export function ConversationChat({
                           <UserAvatar
                             label={senderName}
                             avatarUrl={sender?.avatar_url ?? null}
-                            className="h-8 w-8 md:h-9 md:w-9"
+                            className="h-7 w-7 md:h-9 md:w-9"
                           />
                         </Link>
                       )}
@@ -675,7 +675,7 @@ export function ConversationChat({
                         <UserAvatar
                           label={senderName}
                           avatarUrl={sender?.avatar_url ?? null}
-                          className="h-8 w-8 md:h-9 md:w-9"
+                          className="h-7 w-7 md:h-9 md:w-9"
                         />
                       )}
                     </div>
@@ -697,8 +697,8 @@ export function ConversationChat({
                     )}
                     <div
                       className={cn(
-                        "min-w-[4.5rem] overflow-hidden rounded-2xl text-[14px] leading-relaxed shadow-sm",
-                        hasImage ? "p-1.5" : "px-3.5 py-2.5",
+                        "min-w-[4rem] overflow-hidden rounded-2xl text-[14px] leading-relaxed shadow-sm",
+                        hasImage ? "p-1.5" : "px-3 py-2 md:px-3.5 md:py-2.5",
                         isMine
                           ? "rounded-ee-[5px] bg-primary text-primary-foreground"
                           : "rounded-es-[5px] border border-border/50 bg-card text-foreground",
@@ -715,7 +715,7 @@ export function ConversationChat({
                           <img
                             src={msg.image_url ?? ""}
                             alt=""
-                            className="max-h-80 w-full min-w-52 object-cover"
+                            className="max-h-80 w-full min-w-40 object-cover sm:min-w-52"
                           />
                         </button>
                       )}
@@ -753,7 +753,7 @@ export function ConversationChat({
       )}
 
       {(error || !isReadOnly) && (
-        <div className="sticky bottom-0 z-10 shrink-0 border-t border-border/70 bg-background/95 px-3 pb-[max(5rem,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur md:px-4 md:pb-3">
+        <div className="sticky bottom-0 z-10 shrink-0 border-t border-border/70 bg-background/95 px-2.5 pb-[calc(5rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur md:px-4 md:pb-3 md:pt-2.5">
           {pendingImage && !isReadOnly && (
             <div className="mb-2 flex items-start gap-2 rounded-lg border border-border/70 bg-card p-2 shadow-sm">
               <img src={pendingImage.url} alt="" className="h-16 w-16 rounded-md object-cover" />
@@ -777,7 +777,7 @@ export function ConversationChat({
           )}
 
           {!isReadOnly && (
-            <form onSubmit={handleSend} className="flex items-end gap-2">
+            <form onSubmit={handleSend} className="mx-auto flex max-w-3xl items-end gap-2">
               <input
                 ref={imageInputRef}
                 type="file"
@@ -789,7 +789,7 @@ export function ConversationChat({
                 type="button"
                 onClick={() => imageInputRef.current?.click()}
                 disabled={imageUploading || sending}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition hover:bg-muted disabled:opacity-40"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition active:bg-muted disabled:opacity-40 md:h-11 md:w-11 md:hover:bg-muted"
                 aria-label={t("groupChat.sendImage")}
               >
                 {imageUploading ? <Loader2 size={18} className="animate-spin" /> : <ImagePlus size={18} />}
@@ -800,12 +800,12 @@ export function ConversationChat({
                 onChange={(e) => handleInputChange(e.target.value)}
                 maxLength={pendingImage ? 500 : 1000}
                 placeholder={pendingImage ? t("groupChat.addCaption") : t("placeholder")}
-                className="min-h-11 flex-1 rounded-full border border-border/60 bg-card px-4 py-2.5 text-sm shadow-sm outline-none transition focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+                className="min-h-10 min-w-0 flex-1 rounded-full border border-border/60 bg-card px-3.5 py-2 text-sm shadow-sm outline-none transition focus:border-primary/50 focus:ring-1 focus:ring-primary/30 md:min-h-11 md:px-4 md:py-2.5"
               />
               <button
                 type="submit"
                 disabled={(!input.trim() && !pendingImage) || sending}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:opacity-40"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition active:bg-primary/90 disabled:opacity-40 md:h-11 md:w-11 md:hover:bg-primary/90"
                 aria-label={t("groupChat.sendMessage")}
               >
                 {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
