@@ -1076,6 +1076,24 @@
         "volunteering": "التطوع"
       }
     },
+    "noData": "لا توجد بيانات.",
+    "loading": "جارٍ التحميل...",
+    "search": "بحث",
+    "searchPlaceholder": "بحث...",
+    "dashboard": {
+      "donationsSnapshot": "لمحة عن التبرعات",
+      "volunteerSnapshot": "لمحة عن التطوع",
+      "liveFeed": "التغذية المباشرة",
+      "quickActions": "إجراءات سريعة",
+      "monthlyTrend": "الاتجاه الشهري وطرق الدفع",
+      "monthlyActivity": "النشاط التطوعي الشهري",
+      "sendNotification": "إرسال إشعار",
+      "reviewReports": "مراجعة البلاغات",
+      "siteSettings": "إعدادات الموقع",
+      "addAdmin": "إضافة مدير",
+      "featureContent": "تمييز محتوى",
+      "verifyPayments": "التحقق من المدفوعات"
+    },
     "users": {
       "eyebrow": "أشخاص المجتمع",
       "title": "إدارة الأعضاء",

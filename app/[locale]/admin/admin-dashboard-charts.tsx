@@ -80,6 +80,18 @@ interface Labels {
   newToday: string;
   totalComments: string;
   adminName: string;
+  donationsSnapshot: string;
+  volunteerSnapshot: string;
+  liveFeed: string;
+  quickActions: string;
+  monthlyTrend: string;
+  monthlyActivity: string;
+  sendNotification: string;
+  reviewReports: string;
+  siteSettings: string;
+  addAdmin: string;
+  featureContent: string;
+  verifyPayments: string;
 }
 
 const RED = "#ed2124";
@@ -256,12 +268,12 @@ export default function AdminDashboardCharts({
   ];
 
   const quickActions = [
-    {icon: Bell, label: "Send Notification", color: "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400", href: "/admin/notifications"},
-    {icon: Shield, label: "Review Reports", color: "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400", href: "/admin/moderation"},
-    {icon: Settings, label: "Site Settings", color: "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400", href: "/admin/settings"},
-    {icon: Users, label: "Add Admin", color: "bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400", href: "/admin/users"},
-    {icon: Sparkles, label: "Feature Content", color: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400", href: "/admin/ideas"},
-    {icon: Landmark, label: "Verify Payments", color: "bg-pink-50 text-pink-700 dark:bg-pink-900/20 dark:text-pink-400", href: "/admin/payments"},
+    {icon: Bell, label: labels.sendNotification, color: "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400", href: "/admin/notifications"},
+    {icon: Shield, label: labels.reviewReports, color: "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400", href: "/admin/moderation"},
+    {icon: Settings, label: labels.siteSettings, color: "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400", href: "/admin/settings"},
+    {icon: Users, label: labels.addAdmin, color: "bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400", href: "/admin/users"},
+    {icon: Sparkles, label: labels.featureContent, color: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400", href: "/admin/ideas"},
+    {icon: Landmark, label: labels.verifyPayments, color: "bg-pink-50 text-pink-700 dark:bg-pink-900/20 dark:text-pink-400", href: "/admin/payments"},
   ];
 
   return (
@@ -411,11 +423,11 @@ export default function AdminDashboardCharts({
           <section>
             <div className="mb-4">
               <p className="text-xs font-semibold uppercase tracking-widest text-primary">{labels.byCampaign}</p>
-              <h2 className="mt-0.5 text-xl font-black text-foreground">Donations Snapshot</h2>
+              <h2 className="mt-0.5 text-xl font-black text-foreground">{labels.donationsSnapshot}</h2>
             </div>
             <div className="rounded-2xl border border-border/60 bg-card p-5">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm text-muted-foreground">Monthly trend &amp; payment methods</span>
+                <span className="text-sm text-muted-foreground">{labels.monthlyTrend}</span>
                 {!paymentMethodsEmpty && (
                   <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
                     {fmt(paymentMethods.reduce((s, p) => s + p.count, 0))} donations
@@ -456,11 +468,11 @@ export default function AdminDashboardCharts({
           <section>
             <div className="mb-4">
               <p className="text-xs font-semibold uppercase tracking-widest text-primary">{labels.successRate}</p>
-              <h2 className="mt-0.5 text-xl font-black text-foreground">Volunteer Snapshot</h2>
+              <h2 className="mt-0.5 text-xl font-black text-foreground">{labels.volunteerSnapshot}</h2>
             </div>
             <div className="rounded-2xl border border-border/60 bg-card p-5">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm text-muted-foreground">Monthly volunteer activity</span>
+                <span className="text-sm text-muted-foreground">{labels.monthlyActivity}</span>
                 {!volunteerEmpty && (
                   <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">{fmt(volunteerTotal)} total</span>
                 )}
@@ -492,7 +504,7 @@ export default function AdminDashboardCharts({
           <div className="mb-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-primary">{labels.realtimeActivity}</p>
-              <h2 className="mt-0.5 text-xl font-black text-foreground">Live Feed</h2>
+              <h2 className="mt-0.5 text-xl font-black text-foreground">{labels.liveFeed}</h2>
             </div>
             {!realtimeEmpty && (
               <div className="flex items-center gap-2">
@@ -534,7 +546,7 @@ export default function AdminDashboardCharts({
         <section>
           <div className="mb-4 flex items-center gap-2">
             <Zap size={16} className="text-primary" />
-            <h2 className="text-xl font-black text-foreground">Quick Actions</h2>
+            <h2 className="text-xl font-black text-foreground">{labels.quickActions}</h2>
           </div>
           <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {quickActions.map((action) => {

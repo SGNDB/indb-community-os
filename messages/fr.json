@@ -1076,8 +1076,26 @@
         "volunteering": "Bénévolat"
       }
     },
+    "noData": "Aucune donn\u00e9e disponible.",
+    "loading": "Chargement...",
+    "search": "Rechercher",
+    "searchPlaceholder": "Rechercher...",
+    "dashboard": {
+      "donationsSnapshot": "Aper\u00e7u des dons",
+      "volunteerSnapshot": "Aper\u00e7u du b\u00e9n\u00e9volat",
+      "liveFeed": "Fil en direct",
+      "quickActions": "Actions rapides",
+      "monthlyTrend": "Tendance mensuelle et moyens de paiement",
+      "monthlyActivity": "Activit\u00e9 b\u00e9n\u00e9vole mensuelle",
+      "sendNotification": "Envoyer une notification",
+      "reviewReports": "Examiner les signalements",
+      "siteSettings": "Param\u00e8tres du site",
+      "addAdmin": "Ajouter un admin",
+      "featureContent": "Mettre en avant",
+      "verifyPayments": "V\u00e9rifier les paiements"
+    },
     "users": {
-      "eyebrow": "Personnes de la communaut?",
+      "eyebrow": "Personnes de la communaut\u00e9",
       "title": "Gestion des membres",
       "description": "Les utilisateurs restent membres. L?admin peut supprimer les comptes si n?cessaire.",
       "search": "Rechercher des utilisateurs",

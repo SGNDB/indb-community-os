@@ -47,6 +47,18 @@ interface Labels {
   newToday: string;
   totalComments: string;
   adminName: string;
+  donationsSnapshot: string;
+  volunteerSnapshot: string;
+  liveFeed: string;
+  quickActions: string;
+  monthlyTrend: string;
+  monthlyActivity: string;
+  sendNotification: string;
+  reviewReports: string;
+  siteSettings: string;
+  addAdmin: string;
+  featureContent: string;
+  verifyPayments: string;
 }
 
 const Charts = dynamic(() => import("./admin-dashboard-charts"), {ssr: false});

@@ -1080,6 +1080,20 @@
     "loading": "Loading...",
     "search": "Search",
     "searchPlaceholder": "Search...",
+    "dashboard": {
+      "donationsSnapshot": "Donations Snapshot",
+      "volunteerSnapshot": "Volunteer Snapshot",
+      "liveFeed": "Live Feed",
+      "quickActions": "Quick Actions",
+      "monthlyTrend": "Monthly trend & payment methods",
+      "monthlyActivity": "Monthly volunteer activity",
+      "sendNotification": "Send Notification",
+      "reviewReports": "Review Reports",
+      "siteSettings": "Site Settings",
+      "addAdmin": "Add Admin",
+      "featureContent": "Feature Content",
+      "verifyPayments": "Verify Payments"
+    },
     "crud": {
       "approve": "Approve",
       "archive": "Archive",

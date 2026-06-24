@@ -95,6 +95,18 @@ export default async function AdminDashboardPage({params}: {params: Promise<{loc
     newToday: t("health.newToday"),
     totalComments: t("health.totalComments"),
     adminName: adminProfile?.full_name ?? adminProfile?.username ?? "Admin",
+    donationsSnapshot: t("dashboard.donationsSnapshot"),
+    volunteerSnapshot: t("dashboard.volunteerSnapshot"),
+    liveFeed: t("dashboard.liveFeed"),
+    quickActions: t("dashboard.quickActions"),
+    monthlyTrend: t("dashboard.monthlyTrend"),
+    monthlyActivity: t("dashboard.monthlyActivity"),
+    sendNotification: t("dashboard.sendNotification"),
+    reviewReports: t("dashboard.reviewReports"),
+    siteSettings: t("dashboard.siteSettings"),
+    addAdmin: t("dashboard.addAdmin"),
+    featureContent: t("dashboard.featureContent"),
+    verifyPayments: t("dashboard.verifyPayments"),
   };
 
   return (
