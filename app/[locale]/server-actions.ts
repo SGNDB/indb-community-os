@@ -7,7 +7,7 @@ import { getTranslations } from 'next-intl/server';
 
 import { routing } from '@/lib/i18n/routing';
 import { withLocale } from '@/lib/i18n/paths';
-import { type ImageUploadKind, validateCompressedImageFile } from '@/lib/images/upload-config';
+import { type ImageUploadKind, validateCompressedImageFile, validateImageFile } from '@/lib/images/upload-config';
 import { getLocalizedAuthError } from '@/lib/auth/auth-error-messages';
 import { recordAdminAuditLog } from '@/lib/security/admin-audit';
 import { checkRateLimit, type RateLimitKind } from '@/lib/security/rate-limit';
@@ -4506,6 +4506,9 @@ export async function recordSupportContributionAction(formData: FormData) {
   const contributionType = formData.get('contributionType');
   const amount = formData.get('amount');
   const customAmount = formData.get('customAmount');
+  const paymentMethod = formData.get('paymentMethod');
+  const transactionId = formData.get('transactionId');
+  const receiptFile = formData.get('receipt');
   const message = formData.get('message');
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -4531,19 +4534,98 @@ export async function recordSupportContributionAction(formData: FormData) {
       ? Number(amount)
       : null;
 
+  const safeContributionType = contributionType as 'money' | 'volunteer' | 'materials';
+  const safePaymentMethod = typeof paymentMethod === 'string' && ['bankily', 'masrivi', 'sedad', 'card'].includes(paymentMethod)
+    ? paymentMethod as 'bankily' | 'masrivi' | 'sedad' | 'card'
+    : null;
+
+  if (safeContributionType === 'money') {
+    if (!parsedAmount || parsedAmount <= 0 || !safePaymentMethod) {
+      redirect(withLocale(`/support/${campaignSlug}?status=invalid-payment`, locale));
+    }
+
+    if (safePaymentMethod === 'card') {
+      redirect(withLocale(`/support/${campaignSlug}?status=cards-coming-soon`, locale));
+    }
+
+    const { getSupportPaymentReceivers } = await import('@/lib/data/support');
+    const selectedReceiver = getSupportPaymentReceivers().find((receiver) => receiver.method === safePaymentMethod);
+    if (!selectedReceiver?.configured) {
+      redirect(withLocale(`/support/${campaignSlug}?status=payment-not-ready`, locale));
+    }
+
+    if (typeof transactionId !== 'string' || transactionId.trim().length < 3) {
+      redirect(withLocale(`/support/${campaignSlug}?status=transaction-required`, locale));
+    }
+  }
+
+  let receiptUrl: string | null = null;
+  let receiptStoragePath: string | null = null;
+  if (
+    safeContributionType === 'money' &&
+    receiptFile instanceof File &&
+    receiptFile.size > 0 &&
+    receiptFile.name
+  ) {
+    const validationError = validateImageFile(receiptFile, 'post');
+    if (validationError) {
+      redirect(withLocale(`/support/${campaignSlug}?status=receipt-invalid`, locale));
+    }
+
+    const uploaded = await uploadFile(receiptFile, 'support-receipts', user.id, 'receipts');
+    receiptUrl = uploaded.url;
+    receiptStoragePath = uploaded.storagePath;
+    if (!receiptStoragePath) {
+      redirect(withLocale(`/support/${campaignSlug}?status=receipt-upload-failed`, locale));
+    }
+  }
+
   const { recordSupportContribution } = await import('@/lib/data/support');
   await recordSupportContribution({
     campaignId,
     userId: user.id,
-    contributionType: contributionType as 'money' | 'volunteer' | 'materials',
-    amount: contributionType === 'money' && parsedAmount && parsedAmount > 0 ? parsedAmount : null,
-    materialDescription: contributionType === 'materials' && typeof message === 'string' ? message.trim().slice(0, 500) : null,
-    volunteerMessage: contributionType === 'volunteer' && typeof message === 'string' ? message.trim().slice(0, 500) : null,
+    contributionType: safeContributionType,
+    amount: safeContributionType === 'money' && parsedAmount && parsedAmount > 0 ? parsedAmount : null,
+    paymentMethod: safeContributionType === 'money' ? safePaymentMethod : null,
+    transactionId: safeContributionType === 'money' && typeof transactionId === 'string' ? transactionId.trim().slice(0, 120) : null,
+    receiptUrl,
+    receiptStoragePath,
+    materialDescription: safeContributionType === 'materials' && typeof message === 'string' ? message.trim().slice(0, 500) : null,
+    volunteerMessage: safeContributionType === 'volunteer' && typeof message === 'string' ? message.trim().slice(0, 500) : null,
   });
 
   revalidatePath('/support');
   revalidatePath(`/support/${campaignSlug}`);
   redirect(withLocale(`/support/${campaignSlug}?status=contribution-sent`, locale));
+}
+
+export async function adminSetSupportContributionStatusAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get('locale'));
+  const contributionId = formData.get('contributionId');
+  const nextStatus = formData.get('nextStatus');
+  const rejectedReason = formData.get('rejectedReason');
+
+  const { getCurrentAdminProfile } = await import('@/lib/data/admin');
+  const adminProfile = await getCurrentAdminProfile();
+  if (
+    !adminProfile ||
+    typeof contributionId !== 'string' ||
+    !['verified', 'rejected', 'refunded'].includes(String(nextStatus))
+  ) {
+    redirect(withLocale('/', locale));
+  }
+
+  const { adminSetSupportContributionStatus } = await import('@/lib/data/support');
+  await adminSetSupportContributionStatus({
+    contributionId,
+    adminId: adminProfile.id,
+    status: nextStatus as 'verified' | 'rejected' | 'refunded',
+    rejectedReason: typeof rejectedReason === 'string' ? rejectedReason.trim().slice(0, 500) : null,
+  });
+
+  revalidatePath('/support');
+  revalidatePath('/admin/support');
+  redirect(withLocale(`/admin/support?status=donation-${nextStatus}`, locale));
 }
 
 export async function adminUpdateSupportCampaignAction(formData: FormData) {

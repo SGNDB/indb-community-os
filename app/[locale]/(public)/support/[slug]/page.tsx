@@ -7,10 +7,39 @@ import {SupportContributionPanel} from "@/components/support/support-contributio
 import {SupportCampaignVisual} from "@/components/support/support-campaign-visual";
 import {Badge} from "@/components/ui/badge";
 import {createClient} from "@/lib/supabase/server";
-import {getCampaignProgress, getDaysRemaining, getSupportCampaignBySlug} from "@/lib/data/support";
+import {getCampaignProgress, getDaysRemaining, getSupportCampaignBySlug, getSupportPaymentReceivers} from "@/lib/data/support";
 import {Link} from "@/lib/i18n/routing";
 
 const formatter = new Intl.NumberFormat("fr-MR");
+
+function supportStatusMessage(status: string | undefined, locale: string, contributionSent: string, saved: string) {
+  if (!status) return null;
+  const isArabic = locale === "ar";
+  const messages: Record<string, string> = {
+    "contribution-sent": isArabic
+      ? "تم إرسال المساهمة. ستبقى قيد المراجعة حتى يتم التحقق من الدفع."
+      : "Contribution submitted. It will stay pending until the payment is verified.",
+    "cards-coming-soon": isArabic
+      ? "الدفع عبر Visa / Mastercard قريباً. استخدم Bankily أو Masrivi أو Sedad حالياً."
+      : "Visa / Mastercard is coming soon. Please use Bankily, Masrivi, or Sedad for now.",
+    "invalid-payment": isArabic
+      ? "تحقق من المبلغ وطريقة الدفع."
+      : "Check the amount and payment method.",
+    "transaction-required": isArabic
+      ? "أدخل رقم العملية لإرسال المساهمة."
+      : "Enter the transaction ID to submit the contribution.",
+    "payment-not-ready": isArabic
+      ? "طريقة الدفع هذه لم يتم إعداد حسابها الرسمي بعد."
+      : "This payment method does not have an official receiver configured yet.",
+    "receipt-invalid": isArabic
+      ? "صورة الوصل يجب أن تكون JPG أو PNG أو WebP."
+      : "Receipt must be JPG, PNG, or WebP.",
+    "receipt-upload-failed": isArabic
+      ? "تعذر رفع صورة الوصل. حاول مرة أخرى."
+      : "Could not upload the receipt image. Please try again.",
+  };
+  return messages[status] ?? (status === "contribution-sent" ? contributionSent : saved);
+}
 
 export async function generateMetadata({
   params,
@@ -41,11 +70,13 @@ export default async function SupportCampaignPage({
   if (!result) notFound();
 
   const {campaign, updates, photos} = result;
+  const paymentReceivers = getSupportPaymentReceivers();
   const progress = getCampaignProgress(campaign);
   const daysRemaining = getDaysRemaining(campaign);
   const remaining = Math.max(0, campaign.goal_amount - campaign.raised_amount);
   const supabase = await createClient();
   const {data: {user}} = await supabase.auth.getUser();
+  const statusText = supportStatusMessage(status, locale, t("status.contributionSent"), t("status.saved"));
 
   return (
     <div className="space-y-4 pb-3 sm:space-y-5">
@@ -54,9 +85,9 @@ export default async function SupportCampaignPage({
         {t("backToSupport")}
       </Link>
 
-      {status ? (
+      {statusText ? (
         <div className="rounded-2xl border border-primary/20 bg-primary/10 p-3 text-sm font-bold text-primary">
-          {status === "contribution-sent" ? t("status.contributionSent") : t("status.saved")}
+          {statusText}
         </div>
       ) : null}
 
@@ -194,6 +225,7 @@ export default async function SupportCampaignPage({
             campaignSlug={campaign.slug}
             locale={locale}
             isLoggedIn={!!user}
+            paymentReceivers={paymentReceivers}
             t={{
               title: t("contribution.title"),
               money: t("contribution.money"),

@@ -3,6 +3,8 @@ import {createAdminClient} from "@/lib/supabase/admin";
 
 export type SupportCampaignStatus = "active" | "completed" | "paused";
 export type SupportContributionType = "money" | "volunteer" | "materials";
+export type SupportPaymentMethod = "bankily" | "masrivi" | "sedad" | "card";
+export type SupportDonationStatus = "pending" | "verified" | "rejected" | "refunded";
 
 export interface SupportCampaign {
   id: string;
@@ -53,10 +55,34 @@ export interface SupportContribution {
   contributor_id: string | null;
   contribution_type: SupportContributionType;
   amount: number | null;
+  payment_method: SupportPaymentMethod | null;
+  transaction_id: string | null;
+  receipt_url: string | null;
+  receipt_storage_path: string | null;
   material_description: string | null;
   volunteer_message: string | null;
-  status: string;
+  status: SupportDonationStatus;
+  verified_by: string | null;
+  verified_at: string | null;
+  rejected_reason: string | null;
   created_at: string;
+  updated_at: string;
+  campaign?: Pick<SupportCampaign, "id" | "slug" | "emoji" | "title" | "raised_amount" | "contributors_count"> | null;
+  contributor?: {
+    id: string;
+    full_name: string | null;
+    username: string | null;
+    avatar_url: string | null;
+  } | null;
+}
+
+export interface SupportPaymentReceiver {
+  method: SupportPaymentMethod;
+  label: string;
+  receiverLabel: string;
+  receiverValue: string;
+  configured: boolean;
+  cardReady?: boolean;
 }
 
 export const SUPPORT_CAMPAIGN_SLUGS = [
@@ -66,6 +92,42 @@ export const SUPPORT_CAMPAIGN_SLUGS = [
   "clean-nouadhibou",
   "health",
 ] as const;
+
+const DEFAULT_RECEIVER_TEXT = "I ❤️ NDB official receiver will be configured before public payment launch.";
+
+export function getSupportPaymentReceivers(): SupportPaymentReceiver[] {
+  return [
+    {
+      method: "bankily",
+      label: "Bankily",
+      receiverLabel: "Official Bankily number/account",
+      receiverValue: process.env.SUPPORT_BANKILY_RECEIVER ?? DEFAULT_RECEIVER_TEXT,
+      configured: Boolean(process.env.SUPPORT_BANKILY_RECEIVER),
+    },
+    {
+      method: "masrivi",
+      label: "Masrivi",
+      receiverLabel: "Official Masrivi number/account",
+      receiverValue: process.env.SUPPORT_MASRIVI_RECEIVER ?? DEFAULT_RECEIVER_TEXT,
+      configured: Boolean(process.env.SUPPORT_MASRIVI_RECEIVER),
+    },
+    {
+      method: "sedad",
+      label: "Sedad",
+      receiverLabel: "Official Sedad number/account",
+      receiverValue: process.env.SUPPORT_SEDAD_RECEIVER ?? DEFAULT_RECEIVER_TEXT,
+      configured: Boolean(process.env.SUPPORT_SEDAD_RECEIVER),
+    },
+    {
+      method: "card",
+      label: "Visa / Mastercard",
+      receiverLabel: "Card provider",
+      receiverValue: process.env.SUPPORT_CARD_PROVIDER_NAME ?? "Coming soon",
+      configured: Boolean(process.env.SUPPORT_CARD_PROVIDER_READY === "true" && process.env.SUPPORT_CARD_PROVIDER_NAME),
+      cardReady: process.env.SUPPORT_CARD_PROVIDER_READY === "true",
+    },
+  ];
+}
 
 const now = "2026-06-24T00:00:00.000Z";
 
@@ -298,6 +360,10 @@ export async function recordSupportContribution(input: {
   userId: string | null;
   contributionType: SupportContributionType;
   amount?: number | null;
+  paymentMethod?: SupportPaymentMethod | null;
+  transactionId?: string | null;
+  receiptUrl?: string | null;
+  receiptStoragePath?: string | null;
   materialDescription?: string | null;
   volunteerMessage?: string | null;
 }) {
@@ -307,9 +373,13 @@ export async function recordSupportContribution(input: {
     contributor_id: input.userId,
     contribution_type: input.contributionType,
     amount: input.amount ?? null,
+    payment_method: input.paymentMethod ?? null,
+    transaction_id: input.transactionId ?? null,
+    receipt_url: input.receiptUrl ?? null,
+    receipt_storage_path: input.receiptStoragePath ?? null,
     material_description: input.materialDescription ?? null,
     volunteer_message: input.volunteerMessage ?? null,
-    status: "pledged",
+    status: "pending",
   });
 
   if (error) {
@@ -322,6 +392,66 @@ export async function recordSupportContribution(input: {
 
 export async function getAdminSupportCampaigns() {
   return getSupportCampaigns();
+}
+
+export async function getAdminSupportContributions(): Promise<SupportContribution[]> {
+  const admin = createAdminClient();
+  if (!admin) return [];
+
+  const {data, error} = await admin
+    .from("support_contributions")
+    .select(`
+      *,
+      campaign:support_campaigns(id, slug, emoji, title, raised_amount, contributors_count),
+      contributor:profiles(id, full_name, username, avatar_url)
+    `)
+    .eq("contribution_type", "money")
+    .order("created_at", {ascending: false})
+    .limit(100);
+
+  if (error) {
+    console.error("getAdminSupportContributions error:", error);
+    return [];
+  }
+
+  const contributions = (data ?? []) as SupportContribution[];
+
+  return Promise.all(
+    contributions.map(async (contribution) => {
+      if (!contribution.receipt_storage_path) return contribution;
+      const {data: signed} = await admin.storage
+        .from("support-receipts")
+        .createSignedUrl(contribution.receipt_storage_path, 60 * 10);
+      return {
+        ...contribution,
+        receipt_url: signed?.signedUrl ?? contribution.receipt_url,
+      };
+    }),
+  );
+}
+
+export async function adminSetSupportContributionStatus(input: {
+  contributionId: string;
+  adminId: string;
+  status: Exclude<SupportDonationStatus, "pending">;
+  rejectedReason?: string | null;
+}) {
+  const admin = createAdminClient();
+  if (!admin) return false;
+
+  const {error} = await admin.rpc("admin_set_support_contribution_status", {
+    p_contribution_id: input.contributionId,
+    p_admin_id: input.adminId,
+    p_status: input.status,
+    p_rejected_reason: input.rejectedReason ?? null,
+  });
+
+  if (error) {
+    console.error("adminSetSupportContributionStatus error:", error);
+    return false;
+  }
+
+  return true;
 }
 
 export async function adminUpdateSupportCampaign(input: {
