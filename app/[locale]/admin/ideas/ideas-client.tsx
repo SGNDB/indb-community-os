@@ -155,7 +155,7 @@ function FiltersBar({filters, onChange, labels, onClear, categoryOptions}: {
             <div>
               <label className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{labels.filterCategory}</label>
               <select value={filters.category ?? ""} onChange={(e) => onChange("category", e.target.value)} className="mt-1 w-full rounded-xl border border-border/60 bg-background px-3 py-2 text-sm">
-                <option value="">All Categories</option>
+                <option value="">{labels.allCategories}</option>
                 {categoryOptions.map((c) => (
                   <option key={c.name} value={c.name}>{c.name} ({c.count})</option>
                 ))}

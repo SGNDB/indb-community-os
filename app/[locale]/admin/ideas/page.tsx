@@ -19,17 +19,20 @@ export default async function AdminIdeasPage({
   let topSupported: Awaited<ReturnType<typeof getAdminTopIdeas>> = [];
   let mostDiscussed: Awaited<ReturnType<typeof getAdminTopIdeas>> = [];
 
-  try {
-    [kpiData, ideas, topVoted, topSupported, mostDiscussed] = await Promise.all([
-      getAdminIdeasKPISummary(),
-      getAdminIdeasWithStats(sp.search, {status: sp.status}),
-      getAdminTopIdeas("most_votes", 5),
-      getAdminTopIdeas("most_supporters", 5),
-      getAdminTopIdeas("most_comments", 5),
-    ]);
-  } catch (err) {
-    console.error("[AdminIdeasPage] data fetch failed", err);
-  }
+  const settled = await Promise.allSettled([
+    getAdminIdeasKPISummary(),
+    getAdminIdeasWithStats(sp.search, {status: sp.status}),
+    getAdminTopIdeas("most_votes", 5),
+    getAdminTopIdeas("most_supporters", 5),
+    getAdminTopIdeas("most_comments", 5),
+  ]);
+  if (settled[0].status === "fulfilled") kpiData = settled[0].value;
+  else console.error("[AdminIdeasPage] getAdminIdeasKPISummary failed", settled[0].reason);
+  if (settled[1].status === "fulfilled") ideas = settled[1].value;
+  else console.error("[AdminIdeasPage] getAdminIdeasWithStats failed", settled[1].reason);
+  if (settled[2].status === "fulfilled") topVoted = settled[2].value;
+  if (settled[3].status === "fulfilled") topSupported = settled[3].value;
+  if (settled[4].status === "fulfilled") mostDiscussed = settled[4].value;
 
   const safeKpi = kpiData ?? {
     totalIdeas: 0, newThisMonth: 0, activeIdeas: 0, completedIdeas: 0,
@@ -81,6 +84,7 @@ export default async function AdminIdeasPage({
     tableParticipants: t("ideasPage.tableParticipants"),
     tableMessages: t("ideasPage.tableMessages"),
     tableCreated: t("ideasPage.tableCreated"),
+    allCategories: t("ideasPage.allCategories"),
     searchPlaceholder: t("ideasPage.searchPlaceholder"),
     filterStatus: t("ideasPage.filterStatus"),
     filterCategory: t("ideasPage.filterCategory"),
