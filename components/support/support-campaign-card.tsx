@@ -38,10 +38,10 @@ export function SupportCampaignCard({
         accent={campaign.visual.accent}
         className="rounded-none"
       />
-      <div className="space-y-4 p-4">
-        <div className="flex items-start justify-between gap-3">
+      <div className="space-y-4 p-3.5 sm:p-4">
+        <div className="flex flex-col items-start gap-3 min-[420px]:flex-row min-[420px]:justify-between">
           <div>
-            <h2 className="text-xl font-black">{campaign.emoji} {campaign.title}</h2>
+            <h2 className="text-lg font-black sm:text-xl">{campaign.emoji} {campaign.title}</h2>
             <p className="mt-1 text-sm leading-6 text-muted-foreground">{campaign.description}</p>
           </div>
           <Badge className="shrink-0 gap-1 border-emerald-500/20 bg-emerald-500/10 text-emerald-700">
@@ -71,7 +71,7 @@ export function SupportCampaignCard({
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3 text-xs font-semibold text-muted-foreground">
+        <div className="grid gap-2 text-xs font-semibold text-muted-foreground min-[420px]:flex min-[420px]:items-center min-[420px]:justify-between">
           <span className="inline-flex items-center gap-1">
             <Users size={14} />
             {contributorsLabel.replace("{count}", formatter.format(campaign.contributors_count))}

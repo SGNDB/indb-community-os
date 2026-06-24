@@ -48,7 +48,7 @@ export default async function SupportCampaignPage({
   const {data: {user}} = await supabase.auth.getUser();
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 pb-3 sm:space-y-5">
       <Link href="/support" className="inline-flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary">
         <ArrowRight size={16} />
         {t("backToSupport")}
@@ -60,32 +60,32 @@ export default async function SupportCampaignPage({
         </div>
       ) : null}
 
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-5">
         <div className="space-y-5">
           <SupportCampaignVisual
             emoji={campaign.emoji}
             title={campaign.title}
             tone={campaign.visual.tone}
             accent={campaign.visual.accent}
-            className="min-h-72"
+            className="min-h-52 sm:min-h-72"
           />
 
-          <div className="rounded-2xl border border-border/70 bg-card p-5">
+          <div className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <Badge className="mb-3 gap-1 border-emerald-500/20 bg-emerald-500/10 text-emerald-700">
                   <CheckCircle2 size={14} />
                   {t("verified")}
                 </Badge>
-                <h1 className="text-3xl font-black tracking-tight">{campaign.emoji} {campaign.title}</h1>
-                <p className="mt-3 text-base leading-7 text-muted-foreground">{campaign.long_description}</p>
+                <h1 className="text-2xl font-black tracking-tight sm:text-3xl">{campaign.emoji} {campaign.title}</h1>
+                <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">{campaign.long_description}</p>
               </div>
               <Badge className={campaign.status === "completed" ? "bg-emerald-500/10 text-emerald-700" : ""}>
                 {t(`campaignStatus.${campaign.status}`)}
               </Badge>
             </div>
 
-            <div className="mt-6 grid gap-2 sm:grid-cols-4">
+            <div className="mt-6 grid grid-cols-2 gap-2 lg:grid-cols-4">
               {[
                 [t("goal"), `${formatter.format(campaign.goal_amount)} MRU`],
                 [t("raised"), `${formatter.format(campaign.raised_amount)} MRU`],
@@ -113,10 +113,10 @@ export default async function SupportCampaignPage({
             </div>
           </div>
 
-          <section className="rounded-2xl border border-border/70 bg-card p-5">
+          <section className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5">
             <p className="text-sm font-bold text-primary">{t("transparency.title")}</p>
-            <h2 className="text-2xl font-black">{t("transparency.heading")}</h2>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <h2 className="text-xl font-black sm:text-2xl">{t("transparency.heading")}</h2>
+            <div className="mt-4 grid gap-3 min-[420px]:grid-cols-3">
               <div className="rounded-2xl bg-muted/40 p-4">
                 <ShieldCheck size={20} className="text-primary" />
                 <p className="mt-3 text-xs text-muted-foreground">{t("transparency.organizer")}</p>
@@ -135,9 +135,9 @@ export default async function SupportCampaignPage({
             </div>
           </section>
 
-          <section className="rounded-2xl border border-border/70 bg-card p-5">
+          <section className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5">
             <p className="text-sm font-bold text-primary">{t("updates")}</p>
-            <h2 className="text-2xl font-black">{t("updatesTimeline")}</h2>
+            <h2 className="text-xl font-black sm:text-2xl">{t("updatesTimeline")}</h2>
             <div className="mt-5 space-y-0">
               {updates.length > 0 ? updates.map((update, index) => (
                 <div key={update.id} className="grid grid-cols-[auto_1fr] gap-3">
@@ -158,9 +158,9 @@ export default async function SupportCampaignPage({
             </div>
           </section>
 
-          <section className="rounded-2xl border border-border/70 bg-card p-5">
+          <section className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5">
             <p className="text-sm font-bold text-primary">{t("photos")}</p>
-            <h2 className="text-2xl font-black">{t("photosTitle")}</h2>
+            <h2 className="text-xl font-black sm:text-2xl">{t("photosTitle")}</h2>
             {photos.length > 0 ? (
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 {photos.map((photo) => (
@@ -180,9 +180,9 @@ export default async function SupportCampaignPage({
           </section>
 
           {campaign.status === "completed" || campaign.final_report ? (
-            <section className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-5">
+            <section className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 sm:p-5">
               <p className="text-sm font-bold text-emerald-700">{t("completion.title")}</p>
-              <h2 className="text-2xl font-black">{t("completion.heading")}</h2>
+              <h2 className="text-xl font-black sm:text-2xl">{t("completion.heading")}</h2>
               <p className="mt-3 text-sm leading-6 text-muted-foreground">{campaign.final_report ?? t("completion.defaultReport")}</p>
             </section>
           ) : null}

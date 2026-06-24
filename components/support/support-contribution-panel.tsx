@@ -31,8 +31,8 @@ const suggestedAmounts = [100, 500, 1000, 5000];
 
 export function SupportContributionPanel({campaignId, campaignSlug, locale, t, isLoggedIn}: SupportContributionPanelProps) {
   return (
-    <aside className="space-y-3 rounded-2xl border border-border/70 bg-card p-4 shadow-[0_10px_26px_rgba(12,31,44,0.06)]">
-      <h2 className="text-xl font-black">{t.title}</h2>
+    <aside className="space-y-3 rounded-2xl border border-border/70 bg-card p-3.5 shadow-[0_10px_26px_rgba(12,31,44,0.06)] sm:p-4">
+      <h2 className="text-lg font-black sm:text-xl">{t.title}</h2>
       {!isLoggedIn ? (
         <p className="rounded-xl bg-muted/60 p-3 text-sm text-muted-foreground">{t.loginHint}</p>
       ) : null}
@@ -47,7 +47,7 @@ export function SupportContributionPanel({campaignId, campaignSlug, locale, t, i
           {t.money}
         </div>
         <p className="mb-2 text-xs font-semibold text-muted-foreground">{t.suggested}</p>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2 min-[420px]:grid-cols-4 xl:grid-cols-2">
           {suggestedAmounts.map((amount) => (
             <label key={amount} className="cursor-pointer rounded-xl border border-border bg-card px-3 py-2 text-center text-sm font-bold has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:checked]:text-primary">
               <input type="radio" name="amount" value={amount} className="sr-only" defaultChecked={amount === 500} />

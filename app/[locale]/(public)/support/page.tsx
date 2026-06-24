@@ -41,8 +41,8 @@ export default async function SupportPage({
   ];
 
   return (
-    <div className="space-y-5">
-      <section className="relative overflow-hidden rounded-2xl border border-border/70 bg-card p-5 shadow-[0_10px_28px_rgba(12,31,44,0.06)] sm:p-6">
+    <div className="space-y-4 pb-3 sm:space-y-5">
+      <section className="relative overflow-hidden rounded-2xl border border-border/70 bg-card p-4 shadow-[0_10px_28px_rgba(12,31,44,0.06)] sm:p-6">
         <div className="absolute inset-y-0 start-0 w-1 bg-primary" />
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
@@ -50,8 +50,8 @@ export default async function SupportPage({
               <ShieldCheck size={14} />
               {t("verifiedHub")}
             </Badge>
-            <h1 className="text-3xl font-black tracking-tight sm:text-4xl">{t("title")}</h1>
-            <p className="mt-3 max-w-xl text-base leading-7 text-muted-foreground">{t("description")}</p>
+            <h1 className="text-2xl font-black tracking-tight sm:text-4xl">{t("title")}</h1>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">{t("description")}</p>
           </div>
           <div className="grid grid-cols-2 gap-2 rounded-2xl bg-muted/40 p-3 sm:min-w-80">
             {impactCards.slice(0, 2).map((card) => {
@@ -69,10 +69,10 @@ export default async function SupportPage({
       </section>
 
       <section className="space-y-3" aria-label={t("sections.activeCampaigns")}>
-        <div className="flex items-end justify-between gap-3">
+        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-bold text-primary">{t("sections.activeCampaigns")}</p>
-            <h2 className="text-2xl font-black">{t("campaignsTitle")}</h2>
+            <h2 className="text-xl font-black sm:text-2xl">{t("campaignsTitle")}</h2>
           </div>
           <Badge>{t("phaseOne")}</Badge>
         </div>
@@ -93,9 +93,9 @@ export default async function SupportPage({
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="rounded-2xl border border-border/70 bg-card p-5">
+        <div className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5">
           <p className="text-sm font-bold text-primary">{t("sections.latestUpdates")}</p>
-          <h2 className="text-2xl font-black">{t("updatesTitle")}</h2>
+          <h2 className="text-xl font-black sm:text-2xl">{t("updatesTitle")}</h2>
           <div className="mt-5 space-y-0">
             {latestUpdates.map((update, index) => {
               const campaign = campaigns.find((item) => item.id === update.campaign_id);
@@ -117,9 +117,9 @@ export default async function SupportPage({
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border/70 bg-card p-5">
+        <div className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5">
           <p className="text-sm font-bold text-primary">{t("sections.waysToContribute")}</p>
-          <h2 className="text-2xl font-black">{t("waysTitle")}</h2>
+          <h2 className="text-xl font-black sm:text-2xl">{t("waysTitle")}</h2>
           <div className="mt-5 space-y-3">
             {[
               ["💰", t("ways.money")],
@@ -138,10 +138,10 @@ export default async function SupportPage({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-border/70 bg-card p-5">
+      <section className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5">
         <p className="text-sm font-bold text-primary">{t("sections.impact")}</p>
-        <h2 className="text-2xl font-black">{t("impactTitle")}</h2>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <h2 className="text-xl font-black sm:text-2xl">{t("impactTitle")}</h2>
+        <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
           {impactCards.map((card) => {
             const Icon = card.icon;
             return (
