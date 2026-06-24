@@ -294,6 +294,10 @@
       "support": {
         "label": "🤝 Support",
         "short": "Support"
+      },
+      "volunteer": {
+        "label": "🙋 Volunteer",
+        "short": "Volunteer"
       }
     }
   },
@@ -839,12 +843,50 @@
     },
     "nav": {
       "dashboard": "Dashboard",
+      "ideas": "Ideas",
+      "graatek": "Graatek",
       "users": "Users",
+      "memories": "Memories",
+      "messages": "Messages",
+      "support": "Support",
+      "volunteer": "Volunteer",
+      "donations": "Donations",
+      "moderation": "Moderation",
+      "notifications": "Notifications",
+      "analytics": "Analytics",
       "content": "Content",
       "credits": "Credits",
-      "analytics": "Analytics",
-      "settings": "Settings",
-      "support": "Support"
+      "settings": "Settings"
+    },
+    "kpi": {
+      "totalUsers": "Total Users",
+      "activeIdeas": "Active Ideas",
+      "activeGraatek": "Active Graatek",
+      "totalMemories": "Memories",
+      "messagesToday": "Messages Today",
+      "activeCampaigns": "Active Campaigns",
+      "totalVolunteers": "Active Volunteers",
+      "notificationsSent": "Notifications Today"
+    },
+    "noData": "No data available.",
+    "loading": "Loading...",
+    "search": "Search",
+    "searchPlaceholder": "Search...",
+    "crud": {
+      "approve": "Approve",
+      "archive": "Archive",
+      "feature": "Feature",
+      "remove": "Remove",
+      "suspend": "Suspend",
+      "reactivate": "Reactivate",
+      "verify": "Verify",
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete",
+      "send": "Send",
+      "save": "Save",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
     },
     "sections": {
       "overview": "Overview",

@@ -294,6 +294,10 @@
       "support": {
         "label": "🤝 الدعم",
         "short": "الدعم"
+      },
+      "volunteer": {
+        "label": "🙋 التطوع",
+        "short": "التطوع"
       }
     }
   },
@@ -839,12 +843,20 @@
     },
     "nav": {
       "dashboard": "الرئيسية",
+      "ideas": "الأفكار",
+      "graatek": "گرعتك",
       "users": "المستخدمون",
+      "memories": "الذكريات",
+      "messages": "الرسائل",
+      "support": "الدعم",
+      "volunteer": "التطوع",
+      "donations": "التبرعات",
+      "moderation": "الرقابة",
+      "notifications": "الإشعارات",
+      "analytics": "التحليلات",
       "content": "المحتوى",
       "credits": "النقاط",
-      "analytics": "التحليلات",
-      "settings": "الإعدادات",
-      "support": "الدعم"
+      "settings": "الإعدادات"
     },
     "sections": {
       "overview": "نظرة عامة",

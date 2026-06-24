@@ -22,6 +22,8 @@ export interface AdminUser {
   role: CommunityRole;
   contribution_score: number;
   created_at: string;
+  language_preference?: string;
+  last_login?: string | null;
 }
 
 export interface AdminCredit extends CommunityCreditRow {
@@ -50,11 +52,19 @@ export interface AdminPulseItem {
 
 export interface AdminActivityItem {
   id: string;
-  type: "post" | "idea" | "memory" | "credit" | "member";
+  type: "post" | "idea" | "memory" | "credit" | "member" | "graatek" | "donation" | "volunteer";
   title: string;
   subtitle: string | null;
   created_at: string;
   actor: Pick<ProfileRow, "id" | "full_name" | "username" | "avatar_url"> | null;
+  href: string;
+}
+
+export interface AdminDashboardKPI {
+  label: string;
+  value: number;
+  icon: string;
+  change?: number;
   href: string;
 }
 
@@ -75,18 +85,56 @@ function singleProfile(
 export async function getCurrentAdminProfile(): Promise<ProfileRow | null> {
   const supabase = await createClient();
   const {data: {user}} = await supabase.auth.getUser();
-
   if (!user) return null;
-
   const {data: profile} = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user.id)
     .single();
-
   if (!profile || profile.role !== "admin") return null;
-
   return profile as ProfileRow;
+}
+
+export async function getAdminDashboardKPIs(): Promise<AdminDashboardKPI[]> {
+  const supabase = await createClient();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayIso = today.toISOString();
+
+  const [
+    {count: totalUsers},
+    {count: totalIdeas},
+    {count: ideasInProgress},
+    {count: totalGraatek},
+    {count: activeGraatek},
+    {count: totalMemories},
+    {count: messagesToday},
+    {count: activeCampaigns},
+    {count: totalVolunteers},
+    {count: notificationsSent},
+  ] = await Promise.all([
+    supabase.from("profiles").select("*", {count: "exact", head: true}),
+    supabase.from("ideas").select("*", {count: "exact", head: true}),
+    supabase.from("ideas").select("*", {count: "exact", head: true}).in("status", ["published", "interested", "discussion", "in_progress"]),
+    supabase.from("community_shares").select("*", {count: "exact", head: true}),
+    supabase.from("community_shares").select("*", {count: "exact", head: true}).eq("status", "active"),
+    supabase.from("memories").select("*", {count: "exact", head: true}),
+    supabase.from("conversation_messages").select("*", {count: "exact", head: true}).gte("created_at", todayIso),
+    supabase.from("support_campaigns").select("*", {count: "exact", head: true}).eq("status", "active"),
+    supabase.from("profiles").select("*", {count: "exact", head: true}),
+    supabase.from("notifications").select("*", {count: "exact", head: true}).gte("created_at", todayIso),
+  ]);
+
+  return [
+    {label: "totalUsers", value: totalUsers ?? 0, icon: "Users", href: "/admin/users"},
+    {label: "activeIdeas", value: ideasInProgress ?? 0, icon: "Lightbulb", href: "/admin/ideas"},
+    {label: "activeGraatek", value: activeGraatek ?? 0, icon: "Gift", href: "/admin/graatek"},
+    {label: "totalMemories", value: totalMemories ?? 0, icon: "Images", href: "/admin/memories"},
+    {label: "messagesToday", value: messagesToday ?? 0, icon: "MessageCircle", href: "/admin/messages"},
+    {label: "activeCampaigns", value: activeCampaigns ?? 0, icon: "HandHeart", href: "/admin/support"},
+    {label: "totalVolunteers", value: totalVolunteers ?? 0, icon: "UsersRound", href: "/admin/volunteer"},
+    {label: "notificationsSent", value: notificationsSent ?? 0, icon: "Bell", href: "/admin/notifications"},
+  ];
 }
 
 export async function getAdminOverview() {
@@ -161,7 +209,7 @@ export async function getAdminUsers(search?: string): Promise<AdminUser[]> {
 
   let query = supabase
     .from("profiles")
-    .select("id, full_name, username, avatar_url, role, contribution_score, created_at")
+    .select("id, full_name, username, avatar_url, role, contribution_score, created_at, language_preference")
     .order("created_at", {ascending: false})
     .limit(40);
 
@@ -177,7 +225,7 @@ export async function getAdminUsers(search?: string): Promise<AdminUser[]> {
 
   let fallbackQuery = supabase
     .from("profiles")
-    .select("id, full_name, username, avatar_url, role, created_at")
+    .select("id, full_name, username, avatar_url, role, created_at, language_preference")
     .order("created_at", {ascending: false})
     .limit(40);
 
@@ -190,6 +238,204 @@ export async function getAdminUsers(search?: string): Promise<AdminUser[]> {
     ...user,
     contribution_score: 0,
   })) as AdminUser[];
+}
+
+export async function getAdminUserById(userId: string) {
+  const supabase = await createClient();
+  const {data: profile} = await supabase
+    .from("profiles")
+    .select("*, posts:posts(count), ideas:ideas(count), memories:memories(count), comments:comments(count)")
+    .eq("id", userId)
+    .single();
+  return profile;
+}
+
+export async function getAdminIdeas(search?: string) {
+  const supabase = await createClient();
+  const safeSearch = sanitizeSearchTerm(search);
+
+  let query = supabase
+    .from("ideas")
+    .select("id, title, description, status, votes_count, created_at, author:profiles!ideas_author_id_fkey(id, full_name, username, avatar_url)")
+    .order("created_at", {ascending: false})
+    .limit(50);
+
+  if (safeSearch) {
+    query = query.ilike("title", `%${safeSearch}%`);
+  }
+
+  const {data} = await query;
+  return (data ?? []).map((idea) => ({
+    ...idea,
+    author: singleProfile(idea.author),
+  }));
+}
+
+export async function getAdminGraatek(search?: string) {
+  const supabase = await createClient();
+  const safeSearch = sanitizeSearchTerm(search);
+
+  let query = supabase
+    .from("community_shares")
+    .select("id, title, description, status, created_at, owner:profiles!community_shares_owner_id_fkey(id, full_name, username, avatar_url)")
+    .order("created_at", {ascending: false})
+    .limit(50);
+
+  if (safeSearch) {
+    query = query.ilike("title", `%${safeSearch}%`);
+  }
+
+  const {data} = await query;
+  return (data ?? []).map((item) => ({
+    ...item,
+    owner: singleProfile(item.owner),
+  }));
+}
+
+export async function getAdminMemories(search?: string) {
+  const supabase = await createClient();
+  const safeSearch = sanitizeSearchTerm(search);
+
+  let query = supabase
+    .from("memories")
+    .select("id, title, description, verification_status, reactions_count, comments_count, created_at, contributor:profiles!memories_contributor_id_fkey(id, full_name, username, avatar_url)")
+    .order("created_at", {ascending: false})
+    .limit(50);
+
+  if (safeSearch) {
+    query = query.ilike("title", `%${safeSearch}%`);
+  }
+
+  const {data} = await query;
+  return (data ?? []).map((memory) => ({
+    ...memory,
+    contributor: singleProfile(memory.contributor),
+  }));
+}
+
+export async function getAdminSupportCampaigns() {
+  const supabase = await createClient();
+  const {data: campaigns} = await supabase
+    .from("support_campaigns")
+    .select("*")
+    .order("created_at", {ascending: false})
+    .limit(20);
+  return campaigns ?? [];
+}
+
+export async function getAdminDonations() {
+  const supabase = await createClient();
+  const {data} = await supabase
+    .from("support_contributions")
+    .select("*, contributor:profiles(id, full_name, username, avatar_url)")
+    .order("created_at", {ascending: false})
+    .limit(30);
+  return (data ?? []).map((d) => ({
+    ...d,
+    contributor: singleProfile(d.contributor),
+  }));
+}
+
+export async function getAdminVolunteerOpportunities() {
+  const supabase = await createClient();
+  const {data} = await supabase
+    .from("support_campaigns")
+    .select("*")
+    .order("created_at", {ascending: false})
+    .limit(20);
+  return data ?? [];
+}
+
+export async function getAdminReportedContent() {
+  const supabase = await createClient();
+  const {data: reports} = await supabase
+    .from("reports")
+    .select("*, reporter:profiles!reports_reporter_id_fkey(id, full_name, username, avatar_url)")
+    .order("created_at", {ascending: false})
+    .limit(30);
+  return (reports ?? []).map((r) => ({
+    ...r,
+    reporter: singleProfile(r.reporter),
+  }));
+}
+
+export async function getAdminRecentActivity(): Promise<AdminActivityItem[]> {
+  const supabase = await createClient();
+  const recent: AdminActivityItem[] = [];
+
+  const {data: newProfiles} = await supabase
+    .from("profiles")
+    .select("id, full_name, username, avatar_url, created_at")
+    .order("created_at", {ascending: false})
+    .limit(5);
+
+  for (const p of newProfiles ?? []) {
+    recent.push({
+      id: `member-${p.id}`,
+      type: "member",
+      title: p.full_name ?? p.username ?? "New Member",
+      subtitle: "New registration",
+      created_at: p.created_at,
+      actor: p as Pick<ProfileRow, "id" | "full_name" | "username" | "avatar_url">,
+      href: `/admin/users?search=${p.id}`,
+    });
+  }
+
+  const {data: newIdeas} = await supabase
+    .from("ideas")
+    .select("id, title, created_at, author:profiles!ideas_author_id_fkey(id, full_name, username, avatar_url)")
+    .order("created_at", {ascending: false})
+    .limit(5);
+
+  for (const idea of newIdeas ?? []) {
+    recent.push({
+      id: `idea-${idea.id}`,
+      type: "idea",
+      title: idea.title,
+      subtitle: "New idea submitted",
+      created_at: idea.created_at,
+      actor: singleProfile(idea.author),
+      href: `/admin/ideas`,
+    });
+  }
+
+  const {data: newGraatek} = await supabase
+    .from("community_shares")
+    .select("id, title, created_at, owner:profiles!community_shares_owner_id_fkey(id, full_name, username, avatar_url)")
+    .order("created_at", {ascending: false})
+    .limit(5);
+
+  for (const g of newGraatek ?? []) {
+    recent.push({
+      id: `graatek-${g.id}`,
+      type: "graatek",
+      title: g.title,
+      subtitle: "New Graatek created",
+      created_at: g.created_at,
+      actor: singleProfile(g.owner),
+      href: `/admin/graatek`,
+    });
+  }
+
+  const {data: donations} = await supabase
+    .from("support_contributions")
+    .select("id, amount, created_at, contributor:profiles(id, full_name, username, avatar_url)")
+    .order("created_at", {ascending: false})
+    .limit(5);
+
+  for (const d of donations ?? []) {
+    recent.push({
+      id: `donation-${d.id}`,
+      type: "donation",
+      title: `${Number(d.amount).toLocaleString()} MRU`,
+      subtitle: "Donation received",
+      created_at: d.created_at,
+      actor: singleProfile(d.contributor),
+      href: `/admin/donations`,
+    });
+  }
+
+  return recent.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 20);
 }
 
 export async function getRecentAdminCredits(limit = 12): Promise<AdminCredit[]> {

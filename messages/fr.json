@@ -294,6 +294,10 @@
       "support": {
         "label": "🤝 Soutien",
         "short": "Soutien"
+      },
+      "volunteer": {
+        "label": "🙋 Bénévolat",
+        "short": "Bénévolat"
       }
     }
   },

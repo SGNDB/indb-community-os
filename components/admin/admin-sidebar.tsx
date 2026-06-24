@@ -15,6 +15,14 @@ import {
   Settings,
   Users,
   X,
+  Lightbulb,
+  Gift,
+  Images,
+  MessageCircle,
+  Bell,
+  Shield,
+  UsersRound,
+  Landmark,
   type LucideIcon,
 } from "lucide-react";
 
@@ -27,9 +35,13 @@ export interface AdminSidebarItem {
   href: string;
   iconKey: AdminSidebarIconKey;
   label: string;
+  badge?: number | null;
 }
 
-type AdminSidebarIconKey = "dashboard" | "users" | "content" | "credits" | "analytics" | "support" | "settings";
+type AdminSidebarIconKey =
+  | "dashboard" | "users" | "content" | "credits" | "analytics"
+  | "support" | "settings" | "ideas" | "graatek" | "memories"
+  | "messages" | "notifications" | "moderation" | "volunteer" | "donations";
 
 const iconMap: Record<AdminSidebarIconKey, LucideIcon> = {
   dashboard: LayoutDashboard,
@@ -39,6 +51,14 @@ const iconMap: Record<AdminSidebarIconKey, LucideIcon> = {
   analytics: BarChart3,
   support: HandHeart,
   settings: Settings,
+  ideas: Lightbulb,
+  graatek: Gift,
+  memories: Images,
+  messages: MessageCircle,
+  notifications: Bell,
+  moderation: Shield,
+  volunteer: UsersRound,
+  donations: Landmark,
 };
 
 interface AdminSidebarProps {
@@ -139,7 +159,7 @@ export function AdminSidebar({
         </form>
       ) : null}
 
-      <nav className="mt-3 space-y-1">
+      <nav className="mt-3 space-y-1 overflow-y-auto flex-1">
         {items.map((item) => {
           const Icon = iconMap[item.iconKey];
           const itemPath = item.href.replace(/^\/(ar|fr|en)/, "") || "/";
@@ -160,6 +180,11 @@ export function AdminSidebar({
               {isActive && !collapsed ? <span className="absolute inset-y-2 start-1 w-1 rounded-full bg-primary-foreground/80" /> : null}
               <Icon size={19} className="shrink-0" />
               {!collapsed ? <span className="truncate">{item.label}</span> : null}
+              {item.badge != null && item.badge > 0 && !collapsed ? (
+                <span className="ms-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
+                  {item.badge > 99 ? "99+" : item.badge}
+                </span>
+              ) : null}
             </a>
           );
         })}

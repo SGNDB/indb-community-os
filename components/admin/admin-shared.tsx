@@ -1,9 +1,12 @@
 import {
   Award,
   BookOpen,
+  Gift,
+  Landmark,
   Lightbulb,
   Newspaper,
   Users,
+  UsersRound,
   type LucideIcon,
 } from "lucide-react";
 import Image from "next/image";
@@ -38,6 +41,9 @@ export const activityIcons: Record<AdminActivityItem["type"], LucideIcon> = {
   memory: BookOpen,
   credit: Award,
   member: Users,
+  graatek: Gift,
+  donation: Landmark,
+  volunteer: UsersRound,
 };
 
 export function displayName(profile: {full_name: string | null; username: string | null} | null) {

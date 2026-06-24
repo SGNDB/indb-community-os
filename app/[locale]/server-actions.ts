@@ -4732,3 +4732,82 @@ export async function adminCreateSupportUpdateAction(formData: FormData) {
   revalidatePath('/admin/support');
   redirect(withLocale('/admin/support?status=update-published', locale));
 }
+
+export async function createNotificationAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get('locale'));
+  const title = formData.get('title');
+  const message = formData.get('message');
+
+  const { getCurrentAdminProfile } = await import('@/lib/data/admin');
+  const adminProfile = await getCurrentAdminProfile();
+  if (!adminProfile || typeof title !== 'string' || typeof message !== 'string') {
+    redirect(withLocale('/', locale));
+  }
+
+  await createNotification({
+    userId: adminProfile.id,
+    actorId: adminProfile.id,
+    type: 'admin_announcement',
+    entityType: 'announcement',
+    entityId: crypto.randomUUID(),
+    title: title.trim().slice(0, 100),
+    message: message.trim().slice(0, 500),
+  });
+
+  revalidatePath('/admin/notifications');
+  redirect(withLocale('/admin/notifications?status=sent', locale));
+}
+
+export async function adminUpdateIdeaStatusAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get('locale'));
+  const ideaId = formData.get('ideaId');
+  const newStatus = formData.get('status');
+
+  const validStatuses = ['published', 'interested', 'discussion', 'in_progress', 'completed', 'archived'];
+  if (typeof ideaId !== 'string' || typeof newStatus !== 'string' || !validStatuses.includes(newStatus)) {
+    redirect(withLocale('/admin/ideas', locale));
+  }
+
+  const { getCurrentAdminProfile } = await import('@/lib/data/admin');
+  const adminProfile = await getCurrentAdminProfile();
+  if (!adminProfile) {
+    redirect(withLocale('/', locale));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from('ideas').update({ status: newStatus }).eq('id', ideaId);
+
+  if (error) {
+    console.error('adminUpdateIdeaStatusAction error:', error);
+  }
+
+  revalidatePath('/admin/ideas');
+  redirect(withLocale('/admin/ideas', locale));
+}
+
+export async function adminSetDonationStatusAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get('locale'));
+  const contributionId = formData.get('contributionId');
+  const nextStatus = formData.get('nextStatus');
+
+  const { getCurrentAdminProfile } = await import('@/lib/data/admin');
+  const adminProfile = await getCurrentAdminProfile();
+  if (
+    !adminProfile ||
+    typeof contributionId !== 'string' ||
+    !['verified', 'rejected', 'refunded'].includes(String(nextStatus))
+  ) {
+    redirect(withLocale('/', locale));
+  }
+
+  const { adminSetSupportContributionStatus } = await import('@/lib/data/support');
+  await adminSetSupportContributionStatus({
+    contributionId,
+    adminId: adminProfile.id,
+    status: nextStatus as 'verified' | 'rejected' | 'refunded',
+    rejectedReason: null,
+  });
+
+  revalidatePath('/admin/donations');
+  redirect(withLocale(`/admin/donations?status=donation-${nextStatus}`, locale));
+}
