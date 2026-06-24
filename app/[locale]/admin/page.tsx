@@ -13,6 +13,8 @@ import {
   getAdminRealtimeActivity,
   getAdminIdeaGrowth,
   getAdminGraatekGrowth,
+  getAdminHealthIndicators,
+  getCurrentAdminProfile,
 } from "@/lib/data/admin";
 import ChartsWrapper from "./charts-wrapper";
 
@@ -34,6 +36,8 @@ export default async function AdminDashboardPage({params}: {params: Promise<{loc
     paymentMethods,
     hourlyActivity,
     realtimeActivity,
+    health,
+    adminProfile,
   ] = await Promise.all([
     getAdminDashboardKPIs(),
     getAdminUserGrowth(),
@@ -48,6 +52,8 @@ export default async function AdminDashboardPage({params}: {params: Promise<{loc
     getAdminPaymentMethods(),
     getAdminHourlyActivity(),
     getAdminRealtimeActivity(),
+    getAdminHealthIndicators(),
+    getCurrentAdminProfile(),
   ]);
 
   const tLabels = {
@@ -70,9 +76,6 @@ export default async function AdminDashboardPage({params}: {params: Promise<{loc
     byCampaign: t("charts.byCampaign"),
     donationMethods: t("charts.donationMethods"),
     hourlyActivity: t("charts.hourlyActivity"),
-    weeklyTrend: t("charts.weeklyTrend"),
-    monthlyTrend: t("charts.monthlyTrend"),
-    completionRate: t("charts.completionRate"),
     dailyMessages: t("charts.dailyMessages"),
     realtimeActivity: t("charts.realtimeActivity"),
     growthRate: t("charts.growthRate"),
@@ -82,6 +85,16 @@ export default async function AdminDashboardPage({params}: {params: Promise<{loc
     eyebrow: t("eyebrow"),
     commandCenter: t("commandCenter"),
     heroDescription: t("hero.description"),
+    healthEyebrow: t("health.eyebrow"),
+    healthTitle: t("health.title"),
+    members: t("health.members"),
+    posts: t("health.posts"),
+    ideas: t("health.ideas"),
+    memories: t("health.memories"),
+    activeToday: t("health.activeToday"),
+    newToday: t("health.newToday"),
+    totalComments: t("health.totalComments"),
+    adminName: adminProfile?.full_name ?? adminProfile?.username ?? "Admin",
   };
 
   return (
@@ -100,6 +113,7 @@ export default async function AdminDashboardPage({params}: {params: Promise<{loc
         paymentMethods={paymentMethods}
         hourlyActivity={hourlyActivity}
         realtimeActivity={realtimeActivity}
+        health={health}
         labels={tLabels}
         locale={locale}
       />

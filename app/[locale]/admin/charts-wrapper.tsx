@@ -14,6 +14,7 @@ import type {
   AdminPaymentMethod,
   AdminHourlyPoint,
   AdminRealtimeActivity,
+  AdminHealthIndicators,
 } from "@/lib/data/admin";
 
 interface Labels {
@@ -27,9 +28,6 @@ interface Labels {
   byCampaign: string;
   donationMethods: string;
   hourlyActivity: string;
-  weeklyTrend: string;
-  monthlyTrend: string;
-  completionRate: string;
   dailyMessages: string;
   realtimeActivity: string;
   growthRate: string;
@@ -39,6 +37,16 @@ interface Labels {
   eyebrow: string;
   commandCenter: string;
   heroDescription: string;
+  healthEyebrow: string;
+  healthTitle: string;
+  members: string;
+  posts: string;
+  ideas: string;
+  memories: string;
+  activeToday: string;
+  newToday: string;
+  totalComments: string;
+  adminName: string;
 }
 
 const Charts = dynamic(() => import("./admin-dashboard-charts"), {ssr: false});
@@ -61,7 +69,7 @@ function LoadingSkeleton() {
       <div className="flex items-end justify-between gap-4">
         <div className="space-y-2">
           <div className="h-3 w-24 animate-pulse rounded bg-muted-foreground/10" />
-          <div className="h-8 w-56 animate-pulse rounded bg-muted-foreground/10" />
+          <div className="h-10 w-64 animate-pulse rounded bg-muted-foreground/10" />
           <div className="h-4 w-96 animate-pulse rounded bg-muted-foreground/5" />
         </div>
       </div>
@@ -70,6 +78,7 @@ function LoadingSkeleton() {
           <SkeletonCard key={i} />
         ))}
       </div>
+      <SkeletonCard />
       <div className="grid gap-6 lg:grid-cols-2">
         <SkeletonCard />
         <SkeletonCard />
@@ -97,6 +106,7 @@ export default function ChartsWrapper(props: {
   paymentMethods: AdminPaymentMethod[];
   hourlyActivity: AdminHourlyPoint[];
   realtimeActivity: AdminRealtimeActivity[];
+  health: AdminHealthIndicators;
   labels: Labels;
   locale: string;
 }) {

@@ -1030,3 +1030,62 @@ export async function getAdminGraatekGrowth(): Promise<AdminUserGrowthPoint[]> {
 
   return points;
 }
+
+export interface AdminHealthIndicators {
+  dau: number;
+  mau: number;
+  newMembersToday: number;
+  postsToday: number;
+  ideasToday: number;
+  memoriesToday: number;
+  totalComments: number;
+  engagementRate: number;
+  growthRate: number;
+}
+
+export async function getAdminHealthIndicators(): Promise<AdminHealthIndicators> {
+  const supabase = await createClient();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayIso = today.toISOString();
+  const monthAgo = new Date(today.getTime() - 30 * 86400000).toISOString();
+
+  const [
+    {count: dau},
+    {count: mau},
+    {count: newMembersToday},
+    {count: postsToday},
+    {count: ideasToday},
+    {count: memoriesToday},
+    {count: postComments},
+    {count: ideaComments},
+    {count: memoryComments},
+    {count: totalUsers},
+  ] = await Promise.all([
+    supabase.from("profiles").select("*", {count: "exact", head: true}).gte("last_login", todayIso),
+    supabase.from("profiles").select("*", {count: "exact", head: true}).gte("last_login", monthAgo),
+    supabase.from("profiles").select("*", {count: "exact", head: true}).gte("created_at", todayIso),
+    supabase.from("posts").select("*", {count: "exact", head: true}).gte("created_at", todayIso),
+    supabase.from("ideas").select("*", {count: "exact", head: true}).gte("created_at", todayIso),
+    supabase.from("memories").select("*", {count: "exact", head: true}).gte("created_at", todayIso),
+    supabase.from("comments").select("*", {count: "exact", head: true}).gte("created_at", todayIso),
+    supabase.from("idea_comments").select("*", {count: "exact", head: true}).gte("created_at", todayIso),
+    supabase.from("memory_comments").select("*", {count: "exact", head: true}).gte("created_at", todayIso),
+    supabase.from("profiles").select("*", {count: "exact", head: true}),
+  ]);
+
+  const totalComments = (postComments ?? 0) + (ideaComments ?? 0) + (memoryComments ?? 0);
+  const total = totalUsers ?? 1;
+
+  return {
+    dau: dau ?? 0,
+    mau: mau ?? 0,
+    newMembersToday: newMembersToday ?? 0,
+    postsToday: postsToday ?? 0,
+    ideasToday: ideasToday ?? 0,
+    memoriesToday: memoriesToday ?? 0,
+    totalComments,
+    engagementRate: Math.round(((dau ?? 0) / total) * 100),
+    growthRate: 0,
+  };
+}
