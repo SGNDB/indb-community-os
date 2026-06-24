@@ -84,6 +84,24 @@ function computeTrendFromGrowth(data: AdminUserGrowthPoint[]): {value: string; p
   return {value: `${change >= 0 ? "+" : ""}${change.toFixed(1)}%`, positive: change >= 0};
 }
 
+function ExportDropdown({labels}: {labels: Record<string, string>}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <button onClick={() => setOpen(!open)} className="inline-flex items-center gap-2 rounded-2xl border border-border/60 bg-card px-4 py-2.5 text-sm font-semibold transition hover:bg-muted/50">
+        <Download size={15} /> {labels.exportCSV ?? "Export"}
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full z-20 mt-2 w-44 rounded-2xl border border-border/60 bg-card p-2 shadow-xl">
+          <button onClick={() => setOpen(false)} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition hover:bg-muted/50">📄 {labels.exportCSV}</button>
+          <button onClick={() => setOpen(false)} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition hover:bg-muted/50">📊 {labels.exportExcel}</button>
+          <button onClick={() => setOpen(false)} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition hover:bg-muted/50">📋 {labels.exportPDF}</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BadgeChip({label, icon}: {label: string; icon: React.ReactNode}) {
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
@@ -352,9 +370,9 @@ export function AdminUsersClient({
             <button className="inline-flex items-center gap-2 rounded-2xl border border-border/60 bg-card px-4 py-2.5 text-sm font-semibold transition hover:bg-muted/50">
               <UserPlus size={15} /> {labels.addUser}
             </button>
-            <button className="inline-flex items-center gap-2 rounded-2xl border border-border/60 bg-card px-4 py-2.5 text-sm font-semibold transition hover:bg-muted/50">
-              <Download size={15} /> {labels.export}
-            </button>
+            <div className="relative">
+              <ExportDropdown labels={labels} />
+            </div>
           </div>
         </div>
       </div>
