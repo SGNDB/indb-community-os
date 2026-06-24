@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import {useEffect, useState} from "react";
+import {useEffect, useState, useRef} from "react";
 import {
   Award,
   BarChart3,
@@ -23,13 +22,13 @@ import {
   Shield,
   UsersRound,
   Landmark,
+  LogOut,
   type LucideIcon,
 } from "lucide-react";
+import Image from "next/image";
 
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Link, usePathname} from "@/lib/i18n/routing";
 import {cn} from "@/lib/utils/cn";
+import {Link, usePathname} from "@/lib/i18n/routing";
 
 export interface AdminSidebarItem {
   href: string;
@@ -71,13 +70,11 @@ interface AdminSidebarProps {
   items: AdminSidebarItem[];
   locale: string;
   nouadhibouSignal: string;
-  searchButton: string;
   searchPlaceholder: string;
 }
 
 export function AdminSidebar({
   backToSiteLabel,
-  closeLabel,
   collapsedLabel,
   commandCenter,
   currentSearch,
@@ -85,12 +82,13 @@ export function AdminSidebar({
   items,
   locale,
   nouadhibouSignal,
-  searchButton,
   searchPlaceholder,
 }: AdminSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
   const pathname = usePathname();
+  const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const saved = window.localStorage.getItem("indb-admin-sidebar-collapsed");
@@ -98,8 +96,8 @@ export function AdminSidebar({
   }, []);
 
   function toggleCollapsed() {
-    setCollapsed((value) => {
-      const next = !value;
+    setCollapsed((v) => {
+      const next = !v;
       window.localStorage.setItem("indb-admin-sidebar-collapsed", next ? "1" : "0");
       return next;
     });
@@ -108,98 +106,114 @@ export function AdminSidebar({
   const sidebar = (
     <aside
       className={cn(
-        "flex h-full flex-col rounded-2xl border border-border/80 bg-card p-3 shadow-[0_8px_24px_rgba(12,31,44,0.07)] transition-all",
-        collapsed ? "lg:w-20" : "lg:w-72",
+        "flex h-full flex-col rounded-2xl border border-border/50 bg-card transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+        collapsed ? "w-20" : "w-72",
       )}
     >
-      <div className="flex items-center gap-3 rounded-2xl bg-muted/50 p-2">
-        <Image src="/images/logondb.jpeg" alt="INDB" width={40} height={40} className="h-10 w-10 rounded-xl object-cover" />
-        {!collapsed ? (
+      {/* Logo + Header */}
+      <div className="flex items-center gap-3 border-b border-border/40 p-4">
+        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-[0_4px_12px_rgba(237,33,36,0.25)]">
+          <Image src="/images/logondb.jpeg" alt="INDB" width={40} height={40} className="h-full w-full object-cover" />
+        </div>
+        {!collapsed && (
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-black">{commandCenter}</p>
+            <p className="truncate text-sm font-black text-foreground">{commandCenter}</p>
             <p className="truncate text-xs text-muted-foreground">{nouadhibouSignal}</p>
           </div>
-        ) : null}
-        <Button
+        )}
+        <button
           type="button"
-          variant="ghost"
-          size="icon"
-          className="hidden shrink-0 rounded-xl lg:inline-flex"
           onClick={toggleCollapsed}
+          className="hidden shrink-0 items-center justify-center rounded-xl p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground lg:inline-flex"
           title={collapsed ? expandLabel : collapsedLabel}
         >
-          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-        </Button>
-        <Button
+          {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+        </button>
+        <button
           type="button"
-          variant="ghost"
-          size="icon"
-          className="shrink-0 rounded-xl lg:hidden"
           onClick={() => setMobileOpen(false)}
-          title={closeLabel}
+          className="inline-flex shrink-0 items-center justify-center rounded-xl p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground lg:hidden"
         >
-          <X size={18} />
-        </Button>
+          <X size={16} />
+        </button>
       </div>
 
-      {!collapsed ? (
-        <form action={`/${locale}/admin/users`} method="get" className="mt-3 flex gap-2">
-          <div className="relative min-w-0 flex-1">
-            <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              name="userSearch"
-              defaultValue={currentSearch}
-              placeholder={searchPlaceholder}
-              className="h-11 rounded-2xl ps-9"
-            />
-          </div>
-          <Button type="submit" size="sm" className="h-11 rounded-2xl">
-            {searchButton}
-          </Button>
-        </form>
-      ) : null}
+      {/* Search */}
+      {!collapsed && (
+        <div className="px-3 pt-3">
+          <form action={`/${locale}/admin/users`} method="get">
+            <div
+              className={cn(
+                "flex items-center gap-2 rounded-xl border bg-muted/30 px-3 transition",
+                searchFocused ? "border-primary/50 bg-background" : "border-border/40",
+              )}
+            >
+              <Search size={16} className="shrink-0 text-muted-foreground" />
+              <input
+                ref={searchRef}
+                name="userSearch"
+                defaultValue={currentSearch}
+                placeholder={searchPlaceholder}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
+                className="h-10 w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/60"
+              />
+            </div>
+          </form>
+        </div>
+      )}
 
-      <nav className="mt-3 space-y-1 overflow-y-auto flex-1">
+      {/* Navigation */}
+      <nav className="admin-sidebar-scroll mt-2 flex-1 space-y-0.5 overflow-y-auto px-3 py-2">
         {items.map((item) => {
           const Icon = iconMap[item.iconKey];
           const itemPath = item.href.replace(/^\/(ar|fr|en)/, "") || "/";
-          const isActive = pathname === itemPath || (itemPath !== "/admin" && pathname.startsWith(`${itemPath}/`));
+          const isActive =
+            pathname === itemPath ||
+            (itemPath !== "/admin" && pathname.startsWith(`${itemPath}/`));
           return (
             <a
               key={item.href}
               href={item.href}
               onClick={() => setMobileOpen(false)}
               className={cn(
-                "group relative flex min-h-11 items-center gap-3 rounded-2xl px-3 text-sm font-bold text-muted-foreground transition hover:bg-primary/10 hover:text-primary",
-                isActive && "bg-primary text-primary-foreground shadow-[0_10px_24px_rgba(237,33,36,0.22)] hover:bg-primary hover:text-primary-foreground",
+                "admin-sidebar-item flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm font-medium text-muted-foreground transition-all duration-200",
+                isActive
+                  ? "bg-primary text-primary-foreground font-semibold shadow-[0_2px_8px_rgba(237,33,36,0.2)]"
+                  : "hover:bg-muted/60 hover:text-foreground",
                 collapsed && "justify-center px-0",
               )}
               aria-current={isActive ? "page" : undefined}
               title={collapsed ? item.label : undefined}
             >
-              {isActive && !collapsed ? <span className="absolute inset-y-2 start-1 w-1 rounded-full bg-primary-foreground/80" /> : null}
-              <Icon size={19} className="shrink-0" />
-              {!collapsed ? <span className="truncate">{item.label}</span> : null}
-              {item.badge != null && item.badge > 0 && !collapsed ? (
-                <span className="ms-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
+              <Icon size={18} className="shrink-0" />
+              {!collapsed && <span className="truncate">{item.label}</span>}
+              {item.badge != null && item.badge > 0 && !collapsed && (
+                <span className="ms-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/15 px-1.5 text-[11px] font-bold text-primary">
                   {item.badge > 99 ? "99+" : item.badge}
                 </span>
-              ) : null}
+              )}
+              {item.badge != null && item.badge > 0 && collapsed && (
+                <span className="absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                  {item.badge > 99 ? "99+" : item.badge}
+                </span>
+              )}
             </a>
           );
         })}
       </nav>
 
-      <div className="mt-auto pt-3">
+      {/* Bottom */}
+      <div className="border-t border-border/40 p-3">
         <Link
           href="/"
           className={cn(
-            "flex min-h-11 items-center justify-center rounded-2xl border border-border px-3 text-sm font-bold hover:bg-muted",
-            collapsed && "px-0",
+            "flex min-h-10 items-center justify-center gap-2 rounded-xl text-sm font-medium text-muted-foreground transition hover:bg-muted/60 hover:text-foreground",
+            collapsed ? "px-0" : "px-3",
           )}
-          title={collapsed ? backToSiteLabel : undefined}
         >
-          {!collapsed ? backToSiteLabel : "INDB"}
+          <LogOut size={16} className="shrink-0" />
+          {!collapsed && <span>{backToSiteLabel}</span>}
         </Link>
       </div>
     </aside>
@@ -207,28 +221,40 @@ export function AdminSidebar({
 
   return (
     <>
-      <div className="sticky top-3 z-20 mb-3 flex items-center justify-between rounded-2xl border border-border/80 bg-card p-2 shadow-[0_8px_24px_rgba(12,31,44,0.07)] lg:hidden">
-        <div className="flex items-center gap-2">
-          <Image src="/images/logondb.jpeg" alt="INDB" width={36} height={36} className="h-9 w-9 rounded-xl object-cover" />
+      {/* Desktop sidebar */}
+      <div className="sticky top-4 hidden h-[calc(100vh-2rem)] shrink-0 lg:block">{sidebar}</div>
+
+      {/* Mobile toggle */}
+      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-border/40 bg-background/80 px-4 py-3 backdrop-blur-lg lg:hidden">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-[0_2px_8px_rgba(237,33,36,0.2)]">
+            <Image src="/images/logondb.jpeg" alt="INDB" width={36} height={36} className="h-full w-full object-cover" />
+          </div>
           <div>
-            <p className="text-sm font-black">{commandCenter}</p>
+            <p className="text-sm font-black text-foreground">{commandCenter}</p>
             <p className="text-xs text-muted-foreground">{nouadhibouSignal}</p>
           </div>
         </div>
-        <Button type="button" variant="outline" size="icon" className="rounded-xl" onClick={() => setMobileOpen(true)}>
-          <Menu size={19} />
-        </Button>
+        <button
+          type="button"
+          onClick={() => setMobileOpen(true)}
+          className="inline-flex items-center justify-center rounded-xl border border-border/40 p-2 text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
+        >
+          <Menu size={18} />
+        </button>
       </div>
 
-      <div className="hidden lg:sticky lg:top-4 lg:block lg:h-[calc(100vh-2rem)]">{sidebar}</div>
-
-      {mobileOpen ? (
-        <div className="fixed inset-0 z-50 bg-black/35 p-3 backdrop-blur-sm lg:hidden" onClick={() => setMobileOpen(false)}>
-          <div className="h-full max-w-80" onClick={(event) => event.stopPropagation()}>
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        >
+          <div className="h-full max-w-72 p-2" onClick={(e) => e.stopPropagation()}>
             {sidebar}
           </div>
         </div>
-      ) : null}
+      )}
     </>
   );
 }

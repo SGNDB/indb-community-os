@@ -2,14 +2,29 @@
 
 import {useEffect, useState, useRef} from "react";
 import {createClient} from "@/lib/supabase/client";
-import {REALTIME_LISTEN_TYPES} from "@supabase/supabase-js";
+import {Users, Lightbulb, Gift, Landmark} from "lucide-react";
 
 interface ActivityEvent {
   id: string;
   type: string;
+  label: string;
   title: string;
   time: string;
 }
+
+const eventIcons: Record<string, typeof Users> = {
+  "New User": Users,
+  "New Idea": Lightbulb,
+  "New Graatek": Gift,
+  Donation: Landmark,
+};
+
+const eventColors: Record<string, string> = {
+  "New User": "text-primary bg-primary/10",
+  "New Idea": "text-amber-600 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/20",
+  "New Graatek": "text-emerald-600 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-900/20",
+  Donation: "text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-900/20",
+};
 
 export function AdminDashboardClient() {
   const [events, setEvents] = useState<ActivityEvent[]>([]);
@@ -34,7 +49,13 @@ export function AdminDashboardClient() {
             (newRow.username as string) ||
             `New ${label}`;
           setEvents((prev) => [
-            {id: `${table}-${newRow.id}-${Date.now()}`, type: label, title, time: new Date().toLocaleTimeString()},
+            {
+              id: `${table}-${newRow.id}-${Date.now()}`,
+              type: label,
+              label,
+              title: String(title).slice(0, 80),
+              time: new Date().toLocaleTimeString(),
+            },
             ...prev.slice(0, 19),
           ]);
         },
@@ -56,23 +77,49 @@ export function AdminDashboardClient() {
   if (events.length === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-border/70 bg-card p-5 shadow-[0_4px_16px_rgba(7,31,54,0.06)]">
-      <div className="flex items-center gap-2">
+    <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.02)]">
+      <div className="flex items-center gap-3">
         <span className="relative flex h-2.5 w-2.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
         </span>
-        <h2 className="text-sm font-semibold text-muted-foreground">Live Activity</h2>
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Live Activity
+        </p>
+        <span className="text-xs text-muted-foreground/60">
+          {events.length} event{events.length !== 1 ? "s" : ""}
+        </span>
       </div>
-      <div className="mt-3 space-y-1">
-        {events.map((event) => (
-          <div key={event.id} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition hover:bg-muted/50">
-            <span className="text-xs text-muted-foreground/60 tabular-nums">{event.time}</span>
-            <span className="font-medium text-foreground">{event.title}</span>
-            <span className="text-xs text-muted-foreground">{event.type}</span>
-          </div>
-        ))}
+
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        {events.slice(0, 8).map((event) => {
+          const Icon = eventIcons[event.type] ?? Users;
+          const colorClass = eventColors[event.type] ?? "text-muted-foreground bg-muted";
+          return (
+            <div
+              key={event.id}
+              className="admin-activity-enter flex items-center gap-3 rounded-xl border border-border/30 bg-muted/20 p-3 transition hover:bg-muted/40"
+            >
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${colorClass}`}>
+                <Icon size={16} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-foreground">{event.title}</p>
+                <p className="text-xs text-muted-foreground">{event.label}</p>
+              </div>
+              <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground/50">
+                {event.time}
+              </span>
+            </div>
+          );
+        })}
       </div>
+
+      {events.length > 8 && (
+        <p className="mt-3 text-center text-xs text-muted-foreground/60">
+          +{events.length - 8} more events
+        </p>
+      )}
     </div>
   );
 }

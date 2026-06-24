@@ -41,15 +41,16 @@ export default async function AdminLayout({
   ];
 
   return (
-    <div id="dashboard" className="text-foreground">
+    <div id="dashboard" className="min-h-screen text-foreground">
       <style>{`
         body:has(#dashboard) div[dir] > header { display: none; }
-        body:has(#dashboard) div[dir] > div.mx-auto.grid { display: block; max-width: 72rem; }
+        body:has(#dashboard) div[dir] > div.mx-auto.grid { display: block; max-width: 100%; }
         body:has(#dashboard) div[dir] > div.mx-auto.grid > aside { display: none; }
         body:has(#dashboard) div[dir] > div.mx-auto.grid > main { width: 100%; }
         body:has(#dashboard) div[dir] > nav.fixed { display: none; }
+        body:has(#dashboard) { background: var(--background); }
       `}</style>
-      <div className="grid gap-4 lg:grid-cols-[auto_minmax(0,1fr)]">
+      <div className="flex">
         <AdminSidebar
           backToSiteLabel={t("sidebar.backToSite")}
           closeLabel={t("sidebar.close")}
@@ -60,10 +61,9 @@ export default async function AdminLayout({
           items={navItems}
           locale={locale}
           nouadhibouSignal={t("nouadhibouSignal")}
-          searchButton={t("users.searchButton")}
           searchPlaceholder={t("users.search")}
         />
-        <main className="min-w-0 space-y-4">{children}</main>
+        <main className="min-w-0 flex-1">{children}</main>
       </div>
     </div>
   );

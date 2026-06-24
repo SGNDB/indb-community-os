@@ -212,3 +212,115 @@ a {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── Admin Dashboard ── */
+
+.admin-kpi-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.admin-kpi-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 100% 0%, var(--color-primary) / 0.06, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.admin-kpi-card .kpi-chart {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 48px;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.dark .admin-kpi-card .kpi-chart {
+  opacity: 0.2;
+}
+
+.admin-glass {
+  background: var(--card) / 0.7;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@keyframes admin-pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.admin-live-dot {
+  animation: admin-pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes admin-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-activity-enter {
+  animation: admin-slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes admin-sparkle {
+  0%, 100% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.admin-sidebar-item {
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-sidebar-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.admin-sidebar-item:hover::after {
+  opacity: 1;
+  background: var(--color-primary) / 0.06;
+}
+
+.admin-sidebar-item[aria-current="page"]::after {
+  opacity: 1;
+  background: var(--color-primary);
+}
+
+/* Recharts overrides for admin */
+.recharts-responsive-container {
+  min-height: 0 !important;
+}
+
+.recharts-surface {
+  overflow: visible;
+}
+
+/* Custom scrollbar for admin sidebar */
+.admin-sidebar-scroll::-webkit-scrollbar {
+  width: 3px;
+}
+
+.admin-sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 99px;
+}
