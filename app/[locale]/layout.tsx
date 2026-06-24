@@ -103,9 +103,7 @@ export default async function LocaleLayout({
           )}
         >
           {isAdminRoute ? (
-            <main className="mx-auto min-w-0 max-w-6xl px-3 py-4 sm:px-4 sm:py-5">
-              <PageTransition>{children}</PageTransition>
-            </main>
+            <PageTransition>{children}</PageTransition>
           ) : isOnboardingRoute ? (
             <main className="min-h-screen">
               <PageTransition>{children}</PageTransition>
