@@ -355,6 +355,22 @@ export async function getSupportImpact() {
   };
 }
 
+export async function getSupportNavCounts() {
+  const fallbackActive = fallbackSupportCampaigns.filter((campaign) => campaign.status === "active").length;
+  const supabase = await createClient();
+  const {count, error} = await supabase
+    .from("support_campaigns")
+    .select("*", {count: "exact", head: true})
+    .eq("status", "active");
+
+  const activeCampaigns = error ? fallbackActive : count ?? fallbackActive;
+
+  return {
+    activeCampaigns,
+    openVolunteerOpportunities: activeCampaigns,
+  };
+}
+
 export async function recordSupportContribution(input: {
   campaignId: string;
   userId: string | null;

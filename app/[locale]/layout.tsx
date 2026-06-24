@@ -18,6 +18,7 @@ import {ToastHandler} from "@/components/shared/toast-handler";
 import {ThemeProvider} from "@/components/layout/theme-provider";
 import {routing} from "@/lib/i18n/routing";
 import {stripLocale} from "@/lib/i18n/paths";
+import {getSupportNavCounts} from "@/lib/data/support";
 import {cn} from "@/lib/utils/cn";
 
 function getLanguageAlternates(pathname = "") {
@@ -80,6 +81,10 @@ export default async function LocaleLayout({
   const normalizedPath = pathWithoutLocale.replace(/\/+$/, "");
   const isAuthRoute = normalizedPath === "/login" || normalizedPath === "/register" || normalizedPath === "/forgot-password";
   const isMessagesRoute = normalizedPath === "/messages" || normalizedPath.startsWith("/messages/");
+  const showAppChrome = !isAdminRoute && !isOnboardingRoute && !isAuthRoute;
+  const supportNavCounts = showAppChrome
+    ? await getSupportNavCounts()
+    : {activeCampaigns: 0, openVolunteerOpportunities: 0};
 
   return (
     <ThemeProvider>
@@ -128,7 +133,10 @@ export default async function LocaleLayout({
                   <RightSidebar />
                 </aside>
               </div>
-              <MobileNav />
+              <MobileNav
+                activeCampaignsCount={supportNavCounts.activeCampaigns}
+                openVolunteerOpportunitiesCount={supportNavCounts.openVolunteerOpportunities}
+              />
             </>
           )}
         </div>

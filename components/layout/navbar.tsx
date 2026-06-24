@@ -1,8 +1,6 @@
 import {AuthNav} from "@/components/layout/auth-nav";
 import {LanguageSwitcher} from "@/components/layout/language-switcher";
 import {Logo} from "@/components/layout/Logo";
-import {MessagesIcon} from "@/components/layout/messages-icon";
-import {MobileMenuSheet} from "@/components/layout/mobile-menu-sheet";
 import {NotificationDropdown} from "@/components/layout/notification-dropdown";
 import {SearchBar} from "@/components/layout/search-bar";
 import {ThemeToggle} from "@/components/layout/theme-toggle";
@@ -30,16 +28,11 @@ export async function Navbar({locale}: {locale: string}) {
         <div className="flex h-12 items-center justify-between gap-1 md:hidden">
           {isLoggedIn ? (
             <>
-              <div className="flex items-center">
-                <MobileMenuSheet />
-              </div>
-
               <Link href="/" className="flex items-center">
                 <Logo size="sm" priority />
               </Link>
 
-              <div className="flex items-center gap-0">
-                <MessagesIcon />
+              <div className="flex items-center">
                 <NotificationDropdown locale={locale} initialUnreadCount={initialUnreadCount} />
               </div>
             </>
