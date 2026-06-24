@@ -1178,22 +1178,31 @@ export async function getAdminUsersWithStats(
   const supabase = await createClient();
   const safeSearch = sanitizeSearchTerm(search);
 
-  let query = supabase
-    .from("profiles")
-    .select("id, full_name, username, avatar_url, role, contribution_score, created_at, language_preference, last_login, phone, phone_verified")
-    .order("created_at", {ascending: false})
-    .limit(40);
-
-  if (safeSearch) {
-    query = query.or(`username.ilike.%${safeSearch}%,full_name.ilike.%${safeSearch}%,phone.ilike.%${safeSearch}%`);
+  async function tryQuery(columns: string) {
+    let q = supabase
+      .from("profiles")
+      .select(columns)
+      .order("created_at", {ascending: false})
+      .limit(40);
+    if (safeSearch) {
+      q = q.or(`username.ilike.%${safeSearch}%,full_name.ilike.%${safeSearch}%`);
+    }
+    return q;
   }
 
-  const {data: profiles, error} = await query;
-  if (error) return [];
-  const typedProfiles = (profiles ?? []) as (ProfileRow & {phone: string | null; last_login: string | null; phone_verified: boolean | null})[];
-  if (typedProfiles.length === 0) return [];
+  let profiles: any[] | null = null;
 
-  const userIds = typedProfiles.map((p) => p.id);
+  const fullQuery = await tryQuery("id, full_name, username, avatar_url, role, contribution_score, created_at, language_preference, last_login, phone, phone_verified");
+  if (!fullQuery.error) {
+    profiles = fullQuery.data;
+  } else {
+    const fallbackQuery = await tryQuery("id, full_name, username, avatar_url, role, contribution_score, created_at, language_preference");
+    profiles = fallbackQuery.data;
+  }
+  if (!profiles || profiles.length === 0) return [];
+
+  const hasFullColumns = !fullQuery.error;
+  const userIds = profiles.map((p: any) => p.id);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
@@ -1234,7 +1243,7 @@ export async function getAdminUsersWithStats(
   const volunteerCounts = new Map<string, number>();
   for (const r of volunteers ?? []) volunteerCounts.set(r.creator_id, (volunteerCounts.get(r.creator_id) ?? 0) + 1);
 
-  return typedProfiles.map((profile) => {
+  return profiles.map((profile: any) => {
     const stats = {
       posts_count: postCounts.get(profile.id) ?? 0,
       ideas_count: ideaCounts.get(profile.id) ?? 0,
@@ -1255,9 +1264,9 @@ export async function getAdminUsersWithStats(
       contribution_score: profile.contribution_score ?? 0,
       created_at: profile.created_at,
       language_preference: profile.language_preference,
-      phone: profile.phone,
-      last_login: profile.last_login,
-      is_verified: profile.phone_verified ?? false,
+      phone: hasFullColumns ? (profile.phone ?? null) : null,
+      last_login: hasFullColumns ? (profile.last_login ?? null) : null,
+      is_verified: hasFullColumns ? (profile.phone_verified ?? false) : false,
       ...stats,
       impact_score: score,
       badges,
@@ -1318,16 +1327,23 @@ export async function getAdminUsersKPISummary(): Promise<AdminUsersKPISummary> {
   const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
   const langLabels: Record<string, string> = {ar: "Arabic", fr: "French", en: "English"};
 
-  const [{count: totalUsers}, {count: activeToday}, {count: newThisMonth}, {count: verified}, {data: langData}] = await Promise.all([
-    supabase.from("profiles").select("*", {count: "exact", head: true}),
-    supabase.from("profiles").select("*", {count: "exact", head: true}).gte("last_login", todayIso),
-    supabase.from("profiles").select("*", {count: "exact", head: true}).gte("created_at", monthStart),
-    supabase.from("profiles").select("*", {count: "exact", head: true}).eq("phone_verified", true),
-    supabase.from("profiles").select("language_preference"),
+  async function safeCount(query: any): Promise<number> {
+    try {
+      const {count} = await query;
+      return count ?? 0;
+    } catch { return 0; }
+  }
+
+  const [totalUsers, activeToday, newThisMonth, verified, langResult] = await Promise.all([
+    safeCount(supabase.from("profiles").select("*", {count: "exact", head: true})),
+    safeCount(supabase.from("profiles").select("*", {count: "exact", head: true}).gte("last_login", todayIso)),
+    safeCount(supabase.from("profiles").select("*", {count: "exact", head: true}).gte("created_at", monthStart)),
+    safeCount(supabase.from("profiles").select("*", {count: "exact", head: true}).eq("phone_verified", true)),
+    (async () => { try { const r = await supabase.from("profiles").select("language_preference"); return r.data ?? []; } catch { return []; } })(),
   ]);
 
   const langCount = new Map<string, number>();
-  for (const r of langData ?? []) {
+  for (const r of langResult) {
     const lang = r.language_preference || "en";
     langCount.set(lang, (langCount.get(lang) ?? 0) + 1);
   }
@@ -1341,12 +1357,10 @@ export async function getAdminUsersKPISummary(): Promise<AdminUsersKPISummary> {
     const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const start = m.toISOString();
     const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1).toISOString();
-    const {count} = await supabase
-      .from("profiles")
-      .select("*", {count: "exact", head: true})
-      .gte("created_at", start)
-      .lt("created_at", end);
-    monthlyGrowth.push({month: m.toLocaleDateString("en-US", {month: "short", year: "2-digit"}), value: count ?? 0});
+    const count = await safeCount(
+      supabase.from("profiles").select("*", {count: "exact", head: true}).gte("created_at", start).lt("created_at", end)
+    );
+    monthlyGrowth.push({month: m.toLocaleDateString("en-US", {month: "short", year: "2-digit"}), value: count});
   }
 
   const dailyGrowth: AdminUserGrowthPoint[] = [];
@@ -1354,15 +1368,13 @@ export async function getAdminUsersKPISummary(): Promise<AdminUsersKPISummary> {
     const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
     const start = d.toISOString().slice(0, 10);
     const end = new Date(d.getTime() + 86400000).toISOString().slice(0, 10);
-    const {count} = await supabase
-      .from("profiles")
-      .select("*", {count: "exact", head: true})
-      .gte("created_at", start)
-      .lt("created_at", end);
-    dailyGrowth.push({month: d.toLocaleDateString("en-US", {month: "short", day: "numeric"}), value: count ?? 0});
+    const count = await safeCount(
+      supabase.from("profiles").select("*", {count: "exact", head: true}).gte("created_at", start).lt("created_at", end)
+    );
+    dailyGrowth.push({month: d.toLocaleDateString("en-US", {month: "short", day: "numeric"}), value: count});
   }
 
-  return {totalUsers: totalUsers ?? 0, activeToday: activeToday ?? 0, newThisMonth: newThisMonth ?? 0, verifiedUsers: verified ?? 0, languageDistribution, monthlyGrowth, dailyGrowth};
+  return {totalUsers, activeToday, newThisMonth, verifiedUsers: verified, languageDistribution, monthlyGrowth, dailyGrowth};
 }
 
 export async function getAdminTopContributors(category: string, limit = 10): Promise<AdminTopContributor[]> {

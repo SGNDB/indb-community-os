@@ -13,21 +13,38 @@ export default async function AdminUsersPage({
   const sp = await searchParams;
   const t = await getTranslations({locale, namespace: "Admin"});
 
-  const [kpiData, users, topDonors, topVolunteers, topActive] = await Promise.all([
-    getAdminUsersKPISummary(),
-    getAdminUsersWithStats(sp.userSearch, {
-      language: sp.language,
-      status: sp.status,
-      verified: sp.verified,
-      donor: sp.donor,
-      volunteer: sp.volunteer,
-      ideaCreator: sp.ideaCreator,
-      graatekContributor: sp.graatekContributor,
-    }),
-    getAdminTopContributors("donations", 5),
-    getAdminTopContributors("volunteers", 5),
-    getAdminTopContributors("most_active", 5),
-  ]);
+  let kpiData: Awaited<ReturnType<typeof getAdminUsersKPISummary>> | null = null;
+  let users: Awaited<ReturnType<typeof getAdminUsersWithStats>> = [];
+  let topDonors: Awaited<ReturnType<typeof getAdminTopContributors>> = [];
+  let topVolunteers: Awaited<ReturnType<typeof getAdminTopContributors>> = [];
+  let topActive: Awaited<ReturnType<typeof getAdminTopContributors>> = [];
+
+  try {
+    [kpiData, users, topDonors, topVolunteers, topActive] = await Promise.all([
+      getAdminUsersKPISummary(),
+      getAdminUsersWithStats(sp.userSearch, {
+        language: sp.language,
+        status: sp.status,
+        verified: sp.verified,
+        donor: sp.donor,
+        volunteer: sp.volunteer,
+        ideaCreator: sp.ideaCreator,
+        graatekContributor: sp.graatekContributor,
+      }),
+      getAdminTopContributors("donations", 5),
+      getAdminTopContributors("volunteers", 5),
+      getAdminTopContributors("most_active", 5),
+    ]);
+  } catch (err) {
+    console.error("[AdminUsersPage] data fetch failed", err);
+  }
+
+  const safeKpi = kpiData ?? {
+    totalUsers: 0, activeToday: 0, newThisMonth: 0, verifiedUsers: 0,
+    languageDistribution: [],
+    monthlyGrowth: [],
+    dailyGrowth: [],
+  };
 
   const labels = {
     eyebrow: t("usersPage.eyebrow"),
@@ -126,7 +143,7 @@ export default async function AdminUsersPage({
   return (
     <div className="space-y-6 p-4 md:p-6 xl:p-8">
       <AdminUsersClient
-        initialKpi={kpiData}
+        initialKpi={safeKpi}
         initialUsers={users}
         topDonors={topDonors}
         topVolunteers={topVolunteers}
