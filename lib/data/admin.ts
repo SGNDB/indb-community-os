@@ -1488,7 +1488,7 @@ export async function getAdminIdeasKPISummary(): Promise<AdminIdeasKPISummary> {
     safeCount(supabase.from("ideas").select("*", {count: "exact", head: true}).eq("status", "completed")),
     (async () => {
       try {
-        const {data} = await supabase.from("ideas").select("category_id, categories!ideas_category_id_fkey(name)");
+        const {data} = await supabase.from("ideas").select("category_id, category:categories(name)");
         return data ?? [];
       } catch {
         try {
@@ -1503,7 +1503,7 @@ export async function getAdminIdeasKPISummary(): Promise<AdminIdeasKPISummary> {
 
   const catCount = new Map<string, number>();
   for (const r of catResult) {
-    const name = (r as any).categories?.name ?? (r as any).category_id?.toString() ?? "Uncategorized";
+    const name = (r as any).category?.name ?? (r as any).category_id?.toString() ?? "Uncategorized";
     catCount.set(name, (catCount.get(name) ?? 0) + 1);
   }
   const categoryDistribution = Array.from(catCount.entries())
@@ -1553,40 +1553,58 @@ export async function getAdminIdeasWithStats(
   const supabase = await createClient();
   const safeSearch = sanitizeSearchTerm(search);
 
-  let query = supabase
-    .from("ideas")
-    .select(`
-      id, title, description, status, votes_count, supporters_count, participants_count,
-      shares_count, image_url, created_at, updated_at, category_id,
-      author:profiles!ideas_author_id_fkey(id, full_name, username, avatar_url),
-      categories!ideas_category_id_fkey(name)
-    `)
-    .limit(50);
+  let ideasData: any[] | null = null;
 
-  if (safeSearch) {
-    query = query.or(`title.ilike.%${safeSearch}%,description.ilike.%${safeSearch}%`);
-  }
+  try {
+    let query = supabase
+      .from("ideas")
+      .select(`
+        id, title, description, status, votes_count, supporters_count, participants_count,
+        shares_count, image_url, created_at, updated_at, category_id,
+        author:profiles!ideas_author_id_fkey(id, full_name, username, avatar_url),
+        category:categories(name)
+      `)
+      .limit(50);
 
-  if (filters?.status) {
-    if (filters.status === "active") {
-      query = query.in("status", ["published", "interested", "discussion", "in_progress"]);
-    } else {
-      query = query.eq("status", filters.status);
+    if (safeSearch) {
+      query = query.or(`title.ilike.%${safeSearch}%,description.ilike.%${safeSearch}%`);
     }
+
+    if (filters?.status) {
+      if (filters.status === "active") {
+        query = query.in("status", ["published", "interested", "discussion", "in_progress"]);
+      } else {
+        query = query.eq("status", filters.status);
+      }
+    }
+
+    if (filters?.sortBy === "votes") query = query.order("votes_count", {ascending: false});
+    else if (filters?.sortBy === "supporters") query = query.order("supporters_count", {ascending: false});
+    else if (filters?.sortBy === "newest") query = query.order("created_at", {ascending: false});
+    else if (filters?.sortBy === "completed") query = query.eq("status", "completed").order("updated_at", {ascending: false});
+    else query = query.order("created_at", {ascending: false});
+
+    const {data, error} = await query;
+    if (!error) {
+      ideasData = data;
+    }
+  } catch { /* fall through */ }
+
+  if (!ideasData) {
+    try {
+      const {data} = await supabase
+        .from("ideas")
+        .select("id, title, description, status, votes_count, supporters_count, participants_count, shares_count, image_url, created_at, updated_at, category_id")
+        .limit(50);
+      ideasData = data ?? [];
+    } catch { return []; }
   }
 
-  if (filters?.sortBy === "votes") query = query.order("votes_count", {ascending: false});
-  else if (filters?.sortBy === "supporters") query = query.order("supporters_count", {ascending: false});
-  else if (filters?.sortBy === "newest") query = query.order("created_at", {ascending: false});
-  else if (filters?.sortBy === "completed") query = query.eq("status", "completed").order("updated_at", {ascending: false});
-  else query = query.order("created_at", {ascending: false});
-
-  const {data} = await query;
-  const ideas = (data ?? []).map((idea: any) => ({
+  const ideas = ideasData.map((idea: any) => ({
     ...idea,
     author: singleProfile(idea.author),
-    category_name: idea.categories?.name ?? null,
-  })) as any[];
+    category_name: idea.category?.name ?? null,
+  }));
 
   const ideaIds = ideas.map((i: any) => i.id);
   let commentCounts = new Map<string, number>();
@@ -1641,16 +1659,31 @@ export async function getAdminIdeasWithStats(
 export async function getAdminIdeaDetail(id: string): Promise<AdminIdeaDetail | null> {
   const supabase = await createClient();
 
-  const {data: idea} = await supabase
-    .from("ideas")
-    .select(`
-      id, title, description, status, votes_count, supporters_count, participants_count,
-      shares_count, image_url, created_at, updated_at, category_id,
-      author:profiles!ideas_author_id_fkey(id, full_name, username, avatar_url),
-      categories!ideas_category_id_fkey(name)
-    `)
-    .eq("id", id)
-    .single();
+  let idea: any = null;
+  try {
+    const {data} = await supabase
+      .from("ideas")
+      .select(`
+        id, title, description, status, votes_count, supporters_count, participants_count,
+        shares_count, image_url, created_at, updated_at, category_id,
+        author:profiles!ideas_author_id_fkey(id, full_name, username, avatar_url),
+        category:categories(name)
+      `)
+      .eq("id", id)
+      .single();
+    idea = data;
+  } catch { /* fall through */ }
+
+  if (!idea) {
+    try {
+      const {data} = await supabase
+        .from("ideas")
+        .select("id, title, description, status, votes_count, supporters_count, participants_count, shares_count, image_url, created_at, updated_at, category_id")
+        .eq("id", id)
+        .single();
+      idea = data;
+    } catch { return null; }
+  }
 
   if (!idea) return null;
 
@@ -1692,33 +1725,32 @@ export async function getAdminIdeaDetail(id: string): Promise<AdminIdeaDetail | 
     messagesCount = mc ?? 0;
   } catch { /* no messages table */ }
 
-  const ideaDetail: any = idea;
   return {
-    id: ideaDetail.id,
-    title: ideaDetail.title,
-    description: ideaDetail.description,
-    status: ideaDetail.status,
-    votes_count: ideaDetail.votes_count ?? 0,
-    supporters_count: ideaDetail.supporters_count ?? 0,
-    participants_count: ideaDetail.participants_count ?? 0,
-    shares_count: ideaDetail.shares_count ?? 0,
-    image_url: ideaDetail.image_url,
-    created_at: ideaDetail.created_at,
-    updated_at: ideaDetail.updated_at,
-    category_id: ideaDetail.category_id,
-    category_name: ideaDetail.categories?.name ?? null,
-    author: singleProfile(ideaDetail.author),
+    id: idea.id,
+    title: idea.title,
+    description: idea.description,
+    status: idea.status,
+    votes_count: idea.votes_count ?? 0,
+    supporters_count: idea.supporters_count ?? 0,
+    participants_count: idea.participants_count ?? 0,
+    shares_count: idea.shares_count ?? 0,
+    image_url: idea.image_url,
+    created_at: idea.created_at,
+    updated_at: idea.updated_at,
+    category_id: idea.category_id,
+    category_name: idea.category?.name ?? null,
+    author: singleProfile(idea.author),
     comments_count: commentsCount,
     messages_count: messagesCount,
-    views: Math.floor((ideaDetail.votes_count ?? 0) * 3 + (ideaDetail.supporters_count ?? 0) * 5 + Math.random() * 20),
-    supportPercentage: ideaDetail.votes_count > 0
-      ? Math.round(((ideaDetail.supporters_count ?? 0) / (ideaDetail.votes_count ?? 1)) * 100)
+    views: Math.floor((idea.votes_count ?? 0) * 3 + (idea.supporters_count ?? 0) * 5 + Math.random() * 20),
+    supportPercentage: idea.votes_count > 0
+      ? Math.round(((idea.supporters_count ?? 0) / (idea.votes_count ?? 1)) * 100)
       : 0,
     participants,
     supporters,
     timeline: [
-      {status: "created", created_at: ideaDetail.created_at},
-      ...(ideaDetail.status !== "published" ? [{status: ideaDetail.status, created_at: ideaDetail.updated_at}] : []),
+      {status: "created", created_at: idea.created_at},
+      ...(idea.status !== "published" ? [{status: idea.status, created_at: idea.updated_at}] : []),
     ],
   };
 }
