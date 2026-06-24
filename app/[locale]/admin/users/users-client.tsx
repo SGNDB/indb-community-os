@@ -168,15 +168,6 @@ function FiltersBar({filters, onChange, labels, onClear}: {
         <div className="absolute left-0 top-full z-20 mt-2 w-72 rounded-2xl border border-border/60 bg-card p-4 shadow-xl">
           <div className="space-y-3">
             <div>
-              <label className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{labels.filterLanguage ?? "Language"}</label>
-              <select value={filters.language ?? ""} onChange={(e) => onChange("language", e.target.value)} className="mt-1 w-full rounded-xl border border-border/60 bg-background px-3 py-2 text-sm">
-                <option value="">{labels.filterAllLanguages ?? "All Languages"}</option>
-                <option value="ar">Arabic</option>
-                <option value="fr">French</option>
-                <option value="en">English</option>
-              </select>
-            </div>
-            <div>
               <label className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{labels.filterStatus ?? "Status"}</label>
               <select value={filters.status ?? ""} onChange={(e) => onChange("status", e.target.value)} className="mt-1 w-full rounded-xl border border-border/60 bg-background px-3 py-2 text-sm">
                 <option value="">{labels.filterAllStatuses ?? "All Statuses"}</option>
@@ -266,17 +257,34 @@ export function AdminUsersClient({
       const q = search.toLowerCase();
       result = result.filter(u => u.full_name?.toLowerCase().includes(q) || u.username?.toLowerCase().includes(q));
     }
+    if (filters.status) {
+      result = result.filter(u => getStatus(u) === filters.status);
+    }
+    if (filters.verified === "true") {
+      result = result.filter(u => u.is_verified);
+    }
+    if (filters.donor === "true") {
+      result = result.filter(u => (u.donations_count ?? 0) > 0);
+    }
+    if (filters.volunteer === "true") {
+      result = result.filter(u => (u.volunteer_activities ?? 0) > 0);
+    }
+    if (filters.ideaCreator === "true") {
+      result = result.filter(u => (u.ideas_count ?? 0) > 0);
+    }
+    if (filters.graatekContributor === "true") {
+      result = result.filter(u => (u.graatek_count ?? 0) > 0);
+    }
     result.sort((a, b) => {
       let cmp = 0;
       if (sortColumn === "name") cmp = (a.full_name ?? "").localeCompare(b.full_name ?? "");
-      else if (sortColumn === "language_preference") cmp = (a.language_preference ?? "").localeCompare(b.language_preference ?? "");
       else if (sortColumn === "created_at") cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       else if (sortColumn === "last_login") cmp = (a.last_login ? new Date(a.last_login).getTime() : 0) - (b.last_login ? new Date(b.last_login).getTime() : 0);
       else if (sortColumn === "contribution_score") cmp = (a.contribution_score ?? 0) - (b.contribution_score ?? 0);
       return sortDir === "asc" ? cmp : -cmp;
     });
     return result;
-  }, [initialUsers, search, sortColumn, sortDir]);
+  }, [initialUsers, search, sortColumn, sortDir, filters]);
 
   const handleSort = (col: string) => {
     if (sortColumn === col) setSortDir(d => d === "asc" ? "desc" : "asc");
@@ -415,7 +423,6 @@ export function AdminUsersClient({
                     {labels.name} <ArrowUpDown size={12} />
                   </button>
                 </th>
-                <th className="hidden px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-muted-foreground md:table-cell">{labels.language}</th>
                 <th className="hidden px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-muted-foreground lg:table-cell">
                   <button onClick={() => handleSort("created_at")} className="inline-flex items-center gap-1 transition hover:text-foreground">
                     {labels.joinDate} <ArrowUpDown size={12} />
@@ -437,7 +444,7 @@ export function AdminUsersClient({
             </thead>
             <tbody>
               {displayedUsers.length === 0 ? (
-                <tr><td colSpan={8} className="px-4 py-16 text-center">
+                <tr><td colSpan={7} className="px-4 py-16 text-center">
                   <Users className="mx-auto mb-3 h-10 w-10 text-muted-foreground/40" />
                   <p className="text-sm font-semibold text-muted-foreground">{labels.noResults}</p>
                 </td></tr>
@@ -454,12 +461,6 @@ export function AdminUsersClient({
                     <td className="px-4 py-3">
                       <p className="font-semibold text-foreground">{displayName(user)}</p>
                       <p className="text-xs text-muted-foreground">{user.username ? `@${user.username}` : ""}</p>
-                    </td>
-                    <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                      <span className="inline-flex items-center gap-1 rounded-md bg-muted/30 px-2 py-0.5 text-xs font-medium">
-                        <Globe size={11} />
-                        {(user.language_preference ?? "en").toUpperCase()}
-                      </span>
                     </td>
                     <td className="hidden px-4 py-3 text-muted-foreground lg:table-cell text-xs">{formatDate(user.created_at, locale)}</td>
                     <td className="hidden px-4 py-3 text-muted-foreground lg:table-cell text-xs">{timeAgo(user.last_login)}</td>
