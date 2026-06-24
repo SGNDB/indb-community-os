@@ -1,7 +1,7 @@
 "use client";
 
 import {useState} from "react";
-import {Users, Lightbulb, Gift, Landmark, Newspaper, BookOpen, HandHeart, type LucideIcon} from "lucide-react";
+import {Users, Lightbulb, Gift, Landmark, Newspaper, type LucideIcon} from "lucide-react";
 
 const iconMap: Record<string, LucideIcon> = {
   "New User": Users,
