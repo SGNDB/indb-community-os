@@ -59,7 +59,6 @@ export default async function AdminLayout({
           currentSearch=""
           expandLabel={t("sidebar.expand")}
           items={navItems}
-          locale={locale}
           nouadhibouSignal={t("nouadhibouSignal")}
           searchPlaceholder={t("users.search")}
         />

@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useState, useRef} from "react";
+import {useEffect, useState, useRef, useTransition} from "react";
 import {
   Award,
   BarChart3,
@@ -9,9 +9,11 @@ import {
   ChevronRight,
   LayoutDashboard,
   Menu,
+  MoonStar,
   Newspaper,
   Search,
   Settings,
+  SunMedium,
   Users,
   X,
   Lightbulb,
@@ -26,9 +28,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Image from "next/image";
+import {useTheme} from "next-themes";
+import {useLocale} from "next-intl";
 
 import {cn} from "@/lib/utils/cn";
-import {Link, usePathname} from "@/lib/i18n/routing";
+import {Link, usePathname, useRouter} from "@/lib/i18n/routing";
+import {localeLabels, routing} from "@/lib/i18n/routing";
 
 export interface AdminSidebarItem {
   href: string;
@@ -68,7 +73,6 @@ interface AdminSidebarProps {
   currentSearch: string;
   expandLabel: string;
   items: AdminSidebarItem[];
-  locale: string;
   nouadhibouSignal: string;
   searchPlaceholder: string;
 }
@@ -80,7 +84,6 @@ export function AdminSidebar({
   currentSearch,
   expandLabel,
   items,
-  locale,
   nouadhibouSignal,
   searchPlaceholder,
 }: AdminSidebarProps) {
@@ -94,6 +97,26 @@ export function AdminSidebar({
     const saved = window.localStorage.getItem("indb-admin-sidebar-collapsed");
     if (saved === "1") setCollapsed(true);
   }, []);
+
+  const [langPending, startLangTransition] = useTransition();
+  const locale = useLocale();
+  const router = useRouter();
+  const {theme, setTheme} = useTheme();
+  const locales = routing.locales.filter((l) => ["ar", "fr", "en"].includes(l));
+
+  function changeLanguage(nextLocale: string) {
+    if (nextLocale === locale) return;
+    document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000; samesite=lax`;
+    try { localStorage.setItem("preferred-locale", nextLocale); } catch {}
+    void fetch("/api/locale", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({locale: nextLocale})});
+    startLangTransition(() => router.replace(pathname, {locale: nextLocale as "ar" | "fr" | "en"}));
+  }
+
+  function toggleTheme() {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    document.cookie = `theme=${next};path=/;max-age=31536000;samesite=lax`;
+  }
 
   function toggleCollapsed() {
     setCollapsed((v) => {
@@ -205,16 +228,56 @@ export function AdminSidebar({
 
       {/* Bottom */}
       <div className="border-t border-border/40 p-3">
-        <Link
-          href="/"
-          className={cn(
-            "flex min-h-10 items-center justify-center gap-2 rounded-xl text-sm font-medium text-muted-foreground transition hover:bg-muted/60 hover:text-foreground",
-            collapsed ? "px-0" : "px-3",
+        {!collapsed && (
+          <div className="mb-2 flex items-center gap-2">
+            <div className="flex items-center gap-0.5 rounded-lg border border-border/40 p-0.5">
+              {locales.map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => changeLanguage(l)}
+                  disabled={langPending}
+                  className={`rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-wide transition ${
+                    l === locale ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {localeLabels[l]}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-border/40 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              title={theme === "dark" ? "Light mode" : "Dark mode"}
+            >
+              {theme === "dark" ? <SunMedium size={13} /> : <MoonStar size={13} />}
+            </button>
+          </div>
+        )}
+        <div className={cn("flex items-center gap-1", collapsed ? "flex-col" : "")}>
+          {collapsed && (
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex h-10 w-full items-center justify-center rounded-xl text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
+              title={theme === "dark" ? "Light mode" : "Dark mode"}
+            >
+              {theme === "dark" ? <SunMedium size={16} /> : <MoonStar size={16} />}
+            </button>
           )}
-        >
-          <LogOut size={16} className="shrink-0" />
-          {!collapsed && <span>{backToSiteLabel}</span>}
-        </Link>
+          <Link
+            href="/"
+            className={cn(
+              "flex min-h-10 items-center justify-center gap-2 rounded-xl text-sm font-medium text-muted-foreground transition hover:bg-muted/60 hover:text-foreground",
+              collapsed ? "w-full px-0" : "flex-1 px-3",
+            )}
+            title={collapsed ? backToSiteLabel : undefined}
+          >
+            <LogOut size={16} className="shrink-0" />
+            {!collapsed && <span>{backToSiteLabel}</span>}
+          </Link>
+        </div>
       </div>
     </aside>
   );
@@ -235,13 +298,22 @@ export function AdminSidebar({
             <p className="text-xs text-muted-foreground">{nouadhibouSignal}</p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => setMobileOpen(true)}
-          className="inline-flex items-center justify-center rounded-xl border border-border/40 p-2 text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
-        >
-          <Menu size={18} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="inline-flex items-center justify-center rounded-xl border border-border/40 p-2 text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
+          >
+            {theme === "dark" ? <SunMedium size={16} /> : <MoonStar size={16} />}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            className="inline-flex items-center justify-center rounded-xl border border-border/40 p-2 text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
+          >
+            <Menu size={18} />
+          </button>
+        </div>
       </div>
 
       {/* Mobile overlay */}
