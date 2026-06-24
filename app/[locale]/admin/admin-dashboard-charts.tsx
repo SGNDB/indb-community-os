@@ -10,9 +10,12 @@ import {
   TrendingDown,
   Minus,
   RefreshCw,
-  Newspaper,
-  BookOpen,
   HandHeart,
+  MessageCircle,
+  Activity,
+  DollarSign,
+  Clock,
+  BarChart3,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -33,30 +36,34 @@ import {
 import type {
   AdminDashboardKPI,
   AdminUserGrowthPoint,
-  AdminActivityPoint,
-  AdminDonationByCampaign,
   AdminVolunteerMonth,
-  AdminActivityItem,
+  AdminDonationTrend,
+  AdminConversationTrend,
+  AdminPaymentMethod,
+  AdminHourlyPoint,
+  AdminRealtimeActivity,
 } from "@/lib/data/admin";
 
 interface Labels {
   kpi: Record<string, string>;
-  chartTitleUsers: string;
-  chartTitleActivity: string;
-  chartTitleDonations: string;
-  chartTitleVolunteers: string;
-  activityTitle: string;
-  postsLabel: string;
-  ideasLabel: string;
-  memoriesLabel: string;
-  usersLabel: string;
-  donationsLabel: string;
-  amountLabel: string;
-  volunteersLabel: string;
+  communityGrowth: string;
+  usersTab: string;
+  ideasTab: string;
+  graatekTab: string;
+  donationsTab: string;
+  volunteersTab: string;
+  byCampaign: string;
+  donationMethods: string;
+  hourlyActivity: string;
+  weeklyTrend: string;
+  monthlyTrend: string;
+  completionRate: string;
+  dailyMessages: string;
+  realtimeActivity: string;
+  growthRate: string;
+  successRate: string;
+  engagementRate: string;
   noData: string;
-  totalDonations: string;
-  activeToday: string;
-  activeSignal: string;
   eyebrow: string;
   commandCenter: string;
   heroDescription: string;
@@ -68,6 +75,19 @@ const CHART_EMERALD = "#10b981";
 const CHART_BLUE = "#3b82f6";
 const CHART_PURPLE = "#8b5cf6";
 const CHART_TEAL = "#14b8a6";
+const CHART_PINK = "#ec4899";
+const CHART_ORANGE = "#f97316";
+
+const kpiConfig: {icon: LucideIcon; color: string}[] = [
+  {icon: Users, color: CHART_RED},
+  {icon: Activity, color: CHART_AMBER},
+  {icon: Lightbulb, color: CHART_EMERALD},
+  {icon: Gift, color: CHART_BLUE},
+  {icon: HandHeart, color: CHART_PURPLE},
+  {icon: Users, color: CHART_TEAL},
+  {icon: Landmark, color: CHART_PINK},
+  {icon: MessageCircle, color: CHART_ORANGE},
+];
 
 function timeAgo(date: string) {
   const m = Math.floor((Date.now() - new Date(date).getTime()) / 60000);
@@ -77,11 +97,6 @@ function timeAgo(date: string) {
   if (h < 24) return `${h}h ago`;
   const d = Math.floor(h / 24);
   return `${d}d ago`;
-}
-
-function displayName(p: {full_name: string | null; username: string | null} | null) {
-  if (!p) return "-";
-  return p.full_name ?? p.username ?? "-";
 }
 
 function CountUp({value, locale, duration = 800}: {value: number; locale: string; duration?: number}) {
@@ -102,7 +117,7 @@ function CountUp({value, locale, duration = 800}: {value: number; locale: string
 }
 
 function computeTrend(series: {value: number}[]): {value: string; direction: "up" | "down" | "flat"} {
-  if (series.length < 2) return {value: "—", direction: "flat"};
+  if (series.length < 2) return {value: "\u2014", direction: "flat"};
   const half = Math.floor(series.length / 2);
   const recent = series.slice(half).reduce((s, d) => s + d.value, 0);
   const prior = series.slice(0, half).reduce((s, d) => s + d.value, 0);
@@ -115,49 +130,39 @@ function computeTrend(series: {value: number}[]): {value: string; direction: "up
   return {value: formatted, direction: pct > 0 ? "up" : "down"};
 }
 
-const activityTypeLabels: Record<string, string> = {
-  member: "New registration",
-  idea: "New idea",
-  graatek: "New graatek",
-  donation: "Donation",
-  post: "New post",
-  memory: "New memory",
-  credit: "Credit awarded",
-  volunteer: "Volunteer",
-};
-
-const activityTypeIcons: Record<string, LucideIcon> = {
-  post: Newspaper,
-  idea: Lightbulb,
-  memory: BookOpen,
-  member: Users,
-  graatek: Gift,
-  donation: Landmark,
-  volunteer: HandHeart,
-};
+type GrowthTab = "users" | "ideas" | "graatek" | "donations" | "volunteers";
 
 export default function AdminDashboardCharts({
   kpis,
   userGrowth,
-  communityActivity,
-  donationsByCampaign,
+  ideaGrowth,
+  graatekGrowth,
   volunteerActivity,
-  recentActivity,
+  donationTrend,
+  conversationTrend,
+  paymentMethods,
+  hourlyActivity,
+  realtimeActivity,
   labels,
   locale,
 }: {
   kpis: AdminDashboardKPI[];
   userGrowth: AdminUserGrowthPoint[];
-  communityActivity: AdminActivityPoint[];
-  donationsByCampaign: AdminDonationByCampaign[];
+  ideaGrowth: AdminUserGrowthPoint[];
+  graatekGrowth: AdminUserGrowthPoint[];
   volunteerActivity: AdminVolunteerMonth[];
-  recentActivity: AdminActivityItem[];
+  donationTrend: AdminDonationTrend[];
+  conversationTrend: AdminConversationTrend[];
+  paymentMethods: AdminPaymentMethod[];
+  hourlyActivity: AdminHourlyPoint[];
+  realtimeActivity: AdminRealtimeActivity[];
   labels: Labels;
   locale: string;
 }) {
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [key, setKey] = useState(0);
+  const [growthTab, setGrowthTab] = useState<GrowthTab>("users");
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true);
@@ -177,28 +182,59 @@ export default function AdminDashboardCharts({
       maximumFractionDigits: 0,
     });
 
-  const kpiIcons = [Users, Lightbulb, Gift, Landmark];
-  const kpiColors = [CHART_RED, CHART_AMBER, CHART_EMERALD, CHART_BLUE];
+  const growthDataMap: Record<GrowthTab, AdminUserGrowthPoint[]> = {
+    users: userGrowth,
+    ideas: ideaGrowth,
+    graatek: graatekGrowth,
+    donations: donationTrend.map((d) => ({month: d.month, value: d.value})),
+    volunteers: volunteerActivity,
+  };
 
-  const trends = [computeTrend(userGrowth), computeTrend(communityActivity.map((d) => ({value: d.posts + d.ideas + d.memories}))), computeTrend(volunteerActivity), {value: "—", direction: "flat" as const}];
+  const growthTabLabels: Record<GrowthTab, string> = {
+    users: labels.usersTab,
+    ideas: labels.ideasTab,
+    graatek: labels.graatekTab,
+    donations: labels.donationsTab,
+    volunteers: labels.volunteersTab,
+  };
 
-  const donutColors = [CHART_RED, CHART_AMBER, CHART_EMERALD, CHART_BLUE, CHART_PURPLE, CHART_TEAL];
+  const growthTabColors: Record<GrowthTab, string> = {
+    users: CHART_RED,
+    ideas: CHART_AMBER,
+    graatek: CHART_EMERALD,
+    donations: CHART_BLUE,
+    volunteers: CHART_PURPLE,
+  };
 
-  const topDonations = donationsByCampaign.slice(0, 6);
-  const donationTotal = topDonations.reduce((s, d) => s + d.totalAmount, 0);
+  const growthData = growthDataMap[growthTab];
+  const growthEmpty = growthData.length === 0 || growthData.every((d) => d.value === 0);
+  const growthColor = growthTabColors[growthTab];
 
-  const volunteerTotal = volunteerActivity.reduce((s, d) => s + d.value, 0);
+  const paymentMethodsEmpty = paymentMethods.length === 0;
+  const pmColors = [CHART_BLUE, CHART_EMERALD, CHART_AMBER, CHART_PURPLE, CHART_RED, CHART_TEAL];
 
-  const userGrowthEmpty = userGrowth.length === 0 || userGrowth.every((d) => d.value === 0);
-  const communityEmpty = communityActivity.length === 0 || communityActivity.every((d) => d.posts + d.ideas + d.memories === 0);
-  const volunteerEmpty = volunteerActivity.length === 0 || volunteerActivity.every((d) => d.value === 0);
-  const recentEmpty = recentActivity.length === 0;
+  const hourlyEmpty = hourlyActivity.length === 0 || hourlyActivity.every((h) => h.value === 0);
+  const conversationEmpty = conversationTrend.length === 0 || conversationTrend.every((d) => d.value === 0);
+  const realtimeEmpty = realtimeActivity.length === 0;
+
+  const kpiTrends = [
+    computeTrend(userGrowth),
+    computeTrend(userGrowth),
+    computeTrend(ideaGrowth),
+    computeTrend(graatekGrowth),
+    computeTrend(donationTrend),
+    computeTrend(volunteerActivity),
+    computeTrend(donationTrend),
+    computeTrend(conversationTrend),
+  ];
 
   const TrendIcon = ({trend}: {trend: {value: string; direction: string}}) => {
     if (trend.direction === "up") return <TrendingUp size={12} />;
     if (trend.direction === "down") return <TrendingDown size={12} />;
     return <Minus size={12} />;
   };
+
+  const totalGrowth = growthData.reduce((s, d) => s + d.value, 0);
 
   return (
     <>
@@ -208,9 +244,17 @@ export default function AdminDashboardCharts({
             <stop offset="0%" stopColor={CHART_RED} stopOpacity={0.25} />
             <stop offset="100%" stopColor={CHART_RED} stopOpacity={0} />
           </linearGradient>
+          <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={CHART_BLUE} stopOpacity={0.25} />
+            <stop offset="100%" stopColor={CHART_BLUE} stopOpacity={0} />
+          </linearGradient>
           <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={CHART_PURPLE} stopOpacity={0.25} />
             <stop offset="100%" stopColor={CHART_PURPLE} stopOpacity={0} />
+          </linearGradient>
+          <linearGradient id="orangeGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={CHART_ORANGE} stopOpacity={0.25} />
+            <stop offset="100%" stopColor={CHART_ORANGE} stopOpacity={0} />
           </linearGradient>
         </defs>
       </svg>
@@ -240,29 +284,28 @@ export default function AdminDashboardCharts({
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             </span>
-            <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">{labels.activeSignal}</span>
+            <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Live</span>
           </div>
         </div>
       </div>
 
       <div key={key} className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {kpis.slice(0, 4).map((kpi, i) => {
-            const Icon = kpiIcons[i];
-            const color = kpiColors[i];
-            const trend = trends[i];
+          {kpis.slice(0, 8).map((kpi, i) => {
+            const {icon: Icon, color} = kpiConfig[i];
+            const trend = kpiTrends[i];
             return (
               <a
                 key={kpi.label}
                 href={kpi.href}
-                className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.02)] transition-all duration-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06),0_8px_24px_rgba(0,0,0,0.03)] hover:border-border/80"
+                className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.02)] transition-all duration-300 hover:shadow-[0_2px_8px_rgba(0,0,0,0.06),0_8px_24px_rgba(0,0,0,0.03)]"
               >
                 <div className="flex items-start justify-between">
                   <div
-                    className="flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110"
+                    className="flex h-11 w-11 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110"
                     style={{backgroundColor: `${color}15`, color}}
                   >
-                    <Icon size={22} />
+                    <Icon size={20} />
                   </div>
                   <span
                     className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
@@ -278,7 +321,11 @@ export default function AdminDashboardCharts({
                   </span>
                 </div>
                 <p className="mt-4 text-3xl font-black tracking-tight text-foreground">
-                  <CountUp value={kpi.value} locale={locale} />
+                  {kpi.label === "donationsThisMonth" ? (
+                    <>{fmtCurrency(kpi.value)}</>
+                  ) : (
+                    <CountUp value={kpi.value} locale={locale} />
+                  )}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">{labels.kpi[kpi.label] ?? kpi.label}</p>
               </a>
@@ -287,30 +334,45 @@ export default function AdminDashboardCharts({
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.02)]">
+          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{labels.usersLabel}</p>
-                <h2 className="mt-0.5 text-lg font-black text-foreground">{labels.chartTitleUsers}</h2>
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{labels.growthRate}</p>
+                <h2 className="mt-0.5 text-lg font-black text-foreground">{labels.communityGrowth}</h2>
               </div>
-              {!userGrowthEmpty && (
+              {!growthEmpty && (
                 <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-                  +{fmt(userGrowth.reduce((s, d) => s + d.value, 0))}
+                  +{fmt(totalGrowth)}
                 </span>
               )}
             </div>
-            <div className="mt-5 h-64">
-              {userGrowthEmpty ? (
+            <div className="mt-3 flex gap-1">
+              {(["users", "ideas", "graatek", "donations", "volunteers"] as GrowthTab[]).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setGrowthTab(tab)}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                    growthTab === tab
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  {growthTabLabels[tab]}
+                </button>
+              ))}
+            </div>
+            <div className="mt-3 h-56">
+              {growthEmpty ? (
                 <div className="flex h-full items-center justify-center">
                   <p className="text-sm text-muted-foreground">{labels.noData}</p>
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={userGrowth} margin={{top: 4, right: 4, bottom: 0, left: -16}}>
+                  <AreaChart data={growthData} margin={{top: 4, right: 4, bottom: 0, left: -16}}>
                     <defs>
-                      <linearGradient id="userGrowthGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={CHART_RED} stopOpacity={0.25} />
-                        <stop offset="100%" stopColor={CHART_RED} stopOpacity={0} />
+                      <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={growthColor} stopOpacity={0.25} />
+                        <stop offset="100%" stopColor={growthColor} stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.4} />
@@ -327,11 +389,11 @@ export default function AdminDashboardCharts({
                     <Area
                       type="monotone"
                       dataKey="value"
-                      stroke={CHART_RED}
+                      stroke={growthColor}
                       strokeWidth={2}
-                      fill="url(#userGrowthGrad)"
+                      fill="url(#growthGrad)"
                       dot={false}
-                      activeDot={{r: 4, fill: CHART_RED}}
+                      activeDot={{r: 4, fill: growthColor}}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -339,39 +401,29 @@ export default function AdminDashboardCharts({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.02)]">
+          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{labels.activityTitle}</p>
-                <h2 className="mt-0.5 text-lg font-black text-foreground">{labels.chartTitleActivity}</h2>
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{labels.hourlyActivity}</p>
+                <h2 className="mt-0.5 text-lg font-black text-foreground">Messages Today</h2>
               </div>
-              {!communityEmpty && (
-                <div className="flex items-center gap-3 text-xs">
-                  <span className="flex items-center gap-1">
-                    <span className="h-2.5 w-2.5 rounded-full" style={{backgroundColor: CHART_RED}} />
-                    {labels.postsLabel}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="h-2.5 w-2.5 rounded-full" style={{backgroundColor: CHART_AMBER}} />
-                    {labels.ideasLabel}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="h-2.5 w-2.5 rounded-full" style={{backgroundColor: CHART_EMERALD}} />
-                    {labels.memoriesLabel}
-                  </span>
+              {!hourlyEmpty && (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Clock size={12} />
+                  <span>24h</span>
                 </div>
               )}
             </div>
-            <div className="mt-5 h-64">
-              {communityEmpty ? (
+            <div className="mt-5 h-44">
+              {hourlyEmpty ? (
                 <div className="flex h-full items-center justify-center">
                   <p className="text-sm text-muted-foreground">{labels.noData}</p>
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={communityActivity} margin={{top: 4, right: 4, bottom: 0, left: -16}}>
+                  <BarChart data={hourlyActivity} margin={{top: 4, right: 4, bottom: 0, left: -16}}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.4} />
-                    <XAxis dataKey="date" tick={{fontSize: 10}} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                    <XAxis dataKey="hour" tick={{fontSize: 9}} tickLine={false} axisLine={false} interval={3} />
                     <YAxis tick={{fontSize: 11}} tickLine={false} axisLine={false} allowDecimals={false} />
                     <Tooltip
                       contentStyle={{
@@ -381,9 +433,7 @@ export default function AdminDashboardCharts({
                         fontSize: 13,
                       }}
                     />
-                    <Bar dataKey="posts" fill={CHART_RED} radius={[2, 2, 0, 0]} stackId="a" />
-                    <Bar dataKey="ideas" fill={CHART_AMBER} radius={[2, 2, 0, 0]} stackId="a" />
-                    <Bar dataKey="memories" fill={CHART_EMERALD} radius={[2, 2, 0, 0]} stackId="a" />
+                    <Bar dataKey="value" fill={CHART_ORANGE} radius={[3, 3, 0, 0]} maxBarSize={20} />
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -392,87 +442,34 @@ export default function AdminDashboardCharts({
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.02)]">
+          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{labels.donationsLabel}</p>
-                <h2 className="mt-0.5 text-lg font-black text-foreground">{labels.chartTitleDonations}</h2>
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{labels.dailyMessages}</p>
+                <h2 className="mt-0.5 text-lg font-black text-foreground">Conversation Volume</h2>
               </div>
-              {topDonations.length > 0 && (
+              {!conversationEmpty && (
                 <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-                  {fmtCurrency(donationTotal)}
+                  {fmt(conversationTrend.reduce((s, d) => s + d.value, 0))}
                 </span>
               )}
             </div>
             <div className="mt-5 h-52">
-              {topDonations.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={topDonations}
-                      dataKey="totalAmount"
-                      nameKey="campaignTitle"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={48}
-                      outerRadius={72}
-                      paddingAngle={2}
-                    >
-                      {topDonations.map((_, i) => (
-                        <Cell key={i} fill={donutColors[i % donutColors.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        background: "hsl(var(--popover))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: 12,
-                        fontSize: 13,
-                      }}
-                      formatter={(value) => fmtCurrency(Number(value ?? 0))}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                  {labels.noData}
-                </div>
-              )}
-            </div>
-            {topDonations.length > 0 && (
-              <div className="mt-3 space-y-1.5">
-                {topDonations.slice(0, 4).map((d) => (
-                  <div key={d.campaignId} className="flex items-center justify-between text-xs">
-                    <span className="truncate text-muted-foreground">{d.campaignTitle}</span>
-                    <span className="ml-2 shrink-0 font-semibold text-foreground">{fmtCurrency(d.totalAmount)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.02)]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{labels.volunteersLabel}</p>
-                <h2 className="mt-0.5 text-lg font-black text-foreground">{labels.chartTitleVolunteers}</h2>
-              </div>
-              {!volunteerEmpty && (
-                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-                  {fmt(volunteerTotal)}
-                </span>
-              )}
-            </div>
-            <div className="mt-5 h-52">
-              {volunteerEmpty ? (
+              {conversationEmpty ? (
                 <div className="flex h-full items-center justify-center">
                   <p className="text-sm text-muted-foreground">{labels.noData}</p>
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={volunteerActivity} margin={{top: 4, right: 4, bottom: 0, left: -16}}>
+                  <AreaChart data={conversationTrend} margin={{top: 4, right: 4, bottom: 0, left: -16}}>
+                    <defs>
+                      <linearGradient id="convGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={CHART_PURPLE} stopOpacity={0.25} />
+                        <stop offset="100%" stopColor={CHART_PURPLE} stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.4} />
-                    <XAxis dataKey="month" tick={{fontSize: 10}} tickLine={false} axisLine={false} />
+                    <XAxis dataKey="date" tick={{fontSize: 10}} tickLine={false} axisLine={false} interval="preserveStartEnd" />
                     <YAxis tick={{fontSize: 11}} tickLine={false} axisLine={false} allowDecimals={false} />
                     <Tooltip
                       contentStyle={{
@@ -487,7 +484,7 @@ export default function AdminDashboardCharts({
                       dataKey="value"
                       stroke={CHART_PURPLE}
                       strokeWidth={2}
-                      fill="url(#purpleGrad)"
+                      fill="url(#convGrad)"
                       dot={false}
                       activeDot={{r: 4, fill: CHART_PURPLE}}
                     />
@@ -497,13 +494,75 @@ export default function AdminDashboardCharts({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_4px_12px_rgba(0,0,0,0.02)]">
+          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{labels.activityTitle}</p>
-                <h2 className="mt-0.5 text-lg font-black text-foreground">{labels.chartTitleActivity}</h2>
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{labels.byCampaign}</p>
+                <h2 className="mt-0.5 text-lg font-black text-foreground">{labels.donationMethods}</h2>
               </div>
-              {!recentEmpty && (
+              {!paymentMethodsEmpty && (
+                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                  {fmt(paymentMethods.reduce((s, p) => s + p.count, 0))}
+                </span>
+              )}
+            </div>
+            <div className="mt-5 h-52">
+              {paymentMethodsEmpty ? (
+                <div className="flex h-full items-center justify-center">
+                  <p className="text-sm text-muted-foreground">{labels.noData}</p>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={paymentMethods.map((pm) => ({name: pm.method, value: pm.total}))}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={42}
+                      outerRadius={66}
+                      paddingAngle={2}
+                    >
+                      {paymentMethods.map((_, i) => (
+                        <Cell key={i} fill={pmColors[i % pmColors.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        background: "hsl(var(--popover))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: 12,
+                        fontSize: 13,
+                      }}
+                      formatter={(value) => fmtCurrency(Number(value ?? 0))}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+            {!paymentMethodsEmpty && (
+              <div className="mt-3 space-y-1.5">
+                {paymentMethods.slice(0, 4).map((pm) => (
+                  <div key={pm.method} className="flex items-center justify-between text-xs">
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full" style={{backgroundColor: pmColors[paymentMethods.indexOf(pm) % pmColors.length]}} />
+                      <span className="capitalize text-muted-foreground">{pm.method}</span>
+                    </span>
+                    <span className="font-semibold text-foreground">{fmtCurrency(pm.total)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{labels.realtimeActivity}</p>
+                <h2 className="mt-0.5 text-lg font-black text-foreground">Live Feed</h2>
+              </div>
+              {!realtimeEmpty && (
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
@@ -511,45 +570,37 @@ export default function AdminDashboardCharts({
               )}
             </div>
             <div className="mt-5">
-              {recentEmpty ? (
+              {realtimeEmpty ? (
                 <div className="flex h-40 items-center justify-center">
-                  <p className="text-sm text-muted-foreground">{labels.noData}</p>
+                  <div className="text-center">
+                    <BarChart3 size={24} className="mx-auto text-muted-foreground/30" />
+                    <p className="mt-2 text-sm text-muted-foreground">{labels.noData}</p>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-0">
-                  {recentActivity.slice(0, 7).map((item, idx) => {
-                    const Icon = activityTypeIcons[item.type] ?? Newspaper;
-                    return (
-                      <a
-                        key={item.id}
-                        href={item.href}
-                        className="group grid grid-cols-[auto_1fr] gap-3 transition"
-                      >
-                        <div className="flex flex-col items-center">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:bg-primary/20">
-                            <Icon size={14} />
-                          </div>
-                          {idx < Math.min(recentActivity.length, 7) - 1 && (
-                            <div className="h-5 w-px bg-border/60" />
-                          )}
+                  {realtimeActivity.slice(0, 8).map((item, idx) => (
+                    <div key={item.id} className="group grid grid-cols-[auto_1fr] gap-3 transition">
+                      <div className="flex flex-col items-center">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                          {item.type === "donation" ? <DollarSign size={13} /> : item.type === "member" ? <Users size={13} /> : <MessageCircle size={13} />}
                         </div>
-                        <div className="min-w-0 pb-3">
-                          <div className="flex items-start justify-between gap-2">
-                            <p className="truncate text-sm font-medium text-foreground group-hover:text-primary">
-                              {item.title}
-                            </p>
-                            <span className="shrink-0 text-[10px] text-muted-foreground/60">
-                              {timeAgo(item.created_at)}
-                            </span>
-                          </div>
-                          <p className="truncate text-xs text-muted-foreground">
-                            {activityTypeLabels[item.type] ?? item.type}
-                            {item.actor ? ` \u00b7 ${displayName(item.actor)}` : ""}
+                        {idx < Math.min(realtimeActivity.length, 8) - 1 && (
+                          <div className="h-5 w-px bg-border/60" />
+                        )}
+                      </div>
+                      <div className="min-w-0 pb-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="truncate text-sm font-medium text-foreground">
+                            {item.title}
                           </p>
+                          <span className="shrink-0 text-[10px] text-muted-foreground/60">
+                            {timeAgo(item.created_at)}
+                          </span>
                         </div>
-                      </a>
-                    );
-                  })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

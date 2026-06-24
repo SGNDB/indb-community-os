@@ -100,40 +100,37 @@ export async function getAdminDashboardKPIs(): Promise<AdminDashboardKPI[]> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const todayIso = today.toISOString();
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
 
   const [
     {count: totalUsers},
-    {count: totalIdeas},
     {count: ideasInProgress},
-    {count: totalGraatek},
     {count: activeGraatek},
-    {count: totalMemories},
-    {count: messagesToday},
     {count: activeCampaigns},
-    {count: totalVolunteers},
-    {count: notificationsSent},
+    {count: messagesToday},
+    {count: activeVolunteers},
+    {count: donationsThisMonth},
+    {count: activeUsersToday},
   ] = await Promise.all([
     supabase.from("profiles").select("*", {count: "exact", head: true}),
-    supabase.from("ideas").select("*", {count: "exact", head: true}),
     supabase.from("ideas").select("*", {count: "exact", head: true}).in("status", ["published", "interested", "discussion", "in_progress"]),
-    supabase.from("community_shares").select("*", {count: "exact", head: true}),
     supabase.from("community_shares").select("*", {count: "exact", head: true}).eq("status", "active"),
-    supabase.from("memories").select("*", {count: "exact", head: true}),
-    supabase.from("conversation_messages").select("*", {count: "exact", head: true}).gte("created_at", todayIso),
     supabase.from("support_campaigns").select("*", {count: "exact", head: true}).eq("status", "active"),
-    supabase.from("profiles").select("*", {count: "exact", head: true}),
-    supabase.from("notifications").select("*", {count: "exact", head: true}).gte("created_at", todayIso),
+    supabase.from("conversation_messages").select("*", {count: "exact", head: true}).gte("created_at", todayIso),
+    supabase.from("profiles").select("*", {count: "exact", head: true}).gte("last_login", todayIso),
+    supabase.from("support_contributions").select("*", {count: "exact", head: true}).eq("contribution_type", "money").gte("created_at", monthStart),
+    supabase.from("profiles").select("id", {count: "exact", head: true}).gte("last_login", todayIso),
   ]);
 
   return [
     {label: "totalUsers", value: totalUsers ?? 0, icon: "Users", href: "/admin/users"},
+    {label: "activeUsersToday", value: activeUsersToday ?? 0, icon: "Activity", href: "/admin/analytics"},
     {label: "activeIdeas", value: ideasInProgress ?? 0, icon: "Lightbulb", href: "/admin/ideas"},
     {label: "activeGraatek", value: activeGraatek ?? 0, icon: "Gift", href: "/admin/graatek"},
-    {label: "totalMemories", value: totalMemories ?? 0, icon: "Images", href: "/admin/memories"},
-    {label: "messagesToday", value: messagesToday ?? 0, icon: "MessageCircle", href: "/admin/messages"},
     {label: "activeCampaigns", value: activeCampaigns ?? 0, icon: "HandHeart", href: "/admin/support"},
-    {label: "totalVolunteers", value: totalVolunteers ?? 0, icon: "UsersRound", href: "/admin/volunteer"},
-    {label: "notificationsSent", value: notificationsSent ?? 0, icon: "Bell", href: "/admin/notifications"},
+    {label: "activeVolunteers", value: activeVolunteers ?? 0, icon: "UsersRound", href: "/admin/volunteer"},
+    {label: "donationsThisMonth", value: donationsThisMonth ?? 0, icon: "Landmark", href: "/admin/payments"},
+    {label: "messagesToday", value: messagesToday ?? 0, icon: "MessageCircle", href: "/admin/messages"},
   ];
 }
 
@@ -800,4 +797,236 @@ export async function getRecentAdminActivity(): Promise<AdminActivityItem[]> {
   return [...contentItems, ...creditItems, ...memberItems]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 12);
+}
+
+export interface AdminDonationTrend {
+  month: string;
+  value: number;
+}
+
+export async function getAdminDonationTrend(): Promise<AdminDonationTrend[]> {
+  const supabase = await createClient();
+  const now = new Date();
+  const points: AdminDonationTrend[] = [];
+
+  for (let i = 11; i >= 0; i--) {
+    const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const start = m.toISOString();
+    const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1).toISOString();
+    const {data} = await supabase
+      .from("support_contributions")
+      .select("amount")
+      .eq("contribution_type", "money")
+      .not("amount", "is", null)
+      .gte("created_at", start)
+      .lt("created_at", end);
+    const total = (data ?? []).reduce((s, r) => s + Number(r.amount ?? 0), 0);
+    points.push({
+      month: m.toLocaleDateString("en-US", {month: "short", year: "2-digit"}),
+      value: total,
+    });
+  }
+
+  return points;
+}
+
+export interface AdminConversationTrend {
+  date: string;
+  value: number;
+}
+
+export async function getAdminConversationTrend(): Promise<AdminConversationTrend[]> {
+  const supabase = await createClient();
+  const now = new Date();
+  const points: AdminConversationTrend[] = [];
+
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    const start = d.toISOString().slice(0, 10);
+    const end = new Date(d.getTime() + 86400000).toISOString().slice(0, 10);
+    const {count} = await supabase
+      .from("conversation_messages")
+      .select("*", {count: "exact", head: true})
+      .gte("created_at", start)
+      .lt("created_at", end);
+    points.push({
+      date: d.toLocaleDateString("en-US", {month: "short", day: "numeric"}),
+      value: count ?? 0,
+    });
+  }
+
+  return points;
+}
+
+export interface AdminPaymentMethod {
+  method: string;
+  count: number;
+  total: number;
+}
+
+export async function getAdminPaymentMethods(): Promise<AdminPaymentMethod[]> {
+  const supabase = await createClient();
+  const {data} = await supabase
+    .from("support_contributions")
+    .select("payment_method, amount")
+    .eq("contribution_type", "money")
+    .not("amount", "is", null);
+
+  const grouped = new Map<string, {count: number; total: number}>();
+  for (const row of data ?? []) {
+    const method = row.payment_method || "other";
+    if (!grouped.has(method)) grouped.set(method, {count: 0, total: 0});
+    const entry = grouped.get(method)!;
+    entry.count += 1;
+    entry.total += Number(row.amount ?? 0);
+  }
+
+  return Array.from(grouped.entries())
+    .map(([method, {count, total}]) => ({method, count, total}))
+    .sort((a, b) => b.total - a.total);
+}
+
+export interface AdminHourlyPoint {
+  hour: string;
+  value: number;
+}
+
+export async function getAdminHourlyActivity(): Promise<AdminHourlyPoint[]> {
+  const supabase = await createClient();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const points: AdminHourlyPoint[] = [];
+
+  for (let h = 0; h < 24; h++) {
+    const hStart = new Date(today.getTime() + h * 3600000).toISOString();
+    const hEnd = new Date(today.getTime() + (h + 1) * 3600000).toISOString();
+    const {count} = await supabase
+      .from("conversation_messages")
+      .select("*", {count: "exact", head: true})
+      .gte("created_at", hStart)
+      .lt("created_at", hEnd);
+    points.push({
+      hour: `${h.toString().padStart(2, "0")}:00`,
+      value: count ?? 0,
+    });
+  }
+
+  return points;
+}
+
+export interface AdminVolunteerStats {
+  totalHours: number;
+  completedActivities: number;
+  growth: AdminVolunteerMonth[];
+}
+
+export interface AdminPayment {
+  id: string;
+  amount: number;
+  payment_method: string | null;
+  payment_status: string | null;
+  created_at: string;
+  contributor: Pick<ProfileRow, "id" | "full_name" | "username" | "avatar_url"> | null;
+  campaign: {id: string; title: string} | null;
+}
+
+export async function getAdminPayments(search?: string): Promise<AdminPayment[]> {
+  const supabase = await createClient();
+  const safeSearch = sanitizeSearchTerm(search);
+
+  let query = supabase
+    .from("support_contributions")
+    .select("id, amount, payment_method, payment_status, created_at, contributor:profiles(id, full_name, username, avatar_url), campaign:campaign_id(id, title)")
+    .eq("contribution_type", "money")
+    .order("created_at", {ascending: false})
+    .limit(40);
+
+  if (safeSearch) {
+    query = query.or(`payment_method.ilike.%${safeSearch}%,payment_status.ilike.%${safeSearch}%`);
+  }
+
+  const {data} = await query;
+  return (data ?? []).map((d) => ({
+    ...d,
+    contributor: singleProfile(d.contributor),
+    campaign: (d.campaign as unknown as {id: string; title: string} | null) ?? null,
+  })) as AdminPayment[];
+}
+
+export interface AdminRealtimeActivity {
+  id: string;
+  type: string;
+  title: string;
+  created_at: string;
+}
+
+export async function getAdminRealtimeActivity(): Promise<AdminRealtimeActivity[]> {
+  const supabase = await createClient();
+  const now = new Date();
+  const fiveMinsAgo = new Date(now.getTime() - 5 * 60000).toISOString();
+  const items: AdminRealtimeActivity[] = [];
+
+  const [{data: messages}, {data: donations}, {data: newProfiles}] = await Promise.all([
+    supabase.from("conversation_messages").select("id, content, created_at").gte("created_at", fiveMinsAgo).limit(10),
+    supabase.from("support_contributions").select("id, amount, created_at").eq("contribution_type", "money").gte("created_at", fiveMinsAgo).limit(5),
+    supabase.from("profiles").select("id, full_name, username, created_at").gte("created_at", fiveMinsAgo).limit(5),
+  ]);
+
+  for (const msg of messages ?? []) {
+    items.push({id: `msg-${msg.id}`, type: "message", title: msg.content?.slice(0, 80) ?? "New message", created_at: msg.created_at});
+  }
+  for (const d of donations ?? []) {
+    items.push({id: `donation-${d.id}`, type: "donation", title: `${Number(d.amount).toLocaleString()} MRU donation`, created_at: d.created_at});
+  }
+  for (const p of newProfiles ?? []) {
+    items.push({id: `member-${p.id}`, type: "member", title: `${p.full_name ?? p.username ?? "Someone"} joined`, created_at: p.created_at});
+  }
+
+  return items.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 20);
+}
+
+export async function getAdminIdeaGrowth(): Promise<AdminUserGrowthPoint[]> {
+  const supabase = await createClient();
+  const now = new Date();
+  const points: AdminUserGrowthPoint[] = [];
+
+  for (let i = 11; i >= 0; i--) {
+    const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const start = m.toISOString();
+    const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1).toISOString();
+    const {count} = await supabase
+      .from("ideas")
+      .select("*", {count: "exact", head: true})
+      .gte("created_at", start)
+      .lt("created_at", end);
+    points.push({
+      month: m.toLocaleDateString("en-US", {month: "short", year: "2-digit"}),
+      value: count ?? 0,
+    });
+  }
+
+  return points;
+}
+
+export async function getAdminGraatekGrowth(): Promise<AdminUserGrowthPoint[]> {
+  const supabase = await createClient();
+  const now = new Date();
+  const points: AdminUserGrowthPoint[] = [];
+
+  for (let i = 11; i >= 0; i--) {
+    const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const start = m.toISOString();
+    const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1).toISOString();
+    const {count} = await supabase
+      .from("community_shares")
+      .select("*", {count: "exact", head: true})
+      .gte("created_at", start)
+      .lt("created_at", end);
+    points.push({
+      month: m.toLocaleDateString("en-US", {month: "short", year: "2-digit"}),
+      value: count ?? 0,
+    });
+  }
+
+  return points;
 }

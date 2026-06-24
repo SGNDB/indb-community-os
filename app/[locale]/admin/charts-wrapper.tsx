@@ -9,26 +9,33 @@ import type {
   AdminDonationByCampaign,
   AdminVolunteerMonth,
   AdminActivityItem,
+  AdminDonationTrend,
+  AdminConversationTrend,
+  AdminPaymentMethod,
+  AdminHourlyPoint,
+  AdminRealtimeActivity,
 } from "@/lib/data/admin";
 
 interface Labels {
   kpi: Record<string, string>;
-  chartTitleUsers: string;
-  chartTitleActivity: string;
-  chartTitleDonations: string;
-  chartTitleVolunteers: string;
-  activityTitle: string;
-  postsLabel: string;
-  ideasLabel: string;
-  memoriesLabel: string;
-  usersLabel: string;
-  donationsLabel: string;
-  amountLabel: string;
-  volunteersLabel: string;
+  communityGrowth: string;
+  usersTab: string;
+  ideasTab: string;
+  graatekTab: string;
+  donationsTab: string;
+  volunteersTab: string;
+  byCampaign: string;
+  donationMethods: string;
+  hourlyActivity: string;
+  weeklyTrend: string;
+  monthlyTrend: string;
+  completionRate: string;
+  dailyMessages: string;
+  realtimeActivity: string;
+  growthRate: string;
+  successRate: string;
+  engagementRate: string;
   noData: string;
-  totalDonations: string;
-  activeToday: string;
-  activeSignal: string;
   eyebrow: string;
   commandCenter: string;
   heroDescription: string;
@@ -59,7 +66,7 @@ function LoadingSkeleton() {
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({length: 4}).map((_, i) => (
+        {Array.from({length: 8}).map((_, i) => (
           <SkeletonCard key={i} />
         ))}
       </div>
@@ -79,10 +86,17 @@ function LoadingSkeleton() {
 export default function ChartsWrapper(props: {
   kpis: AdminDashboardKPI[];
   userGrowth: AdminUserGrowthPoint[];
+  ideaGrowth: AdminUserGrowthPoint[];
+  graatekGrowth: AdminUserGrowthPoint[];
   communityActivity: AdminActivityPoint[];
   donationsByCampaign: AdminDonationByCampaign[];
   volunteerActivity: AdminVolunteerMonth[];
   recentActivity: AdminActivityItem[];
+  donationTrend: AdminDonationTrend[];
+  conversationTrend: AdminConversationTrend[];
+  paymentMethods: AdminPaymentMethod[];
+  hourlyActivity: AdminHourlyPoint[];
+  realtimeActivity: AdminRealtimeActivity[];
   labels: Labels;
   locale: string;
 }) {

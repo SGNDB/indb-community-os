@@ -45,7 +45,8 @@ export interface AdminSidebarItem {
 type AdminSidebarIconKey =
   | "dashboard" | "users" | "content" | "credits" | "analytics"
   | "support" | "settings" | "ideas" | "graatek" | "memories"
-  | "messages" | "notifications" | "moderation" | "volunteer" | "donations";
+  | "messages" | "notifications" | "moderation" | "volunteer"
+  | "donations" | "payments";
 
 const iconMap: Record<AdminSidebarIconKey, LucideIcon> = {
   dashboard: LayoutDashboard,
@@ -63,6 +64,7 @@ const iconMap: Record<AdminSidebarIconKey, LucideIcon> = {
   moderation: Shield,
   volunteer: UsersRound,
   donations: Landmark,
+  payments: Landmark,
 };
 
 interface AdminSidebarProps {

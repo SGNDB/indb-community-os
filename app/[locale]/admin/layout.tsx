@@ -24,19 +24,17 @@ export default async function AdminLayout({
   const basePath = `/${locale}/admin`;
   const navItems = [
     {label: t("nav.dashboard"), href: basePath, iconKey: "dashboard" as const},
+    {label: t("nav.users"), href: `${basePath}/users`, iconKey: "users" as const},
     {label: t("nav.ideas"), href: `${basePath}/ideas`, iconKey: "ideas" as const},
     {label: t("nav.graatek"), href: `${basePath}/graatek`, iconKey: "graatek" as const},
-    {label: t("nav.users"), href: `${basePath}/users`, iconKey: "users" as const},
     {label: t("nav.memories"), href: `${basePath}/memories`, iconKey: "memories" as const},
     {label: t("nav.messages"), href: `${basePath}/messages`, iconKey: "messages" as const},
     {label: t("nav.support"), href: `${basePath}/support`, iconKey: "support" as const},
-    {label: t("nav.volunteer"), href: `${basePath}/volunteer`, iconKey: "volunteer" as const},
-    {label: t("nav.donations"), href: `${basePath}/donations`, iconKey: "donations" as const},
-    {label: t("nav.moderation"), href: `${basePath}/moderation`, iconKey: "moderation" as const},
+    {label: t("nav.volunteering"), href: `${basePath}/volunteer`, iconKey: "volunteer" as const},
     {label: t("nav.notifications"), href: `${basePath}/notifications`, iconKey: "notifications" as const},
+    {label: t("nav.moderation"), href: `${basePath}/moderation`, iconKey: "moderation" as const},
     {label: t("nav.analytics"), href: `${basePath}/analytics`, iconKey: "analytics" as const},
-    {label: t("nav.content"), href: `${basePath}/content`, iconKey: "content" as const},
-    {label: t("nav.credits"), href: `${basePath}/credits`, iconKey: "credits" as const},
+    {label: t("nav.payments"), href: `${basePath}/payments`, iconKey: "payments" as const},
     {label: t("nav.settings"), href: `${basePath}/settings`, iconKey: "settings" as const},
   ];
 
