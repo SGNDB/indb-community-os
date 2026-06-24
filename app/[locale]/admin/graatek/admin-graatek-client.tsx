@@ -62,13 +62,13 @@ type PeriodKey = "today" | "7d" | "30d" | "90d" | "1y" | "all";
 
 const COLORS = ["#ed2124", "#2563eb", "#10b981", "#f59e0b", "#8b5cf6", "#06b6d4", "#ec4899", "#84cc16"];
 
-const PERIODS: {key: PeriodKey; label: string; days: number | null}[] = [
-  {key: "today", label: "Today", days: 1},
-  {key: "7d", label: "7 Days", days: 7},
-  {key: "30d", label: "30 Days", days: 30},
-  {key: "90d", label: "90 Days", days: 90},
-  {key: "1y", label: "1 Year", days: 365},
-  {key: "all", label: "All Time", days: null},
+const PERIODS: {key: PeriodKey; labelKey: string; days: number | null}[] = [
+  {key: "today", labelKey: "periodToday", days: 1},
+  {key: "7d", labelKey: "period7d", days: 7},
+  {key: "30d", labelKey: "period30d", days: 30},
+  {key: "90d", labelKey: "period90d", days: 90},
+  {key: "1y", labelKey: "period1y", days: 365},
+  {key: "all", labelKey: "periodAll", days: null},
 ];
 
 const STATUS_STYLES: Record<string, string> = {
@@ -109,7 +109,27 @@ function statusLabel(status: string, labels: Labels) {
   return labels[normalized] ?? normalized;
 }
 
-function categoryLabel(category: string) {
+const CATEGORY_LABEL_KEYS: Record<string, string> = {
+  food: "categoryFood",
+  clothes: "categoryClothes",
+  clothing: "categoryClothes",
+  books: "categoryBooks",
+  school_supplies: "categorySchoolSupplies",
+  furniture: "categoryFurniture",
+  tools: "categoryTools",
+  electronics: "categoryElectronics",
+  medical: "categoryMedical",
+  medical_equipment: "categoryMedical",
+  household: "categoryHousehold",
+  household_items: "categoryHousehold",
+  baby_items: "categoryBabyItems",
+  services: "categoryServices",
+  other: "categoryOther",
+};
+
+function categoryLabel(category: string, labels: Labels) {
+  const labelKey = CATEGORY_LABEL_KEYS[category];
+  if (labelKey && labels[labelKey]) return labels[labelKey];
   return category
     .split("_")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
@@ -168,11 +188,11 @@ function buildTimeSeries(items: GraatekAdminItem[], period: PeriodKey) {
   return Array.from(groups.values()).slice(-18);
 }
 
-function aggregateCategories(items: GraatekAdminItem[]) {
-  const map = new Map<string, {category: string; shared: number; requested: number; completed: number; available: number}>();
+function aggregateCategories(items: GraatekAdminItem[], labels: Labels) {
+  const map = new Map<string, {key: string; category: string; shared: number; requested: number; completed: number; available: number}>();
   for (const item of items) {
-    const key = categoryLabel(item.category || "other");
-    const current = map.get(key) ?? {category: key, shared: 0, requested: 0, completed: 0, available: 0};
+    const key = item.category || "other";
+    const current = map.get(key) ?? {key, category: categoryLabel(key, labels), shared: 0, requested: 0, completed: 0, available: 0};
     current.shared += 1;
     current.requested += item.requests_count;
     if (normalizeStatus(item.status) === "completed") current.completed += 1;
@@ -257,7 +277,7 @@ export function AdminGraatekClient({
   const [selectedItem, setSelectedItem] = useState<GraatekAdminItem | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const categoryOptions = useMemo(() => aggregateCategories(initialItems), [initialItems]);
+  const categoryOptions = useMemo(() => aggregateCategories(initialItems, labels), [initialItems, labels]);
   const timeSeries = useMemo(() => buildTimeSeries(initialItems, period), [initialItems, period]);
 
   const filteredItems = useMemo(() => {
@@ -267,7 +287,7 @@ export function AdminGraatekClient({
       result = result.filter((item) => (
         item.title.toLowerCase().includes(query) ||
         item.description?.toLowerCase().includes(query) ||
-        categoryLabel(item.category).toLowerCase().includes(query) ||
+        categoryLabel(item.category, labels).toLowerCase().includes(query) ||
         item.owner?.full_name?.toLowerCase().includes(query) ||
         item.owner?.username?.toLowerCase().includes(query)
       ));
@@ -290,7 +310,7 @@ export function AdminGraatekClient({
       return sortDir === "asc" ? cmp : -cmp;
     });
     return result;
-  }, [initialItems, search, status, category, quickFilter, sortColumn, sortDir]);
+  }, [initialItems, labels, search, status, category, quickFilter, sortColumn, sortDir]);
 
   const total = initialItems.length;
   const availableCount = initialItems.filter((item) => normalizeStatus(item.status) === "published").length;
@@ -310,8 +330,8 @@ export function AdminGraatekClient({
 
   const exportColumns = useMemo<ExportColumn<GraatekAdminItem>[]>(() => [
     {header: labels.tableTitle ?? "Title", getValue: (item) => item.title},
-    {header: labels.tableCategory ?? "Category", getValue: (item) => categoryLabel(item.category)},
-    {header: labels.tableOwner ?? "Owner", getValue: (item) => item.owner ? displayName(item.owner) : "Unknown"},
+    {header: labels.tableCategory ?? "Category", getValue: (item) => categoryLabel(item.category, labels)},
+    {header: labels.tableOwner ?? "Owner", getValue: (item) => item.owner ? displayName(item.owner) : labels.unknown},
     {header: labels.tableStatus ?? "Status", getValue: (item) => statusLabel(item.status, labels)},
     {header: labels.tableRequests ?? "Requests", getValue: (item) => item.requests_count},
     {header: labels.tableViews ?? "Views", getValue: (item) => item.views_count},
@@ -377,7 +397,7 @@ export function AdminGraatekClient({
             onClick={() => setPeriod(item.key)}
             className={`rounded-xl px-3 py-2 text-xs font-bold transition ${period === item.key ? "bg-primary text-primary-foreground shadow-sm" : "border border-border/60 bg-card text-muted-foreground hover:bg-muted/50 hover:text-foreground"}`}
           >
-            {item.label}
+            {labels[item.labelKey] ?? item.labelKey}
           </button>
         ))}
       </div>
@@ -483,7 +503,7 @@ export function AdminGraatekClient({
             <StatPill label={labels.peopleHelped} value={formatNumber(helpedCount, locale)} />
             <StatPill label={labels.successfulExchanges} value={formatNumber(completedCount, locale)} />
             <StatPill label={labels.totalItems} value={formatNumber(total, locale)} />
-            <StatPill label={labels.avgTime} value={`${avgCompletion}d`} />
+            <StatPill label={labels.avgTime} value={`${avgCompletion}${labels.dayShort}`} />
           </div>
         </GlassCard>
 
@@ -506,8 +526,8 @@ export function AdminGraatekClient({
           <h2 className="text-base font-black text-foreground">{labels.futureMap}</h2>
           <div className="mt-4 rounded-2xl border border-dashed border-border/70 bg-muted/20 p-5 text-center">
             <MapIcon className="mx-auto h-10 w-10 text-primary" />
-            <p className="mt-3 text-sm font-bold text-foreground">Neighborhood heat map ready</p>
-            <p className="mt-1 text-xs text-muted-foreground">Location fields are preserved for future city demand analytics.</p>
+            <p className="mt-3 text-sm font-bold text-foreground">{labels.mapReady}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{labels.mapDescription}</p>
           </div>
         </GlassCard>
       </div>
@@ -539,12 +559,12 @@ export function AdminGraatekClient({
               </select>
               <select value={category} onChange={(event) => setCategory(event.target.value)} className="h-10 rounded-2xl border border-border/60 bg-background px-3 text-sm">
                 <option value="">{labels.allCategories}</option>
-                {categoryOptions.map((item) => <option key={item.category} value={item.category.toLowerCase().replaceAll(" ", "_")}>{item.category}</option>)}
+                {categoryOptions.map((item) => <option key={item.key} value={item.key}>{item.category}</option>)}
               </select>
               <select value={quickFilter} onChange={(event) => setQuickFilter(event.target.value)} className="h-10 rounded-2xl border border-border/60 bg-background px-3 text-sm">
-                <option value="">Smart filters</option>
-                <option value="most_requested">Most Requested</option>
-                <option value="recently_created">Recently Created</option>
+                <option value="">{labels.smartFilters}</option>
+                <option value="most_requested">{labels.mostRequested}</option>
+                <option value="recently_created">{labels.recentlyCreated}</option>
                 <option value="completed">{labels.completed}</option>
                 <option value="available">{labels.available}</option>
               </select>
@@ -594,12 +614,12 @@ export function AdminGraatekClient({
                       <p className="truncate text-xs text-muted-foreground">{item.description ?? item.location ?? "-"}</p>
                     </td>
                     <td className="hidden px-4 py-3 lg:table-cell">
-                      <span className="rounded-lg bg-muted/40 px-2 py-1 text-xs font-semibold text-muted-foreground">{categoryLabel(item.category)}</span>
+                      <span className="rounded-lg bg-muted/40 px-2 py-1 text-xs font-semibold text-muted-foreground">{categoryLabel(item.category, labels)}</span>
                     </td>
                     <td className="hidden px-4 py-3 lg:table-cell">
                       <div className="flex items-center gap-2">
                         <AdminAvatar profile={item.owner} className="h-7 w-7" />
-                        <span className="max-w-[140px] truncate text-xs font-semibold text-muted-foreground">{item.owner ? displayName(item.owner) : "Unknown"}</span>
+                        <span className="max-w-[140px] truncate text-xs font-semibold text-muted-foreground">{item.owner ? displayName(item.owner) : labels.unknown}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3">
@@ -631,7 +651,7 @@ export function AdminGraatekClient({
         <GlassCard className="p-5" hover={false}>
           <h2 className="text-base font-black text-foreground">{labels.reports}</h2>
           <div className="mt-4 space-y-2">
-            {["Most Shared Categories", "Monthly Sharing", "Community Impact", "Successful Exchanges"].map((report) => (
+            {[labels.reportMostSharedCategories, labels.reportMonthlySharing, labels.reportCommunityImpact, labels.reportSuccessfulExchanges].map((report) => (
               <div key={report} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/70 p-3">
                 <span className="text-sm font-semibold text-foreground">{report}</span>
                 <Download size={15} className="text-muted-foreground" />
@@ -641,26 +661,26 @@ export function AdminGraatekClient({
         </GlassCard>
 
         <GlassCard className="p-5" hover={false}>
-          <h2 className="text-base font-black text-foreground">Shortages</h2>
+          <h2 className="text-base font-black text-foreground">{labels.shortages}</h2>
           <div className="mt-4 space-y-3">
             {shortages.length ? shortages.map((item) => (
               <div key={item.category} className="flex items-center justify-between rounded-xl bg-muted/30 p-3">
                 <span className="text-sm font-semibold text-foreground">{item.category}</span>
                 <span className="text-xs font-bold text-red-600 dark:text-red-300">{formatNumber(item.shortage, locale)}</span>
               </div>
-            )) : <p className="text-sm text-muted-foreground">No shortage signals yet.</p>}
+            )) : <p className="text-sm text-muted-foreground">{labels.noShortageSignals}</p>}
           </div>
         </GlassCard>
 
         <GlassCard className="p-5" hover={false}>
-          <h2 className="text-base font-black text-foreground">Unfulfilled items</h2>
+          <h2 className="text-base font-black text-foreground">{labels.unfulfilledItems}</h2>
           <div className="mt-4 space-y-3">
             {unfulfilled.length ? unfulfilled.map((item) => (
               <button key={item.id} onClick={() => setSelectedItem(item)} className="flex w-full items-center justify-between rounded-xl bg-muted/30 p-3 text-left transition hover:bg-muted/50">
                 <span className="min-w-0 truncate text-sm font-semibold text-foreground">{item.title}</span>
                 <span className="text-xs font-bold text-muted-foreground">{formatNumber(item.pending_requests, locale)}</span>
               </button>
-            )) : <p className="text-sm text-muted-foreground">No unfulfilled requests.</p>}
+            )) : <p className="text-sm text-muted-foreground">{labels.noUnfulfilledRequests}</p>}
           </div>
         </GlassCard>
       </div>
@@ -684,7 +704,7 @@ export function AdminGraatekClient({
                   <h3 className="text-xl font-black text-foreground">{selectedItem.title}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">{selectedItem.description ?? "-"}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <span className="rounded-lg bg-muted/40 px-2 py-1 text-xs font-semibold text-muted-foreground">{categoryLabel(selectedItem.category)}</span>
+                    <span className="rounded-lg bg-muted/40 px-2 py-1 text-xs font-semibold text-muted-foreground">{categoryLabel(selectedItem.category, labels)}</span>
                     <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${STATUS_STYLES[normalizeStatus(selectedItem.status)] ?? STATUS_STYLES.archived}`}>
                       {statusLabel(selectedItem.status, labels)}
                     </span>
@@ -696,7 +716,7 @@ export function AdminGraatekClient({
                 <div className="flex items-center gap-3">
                   <AdminAvatar profile={selectedItem.owner} className="h-10 w-10" />
                   <div>
-                    <p className="text-sm font-bold text-foreground">{selectedItem.owner ? displayName(selectedItem.owner) : "Unknown"}</p>
+                    <p className="text-sm font-bold text-foreground">{selectedItem.owner ? displayName(selectedItem.owner) : labels.unknown}</p>
                     <p className="text-xs text-muted-foreground">{selectedItem.location ?? selectedItem.condition ?? "-"}</p>
                   </div>
                 </div>
@@ -706,13 +726,13 @@ export function AdminGraatekClient({
                 <StatPill label={labels.tableViews} value={formatNumber(selectedItem.views_count, locale)} />
                 <StatPill label={labels.tableRequests} value={formatNumber(selectedItem.requests_count, locale)} />
                 <StatPill label={labels.acceptedRequest} value={selectedItem.accepted_request ? displayName(selectedItem.accepted_request.requester) : "-"} />
-                <StatPill label="Messages" value={formatNumber(selectedItem.messages_count, locale)} />
+                <StatPill label={labels.messages} value={formatNumber(selectedItem.messages_count, locale)} />
                 <StatPill label={labels.tableCreated} value={formatDate(selectedItem.created_at, locale)} />
                 <StatPill label={labels.tableCompleted} value={formatDate(selectedItem.completed_at, locale)} />
               </div>
 
               <GlassCard className="p-4" hover={false}>
-                <h3 className="text-sm font-black text-foreground">Request management</h3>
+                <h3 className="text-sm font-black text-foreground">{labels.requestManagement}</h3>
                 <div className="mt-3 grid grid-cols-3 gap-2">
                   <StatPill label={labels.pendingRequests} value={formatNumber(selectedItem.pending_requests, locale)} />
                   <StatPill label={labels.acceptedRequest} value={selectedItem.accepted_request ? "1" : "0"} />
@@ -723,7 +743,7 @@ export function AdminGraatekClient({
                     <div key={request.id} className="flex items-center gap-3 rounded-xl bg-muted/30 p-3">
                       <AdminAvatar profile={request.requester} className="h-8 w-8" />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-bold text-foreground">{request.requester ? displayName(request.requester) : "Unknown"}</p>
+                        <p className="truncate text-sm font-bold text-foreground">{request.requester ? displayName(request.requester) : labels.unknown}</p>
                         <p className="truncate text-xs text-muted-foreground">{request.message ?? request.status}</p>
                       </div>
                       <span className="rounded-full bg-background px-2 py-1 text-[10px] font-bold text-muted-foreground">{request.status}</span>
