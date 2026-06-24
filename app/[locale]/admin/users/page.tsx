@@ -1,112 +1,140 @@
-import {Search, ShieldCheck, Users} from "lucide-react";
 import {getTranslations} from "next-intl/server";
-
-import {deleteAdminUserAction} from "@/app/[locale]/server-actions";
-import {DeleteUserSubmitButton} from "@/components/admin/delete-user-submit-button";
-import {AdminStatusMessage, Avatar, ShellCard, displayName} from "@/components/admin/admin-shared";
-import {Badge} from "@/components/ui/badge";
-import {Input} from "@/components/ui/input";
-import {getContributionRankKey} from "@/lib/contribution";
-import {getAdminUsers, getCurrentAdminProfile} from "@/lib/data/admin";
+import {getAdminUsersWithStats, getAdminUsersKPISummary, getAdminTopContributors} from "@/lib/data/admin";
+import {AdminUsersClient} from "./users-client";
 
 export default async function AdminUsersPage({
   params,
   searchParams,
 }: {
   params: Promise<{locale: string}>;
-  searchParams: Promise<{userSearch?: string; status?: string}>;
+  searchParams: Promise<{userSearch?: string; language?: string; status?: string; verified?: string; donor?: string; volunteer?: string; ideaCreator?: string; graatekContributor?: string}>;
 }) {
   const {locale} = await params;
-  const {userSearch = "", status} = await searchParams;
+  const sp = await searchParams;
   const t = await getTranslations({locale, namespace: "Admin"});
-  const [adminProfile, users] = await Promise.all([
-    getCurrentAdminProfile(),
-    getAdminUsers(userSearch),
+
+  const [kpiData, users, topDonors, topVolunteers, topActive] = await Promise.all([
+    getAdminUsersKPISummary(),
+    getAdminUsersWithStats(sp.userSearch, {
+      language: sp.language,
+      status: sp.status,
+      verified: sp.verified,
+      donor: sp.donor,
+      volunteer: sp.volunteer,
+      ideaCreator: sp.ideaCreator,
+      graatekContributor: sp.graatekContributor,
+    }),
+    getAdminTopContributors("donations", 5),
+    getAdminTopContributors("volunteers", 5),
+    getAdminTopContributors("most_active", 5),
   ]);
 
+  const labels = {
+    eyebrow: t("usersPage.eyebrow"),
+    title: t("usersPage.title"),
+    description: t("usersPage.description"),
+    addUser: t("usersPage.addUser"),
+    export: t("usersPage.export"),
+    search: t("usersPage.search"),
+    noResults: t("usersPage.noResults"),
+    name: t("usersPage.name"),
+    phone: t("usersPage.phone"),
+    joinDate: t("usersPage.joinDate"),
+    language: t("usersPage.language"),
+    lastActive: t("usersPage.lastActive"),
+    status: t("usersPage.status"),
+    contributionScore: t("usersPage.contributionScore"),
+    active: t("usersPage.active"),
+    inactive: t("usersPage.inactive"),
+    suspended: t("usersPage.suspended"),
+    viewProfile: t("usersPage.viewProfile"),
+    kpiTotalUsers: t("usersPage.kpi.totalUsers"),
+    kpiActiveToday: t("usersPage.kpi.activeToday"),
+    kpiNewThisMonth: t("usersPage.kpi.newThisMonth"),
+    kpiVerifiedUsers: t("usersPage.kpi.verifiedUsers"),
+    kpiByLanguage: t("usersPage.kpi.byLanguage"),
+    kpiMonthlyGrowth: t("usersPage.kpi.monthlyGrowth"),
+    filterLabel: t("usersPage.filters.label"),
+    filterLanguage: t("usersPage.filters.language"),
+    filterStatus: t("usersPage.filters.status"),
+    filterVerified: t("usersPage.filters.verified"),
+    filterDonor: t("usersPage.filters.donor"),
+    filterVolunteer: t("usersPage.filters.volunteer"),
+    filterIdeaCreator: t("usersPage.filters.ideaCreator"),
+    filterGraatekContributor: t("usersPage.filters.graatekContributor"),
+    filterClear: t("usersPage.filters.clear"),
+    filterAllLanguages: t("usersPage.filters.allLanguages"),
+    filterAllStatuses: t("usersPage.filters.allStatuses"),
+    panelTitle: t("usersPage.profilePanel.title"),
+    panelCommunityStats: t("usersPage.profilePanel.communityStats"),
+    panelPosts: t("usersPage.profilePanel.posts"),
+    panelIdeas: t("usersPage.profilePanel.ideas"),
+    panelMemories: t("usersPage.profilePanel.memories"),
+    panelGraatek: t("usersPage.profilePanel.graatek"),
+    panelMessages: t("usersPage.profilePanel.messages"),
+    panelDonations: t("usersPage.profilePanel.donations"),
+    panelVolunteerActivities: t("usersPage.profilePanel.volunteerActivities"),
+    panelClose: t("usersPage.profilePanel.close"),
+    panelJoined: t("usersPage.profilePanel.joined"),
+    panelLastLogin: t("usersPage.profilePanel.lastLogin"),
+    panelVerifyUser: t("usersPage.profilePanel.verifyUser"),
+    panelRemoveVerification: t("usersPage.profilePanel.removeVerification"),
+    panelSuspendUser: t("usersPage.profilePanel.suspendUser"),
+    panelReactivateUser: t("usersPage.profilePanel.reactivateUser"),
+    impactTitle: t("usersPage.impactScore.title"),
+    impactScore: t("usersPage.impactScore.score"),
+    impactBadges: t("usersPage.impactScore.badges"),
+    badgeCommunityLeader: t("usersPage.impactScore.communityLeader"),
+    badgeInnovator: t("usersPage.impactScore.innovator"),
+    badgeHistorian: t("usersPage.impactScore.historian"),
+    badgeContributor: t("usersPage.impactScore.contributor"),
+    badgeSupporter: t("usersPage.impactScore.supporter"),
+    badgeVolunteer: t("usersPage.impactScore.volunteer"),
+    timelineTitle: t("usersPage.timeline.title"),
+    timelineNoActivity: t("usersPage.timeline.noActivity"),
+    timelinePost: t("usersPage.timeline.post"),
+    timelineIdea: t("usersPage.timeline.idea"),
+    timelineMemory: t("usersPage.timeline.memory"),
+    timelineGraatek: t("usersPage.timeline.graatek"),
+    timelineDonation: t("usersPage.timeline.donation"),
+    timelineCredit: t("usersPage.timeline.credit"),
+    analyticsLanguage: t("usersPage.analytics.languageAnalytics"),
+    analyticsUserGrowth: t("usersPage.analytics.userGrowth"),
+    analyticsDaily: t("usersPage.analytics.dailyRegistrations"),
+    analyticsMonthly: t("usersPage.analytics.monthlyRegistrations"),
+    analytics7d: t("usersPage.analytics.days7"),
+    analytics30d: t("usersPage.analytics.days30"),
+    analytics90d: t("usersPage.analytics.days90"),
+    analytics1y: t("usersPage.analytics.year1"),
+    insightsDonor: t("usersPage.insights.donorInsights"),
+    insightsTotalDonations: t("usersPage.insights.totalDonations"),
+    insightsDonationCount: t("usersPage.insights.donationCount"),
+    insightsSupportedCampaigns: t("usersPage.insights.supportedCampaigns"),
+    insightsTopDonors: t("usersPage.insights.topDonors"),
+    insightsVolunteer: t("usersPage.insights.volunteerInsights"),
+    insightsHours: t("usersPage.insights.volunteerHours"),
+    insightsActivities: t("usersPage.insights.completedActivities"),
+    insightsTopVolunteers: t("usersPage.insights.topVolunteers"),
+    insightsTopContributors: t("usersPage.insights.topContributors"),
+    insightsMostActive: t("usersPage.insights.mostActive"),
+    insightsViewAll: t("usersPage.insights.viewAll"),
+    exportCSV: t("usersPage.export.csv"),
+    exportExcel: t("usersPage.export.excel"),
+    exportPDF: t("usersPage.export.pdf"),
+  };
+
   return (
-    <>
-      <AdminStatusMessage status={status} t={t} />
-      <section className="space-y-4">
-        <div className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-[0_8px_24px_rgba(12,31,44,0.07)]">
-          <div className="flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-start gap-3">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <Users size={22} />
-              </span>
-              <div>
-                <p className="text-sm font-bold text-primary">{t("users.eyebrow")}</p>
-                <h1 className="text-2xl font-black">{t("users.title")}</h1>
-                <p className="mt-1 max-w-xl text-sm text-muted-foreground">{t("users.description")}</p>
-              </div>
-            </div>
-            <form className="flex w-full gap-2 lg:w-auto">
-              <div className="relative flex-1 lg:w-80">
-                <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input name="userSearch" defaultValue={userSearch} placeholder={t("users.search")} className="min-h-12 rounded-2xl ps-9" />
-              </div>
-              <button type="submit" className="min-h-12 rounded-2xl border border-border px-5 text-sm font-black transition hover:bg-muted">
-                {t("users.searchButton")}
-              </button>
-            </form>
-          </div>
-          <div className="border-t border-border bg-muted/30 px-4 py-3 text-sm font-bold text-muted-foreground sm:px-5">
-            {users.length} {t("nav.users")}
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {users.map((user) => {
-            const isSelf = user.id === adminProfile?.id;
-            const rank = getContributionRankKey(user.contribution_score ?? 0);
-            const visibleRole = isSelf && user.role === "admin" ? t("roles.admin") : t("roles.member");
-
-            return (
-              <ShellCard key={user.id} className="p-4">
-                <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(180px,0.5fr)_minmax(180px,0.5fr)_auto] lg:items-center">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <Avatar profile={user} className="h-12 w-12" />
-                    <div className="min-w-0">
-                      <p className="truncate text-lg font-black">{displayName(user)}</p>
-                      <p className="truncate text-sm text-muted-foreground">{user.username ? `@${user.username}` : t("users.noUsername")}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 rounded-2xl bg-muted/40 px-3 py-2">
-                    <ShieldCheck size={17} className="text-primary" />
-                    <div>
-                      <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{t("users.role")}</p>
-                      <p className="text-sm font-black">{visibleRole}</p>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl bg-primary/10 px-3 py-2 text-primary">
-                    <p className="text-[11px] font-bold uppercase tracking-wide">{t("users.score")}</p>
-                    <p className="text-sm font-black">{user.contribution_score ?? 0} · {t(`contributors.rank.${rank}`)}</p>
-                  </div>
-
-                  <div className="flex items-center justify-end">
-                    {isSelf ? (
-                      <Badge className="rounded-full bg-muted px-3 py-2 text-muted-foreground hover:bg-muted">
-                        {t("users.selfRoleProtected")}
-                      </Badge>
-                    ) : (
-                      <form action={deleteAdminUserAction}>
-                        <input type="hidden" name="locale" value={locale} />
-                        <input type="hidden" name="userId" value={user.id} />
-                        <DeleteUserSubmitButton
-                          confirmLabel={t("users.deleteConfirm")}
-                          label={t("users.deleteUser")}
-                        />
-                      </form>
-                    )}
-                  </div>
-                </div>
-              </ShellCard>
-            );
-          })}
-        </div>
-      </section>
-    </>
+    <div className="space-y-6 p-4 md:p-6 xl:p-8">
+      <AdminUsersClient
+        initialKpi={kpiData}
+        initialUsers={users}
+        topDonors={topDonors}
+        topVolunteers={topVolunteers}
+        topActive={topActive}
+        labels={labels}
+        locale={locale}
+        initialSearch={sp.userSearch ?? ""}
+      />
+    </div>
   );
 }
