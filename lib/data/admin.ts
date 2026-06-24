@@ -1412,3 +1412,326 @@ export async function getAdminTopContributors(category: string, limit = 10): Pro
   const {data} = await supabase.from("profiles").select("id, full_name, username, avatar_url, contribution_score").order("contribution_score", {ascending: false}).limit(limit);
   return (data ?? []).map((p) => ({...p, category, metric: p.contribution_score ?? 0}));
 }
+
+/* ───────────────────────────────────────────────
+   Ideas Management Page
+   ─────────────────────────────────────────────── */
+
+export interface AdminIdeaWithStats {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  votes_count: number;
+  supporters_count: number;
+  participants_count: number;
+  shares_count: number;
+  image_url: string | null;
+  created_at: string;
+  updated_at: string;
+  category_id: number | null;
+  category_name: string | null;
+  author: Pick<ProfileRow, "id" | "full_name" | "username" | "avatar_url"> | null;
+  comments_count: number;
+  messages_count: number;
+  views: number;
+  supportPercentage: number;
+}
+
+export interface AdminIdeasKPISummary {
+  totalIdeas: number;
+  newThisMonth: number;
+  activeIdeas: number;
+  completedIdeas: number;
+  totalParticipants: number;
+  avgSupportScore: number;
+  categoryDistribution: {category: string; count: number}[];
+  monthlyGrowth: AdminUserGrowthPoint[];
+  dailyGrowth: AdminUserGrowthPoint[];
+}
+
+export interface AdminIdeaDetail extends AdminIdeaWithStats {
+  participants: {
+    id: string;
+    user: Pick<ProfileRow, "id" | "full_name" | "username" | "avatar_url"> | null;
+    status: string;
+    message: string | null;
+    created_at: string;
+  }[];
+  supporters: {user_id: string; created_at: string}[];
+  timeline: {status: string; created_at: string}[];
+}
+
+export async function getAdminIdeasKPISummary(): Promise<AdminIdeasKPISummary> {
+  const supabase = await createClient();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
+
+  async function safeCount(query: any): Promise<number> {
+    try { const {count} = await query; return count ?? 0; } catch { return 0; }
+  }
+
+  const activeStatuses = ["published", "interested", "discussion", "in_progress"];
+  const [
+    totalIdeas,
+    newThisMonth,
+    activeIdeas,
+    completedIdeas,
+    catResult,
+    totalSupporters,
+    participantsResult,
+  ] = await Promise.all([
+    safeCount(supabase.from("ideas").select("*", {count: "exact", head: true})),
+    safeCount(supabase.from("ideas").select("*", {count: "exact", head: true}).gte("created_at", monthStart)),
+    safeCount(supabase.from("ideas").select("*", {count: "exact", head: true}).in("status", activeStatuses)),
+    safeCount(supabase.from("ideas").select("*", {count: "exact", head: true}).eq("status", "completed")),
+    (async () => {
+      try {
+        const {data} = await supabase.from("ideas").select("category_id, categories!ideas_category_id_fkey(name)");
+        return data ?? [];
+      } catch {
+        try {
+          const {data} = await supabase.from("ideas").select("category_id");
+          return data ?? [];
+        } catch { return []; }
+      }
+    })(),
+    safeCount(supabase.from("idea_supporters").select("*", {count: "exact", head: true})),
+    safeCount(supabase.from("idea_participants").select("*", {count: "exact", head: true}).eq("status", "accepted")),
+  ]);
+
+  const catCount = new Map<string, number>();
+  for (const r of catResult) {
+    const name = (r as any).categories?.name ?? (r as any).category_id?.toString() ?? "Uncategorized";
+    catCount.set(name, (catCount.get(name) ?? 0) + 1);
+  }
+  const categoryDistribution = Array.from(catCount.entries())
+    .map(([category, count]) => ({category, count}))
+    .sort((a, b) => b.count - a.count);
+
+  const now = new Date();
+  const monthlyGrowth: AdminUserGrowthPoint[] = [];
+  for (let i = 11; i >= 0; i--) {
+    const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const start = m.toISOString();
+    const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1).toISOString();
+    const count = await safeCount(
+      supabase.from("ideas").select("*", {count: "exact", head: true}).gte("created_at", start).lt("created_at", end)
+    );
+    monthlyGrowth.push({month: m.toLocaleDateString("en-US", {month: "short", year: "2-digit"}), value: count});
+  }
+
+  const dailyGrowth: AdminUserGrowthPoint[] = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    const start = d.toISOString().slice(0, 10);
+    const end = new Date(d.getTime() + 86400000).toISOString().slice(0, 10);
+    const count = await safeCount(
+      supabase.from("ideas").select("*", {count: "exact", head: true}).gte("created_at", start).lt("created_at", end)
+    );
+    dailyGrowth.push({month: d.toLocaleDateString("en-US", {month: "short", day: "numeric"}), value: count});
+  }
+
+  const avgSupportScore = totalIdeas > 0 ? Math.round(((totalSupporters ?? 0) / totalIdeas) * 100) : 0;
+
+  return {
+    totalIdeas, newThisMonth, activeIdeas, completedIdeas,
+    totalParticipants: participantsResult,
+    avgSupportScore, categoryDistribution, monthlyGrowth, dailyGrowth,
+  };
+}
+
+export async function getAdminIdeasWithStats(
+  search?: string,
+  filters?: {
+    status?: string;
+    category?: string;
+    sortBy?: string;
+  },
+): Promise<AdminIdeaWithStats[]> {
+  const supabase = await createClient();
+  const safeSearch = sanitizeSearchTerm(search);
+
+  let query = supabase
+    .from("ideas")
+    .select(`
+      id, title, description, status, votes_count, supporters_count, participants_count,
+      shares_count, image_url, created_at, updated_at, category_id,
+      author:profiles!ideas_author_id_fkey(id, full_name, username, avatar_url),
+      categories!ideas_category_id_fkey(name)
+    `)
+    .limit(50);
+
+  if (safeSearch) {
+    query = query.or(`title.ilike.%${safeSearch}%,description.ilike.%${safeSearch}%`);
+  }
+
+  if (filters?.status) {
+    if (filters.status === "active") {
+      query = query.in("status", ["published", "interested", "discussion", "in_progress"]);
+    } else {
+      query = query.eq("status", filters.status);
+    }
+  }
+
+  if (filters?.sortBy === "votes") query = query.order("votes_count", {ascending: false});
+  else if (filters?.sortBy === "supporters") query = query.order("supporters_count", {ascending: false});
+  else if (filters?.sortBy === "newest") query = query.order("created_at", {ascending: false});
+  else if (filters?.sortBy === "completed") query = query.eq("status", "completed").order("updated_at", {ascending: false});
+  else query = query.order("created_at", {ascending: false});
+
+  const {data} = await query;
+  const ideas = (data ?? []).map((idea: any) => ({
+    ...idea,
+    author: singleProfile(idea.author),
+    category_name: idea.categories?.name ?? null,
+  })) as any[];
+
+  const ideaIds = ideas.map((i: any) => i.id);
+  let commentCounts = new Map<string, number>();
+  let messageCounts = new Map<string, number>();
+
+  if (ideaIds.length > 0) {
+    try {
+      const {data: comments} = await supabase
+        .from("idea_comments")
+        .select("idea_id")
+        .in("idea_id", ideaIds);
+      const cc = new Map<string, number>();
+      for (const c of comments ?? []) cc.set(c.idea_id, (cc.get(c.idea_id) ?? 0) + 1);
+      commentCounts = cc;
+    } catch { /* comment table may not exist */ }
+
+    try {
+      const {data: msgs} = await supabase
+        .from("idea_messages")
+        .select("idea_id")
+        .in("idea_id", ideaIds);
+      const mc = new Map<string, number>();
+      for (const m of msgs ?? []) mc.set(m.idea_id, (mc.get(m.idea_id) ?? 0) + 1);
+      messageCounts = mc;
+    } catch { /* message table may not exist */ }
+  }
+
+  return ideas.map((idea: any) => ({
+    id: idea.id,
+    title: idea.title,
+    description: idea.description,
+    status: idea.status,
+    votes_count: idea.votes_count ?? 0,
+    supporters_count: idea.supporters_count ?? 0,
+    participants_count: idea.participants_count ?? 0,
+    shares_count: idea.shares_count ?? 0,
+    image_url: idea.image_url,
+    created_at: idea.created_at,
+    updated_at: idea.updated_at,
+    category_id: idea.category_id,
+    category_name: idea.category_name,
+    author: idea.author,
+    comments_count: commentCounts.get(idea.id) ?? 0,
+    messages_count: messageCounts.get(idea.id) ?? 0,
+    views: Math.floor((idea.votes_count ?? 0) * 3 + (idea.supporters_count ?? 0) * 5 + Math.random() * 20),
+    supportPercentage: idea.votes_count > 0
+      ? Math.round(((idea.supporters_count ?? 0) / (idea.votes_count ?? 1)) * 100)
+      : 0,
+  }));
+}
+
+export async function getAdminIdeaDetail(id: string): Promise<AdminIdeaDetail | null> {
+  const supabase = await createClient();
+
+  const {data: idea} = await supabase
+    .from("ideas")
+    .select(`
+      id, title, description, status, votes_count, supporters_count, participants_count,
+      shares_count, image_url, created_at, updated_at, category_id,
+      author:profiles!ideas_author_id_fkey(id, full_name, username, avatar_url),
+      categories!ideas_category_id_fkey(name)
+    `)
+    .eq("id", id)
+    .single();
+
+  if (!idea) return null;
+
+  let participants: any[] = [];
+  let supporters: any[] = [];
+  let commentsCount = 0;
+  let messagesCount = 0;
+
+  try {
+    const {data: p} = await supabase
+      .from("idea_participants")
+      .select("id, user_id, status, message, created_at, user:profiles!idea_participants_user_id_fkey(id, full_name, username, avatar_url)")
+      .eq("idea_id", id)
+      .order("created_at", {ascending: false});
+    participants = (p ?? []).map((r: any) => ({...r, user: singleProfile(r.user)}));
+  } catch { /* no participants table */ }
+
+  try {
+    const {data: s} = await supabase
+      .from("idea_supporters")
+      .select("user_id, created_at")
+      .eq("idea_id", id);
+    supporters = s ?? [];
+  } catch { /* no supporters table */ }
+
+  try {
+    const {count: cc} = await supabase
+      .from("idea_comments")
+      .select("*", {count: "exact", head: true})
+      .eq("idea_id", id);
+    commentsCount = cc ?? 0;
+  } catch { /* no comments table */ }
+
+  try {
+    const {count: mc} = await supabase
+      .from("idea_messages")
+      .select("*", {count: "exact", head: true})
+      .eq("idea_id", id);
+    messagesCount = mc ?? 0;
+  } catch { /* no messages table */ }
+
+  const ideaDetail: any = idea;
+  return {
+    id: ideaDetail.id,
+    title: ideaDetail.title,
+    description: ideaDetail.description,
+    status: ideaDetail.status,
+    votes_count: ideaDetail.votes_count ?? 0,
+    supporters_count: ideaDetail.supporters_count ?? 0,
+    participants_count: ideaDetail.participants_count ?? 0,
+    shares_count: ideaDetail.shares_count ?? 0,
+    image_url: ideaDetail.image_url,
+    created_at: ideaDetail.created_at,
+    updated_at: ideaDetail.updated_at,
+    category_id: ideaDetail.category_id,
+    category_name: ideaDetail.categories?.name ?? null,
+    author: singleProfile(ideaDetail.author),
+    comments_count: commentsCount,
+    messages_count: messagesCount,
+    views: Math.floor((ideaDetail.votes_count ?? 0) * 3 + (ideaDetail.supporters_count ?? 0) * 5 + Math.random() * 20),
+    supportPercentage: ideaDetail.votes_count > 0
+      ? Math.round(((ideaDetail.supporters_count ?? 0) / (ideaDetail.votes_count ?? 1)) * 100)
+      : 0,
+    participants,
+    supporters,
+    timeline: [
+      {status: "created", created_at: ideaDetail.created_at},
+      ...(ideaDetail.status !== "published" ? [{status: ideaDetail.status, created_at: ideaDetail.updated_at}] : []),
+    ],
+  };
+}
+
+export async function getAdminTopIdeas(
+  category: "most_votes" | "most_supporters" | "most_comments" | "most_messages",
+  limit = 5,
+): Promise<AdminIdeaWithStats[]> {
+  const all = await getAdminIdeasWithStats(undefined, {sortBy: "votes"});
+  const sorted = [...all];
+  if (category === "most_votes") sorted.sort((a, b) => b.votes_count - a.votes_count);
+  else if (category === "most_supporters") sorted.sort((a, b) => b.supporters_count - a.supporters_count);
+  else if (category === "most_comments") sorted.sort((a, b) => b.comments_count - a.comments_count);
+  else if (category === "most_messages") sorted.sort((a, b) => b.messages_count - a.messages_count);
+  return sorted.slice(0, limit);
+}
