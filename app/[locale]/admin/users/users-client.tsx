@@ -4,7 +4,7 @@ import {useState, useMemo, useCallback, useEffect, useRef} from "react";
 import {useRouter} from "next/navigation";
 import {
   Users, UserCheck, UserPlus, Activity, Globe, TrendingUp,
-  Search, X, SlidersHorizontal, Download, ArrowUpDown,
+  Search, X, SlidersHorizontal, ArrowUpDown,
   ExternalLink, ShieldCheck, ShieldX, Ban, CheckCircle,
   Clock, Mail, Phone, MapPin, Calendar, MessageCircle,
   Lightbulb, BookOpen, Gift, Landmark, UsersRound, Award,
@@ -16,6 +16,7 @@ import {
 } from "recharts";
 
 import {AdminAvatar, GlassCard, displayName} from "@/components/admin/admin-shared";
+import {AdminExportDropdown, type ExportColumn} from "@/components/admin/admin-export-dropdown";
 import type {AdminUserGrowthPoint, AdminUserTimelineItem, AdminUserWithStats, AdminUsersKPISummary, AdminTopContributor} from "@/lib/data/admin";
 
 const PIECHART_COLORS = ["#ed2124", "#2563eb", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
@@ -82,24 +83,6 @@ function computeTrendFromGrowth(data: AdminUserGrowthPoint[]): {value: string; p
   if (first === 0) return {value: "+100%", positive: true};
   const change = ((second - first) / first) * 100;
   return {value: `${change >= 0 ? "+" : ""}${change.toFixed(1)}%`, positive: change >= 0};
-}
-
-function ExportDropdown({labels}: {labels: Record<string, string>}) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="relative">
-      <button onClick={() => setOpen(!open)} className="inline-flex items-center gap-2 rounded-2xl border border-border/60 bg-card px-4 py-2.5 text-sm font-semibold transition hover:bg-muted/50">
-        <Download size={15} /> {labels.exportCSV ?? "Export"}
-      </button>
-      {open && (
-        <div className="absolute right-0 top-full z-20 mt-2 w-44 rounded-2xl border border-border/60 bg-card p-2 shadow-xl">
-          <button onClick={() => setOpen(false)} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition hover:bg-muted/50">📄 {labels.exportCSV}</button>
-          <button onClick={() => setOpen(false)} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition hover:bg-muted/50">📊 {labels.exportExcel}</button>
-          <button onClick={() => setOpen(false)} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition hover:bg-muted/50">📋 {labels.exportPDF}</button>
-        </div>
-      )}
-    </div>
-  );
 }
 
 function BadgeChip({label, icon}: {label: string; icon: React.ReactNode}) {
@@ -286,6 +269,21 @@ export function AdminUsersClient({
     return result;
   }, [initialUsers, search, sortColumn, sortDir, filters]);
 
+  const userExportColumns = useMemo<ExportColumn<AdminUserWithStats>[]>(() => [
+    {header: labels.name ?? "Name", getValue: (user) => displayName(user)},
+    {header: "Username", getValue: (user) => user.username ? `@${user.username}` : ""},
+    {header: labels.status ?? "Status", getValue: (user) => labels[getStatus(user)] ?? getStatus(user)},
+    {header: labels.joinDate ?? "Join date", getValue: (user) => formatDate(user.created_at, locale)},
+    {header: labels.lastActive ?? "Last active", getValue: (user) => timeAgo(user.last_login)},
+    {header: labels.contributionScore ?? "Contribution score", getValue: (user) => user.contribution_score ?? 0},
+    {header: labels.panelPosts ?? "Posts", getValue: (user) => user.posts_count ?? 0},
+    {header: labels.panelIdeas ?? "Ideas", getValue: (user) => user.ideas_count ?? 0},
+    {header: labels.panelMemories ?? "Memories", getValue: (user) => user.memories_count ?? 0},
+    {header: labels.panelGraatek ?? "Graatek", getValue: (user) => user.graatek_count ?? 0},
+    {header: labels.panelDonations ?? "Donations", getValue: (user) => user.donations_total ?? 0},
+    {header: labels.panelVolunteerActivities ?? "Volunteer activities", getValue: (user) => user.volunteer_activities ?? 0},
+  ], [labels, locale]);
+
   const handleSort = (col: string) => {
     if (sortColumn === col) setSortDir(d => d === "asc" ? "desc" : "asc");
     else { setSortColumn(col); setSortDir("desc"); }
@@ -378,9 +376,13 @@ export function AdminUsersClient({
             <button className="inline-flex items-center gap-2 rounded-2xl border border-border/60 bg-card px-4 py-2.5 text-sm font-semibold transition hover:bg-muted/50">
               <UserPlus size={15} /> {labels.addUser}
             </button>
-            <div className="relative">
-              <ExportDropdown labels={labels} />
-            </div>
+            <AdminExportDropdown
+              labels={labels}
+              rows={displayedUsers}
+              columns={userExportColumns}
+              filename="admin-users"
+              title={labels.title ?? "Users"}
+            />
           </div>
         </div>
       </div>

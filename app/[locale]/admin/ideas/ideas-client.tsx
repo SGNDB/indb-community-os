@@ -4,7 +4,7 @@ import {useState, useMemo, useCallback, useEffect, useRef} from "react";
 
 import {
   Lightbulb, TrendingUp, Users, CheckCircle, Sparkles, Star,
-  Search, X, Filter, Download, ArrowUpDown, MessageCircle,
+  Search, X, Filter, ArrowUpDown, MessageCircle,
   ChevronRight, Calendar, UserPlus,
   Edit3, Archive, Trash2,
   BarChart3, Activity,
@@ -16,6 +16,7 @@ import {
 import type {LucideIcon} from "lucide-react";
 
 import {AdminAvatar, GlassCard, displayName} from "@/components/admin/admin-shared";
+import {AdminExportDropdown, type ExportColumn} from "@/components/admin/admin-export-dropdown";
 import type {AdminIdeaWithStats, AdminIdeasKPISummary} from "@/lib/data/admin";
 
 const PIECHART_COLORS = ["#ed2124", "#2563eb", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4", "#84cc16"];
@@ -104,24 +105,6 @@ function computeTrend(data: {value: number}[]): string {
   if (first === 0) return "+100%";
   const change = ((second - first) / first) * 100;
   return `${change >= 0 ? "+" : ""}${change.toFixed(1)}%`;
-}
-
-function ExportDropdown({labels}: {labels: Record<string, string>}) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="relative">
-      <button onClick={() => setOpen(!open)} className="inline-flex items-center gap-2 rounded-2xl border border-border/60 bg-card px-4 py-2.5 text-sm font-semibold transition hover:bg-muted/50">
-        <Download size={15} /> {labels.exportCSV ?? "Export"}
-      </button>
-      {open && (
-        <div className="absolute right-0 top-full z-20 mt-2 w-44 rounded-2xl border border-border/60 bg-card p-2 shadow-xl">
-          <button onClick={() => setOpen(false)} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition hover:bg-muted/50">{labels.exportCSV}</button>
-          <button onClick={() => setOpen(false)} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition hover:bg-muted/50">{labels.exportExcel}</button>
-          <button onClick={() => setOpen(false)} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition hover:bg-muted/50">{labels.exportPDF}</button>
-        </div>
-      )}
-    </div>
-  );
 }
 
 function FiltersBar({filters, onChange, labels, onClear, categoryOptions}: {
@@ -262,6 +245,21 @@ export function IdeasClient({
     return result;
   }, [initialIdeas, search, filters, sortColumn, sortDir]);
 
+  const ideaExportColumns = useMemo<ExportColumn<AdminIdeaWithStats>[]>(() => [
+    {header: labels.tableTitle ?? "Title", getValue: (idea) => idea.title},
+    {header: labels.tableCategory ?? "Category", getValue: (idea) => idea.category_name ?? ""},
+    {header: labels.tableCreator ?? "Creator", getValue: (idea) => idea.author ? displayName(idea.author) : ""},
+    {header: labels.tableStatus ?? "Status", getValue: (idea) => labels[idea.status] ?? STATUS_LABEL[idea.status] ?? idea.status},
+    {header: labels.tableVotes ?? "Votes", getValue: (idea) => idea.votes_count},
+    {header: labels.tableSupporters ?? "Supporters", getValue: (idea) => idea.supporters_count},
+    {header: labels.tableParticipants ?? "Participants", getValue: (idea) => idea.participants_count},
+    {header: labels.tableMessages ?? "Messages", getValue: (idea) => idea.messages_count},
+    {header: labels.tableCreated ?? "Created", getValue: (idea) => formatDate(idea.created_at, locale)},
+    {header: labels.analyticsAvgSupport ?? "Support", getValue: (idea) => `${idea.supportPercentage}%`},
+    {header: "Views", getValue: (idea) => idea.views},
+    {header: "Description", getValue: (idea) => idea.description},
+  ], [labels, locale]);
+
   const handleSort = (col: string) => {
     if (sortColumn === col) setSortDir(d => d === "asc" ? "desc" : "asc");
     else { setSortColumn(col); setSortDir("desc"); }
@@ -332,9 +330,13 @@ export function IdeasClient({
             <button className="inline-flex items-center gap-2 rounded-2xl border border-border/60 bg-card px-4 py-2.5 text-sm font-semibold transition hover:bg-muted/50">
               <Sparkles size={15} /> {labels.createFeatured}
             </button>
-            <div className="relative">
-              <ExportDropdown labels={labels} />
-            </div>
+            <AdminExportDropdown
+              labels={labels}
+              rows={displayedIdeas}
+              columns={ideaExportColumns}
+              filename="admin-ideas"
+              title={labels.title ?? "Ideas"}
+            />
           </div>
         </div>
       </div>
