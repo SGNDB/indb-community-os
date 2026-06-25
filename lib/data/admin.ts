@@ -2697,6 +2697,263 @@ export async function getAdminAnalyticsDashboard(): Promise<AdminAnalyticsDashbo
   };
 }
 
+export interface AdminPlatformSettings {
+  platformName: string;
+  defaultLanguage: string;
+  defaultTheme: "light" | "dark" | "system";
+  contactEmail: string;
+  supportEmail: string;
+  maintenanceMode: boolean;
+}
+
+export interface AdminFeatureFlags {
+  ideas: boolean;
+  graatek: boolean;
+  memories: boolean;
+  messages: boolean;
+  support: boolean;
+  volunteering: boolean;
+  donations: boolean;
+  publicRegistration: boolean;
+  qrEntry: boolean;
+  translation: boolean;
+  realtime: boolean;
+}
+
+export interface AdminLanguageSetting {
+  code: string;
+  name: string;
+  enabled: boolean;
+  isDefault: boolean;
+}
+
+export interface AdminPaymentMethodSetting {
+  method: string;
+  enabled: boolean;
+  receiverName: string;
+  receiverAccount: string;
+  instructions: string;
+  verificationRequired: boolean;
+}
+
+export interface AdminRoleUser {
+  id: string;
+  full_name: string | null;
+  username: string | null;
+  avatar_url: string | null;
+  role: string;
+  last_active: string | null;
+}
+
+export interface AdminCategorySetting {
+  id: number;
+  name_en: string;
+  name_ar: string;
+  name_fr: string;
+  slug: string;
+  icon: string | null;
+  color: string | null;
+}
+
+export interface AdminSystemHealth {
+  supabase: boolean;
+  vercel: boolean;
+  realtime: boolean;
+  storage: boolean;
+  errorRate: "healthy" | "warning" | "critical";
+}
+
+export interface AdminSettingsAuditEntry {
+  id: string;
+  admin_name: string | null;
+  setting_key: string;
+  old_value: string | null;
+  new_value: string | null;
+  created_at: string;
+}
+
+export interface AdminNotificationTemplate {
+  key: string;
+  ar: string;
+  fr: string;
+  en: string;
+}
+
+export const DEFAULT_FEATURE_FLAGS: AdminFeatureFlags = {
+  ideas: true, graatek: true, memories: true, messages: true,
+  support: true, volunteering: true, donations: true,
+  publicRegistration: true, qrEntry: true, translation: true, realtime: true,
+};
+
+export const DEFAULT_PLATFORM_SETTINGS: AdminPlatformSettings = {
+  platformName: "I ❤️ NDB",
+  defaultLanguage: "ar",
+  defaultTheme: "system",
+  contactEmail: "",
+  supportEmail: "",
+  maintenanceMode: false,
+};
+
+export const DEFAULT_LANGUAGES: AdminLanguageSetting[] = [
+  {code: "ar", name: "Arabic", enabled: true, isDefault: true},
+  {code: "fr", name: "French", enabled: true, isDefault: false},
+  {code: "en", name: "English", enabled: true, isDefault: false},
+];
+
+export const DEFAULT_PAYMENT_METHODS: AdminPaymentMethodSetting[] = [
+  {method: "bankily", enabled: true, receiverName: "", receiverAccount: "", instructions: "", verificationRequired: true},
+  {method: "masrivi", enabled: true, receiverName: "", receiverAccount: "", instructions: "", verificationRequired: true},
+  {method: "sedad", enabled: true, receiverName: "", receiverAccount: "", instructions: "", verificationRequired: true},
+  {method: "visa", enabled: false, receiverName: "", receiverAccount: "", instructions: "Card payments are processed via payment provider. No card numbers are stored.", verificationRequired: false},
+  {method: "mastercard", enabled: false, receiverName: "", receiverAccount: "", instructions: "Card payments are processed via payment provider. No card numbers are stored.", verificationRequired: false},
+];
+
+const SETTINGS_TABLE = "platform_settings";
+
+async function getSettingsValue(key: string): Promise<string | null> {
+  try {
+    const supabase = await createClient();
+    const {data} = await supabase.from(SETTINGS_TABLE).select("value").eq("key", key).maybeSingle();
+    return (data as {value: string} | null)?.value ?? null;
+  } catch { return null; }
+}
+
+async function setSettingsValue(key: string, value: string): Promise<boolean> {
+  try {
+    const supabase = await createClient();
+    const {error} = await supabase.from(SETTINGS_TABLE).upsert({key, value}, {onConflict: "key"});
+    return !error;
+  } catch { return false; }
+}
+
+export async function getAdminPlatformSettings(): Promise<AdminPlatformSettings> {
+  const raw = await getSettingsValue("platform_settings");
+  if (!raw) return DEFAULT_PLATFORM_SETTINGS;
+  try { return {...DEFAULT_PLATFORM_SETTINGS, ...JSON.parse(raw)}; } catch { return DEFAULT_PLATFORM_SETTINGS; }
+}
+
+export async function getAdminFeatureFlags(): Promise<AdminFeatureFlags> {
+  const raw = await getSettingsValue("feature_flags");
+  if (!raw) return DEFAULT_FEATURE_FLAGS;
+  try { return {...DEFAULT_FEATURE_FLAGS, ...JSON.parse(raw)}; } catch { return DEFAULT_FEATURE_FLAGS; }
+}
+
+export async function getAdminLanguages(): Promise<AdminLanguageSetting[]> {
+  const raw = await getSettingsValue("languages");
+  if (!raw) return DEFAULT_LANGUAGES;
+  try { return JSON.parse(raw) as AdminLanguageSetting[]; } catch { return DEFAULT_LANGUAGES; }
+}
+
+export async function getAdminPaymentMethodSettings(): Promise<AdminPaymentMethodSetting[]> {
+  const raw = await getSettingsValue("payment_methods");
+  if (!raw) return DEFAULT_PAYMENT_METHODS;
+  try { return JSON.parse(raw) as AdminPaymentMethodSetting[]; } catch { return DEFAULT_PAYMENT_METHODS; }
+}
+
+export async function getAdminRoleUsers(): Promise<AdminRoleUser[]> {
+  const supabase = await createClient();
+  try {
+    const {data} = await supabase
+      .from("profiles")
+      .select("id, full_name, username, avatar_url, role, last_login")
+      .in("role", ["admin", "moderator"])
+      .order("full_name", {ascending: true});
+    return (data ?? []).map((u) => ({
+      id: u.id, full_name: u.full_name, username: u.username,
+      avatar_url: u.avatar_url, role: u.role,
+      last_active: u.last_login ?? null,
+    }));
+  } catch { return []; }
+}
+
+export async function getAdminCategories(): Promise<AdminCategorySetting[]> {
+  const supabase = await createClient();
+  try {
+    const {data} = await supabase.from("categories").select("*").order("id", {ascending: true});
+    return (data ?? []) as AdminCategorySetting[];
+  } catch { return []; }
+}
+
+export async function getAdminSystemHealth(): Promise<AdminSystemHealth> {
+  const supabase = await createClient();
+  let supabaseOk = false, realtimeOk = false;
+  try {
+    const {error} = await supabase.from("profiles").select("id", {count: "exact", head: true}).limit(1);
+    supabaseOk = !error;
+    realtimeOk = supabaseOk;
+  } catch { supabaseOk = false; realtimeOk = false; }
+
+  let storageOk = false;
+  try {
+    const {data: buckets} = await supabase.storage.listBuckets();
+    storageOk = Array.isArray(buckets);
+  } catch { storageOk = false; }
+
+  return {
+    supabase: supabaseOk,
+    vercel: true,
+    realtime: realtimeOk,
+    storage: storageOk,
+    errorRate: supabaseOk ? "healthy" : "critical",
+  };
+}
+
+export async function getAdminSettingsAuditLog(): Promise<AdminSettingsAuditEntry[]> {
+  try {
+    const supabase = await createClient();
+    const {data} = await supabase
+      .from("settings_audit_log")
+      .select("*")
+      .order("created_at", {ascending: false})
+      .limit(50);
+    return (data ?? []) as AdminSettingsAuditEntry[];
+  } catch { return []; }
+}
+
+export async function getAdminNotificationTemplates(): Promise<AdminNotificationTemplate[]> {
+  const raw = await getSettingsValue("notification_templates");
+  if (!raw) return [];
+  try { return JSON.parse(raw) as AdminNotificationTemplate[]; } catch { return []; }
+}
+
+export interface AdminSettingsDashboard {
+  platform: AdminPlatformSettings;
+  flags: AdminFeatureFlags;
+  languages: AdminLanguageSetting[];
+  paymentMethods: AdminPaymentMethodSetting[];
+  roleUsers: AdminRoleUser[];
+  categories: AdminCategorySetting[];
+  health: AdminSystemHealth;
+  auditLog: AdminSettingsAuditEntry[];
+  templates: AdminNotificationTemplate[];
+}
+
+export async function getAdminSettingsDashboard(): Promise<AdminSettingsDashboard> {
+  const [platform, flags, languages, paymentMethods, roleUsers, categories, health, auditLog, templates] = await Promise.allSettled([
+    getAdminPlatformSettings(),
+    getAdminFeatureFlags(),
+    getAdminLanguages(),
+    getAdminPaymentMethodSettings(),
+    getAdminRoleUsers(),
+    getAdminCategories(),
+    getAdminSystemHealth(),
+    getAdminSettingsAuditLog(),
+    getAdminNotificationTemplates(),
+  ]);
+
+  return {
+    platform: settled(platform, DEFAULT_PLATFORM_SETTINGS),
+    flags: settled(flags, DEFAULT_FEATURE_FLAGS),
+    languages: settled(languages, DEFAULT_LANGUAGES),
+    paymentMethods: settled(paymentMethods, DEFAULT_PAYMENT_METHODS),
+    roleUsers: settled(roleUsers, []),
+    categories: settled(categories, []),
+    health: settled(health, {supabase: false, vercel: true, realtime: false, storage: false, errorRate: "critical"} as AdminSystemHealth),
+    auditLog: settled(auditLog, []),
+    templates: settled(templates, []),
+  };
+}
+
 function settled<T>(result: PromiseSettledResult<T>, fallback: T): T {
   return result.status === "fulfilled" ? result.value : fallback;
 }
