@@ -142,77 +142,122 @@ begin
     return;
   end if;
 
-  select
-    coalesce(sum(sc.amount), 0),
-    count(*)::integer,
-    count(distinct sc.campaign_id)::integer,
-    max(sc.verified_at),
-    coalesce(array_agg(distinct c.slug) filter (where c.slug is not null), '{}')
-  into v_donations_total, v_donations_count, v_campaigns_supported, v_last_donation_at, v_campaign_slugs
-  from public.support_contributions sc
-  left join public.support_campaigns c on c.id = sc.campaign_id
-  where sc.contributor_id = p_user_id
-    and sc.contribution_type = 'money'
-    and sc.status = 'verified';
+  if to_regclass('public.support_contributions') is not null then
+    if to_regclass('public.support_campaigns') is not null then
+      select
+        coalesce(sum(sc.amount), 0),
+        count(*)::integer,
+        count(distinct sc.campaign_id)::integer,
+        max(sc.created_at),
+        coalesce(array_agg(distinct c.slug) filter (where c.slug is not null), '{}')
+      into v_donations_total, v_donations_count, v_campaigns_supported, v_last_donation_at, v_campaign_slugs
+      from public.support_contributions sc
+      left join public.support_campaigns c on c.id = sc.campaign_id
+      where sc.contributor_id = p_user_id
+        and sc.contribution_type = 'money'
+        and sc.status in ('verified', 'confirmed');
+    else
+      select
+        coalesce(sum(sc.amount), 0),
+        count(*)::integer,
+        count(distinct sc.campaign_id)::integer,
+        max(sc.created_at)
+      into v_donations_total, v_donations_count, v_campaigns_supported, v_last_donation_at
+      from public.support_contributions sc
+      where sc.contributor_id = p_user_id
+        and sc.contribution_type = 'money'
+        and sc.status in ('verified', 'confirmed');
+    end if;
 
-  select count(*)::integer
-  into v_volunteer_activities
-  from public.support_contributions sc
-  where sc.contributor_id = p_user_id
-    and sc.contribution_type = 'volunteer'
-    and sc.status = 'verified';
+    select count(*)::integer
+    into v_volunteer_activities
+    from public.support_contributions sc
+    where sc.contributor_id = p_user_id
+      and sc.contribution_type = 'volunteer'
+      and sc.status in ('verified', 'confirmed');
+  end if;
 
-  select count(*)::integer
-  into v_current_opportunities
-  from public.support_campaigns
-  where status = 'active';
+  if to_regclass('public.support_campaigns') is not null then
+    select count(*)::integer
+    into v_current_opportunities
+    from public.support_campaigns
+    where status = 'active';
+  end if;
 
-  select
-    count(*)::integer,
-    count(*) filter (where status in ('completed', 'archived', 'given'))::integer
-  into v_graatek_shared, v_graatek_completed
-  from public.community_shares
-  where owner_id = p_user_id;
+  if to_regclass('public.community_shares') is not null then
+    select
+      count(*)::integer,
+      count(*) filter (where status in ('completed', 'archived', 'given'))::integer
+    into v_graatek_shared, v_graatek_completed
+    from public.community_shares
+    where owner_id = p_user_id;
+  end if;
 
-  select count(distinct csr.requester_id)::integer
-  into v_graatek_people_helped
-  from public.community_shares cs
-  join public.community_share_requests csr on csr.share_id = cs.id
-  where cs.owner_id = p_user_id
-    and cs.status in ('completed', 'archived', 'given')
-    and csr.status = 'accepted';
+  if to_regclass('public.community_shares') is not null
+    and to_regclass('public.community_share_requests') is not null then
+    select count(distinct csr.requester_id)::integer
+    into v_graatek_people_helped
+    from public.community_shares cs
+    join public.community_share_requests csr on csr.share_id = cs.id
+    where cs.owner_id = p_user_id
+      and cs.status in ('completed', 'archived', 'given')
+      and csr.status = 'accepted';
+  end if;
 
   v_graatek_completion_rate := case
     when v_graatek_shared > 0 then round((v_graatek_completed::numeric / v_graatek_shared::numeric) * 100, 2)
     else 0
   end;
 
-  select
-    count(*)::integer,
-    count(*) filter (where status = 'completed')::integer
-  into v_ideas_created, v_ideas_completed
-  from public.ideas
-  where author_id = p_user_id;
+  if to_regclass('public.ideas') is not null then
+    select
+      count(*)::integer,
+      count(*) filter (where status = 'completed')::integer
+    into v_ideas_created, v_ideas_completed
+    from public.ideas
+    where author_id = p_user_id;
+  end if;
 
-  select count(*)::integer
-  into v_ideas_supported
-  from public.idea_supporters
-  where user_id = p_user_id;
+  if to_regclass('public.idea_supporters') is not null then
+    select count(*)::integer
+    into v_ideas_supported
+    from public.idea_supporters
+    where user_id = p_user_id;
+  end if;
 
-  select count(*)::integer
-  into v_ideas_participants
-  from public.idea_participants ip
-  join public.ideas i on i.id = ip.idea_id
-  where i.author_id = p_user_id
-    and ip.status = 'accepted';
+  if to_regclass('public.idea_participants') is not null
+    and to_regclass('public.ideas') is not null then
+    select count(*)::integer
+    into v_ideas_participants
+    from public.idea_participants ip
+    join public.ideas i on i.id = ip.idea_id
+    where i.author_id = p_user_id
+      and ip.status = 'accepted';
+  end if;
 
-  select
-    count(*)::integer,
-    coalesce(sum(reactions_count), 0)::integer
-  into v_memories_created, v_memories_reactions
-  from public.memories
-  where contributor_id = p_user_id
-    and verification_status = 'approved';
+  if to_regclass('public.memories') is not null then
+    if exists (
+      select 1
+      from information_schema.columns
+      where table_schema = 'public'
+        and table_name = 'memories'
+        and column_name = 'reactions_count'
+    ) then
+      select
+        count(*)::integer,
+        coalesce(sum(reactions_count), 0)::integer
+      into v_memories_created, v_memories_reactions
+      from public.memories
+      where contributor_id = p_user_id
+        and verification_status = 'approved';
+    else
+      select count(*)::integer
+      into v_memories_created
+      from public.memories
+      where contributor_id = p_user_id
+        and verification_status = 'approved';
+    end if;
+  end if;
 
   v_active_modules :=
     case when v_donations_count > 0 then 1 else 0 end +
@@ -357,15 +402,23 @@ begin
 end;
 $$;
 
-drop trigger if exists trg_community_impact_support_contributions on public.support_contributions;
-create trigger trg_community_impact_support_contributions
-  after insert or update or delete on public.support_contributions
-  for each row execute function public.refresh_community_impact_trigger();
+do $$
+begin
+  if to_regclass('public.support_contributions') is not null then
+    drop trigger if exists trg_community_impact_support_contributions on public.support_contributions;
+    create trigger trg_community_impact_support_contributions
+      after insert or update or delete on public.support_contributions
+      for each row execute function public.refresh_community_impact_trigger();
+  end if;
 
-drop trigger if exists trg_community_impact_community_shares on public.community_shares;
-create trigger trg_community_impact_community_shares
-  after insert or update or delete on public.community_shares
-  for each row execute function public.refresh_community_impact_trigger();
+  if to_regclass('public.community_shares') is not null then
+    drop trigger if exists trg_community_impact_community_shares on public.community_shares;
+    create trigger trg_community_impact_community_shares
+      after insert or update or delete on public.community_shares
+      for each row execute function public.refresh_community_impact_trigger();
+  end if;
+end;
+$$;
 
 create or replace function public.refresh_community_impact_from_graatek_request()
 returns trigger
@@ -401,20 +454,30 @@ begin
 end;
 $$;
 
-drop trigger if exists trg_community_impact_community_share_requests on public.community_share_requests;
-create trigger trg_community_impact_community_share_requests
-  after insert or update or delete on public.community_share_requests
-  for each row execute function public.refresh_community_impact_from_graatek_request();
+do $$
+begin
+  if to_regclass('public.community_share_requests') is not null then
+    drop trigger if exists trg_community_impact_community_share_requests on public.community_share_requests;
+    create trigger trg_community_impact_community_share_requests
+      after insert or update or delete on public.community_share_requests
+      for each row execute function public.refresh_community_impact_from_graatek_request();
+  end if;
 
-drop trigger if exists trg_community_impact_ideas on public.ideas;
-create trigger trg_community_impact_ideas
-  after insert or update or delete on public.ideas
-  for each row execute function public.refresh_community_impact_trigger();
+  if to_regclass('public.ideas') is not null then
+    drop trigger if exists trg_community_impact_ideas on public.ideas;
+    create trigger trg_community_impact_ideas
+      after insert or update or delete on public.ideas
+      for each row execute function public.refresh_community_impact_trigger();
+  end if;
 
-drop trigger if exists trg_community_impact_memories on public.memories;
-create trigger trg_community_impact_memories
-  after insert or update or delete on public.memories
-  for each row execute function public.refresh_community_impact_trigger();
+  if to_regclass('public.memories') is not null then
+    drop trigger if exists trg_community_impact_memories on public.memories;
+    create trigger trg_community_impact_memories
+      after insert or update or delete on public.memories
+      for each row execute function public.refresh_community_impact_trigger();
+  end if;
+end;
+$$;
 
 create or replace function public.refresh_community_impact_from_idea_relation()
 returns trigger
@@ -451,15 +514,23 @@ begin
 end;
 $$;
 
-drop trigger if exists trg_community_impact_idea_participants on public.idea_participants;
-create trigger trg_community_impact_idea_participants
-  after insert or update or delete on public.idea_participants
-  for each row execute function public.refresh_community_impact_from_idea_relation();
+do $$
+begin
+  if to_regclass('public.idea_participants') is not null then
+    drop trigger if exists trg_community_impact_idea_participants on public.idea_participants;
+    create trigger trg_community_impact_idea_participants
+      after insert or update or delete on public.idea_participants
+      for each row execute function public.refresh_community_impact_from_idea_relation();
+  end if;
 
-drop trigger if exists trg_community_impact_idea_supporters on public.idea_supporters;
-create trigger trg_community_impact_idea_supporters
-  after insert or update or delete on public.idea_supporters
-  for each row execute function public.refresh_community_impact_from_idea_relation();
+  if to_regclass('public.idea_supporters') is not null then
+    drop trigger if exists trg_community_impact_idea_supporters on public.idea_supporters;
+    create trigger trg_community_impact_idea_supporters
+      after insert or update or delete on public.idea_supporters
+      for each row execute function public.refresh_community_impact_from_idea_relation();
+  end if;
+end;
+$$;
 
 create or replace function public.refresh_all_community_impact()
 returns integer
