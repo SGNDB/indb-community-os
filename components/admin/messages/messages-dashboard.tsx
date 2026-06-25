@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Search, Filter } from "lucide-react";
+import { Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MessagesKpiGrid } from "./messages-kpi-grid";
 import { MessagesAnalyticsCharts } from "./messages-analytics-charts";
@@ -11,8 +11,13 @@ import { RealtimeMonitor } from "./realtime-monitor";
 import { SystemHealth } from "./system-health";
 import { GroupChatAnalytics } from "./group-chat-analytics";
 import { AdminExportDropdown } from "@/components/admin/admin-export-dropdown";
+import type { MessagesAdminLabels } from "./messages-labels";
 
-export function MessagesDashboard() {
+type MessageExportRow = {
+  id?: string;
+};
+
+export function MessagesDashboard({labels}: {labels: MessagesAdminLabels}) {
   const [activeTab, setActiveTab] = useState<"overview" | "directory" | "moderation" | "system">("overview");
 
   return (
@@ -25,28 +30,28 @@ export function MessagesDashboard() {
             onClick={() => setActiveTab("overview")}
             className="rounded-full"
           >
-            Overview
+            {labels.tabsOverview}
           </Button>
           <Button
             variant={activeTab === "directory" ? "default" : "outline"}
             onClick={() => setActiveTab("directory")}
             className="rounded-full"
           >
-            Directory
+            {labels.tabsDirectory}
           </Button>
           <Button
             variant={activeTab === "moderation" ? "default" : "outline"}
             onClick={() => setActiveTab("moderation")}
             className="rounded-full"
           >
-            Moderation
+            {labels.tabsModeration}
           </Button>
           <Button
             variant={activeTab === "system" ? "default" : "outline"}
             onClick={() => setActiveTab("system")}
             className="rounded-full"
           >
-            System Health
+            {labels.tabsSystemHealth}
           </Button>
         </div>
 
@@ -55,19 +60,19 @@ export function MessagesDashboard() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
             <input
               type="text"
-              placeholder="Search ID, User..."
+              placeholder={labels.searchPlaceholder}
               className="h-10 w-full rounded-full border border-input bg-background pl-9 pr-4 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:w-[200px]"
             />
           </div>
           <Button variant="outline" size="icon" className="shrink-0 rounded-full">
             <Filter size={16} />
           </Button>
-          <AdminExportDropdown<any>
-            title="Messages Export"
+          <AdminExportDropdown<MessageExportRow>
+            title={labels.exportTitle}
             filename="messages-export"
             columns={[{ header: "ID", getValue: (row) => row?.id }]}
             rows={[]}
-            labels={{ exportAs: "Export As", csv: "CSV", excel: "Excel", pdf: "PDF" }}
+            labels={labels}
           />
         </div>
       </div>
@@ -75,14 +80,14 @@ export function MessagesDashboard() {
       {/* Tabs Content */}
       {activeTab === "overview" && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <MessagesKpiGrid />
+          <MessagesKpiGrid labels={labels} />
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
-              <MessagesAnalyticsCharts />
+              <MessagesAnalyticsCharts labels={labels} />
             </div>
             <div className="space-y-6">
-              <RealtimeMonitor />
-              <GroupChatAnalytics />
+              <RealtimeMonitor labels={labels} />
+              <GroupChatAnalytics labels={labels} />
             </div>
           </div>
         </div>
@@ -90,19 +95,19 @@ export function MessagesDashboard() {
 
       {activeTab === "directory" && (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <ConversationDirectory />
+          <ConversationDirectory labels={labels} />
         </div>
       )}
 
       {activeTab === "moderation" && (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <ReportedConversations />
+          <ReportedConversations labels={labels} />
         </div>
       )}
 
       {activeTab === "system" && (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <SystemHealth />
+          <SystemHealth labels={labels} />
         </div>
       )}
     </div>

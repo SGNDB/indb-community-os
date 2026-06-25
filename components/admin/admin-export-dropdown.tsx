@@ -199,7 +199,7 @@ export function AdminExportDropdown<T>({
         aria-haspopup="menu"
       >
         <Download size={15} />
-        {labels.exportCSV ?? "Export"}
+        {labels.export ?? labels.exportCSV ?? "Export"}
       </button>
       {menu}
     </>

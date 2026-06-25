@@ -2,11 +2,12 @@
 
 import { Activity, ArrowUpRight, ArrowDownRight, Server, Database } from "lucide-react";
 import { GlassCard, SectionHeader, LiveDot } from "@/components/admin/admin-shared";
+import type { MessagesAdminLabels } from "./messages-labels";
 
-export function RealtimeMonitor() {
+export function RealtimeMonitor({labels}: {labels: MessagesAdminLabels}) {
   return (
     <GlassCard className="p-6">
-      <SectionHeader eyebrow="Live" title="Realtime Monitor">
+      <SectionHeader eyebrow={labels.live} title={labels.realtimeMonitor}>
         <LiveDot />
       </SectionHeader>
 
@@ -17,7 +18,7 @@ export function RealtimeMonitor() {
               <Activity size={20} />
             </div>
             <div>
-              <p className="text-sm font-medium">Messages per minute</p>
+              <p className="text-sm font-medium">{labels.messagesPerMinute}</p>
               <p className="text-2xl font-bold">142</p>
             </div>
           </div>
@@ -32,7 +33,7 @@ export function RealtimeMonitor() {
               <Server size={20} />
             </div>
             <div>
-              <p className="text-sm font-medium">Active WebSocket Connections</p>
+              <p className="text-sm font-medium">{labels.activeWebSocketConnections}</p>
               <p className="text-2xl font-bold">3,492</p>
             </div>
           </div>
@@ -44,7 +45,7 @@ export function RealtimeMonitor() {
               <Database size={20} />
             </div>
             <div>
-              <p className="text-sm font-medium">Delivery Failures (Last 1hr)</p>
+              <p className="text-sm font-medium">{labels.deliveryFailuresLastHour}</p>
               <p className="text-2xl font-bold text-rose-500">3</p>
             </div>
           </div>

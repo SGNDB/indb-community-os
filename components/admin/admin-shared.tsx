@@ -169,7 +169,7 @@ export function TrendBadge({value, positive}: {value: string; positive: boolean}
   );
 }
 
-export function StatusBadge({status}: {status: string}) {
+export function StatusBadge({status, label}: {status: string; label?: string}) {
   const colors: Record<string, string> = {
     healthy: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
     warning: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
@@ -181,7 +181,7 @@ export function StatusBadge({status}: {status: string}) {
   };
   return (
     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${colors[status] ?? "bg-muted text-muted-foreground"}`}>
-      {status}
+      {label ?? status}
     </span>
   );
 }

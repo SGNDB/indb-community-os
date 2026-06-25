@@ -3,36 +3,42 @@
 import { useState } from "react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { SectionHeader, GlassCard } from "@/components/admin/admin-shared";
-import { Button } from "@/components/ui/button";
+import type { MessagesAdminLabels } from "./messages-labels";
 
-const data = [
-  { name: "Mon", messages: 4000, active: 2400 },
-  { name: "Tue", messages: 3000, active: 1398 },
-  { name: "Wed", messages: 2000, active: 9800 },
-  { name: "Thu", messages: 2780, active: 3908 },
-  { name: "Fri", messages: 1890, active: 4800 },
-  { name: "Sat", messages: 2390, active: 3800 },
-  { name: "Sun", messages: 3490, active: 4300 },
-];
-
-export function MessagesAnalyticsCharts() {
-  const [timeFilter, setTimeFilter] = useState("7d");
+export function MessagesAnalyticsCharts({labels}: {labels: MessagesAdminLabels}) {
+  const [timeFilter, setTimeFilter] = useState("days7");
+  const data = [
+    { name: labels.dayMon, messages: 4000, active: 2400 },
+    { name: labels.dayTue, messages: 3000, active: 1398 },
+    { name: labels.dayWed, messages: 2000, active: 9800 },
+    { name: labels.dayThu, messages: 2780, active: 3908 },
+    { name: labels.dayFri, messages: 1890, active: 4800 },
+    { name: labels.daySat, messages: 2390, active: 3800 },
+    { name: labels.daySun, messages: 3490, active: 4300 },
+  ];
+  const filters = [
+    {value: "today", label: labels.today},
+    {value: "days7", label: labels.days7},
+    {value: "days30", label: labels.days30},
+    {value: "days90", label: labels.days90},
+    {value: "year1", label: labels.year1},
+  ];
 
   return (
     <GlassCard className="p-6">
-      <SectionHeader eyebrow="Analytics" title="Message Volume">
+      <SectionHeader eyebrow={labels.analytics} title={labels.messageVolume}>
         <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-full border border-border/50">
-          {["Today", "7d", "30d", "90d", "1y"].map((filter) => (
+          {filters.map((filter) => (
             <button
-              key={filter}
-              onClick={() => setTimeFilter(filter.toLowerCase())}
+              key={filter.value}
+              onClick={() => setTimeFilter(filter.value)}
               className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
-                timeFilter === filter.toLowerCase()
+                timeFilter === filter.value
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {filter}
+              {filter.label}
             </button>
           ))}
         </div>
@@ -62,6 +68,7 @@ export function MessagesAnalyticsCharts() {
               strokeWidth={3}
               fillOpacity={1}
               fill="url(#colorMessages)"
+              name={labels.messages}
             />
           </AreaChart>
         </ResponsiveContainer>

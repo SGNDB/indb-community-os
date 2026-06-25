@@ -2,17 +2,18 @@
 
 import { GlassCard, SectionHeader } from "@/components/admin/admin-shared";
 import { Users, Lightbulb, Gift, Clock, MessageCircle } from "lucide-react";
+import type { MessagesAdminLabels } from "./messages-labels";
 
-export function GroupChatAnalytics() {
+export function GroupChatAnalytics({labels}: {labels: MessagesAdminLabels}) {
   return (
     <GlassCard className="p-6">
-      <SectionHeader eyebrow="Groups" title="Group Chat Analytics" />
+      <SectionHeader eyebrow={labels.groups} title={labels.groupChatAnalytics} />
       
       <div className="mt-6 grid gap-4 grid-cols-2">
         <div className="bg-muted/30 p-4 rounded-xl border border-border/50">
           <div className="flex items-center gap-2 text-muted-foreground mb-2">
             <Lightbulb size={16} />
-            <span className="text-xs font-semibold uppercase">Idea Groups</span>
+            <span className="text-xs font-semibold uppercase">{labels.ideaGroups}</span>
           </div>
           <span className="text-2xl font-bold">482</span>
         </div>
@@ -20,7 +21,7 @@ export function GroupChatAnalytics() {
         <div className="bg-muted/30 p-4 rounded-xl border border-border/50">
           <div className="flex items-center gap-2 text-muted-foreground mb-2">
             <Gift size={16} />
-            <span className="text-xs font-semibold uppercase">Graatek</span>
+            <span className="text-xs font-semibold uppercase">{labels.graatek}</span>
           </div>
           <span className="text-2xl font-bold">360</span>
         </div>
@@ -31,7 +32,7 @@ export function GroupChatAnalytics() {
               <Users size={18} />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Avg. Participants</p>
+              <p className="text-xs text-muted-foreground">{labels.avgParticipants}</p>
               <p className="font-semibold">8.4</p>
             </div>
           </div>
@@ -41,7 +42,7 @@ export function GroupChatAnalytics() {
               <MessageCircle size={18} />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Avg. Messages</p>
+              <p className="text-xs text-muted-foreground">{labels.avgMessages}</p>
               <p className="font-semibold">142</p>
             </div>
           </div>
@@ -51,7 +52,7 @@ export function GroupChatAnalytics() {
               <Clock size={18} />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Avg. Response</p>
+              <p className="text-xs text-muted-foreground">{labels.avgResponse}</p>
               <p className="font-semibold">&lt; 2m</p>
             </div>
           </div>
