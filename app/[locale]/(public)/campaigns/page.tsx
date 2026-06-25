@@ -140,7 +140,7 @@ export default async function CampaignsPage({
           <h2 className="text-2xl font-black">{t("campaignsTitle")}</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {activeCampaigns.map((campaign) => (
+          {activeCampaigns.slice(1).map((campaign) => (
             <SupportCampaignCard
               key={campaign.slug}
               campaign={campaign}
