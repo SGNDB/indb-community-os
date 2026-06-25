@@ -62,10 +62,10 @@ export function MessagesDashboard() {
           <Button variant="outline" size="icon" className="shrink-0 rounded-full">
             <Filter size={16} />
           </Button>
-          <AdminExportDropdown
+          <AdminExportDropdown<any>
             title="Messages Export"
             filename="messages-export"
-            columns={[{ key: "id", label: "ID" }]}
+            columns={[{ header: "ID", getValue: (row) => row?.id }]}
             rows={[]}
             labels={{ exportAs: "Export As", csv: "CSV", excel: "Excel", pdf: "PDF" }}
           />
