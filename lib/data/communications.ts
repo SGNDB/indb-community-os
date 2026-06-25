@@ -219,7 +219,7 @@ export const audienceSegmentNames: Record<AudienceSegment, string> = {
 };
 
 export function formatNumber(value: number, locale: string): string {
-  return new Intl.NumberFormat(locale === "ar" ? "ar-SA" : locale === "fr" ? "fr-FR" : "en-US").format(value);
+  return new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US").format(value);
 }
 
 export function formatPercent(value: number): string {
