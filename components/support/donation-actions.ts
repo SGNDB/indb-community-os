@@ -29,8 +29,6 @@ export async function submitDonation(prev: unknown, formData: FormData) {
       transactionId: `INDB-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       receiptUrl: null,
       receiptStoragePath: null,
-      materialDescription: null,
-      volunteerMessage: null,
     });
   } catch {
     return {error: "server-error"};

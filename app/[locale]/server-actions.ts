@@ -4630,6 +4630,38 @@ export async function adminSetSupportContributionStatusAction(formData: FormData
     rejectedReason: typeof rejectedReason === 'string' ? rejectedReason.trim().slice(0, 500) : null,
   });
 
+  if (nextStatus === 'verified') {
+    const { createNotification } = await import('@/lib/data/notifications');
+    const { createClient } = await import('@/lib/supabase/server');
+    const supabase = await createClient();
+    const {data: contribution} = await supabase
+      .from('support_contributions')
+      .select('contributor_id, amount, campaign:support_campaigns(title)')
+      .eq('id', contributionId)
+      .single();
+    if (contribution?.contributor_id) {
+      const campaignTitle = Array.isArray(contribution.campaign)
+        ? contribution.campaign[0]?.title
+        : (contribution.campaign as {title?: string} | null)?.title;
+      const amount =
+        contribution.amount && typeof contribution.amount === 'number'
+          ? `${contribution.amount.toLocaleString()} MRU`
+          : '';
+      await createNotification({
+        userId: contribution.contributor_id,
+        actorId: adminProfile.id,
+        type: 'donation_verified',
+        entityType: 'support_contribution',
+        entityId: contributionId,
+        title: 'تم تأكيد تبرعك ✅',
+        message: campaignTitle
+          ? `تبرعك بمبلغ ${amount} لحملة "${campaignTitle}" تم تأكيده. شكراً لمساهمتك ❤️`
+          : `تبرعك بمبلغ ${amount} تم تأكيده. شكراً لمساهمتك ❤️`,
+        metadata: {status: 'verified', amount: contribution.amount, campaignTitle},
+      });
+    }
+  }
+
   revalidatePath('/campaigns');
   revalidatePath('/admin/support');
   revalidatePath('/admin/volunteer');

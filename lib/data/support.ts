@@ -352,7 +352,6 @@ export async function getSupportImpact() {
   return {
     totalRaised: campaigns.reduce((sum, campaign) => sum + campaign.raised_amount, 0),
     contributors: campaigns.reduce((sum, campaign) => sum + campaign.contributors_count, 0),
-    volunteers: campaigns.reduce((sum, campaign) => sum + campaign.volunteers_count, 0),
     completed: campaigns.filter((campaign) => campaign.status === "completed").length,
   };
 }

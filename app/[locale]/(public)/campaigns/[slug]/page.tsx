@@ -1,4 +1,4 @@
-import {ArrowRight, CalendarDays, Camera, CheckCircle2, Clock3, FileText, HeartHandshake, Images, ShieldCheck, Target, Users} from "lucide-react";
+import {ArrowRight, CalendarDays, CheckCircle2, Clock3, FileText, HeartHandshake, Images, ShieldCheck, Target, Users} from "lucide-react";
 import type {Metadata} from "next";
 import {notFound} from "next/navigation";
 import {getTranslations} from "next-intl/server";
@@ -236,43 +236,7 @@ export default async function CampaignDetailPage({
             campaignEmoji={campaign.emoji}
             locale={locale}
             isLoggedIn={!!user}
-            t={{
-              title: t("contribution.title"),
-              money: t("contribution.money"),
-              volunteer: t("contribution.volunteer"),
-              materials: t("contribution.materials"),
-              note: t("contribution.note"),
-              send: t("contribution.send"),
-              helpButton: t("contribution.helpButton"),
-              materialPlaceholder: t("contribution.materialPlaceholder"),
-              graatekButton: t("contribution.graatekButton"),
-              loginHint: t("contribution.loginHint"),
-            }}
           />
-
-          <section className="rounded-2xl border border-border/70 bg-card p-4">
-            <h2 className="text-lg font-black">{t("materialNeeds")}</h2>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {campaign.material_needs.map((need) => (
-                <Badge key={need} className="bg-muted text-foreground">{need}</Badge>
-              ))}
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-border/70 bg-card p-4">
-            <h2 className="flex items-center gap-2 text-lg font-black">
-              <Users size={19} className="text-primary" />
-              {t("achievedImpact")}
-            </h2>
-            <ul className="mt-3 space-y-2">
-              {campaign.impact_points.map((point) => (
-                <li key={point} className="flex gap-2 text-sm text-muted-foreground">
-                  <Camera size={15} className="mt-0.5 shrink-0 text-primary" />
-                  <span>{point}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
         </div>
       </section>
 
