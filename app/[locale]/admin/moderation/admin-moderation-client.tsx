@@ -309,6 +309,13 @@ export function AdminModerationClient({
     {header: "Date", getValue: (log) => log.created_at},
   ], []);
 
+  const signalLabelKey: Record<string, string> = {
+    repeat_reports: "signalRepeatReports",
+    spam_behavior: "signalSpam",
+    new_accounts: "signalNewAccounts",
+    excessive_posting: "signalExcessivePosts",
+  };
+
   const actionTemplates = useMemo(() => [
     {key: "warn", label: t.actionWarn ?? "Send Warning", icon: Bell, destructive: false},
     {key: "suspend", label: t.actionSuspend ?? "Temporary Suspension", icon: UserX, destructive: true},
@@ -818,7 +825,7 @@ export function AdminModerationClient({
               return (
                 <div key={signal.type} className={`rounded-xl border p-4 ${severityColors[signal.severity] ?? "border-border/60 bg-card"}`}>
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{signal.label}</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t[signalLabelKey[signal.type]] ?? signal.label}</p>
                     <TrendIcon size={14} className={signal.trend === "up" ? "text-red-500" : signal.trend === "down" ? "text-emerald-500" : "text-muted-foreground"} />
                   </div>
                   <p className="mt-1 text-2xl font-black text-foreground">{formatNum(signal.count, locale)}</p>
