@@ -1,7 +1,7 @@
 "use client";
 
 import {useActionState, useCallback, useEffect, useRef, useState} from "react";
-import {ArrowLeft, Banknote, CreditCard, Heart, Wallet, X} from "lucide-react";
+import {ArrowLeft, Banknote, Check, CreditCard, Heart, Smartphone, Wallet, X} from "lucide-react";
 import Link from "next/link";
 
 import {submitDonation} from "@/components/support/donation-actions";
@@ -29,12 +29,12 @@ function unformatNumber(s: string): number {
   return Number(s.replace(/[^\d]/g, "")) || 0;
 }
 
-const methodIcons: Record<string, React.ReactNode> = {
-  bankily: <Wallet size={22} />,
-  masrivi: <Banknote size={22} />,
-  sedad: <CreditCard size={22} />,
-  visa: <CreditCard size={22} />,
-  mastercard: <CreditCard size={22} />,
+const methodMeta: Record<string, {icon: React.ReactNode; ring: string}> = {
+  bankily: {icon: <Smartphone size={22} />, ring: "ring-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400"},
+  masrivi: {icon: <Banknote size={22} />, ring: "ring-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"},
+  sedad: {icon: <Wallet size={22} />, ring: "ring-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400"},
+  visa: {icon: <CreditCard size={22} />, ring: "ring-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"},
+  mastercard: {icon: <CreditCard size={22} />, ring: "ring-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-400"},
 };
 
 interface DonationModalProps {
@@ -63,8 +63,11 @@ export function DonationModal({
   const [step, setStep] = useState<number>(STEP.METHOD);
   const [amountStr, setAmountStr] = useState("");
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod["method"] | null>(null);
-  const stepRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const prevStepRef = useRef<number>(STEP.METHOD);
+  const [animClass, setAnimClass] = useState("");
 
   const isRtl = rtlLocales.includes(locale);
 
@@ -78,7 +81,6 @@ export function DonationModal({
 
   const amount = unformatNumber(amountStr);
   const amountValid = amount > 0;
-  const canProceedReview = amountValid;
   const selectedMethodData = paymentMethods.find((m) => m.method === selectedMethod);
 
   const [state, formAction, isPending] = useActionState(submitDonation, null);
@@ -91,11 +93,35 @@ export function DonationModal({
 
   useEffect(() => {
     if (open) {
+      prevStepRef.current = STEP.METHOD;
       setStep(STEP.METHOD);
       setAmountStr("");
       setSelectedMethod(null);
+      document.body.style.overflow = "hidden";
+      setTimeout(() => modalRef.current?.focus(), 100);
+    } else {
+      document.body.style.overflow = "";
     }
+    return () => { document.body.style.overflow = ""; };
   }, [open]);
+
+  const animateStep = useCallback((dir: "forward" | "backward") => {
+    const start = dir === "forward"
+      ? (isRtl ? "-translate-x-6 opacity-0" : "translate-x-6 opacity-0")
+      : (isRtl ? "translate-x-6 opacity-0" : "-translate-x-6 opacity-0");
+    setAnimClass(start);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setAnimClass("translate-x-0 opacity-100");
+      });
+    });
+  }, [isRtl]);
+
+  const goToStep = useCallback((next: number, dir: "forward" | "backward") => {
+    prevStepRef.current = step;
+    setStep(next);
+    animateStep(dir);
+  }, [step, animateStep]);
 
   const handleAmountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/[^\d]/g, "");
@@ -109,24 +135,60 @@ export function DonationModal({
 
   const handleBack = useCallback(() => {
     if (isPending) return;
-    if (step === STEP.AMOUNT) setStep(STEP.METHOD);
-    else if (step === STEP.REVIEW) setStep(STEP.AMOUNT);
-  }, [step, isPending]);
+    if (step === STEP.AMOUNT) goToStep(STEP.METHOD, "backward");
+    else if (step === STEP.REVIEW) goToStep(STEP.AMOUNT, "backward");
+  }, [step, isPending, goToStep]);
 
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
     if (open) {
       requestAnimationFrame(() => setMounted(true));
     } else {
+      setAnimClass("");
       setMounted(false);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (step === STEP.AMOUNT) {
+      setTimeout(() => inputRef.current?.focus(), 400);
+    }
+  }, [step]);
+
+  useEffect(() => {
+    if (step === STEP.CONFIRM) {
+      setAnimClass("");
+    }
+  }, [step]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "Escape") { handleClose(); return; }
+    if (e.key !== "Tab" || !modalRef.current) return;
+    const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) { e.preventDefault(); last?.focus(); }
+    } else {
+      if (document.activeElement === last) { e.preventDefault(); first?.focus(); }
+    }
+  }, [handleClose]);
+
+  const stepTitles: Record<number, string> = {
+    [STEP.METHOD]: labels.chooseMethod,
+    [STEP.AMOUNT]: labels.stepAmount,
+    [STEP.REVIEW]: labels.stepReview,
+  };
 
   if (!open) return null;
 
   if (!isLoggedIn) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-3 backdrop-blur-sm">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-3 backdrop-blur-sm" dir={isRtl ? "rtl" : "ltr"}>
         <div className="w-full max-w-md rounded-3xl border border-border bg-card p-8 text-center shadow-2xl">
           <p className="text-lg font-black">{labels.loginRequired}</p>
           <a href={`/${locale}/login`} className={cn(buttonVariants(), "mt-4 w-full")}>
@@ -141,196 +203,276 @@ export function DonationModal({
   }
 
   return (
-    <div className={cn("fixed inset-0 z-50 flex items-end bg-black/45 p-2 backdrop-blur-sm transition-opacity duration-200 sm:items-center sm:justify-center sm:p-4", mounted ? "opacity-100" : "opacity-0")} style={{paddingBottom: "calc(0.5rem + env(safe-area-inset-bottom))"}} dir={isRtl ? "rtl" : "ltr"}>
-      <div className={cn("relative w-full overflow-hidden rounded-3xl border border-border bg-card shadow-2xl transition-all duration-300 sm:max-w-md", mounted ? "translate-y-0 sm:scale-100" : "translate-y-4 sm:scale-95")}>
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <div className="flex items-center gap-2">
+    <div
+      ref={modalRef}
+      tabIndex={-1}
+      onKeyDown={handleKeyDown}
+      className={cn(
+        "fixed inset-0 z-[100] flex flex-col transition-all duration-200 outline-none",
+        "bg-background",
+        "sm:items-center sm:justify-center sm:bg-black/45 sm:backdrop-blur-sm sm:p-4",
+        mounted ? "opacity-100" : "opacity-0 pointer-events-none",
+      )}
+      dir={isRtl ? "rtl" : "ltr"}
+      onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
+    >
+      {/* Sheet */}
+      <div
+        className={cn(
+          "relative z-10 flex flex-col bg-background transition-all duration-300 ease-out",
+          "h-dvh w-full",
+          "sm:h-auto sm:max-h-[90dvh] sm:w-full sm:max-w-md sm:rounded-3xl sm:border sm:border-border sm:shadow-2xl",
+          mounted ? "translate-y-0" : "translate-y-full sm:translate-y-0 sm:scale-95",
+        )}
+      >
+        {/* Header */}
+        <div
+          className="shrink-0 grid grid-cols-3 items-center border-b border-border px-4 min-h-[3.75rem]"
+          style={{paddingTop: "env(safe-area-inset-top, 0px)"}}
+        >
+          <div className="flex items-center">
             {step > STEP.METHOD ? (
-              <button type="button" onClick={handleBack} disabled={isPending} className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted active:scale-95">
-                <ArrowLeft size={18} className={isRtl ? "rotate-180" : ""} />
+              <button
+                type="button"
+                onClick={handleBack}
+                disabled={isPending}
+                className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground hover:bg-muted active:scale-90 transition disabled:opacity-30"
+                aria-label={labels.back || "Back"}
+              >
+                <ArrowLeft size={20} className={isRtl ? "rotate-180" : ""} />
               </button>
             ) : null}
-            <span className="text-sm text-muted-foreground">
-              {step === STEP.METHOD ? labels.stepMethod : step === STEP.AMOUNT ? labels.stepAmount : step === STEP.REVIEW ? labels.stepReview : ""}
-            </span>
           </div>
-          <button type="button" onClick={handleClose} disabled={isPending} className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted active:scale-95">
-            <X size={18} />
-          </button>
+
+          <h1 className="text-center text-sm font-bold text-foreground truncate px-2">
+            {stepTitles[step] || ""}
+          </h1>
+
+          <div className="flex items-center justify-end">
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={isPending}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground hover:bg-muted active:scale-90 transition disabled:opacity-30"
+              aria-label={labels.close || "Close"}
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
-        <div ref={stepRef} className="overflow-y-auto p-5" style={{maxHeight: "min(80dvh, 32rem)"}}>
-          {step === STEP.METHOD ? (
-            <div className={cn("space-y-4", isRtl && "text-right")}>
-              <div>
-                <h2 className="text-xl font-black">{labels.chooseMethod}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{labels.chooseMethodHint}</p>
-              </div>
-
-              <div className="space-y-3">
-                {paymentMethods.map((pm) => {
-                  return (
-                    <button
-                      key={pm.method}
-                      type="button"
-                      onClick={() => {
-                        if (!pm.enabled) return;
-                        setSelectedMethod(pm.method);
-                        setStep(STEP.AMOUNT);
-                        setTimeout(() => inputRef.current?.focus(), 300);
-                      }}
-                      disabled={!pm.enabled}
-                      className={cn(
-                        "flex w-full items-center gap-4 rounded-2xl border-2 bg-background p-4 text-start transition-all duration-200 active:scale-[0.98]",
-                        "border-border hover:border-muted-foreground/30 hover:shadow-sm",
-                        !pm.enabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
-                      )}
-                    >
-                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted">
-                        {methodIcons[pm.method]}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-black">{pm.label}</p>
-                        <p className="mt-0.5 text-sm text-muted-foreground">{pm.description}</p>
-                      </div>
-                      {!pm.enabled ? (
-                        <span className="shrink-0 rounded-full bg-muted px-3 py-1 text-xs font-bold text-muted-foreground">
-                          {labels.comingSoon}
-                        </span>
-                      ) : null}
-                    </button>
-                  );
-                })}
-              </div>
-
-            </div>
-          ) : null}
-
-          {step === STEP.AMOUNT ? (
-            <div className={cn("space-y-5 text-center", isRtl && "text-right")}>
-              <div>
-                <p className="text-sm font-bold text-primary">{labels.donateTo} {campaignEmoji}</p>
-                <h2 className="mt-1 text-2xl font-black">{campaignTitle}</h2>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-sm font-bold text-muted-foreground">{labels.amountLabel}</p>
-                <div className="mx-auto flex max-w-[18rem] items-center gap-0 overflow-hidden rounded-2xl border-2 border-border bg-background ring-primary/30 focus-within:border-primary focus-within:ring-2">
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    inputMode="numeric"
-                    value={amountStr}
-                    onChange={handleAmountChange}
-                    placeholder={labels.amountPlaceholder}
-                    className="min-w-0 flex-1 bg-transparent px-5 py-4 text-center text-3xl font-black outline-none [&::-webkit-inner-spin-button]:appearance-none"
-                    autoFocus
-                  />
-                  <span className="px-5 text-lg font-bold text-muted-foreground">MRU</span>
+        {/* Content */}
+        <div ref={contentRef} className="flex-1 overflow-y-auto px-5 py-6 overscroll-contain">
+          <div className={cn("transition-all duration-[250ms] ease-out", animClass)}>
+            {/* Step 1: Method */}
+            {step === STEP.METHOD ? (
+              <div className={cn("space-y-5", isRtl && "text-right")}>
+                <div>
+                  <h2 className="text-lg font-black">{labels.chooseMethod}</h2>
+                  <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
+                    {labels.chooseMethodHint}
+                  </p>
                 </div>
-                {amountStr && !amountValid ? (
-                  <p className="text-sm font-bold text-destructive">{labels.invalidAmount}</p>
-                ) : null}
-                {amountValid ? (
-                  <p className="text-sm text-muted-foreground">{labels.youWillDonate} {amount.toLocaleString()} MRU</p>
-                ) : null}
-              </div>
 
+                <div className="space-y-3">
+                  {paymentMethods.map((pm) => {
+                    const meta = methodMeta[pm.method];
+                    const isSelected = selectedMethod === pm.method;
+                    return (
+                      <button
+                        key={pm.method}
+                        type="button"
+                        onClick={() => {
+                          if (!pm.enabled) return;
+                          setSelectedMethod(pm.method);
+                          goToStep(STEP.AMOUNT, "forward");
+                        }}
+                        disabled={!pm.enabled}
+                        className={cn(
+                          "flex w-full items-center gap-4 rounded-2xl border-2 bg-card p-4 text-start transition-all duration-200 min-h-[4.5rem]",
+                          isSelected
+                            ? "border-primary bg-primary/[0.04] shadow-sm"
+                            : "border-border hover:border-muted-foreground/30 hover:bg-muted/20 hover:shadow-sm",
+                          !pm.enabled ? "cursor-not-allowed opacity-50" : "cursor-pointer active:scale-[0.98]",
+                        )}
+                      >
+                        <span className={cn(
+                          "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ring-1",
+                          meta?.ring || "bg-muted ring-border"
+                        )}>
+                          {meta?.icon}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-bold text-foreground">{pm.label}</p>
+                          <p className="mt-0.5 text-sm text-muted-foreground leading-snug">{pm.description}</p>
+                        </div>
+                        {isSelected ? (
+                          <span className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-primary">
+                            <Check size={14} className="text-primary-foreground" />
+                          </span>
+                        ) : !pm.enabled ? (
+                          <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-[0.7rem] font-bold text-muted-foreground uppercase tracking-wider">
+                            {labels.comingSoon}
+                          </span>
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+
+            {/* Step 2: Amount */}
+            {step === STEP.AMOUNT ? (
+              <div className={cn("space-y-6", isRtl && "text-right")}>
+                <div className="text-center">
+                  <p className="text-sm font-bold text-primary">{labels.donateTo} {campaignEmoji}</p>
+                  <h2 className="mt-1.5 text-xl font-black text-foreground">{campaignTitle}</h2>
+                </div>
+
+                <div className="text-center">
+                  <p className="text-sm font-bold text-muted-foreground mb-3">{labels.amountLabel}</p>
+                  <div
+                    className={cn(
+                      "mx-auto flex max-w-[16rem] items-center gap-0 overflow-hidden rounded-2xl border-2 bg-card ring-primary/30 transition-all",
+                      amountValid ? "border-primary" : "border-border focus-within:border-primary focus-within:ring-2"
+                    )}
+                  >
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      inputMode="numeric"
+                      value={amountStr}
+                      onChange={handleAmountChange}
+                      placeholder={labels.amountPlaceholder}
+                      className="min-w-0 flex-1 bg-transparent px-4 py-4 text-center text-3xl font-black outline-none [&::-webkit-inner-spin-button]:appearance-none"
+                      autoFocus
+                    />
+                    <span className="px-4 text-base font-bold text-muted-foreground shrink-0">MRU</span>
+                  </div>
+                  {amountStr && !amountValid ? (
+                    <p className="mt-2 text-sm font-bold text-destructive">{labels.invalidAmount}</p>
+                  ) : null}
+                  {amountValid ? (
+                    <p className="mt-2 text-sm text-muted-foreground">{labels.youWillDonate} {amount.toLocaleString()} MRU</p>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
+
+            {/* Step 3: Review */}
+            {step === STEP.REVIEW ? (
+              <div className={cn("space-y-5", isRtl && "text-right")}>
+                <div>
+                  <h2 className="text-lg font-black">{labels.reviewTitle}</h2>
+                  <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{labels.reviewDesc}</p>
+                </div>
+
+                <div className="space-y-3 rounded-2xl bg-muted/40 p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">{labels.campaignLabel}</span>
+                    <span className="text-sm font-bold">{campaignEmoji} {campaignTitle}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">{labels.methodLabel}</span>
+                    <span className="flex items-center gap-1.5 text-sm font-bold">
+                      {selectedMethodData && methodMeta[selectedMethodData.method]?.icon}
+                      {selectedMethodData?.label}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">{labels.amountLabel}</span>
+                    <span className="text-xl font-black">{amount.toLocaleString()} MRU</span>
+                  </div>
+                  <div className="flex items-center justify-between border-t border-border pt-3">
+                    <span className="text-sm text-muted-foreground">{labels.estTime}</span>
+                    <span className="text-sm font-bold">{labels.estTimeValue}</span>
+                  </div>
+                </div>
+
+                {/* Hidden form for action — checkbox here, submit button below */}
+                <form id="donation-form" action={formAction}>
+                  <input type="hidden" name="campaignId" value={campaignId} />
+                  <input type="hidden" name="campaignSlug" value={campaignSlug} />
+                  <input type="hidden" name="locale" value={locale} />
+                  <input type="hidden" name="amount" value={amount} />
+                  <input type="hidden" name="paymentMethod" value={selectedMethod ?? ""} />
+
+                  {state?.error === "unauthorized" ? (
+                    <p className="mb-4 rounded-xl bg-destructive/10 p-3 text-sm font-bold text-destructive">{labels.loginRequired}</p>
+                  ) : null}
+                  {state?.error === "invalid-amount" || state?.error === "invalid-payment" ? (
+                    <p className="mb-4 rounded-xl bg-destructive/10 p-3 text-sm font-bold text-destructive">{labels.invalidInput}</p>
+                  ) : null}
+                  {state?.error === "server-error" ? (
+                    <p className="mb-4 rounded-xl bg-destructive/10 p-3 text-sm font-bold text-destructive">{labels.serverError}</p>
+                  ) : null}
+
+                  <label className={cn("flex cursor-pointer items-start gap-3 rounded-2xl border-2 p-4 transition hover:bg-muted/20", isRtl && "flex-row-reverse")}>
+                    <input type="checkbox" required className="mt-0.5 h-5 w-5 shrink-0 accent-primary rounded" />
+                    <span className="text-sm leading-6">{labels.confirmText}</span>
+                  </label>
+                </form>
+              </div>
+            ) : null}
+
+            {/* Step 4: Confirm / Success */}
+            {step === STEP.CONFIRM ? (
+              <div className={cn("space-y-6 py-8 text-center", isRtl && "text-right")}>
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+                  <Heart size={40} className="text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black">{labels.thankYou}</h2>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    {labels.successMessage}
+                  </p>
+                  <p className="mt-5 rounded-2xl bg-muted/40 p-4 text-base font-bold">
+                    {amount.toLocaleString()} MRU
+                  </p>
+                  <p className="mt-3 text-sm text-muted-foreground">{labels.notificationHint}</p>
+                </div>
+                <div className="flex flex-col gap-3 pt-2">
+                  <Link href={`/${locale}/campaigns`} className={cn(buttonVariants(), "h-14 w-full rounded-2xl text-base font-black")}>
+                    {labels.backToCampaigns}
+                  </Link>
+                  <Button onClick={onClose} variant="outline" className="h-14 w-full rounded-2xl text-base font-black">
+                    {labels.continueBrowsing}
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        {/* Bottom Action */}
+        {step > STEP.METHOD && step < STEP.CONFIRM ? (
+          <div
+            className="shrink-0 border-t border-border bg-card px-5 py-4"
+            style={{paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))"}}
+          >
+            {step === STEP.AMOUNT ? (
               <Button
                 type="button"
-                onClick={() => setStep(STEP.REVIEW)}
-                disabled={!canProceedReview}
+                onClick={() => goToStep(STEP.REVIEW, "forward")}
+                disabled={!amountValid}
                 className="h-14 w-full rounded-2xl text-base font-black"
               >
                 {labels.continue}
               </Button>
-            </div>
-          ) : null}
-
-          {step === STEP.REVIEW ? (
-            <div className={cn("space-y-5", isRtl && "text-right")}>
-              <div>
-                <h2 className="text-xl font-black">{labels.reviewTitle}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{labels.reviewDesc}</p>
-              </div>
-
-              <div className="space-y-3 rounded-2xl bg-muted/30 p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">{labels.campaignLabel}</span>
-                  <span className="text-sm font-black">{campaignEmoji} {campaignTitle}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">{labels.methodLabel}</span>
-                  <span className="flex items-center gap-1.5 text-sm font-black">
-                    {selectedMethodData ? methodIcons[selectedMethodData.method] : null}
-                    {selectedMethodData?.label}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">{labels.amountLabel}</span>
-                  <span className="text-lg font-black">{amount.toLocaleString()} MRU</span>
-                </div>
-                <div className="flex items-center justify-between border-t border-border pt-3">
-                  <span className="text-sm text-muted-foreground">{labels.estTime}</span>
-                  <span className="text-sm font-bold">{labels.estTimeValue}</span>
-                </div>
-              </div>
-
-              <form action={formAction} className="space-y-4">
-                <input type="hidden" name="campaignId" value={campaignId} />
-                <input type="hidden" name="campaignSlug" value={campaignSlug} />
-                <input type="hidden" name="locale" value={locale} />
-                <input type="hidden" name="amount" value={amount} />
-                <input type="hidden" name="paymentMethod" value={selectedMethod ?? ""} />
-
-                {state?.error === "unauthorized" ? (
-                  <p className="rounded-xl bg-destructive/10 p-3 text-sm font-bold text-destructive">{labels.loginRequired}</p>
-                ) : null}
-                {state?.error === "invalid-amount" || state?.error === "invalid-payment" ? (
-                  <p className="rounded-xl bg-destructive/10 p-3 text-sm font-bold text-destructive">{labels.invalidInput}</p>
-                ) : null}
-                {state?.error === "server-error" ? (
-                  <p className="rounded-xl bg-destructive/10 p-3 text-sm font-bold text-destructive">{labels.serverError}</p>
-                ) : null}
-
-                <label className={cn("flex cursor-pointer items-start gap-3 rounded-2xl border-2 p-4 transition", isRtl && "flex-row-reverse")}>
-                  <input type="checkbox" required className="mt-0.5 h-5 w-5 shrink-0 accent-primary" />
-                  <span className="text-sm leading-6">{labels.confirmText}</span>
-                </label>
-
-                <Button type="submit" disabled={isPending} className="h-14 w-full rounded-2xl text-base font-black">
-                  {isPending ? labels.submitting : labels.confirmButton}
-                </Button>
-              </form>
-            </div>
-          ) : null}
-
-          {step === STEP.CONFIRM ? (
-            <div className={cn("space-y-5 py-8 text-center", isRtl && "text-right")}>
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
-                <Heart size={40} className="text-primary" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-black">{labels.thankYou}</h2>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  {labels.successMessage}
-                </p>
-                <p className="mt-4 rounded-2xl bg-muted/30 p-4 text-sm font-bold">
-                  {amount.toLocaleString()} MRU
-                </p>
-                <p className="mt-2 text-sm text-muted-foreground">{labels.notificationHint}</p>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Link href={`/${locale}/campaigns`} className={cn(buttonVariants(), "h-14 w-full rounded-2xl text-base font-black")}>
-                  {labels.backToCampaigns}
-                </Link>
-                <Button onClick={onClose} variant="outline" className="h-14 w-full rounded-2xl text-base font-black">
-                  {labels.continueBrowsing}
-                </Button>
-              </div>
-            </div>
-          ) : null}
-        </div>
+            ) : null}
+            {step === STEP.REVIEW ? (
+              <Button
+                type="submit"
+                form="donation-form"
+                disabled={isPending}
+                className="h-14 w-full rounded-2xl text-base font-black"
+              >
+                {isPending ? labels.submitting : labels.confirmButton}
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </div>
   );
