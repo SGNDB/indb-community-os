@@ -854,7 +854,8 @@
       "moderation": "الرقابة",
       "analytics": "التحليلات",
       "payments": "المدفوعات",
-      "settings": "الإعدادات"
+      "settings": "الإعدادات",
+      "impact": "الأثر المجتمعي"
     },
     "kpi": {
       "totalUsers": "إجمالي المستخدمين",
@@ -2236,6 +2237,29 @@
       "close": "إغلاق القائمة",
       "collapse": "طي القائمة",
       "expand": "فتح القائمة"
+    },
+    "impactPage": {
+      "eyebrow": "تحليلات الأثر المجتمعي",
+      "title": "الأثر المجتمعي",
+      "description": "راقب المساهمة الإيجابية عبر الدعم، التطوع، گرعتك، الأفكار، وحفظ الذاكرة دون اختزال الناس في رقم واحد.",
+      "totalVolunteerHours": "إجمالي ساعات التطوع",
+      "totalDonations": "إجمالي الدعم المالي",
+      "familiesHelped": "الأسر المستفيدة",
+      "graatekSuccessRate": "نسبة نجاح گرعتك",
+      "ideasCompleted": "الأفكار المكتملة",
+      "memoriesPublished": "الذكريات المنشورة",
+      "activeContributors": "المساهمون النشطون",
+      "analytics": "التحليلات",
+      "growthTitle": "نمو الأثر المجتمعي",
+      "leaderboardsEyebrow": "قوائم منفصلة",
+      "leaderboardsTitle": "تقدير كل مسار مساهمة",
+      "topVolunteers": "أفضل المتطوعين",
+      "topDonors": "أفضل الداعمين",
+      "topGraatek": "أفضل مساهمي گرعتك",
+      "topBuilders": "أفضل بناة المجتمع",
+      "topMemories": "أفضل مساهمي الذاكرة",
+      "topIdeas": "أفضل مساهمي الأفكار",
+      "emptyState": "لا توجد بيانات أثر بعد. شغّل الهجرة والتحديث الخلفي لملء الإحصاءات."
     }
   },
   "Categories": {
@@ -2980,6 +3004,112 @@
       "campaignFamilies": "دعم الأسر",
       "campaignClean": "نظافة نواذيبو",
       "campaignHealth": "العلاج والصحة"
+    }
+  },
+  "CommunityImpact": {
+    "eyebrow": "سجل المساهمة الإيجابية",
+    "title": "الأثر المجتمعي",
+    "description": "سجل شفاف يوضح كيف يساهم هذا العضو في نواذيبو عبر الدعم، التطوع، گرعتك، الأفكار، والذاكرة.",
+    "passportLink": "أثري المجتمعي",
+    "passportEyebrow": "جواز الأثر المجتمعي",
+    "passportTitle": "أثري المجتمعي",
+    "passportDescription": "احتفل بمساهمتك السنوية في نواذيبو دون نقاط عامة. كل نوع من العطاء مهم.",
+    "levelLabel": "المستوى المجتمعي",
+    "modulesActive": "{count} مجالات نشطة",
+    "notScore": "ليس تقييماً اجتماعياً",
+    "noActivity": "لا يوجد نشاط بعد",
+    "hours": "ساعة",
+    "families": "أسرة",
+    "badgesTitle": "الشارات المكتسبة",
+    "badgesDescription": "الشارات تعترف بأنواع مختلفة من المساهمة المجتمعية بالتساوي.",
+    "noBadges": "ستظهر الشارات عندما يساهم هذا العضو في المجتمع.",
+    "levels": {
+      "community_supporter": "داعِم المجتمع",
+      "active_contributor": "مساهم نشط",
+      "community_builder": "بنّاء المجتمع",
+      "community_champion": "بطل المجتمع",
+      "guardian_of_nouadhibou": "حارس نواذيبو"
+    },
+    "badges": {
+      "water_supporter": "داعِم السقاية",
+      "family_supporter": "داعِم الأسر",
+      "education_supporter": "داعِم التعليم",
+      "health_supporter": "داعِم الصحة",
+      "community_cleaner": "مساهم في النظافة",
+      "volunteer": "متطوع",
+      "graatek_helper": "مساعد گرعتك",
+      "innovator": "مبتكر",
+      "story_keeper": "حافظ الذاكرة",
+      "community_builder": "بنّاء المجتمع"
+    },
+    "modules": {
+      "donations": {
+        "title": "الدعم المالي",
+        "total": "إجمالي المساهمات",
+        "count": "عدد المساهمات",
+        "campaigns": "الحملات المدعومة",
+        "last": "آخر مساهمة"
+      },
+      "volunteering": {
+        "title": "التطوع",
+        "hours": "ساعات التطوع",
+        "activities": "الأنشطة المكتملة",
+        "attendance": "نسبة الحضور",
+        "current": "الفرص الحالية"
+      },
+      "graatek": {
+        "title": "گرعتك",
+        "shared": "العناصر المشاركة",
+        "completed": "التبادلات المكتملة",
+        "helped": "الأشخاص الذين تمت مساعدتهم",
+        "rate": "نسبة الإكمال"
+      },
+      "ideas": {
+        "title": "الأفكار",
+        "created": "الأفكار المنشورة",
+        "supported": "الأفكار المدعومة",
+        "completed": "الأفكار المكتملة",
+        "participants": "المشاركون"
+      },
+      "memories": {
+        "title": "الذاكرة",
+        "created": "الذكريات المنشورة",
+        "views": "المشاهدات",
+        "reactions": "تفاعلات المجتمع",
+        "featured": "ذكريات مميزة"
+      }
+    },
+    "passport": {
+      "totalDonations": "إجمالي الدعم",
+      "volunteerHours": "ساعات التطوع",
+      "familiesHelped": "الأسر المستفيدة",
+      "studentsHelped": "التلاميذ المستفيدون",
+      "campaignsJoined": "الحملات المشاركة",
+      "graatekExchanges": "تبادلات گرعتك",
+      "ideasCompleted": "الأفكار المكتملة",
+      "memoriesShared": "الذكريات المشاركة"
+    },
+    "yearly": {
+      "eyebrow": "الملخص السنوي",
+      "title": "أثرك المجتمعي - {year}",
+      "donated": "ساهمت بمبلغ",
+      "volunteered": "تطوعت لمدة",
+      "helped": "ساعدت",
+      "completedGraatek": "أكملت تبادلات گرعتك",
+      "participatedCampaigns": "شاركت في حملات",
+      "sharedMemories": "شاركت ذكريات",
+      "thankYou": "شكراً لأنك تجعل نواذيبو أقوى."
+    },
+    "leaderboards": {
+      "title": "قوائم تميز منفصلة",
+      "description": "لا توجد رتبة عامة واحدة. لكل نوع مساهمة مسار تقدير مستقل.",
+      "separate": "تقدير منفصل وليس نقاطاً عامة.",
+      "volunteers": "أفضل المتطوعين",
+      "donors": "أفضل الداعمين",
+      "graatek": "أفضل مساهمي گرعتك",
+      "builders": "أفضل بناة المجتمع",
+      "memories": "أفضل مساهمي الذاكرة",
+      "ideas": "أفضل مساهمي الأفكار"
     }
   }
 }

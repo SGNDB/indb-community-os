@@ -31,6 +31,7 @@ export default async function AdminLayout({
     {label: t("nav.messages"), href: `${basePath}/messages`, iconKey: "messages" as const},
     {label: t("nav.support"), href: `${basePath}/support`, iconKey: "support" as const},
     {label: t("nav.volunteering"), href: `${basePath}/volunteer`, iconKey: "volunteer" as const},
+    {label: t("nav.impact"), href: `${basePath}/impact`, iconKey: "impact" as const},
     {label: t("nav.notifications"), href: `${basePath}/notifications`, iconKey: "notifications" as const},
     {label: t("nav.moderation"), href: `${basePath}/moderation`, iconKey: "moderation" as const},
     {label: t("nav.analytics"), href: `${basePath}/analytics`, iconKey: "analytics" as const},

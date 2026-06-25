@@ -8,10 +8,12 @@ import {getTranslations} from "next-intl/server";
 import {ProfileCompleteness} from "@/components/profile/profile-completeness";
 import {ProfileTabsContent} from "@/components/profile/profile-tabs-content";
 import {FollowSummary} from "@/components/profile/follow-summary";
+import {CommunityImpactSection} from "@/components/profile/community-impact-section";
 import {Badge} from "@/components/ui/badge";
 import {Card, CardContent} from "@/components/ui/card";
 import {getCommentsForPosts} from "@/lib/data/comments";
 import {getContributionRankKey} from "@/lib/contribution";
+import {getCommunityImpact} from "@/lib/data/community-impact";
 import {getFullProfileDetails} from "@/lib/data/profile-details";
 import {getFollowStats, isFollowing} from "@/lib/data/follows";
 import {getUserPosts, getUserPostsCount} from "@/lib/data/posts";
@@ -146,12 +148,13 @@ export default async function PublicProfilePage({
   const {data: {user}} = await supabase.auth.getUser();
   const currentUserId = user?.id ?? null;
 
-  const [followStats, currentUserIsFollowing, postsCount, memoriesCount, ideasCount] = await Promise.all([
+  const [followStats, currentUserIsFollowing, postsCount, memoriesCount, ideasCount, impact] = await Promise.all([
     getFollowStats(profile.id),
     isFollowing(currentUserId, profile.id),
     getUserPostsCount(profile.id),
     getUserMemoriesCount(profile.id),
     getUserIdeasCount(profile.id),
+    getCommunityImpact(profile.id),
   ]);
 
   const {data: postIds} = await supabase
@@ -292,6 +295,8 @@ export default async function PublicProfilePage({
           </div>
         </CardContent>
       </Card>
+
+      <CommunityImpactSection impact={impact} locale={locale} showPassportLink={currentUserId === profile.id} />
 
       <Suspense fallback={<ProfileTabsFallback />}>
         <ProfileTabsFetcher

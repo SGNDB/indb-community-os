@@ -5,6 +5,7 @@ import {
   Award,
   BarChart3,
   HandHeart,
+  HeartHandshake,
   ChevronLeft,
   ChevronRight,
   LayoutDashboard,
@@ -46,7 +47,7 @@ type AdminSidebarIconKey =
   | "dashboard" | "users" | "content" | "credits" | "analytics"
   | "support" | "settings" | "ideas" | "graatek" | "memories"
   | "messages" | "notifications" | "moderation" | "volunteer"
-  | "donations" | "payments";
+  | "donations" | "payments" | "impact";
 
 const iconMap: Record<AdminSidebarIconKey, LucideIcon> = {
   dashboard: LayoutDashboard,
@@ -65,6 +66,7 @@ const iconMap: Record<AdminSidebarIconKey, LucideIcon> = {
   volunteer: UsersRound,
   donations: Landmark,
   payments: Landmark,
+  impact: HeartHandshake,
 };
 
 interface AdminSidebarProps {

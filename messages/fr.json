@@ -854,7 +854,8 @@
       "moderation": "Modération",
       "analytics": "Analytiques",
       "payments": "Paiements",
-      "settings": "Paramètres"
+      "settings": "Paramètres",
+      "impact": "Impact communautaire"
     },
     "kpi": {
       "totalUsers": "Total Utilisateurs",
@@ -2236,6 +2237,29 @@
       "close": "Fermer le menu",
       "collapse": "Réduire le menu",
       "expand": "Ouvrir le menu"
+    },
+    "impactPage": {
+      "eyebrow": "Analyse de l impact communautaire",
+      "title": "Impact communautaire",
+      "description": "Suivez les contributions positives via les dons, le benevolat, Graatek, les idees et la memoire sans reduire les personnes a un seul score.",
+      "totalVolunteerHours": "Total des heures de benevolat",
+      "totalDonations": "Total des dons",
+      "familiesHelped": "Familles aidees",
+      "graatekSuccessRate": "Taux de reussite Graatek",
+      "ideasCompleted": "Idees terminees",
+      "memoriesPublished": "Memoires publiees",
+      "activeContributors": "Contributeurs actifs",
+      "analytics": "Analytique",
+      "growthTitle": "Croissance de l impact communautaire",
+      "leaderboardsEyebrow": "Classements separes",
+      "leaderboardsTitle": "Reconnaitre chaque parcours de contribution",
+      "topVolunteers": "Meilleurs benevoles",
+      "topDonors": "Meilleurs donateurs",
+      "topGraatek": "Meilleurs contributeurs Graatek",
+      "topBuilders": "Meilleurs batisseurs communautaires",
+      "topMemories": "Meilleurs contributeurs de memoires",
+      "topIdeas": "Meilleurs contributeurs d idees",
+      "emptyState": "Aucune donnee d impact pour le moment. Executez la migration et le backfill pour remplir les agregats."
     }
   },
   "Categories": {
@@ -2979,6 +3003,112 @@
       "campaignFamilies": "Soutien aux familles",
       "campaignClean": "Nettoyer Nouadhibou",
       "campaignHealth": "Traitement et sante"
+    }
+  },
+  "CommunityImpact": {
+    "eyebrow": "Registre de contribution positive",
+    "title": "Impact communautaire",
+    "description": "Un registre transparent de la contribution de ce membre a Nouadhibou par le soutien, le benevolat, Graatek, les idees et les memoires.",
+    "passportLink": "Mon impact communautaire",
+    "passportEyebrow": "Passeport communautaire",
+    "passportTitle": "Mon impact communautaire",
+    "passportDescription": "Celebrez votre contribution annuelle a Nouadhibou sans score global. Chaque forme d aide compte.",
+    "levelLabel": "Niveau communautaire",
+    "modulesActive": "{count} domaines actifs",
+    "notScore": "Ce n est pas un score social",
+    "noActivity": "Aucune activite pour le moment",
+    "hours": "heures",
+    "families": "familles",
+    "badgesTitle": "Badges debloques",
+    "badgesDescription": "Les badges reconnaissent equitablement differents types de contribution.",
+    "noBadges": "Les badges apparaitront quand ce membre contribuera a la communaute.",
+    "levels": {
+      "community_supporter": "Soutien communautaire",
+      "active_contributor": "Contributeur actif",
+      "community_builder": "Batisseur communautaire",
+      "community_champion": "Champion communautaire",
+      "guardian_of_nouadhibou": "Gardien de Nouadhibou"
+    },
+    "badges": {
+      "water_supporter": "Soutien de l eau",
+      "family_supporter": "Soutien des familles",
+      "education_supporter": "Soutien de l education",
+      "health_supporter": "Soutien de la sante",
+      "community_cleaner": "Nettoyeur communautaire",
+      "volunteer": "Benevole",
+      "graatek_helper": "Aide Graatek",
+      "innovator": "Innovateur",
+      "story_keeper": "Gardien des histoires",
+      "community_builder": "Batisseur communautaire"
+    },
+    "modules": {
+      "donations": {
+        "title": "Dons",
+        "total": "Total donne",
+        "count": "Dons",
+        "campaigns": "Campagnes soutenues",
+        "last": "Dernier don"
+      },
+      "volunteering": {
+        "title": "Benevolat",
+        "hours": "Heures de benevolat",
+        "activities": "Activites terminees",
+        "attendance": "Taux de presence",
+        "current": "Opportunites actuelles"
+      },
+      "graatek": {
+        "title": "Graatek",
+        "shared": "Articles partages",
+        "completed": "Echanges termines",
+        "helped": "Personnes aidees",
+        "rate": "Taux d achevement"
+      },
+      "ideas": {
+        "title": "Idees",
+        "created": "Idees publiees",
+        "supported": "Idees soutenues",
+        "completed": "Idees terminees",
+        "participants": "Participants"
+      },
+      "memories": {
+        "title": "Memoires",
+        "created": "Memoires publiees",
+        "views": "Vues",
+        "reactions": "Reactions communautaires",
+        "featured": "Memoires mises en avant"
+      }
+    },
+    "passport": {
+      "totalDonations": "Total des dons",
+      "volunteerHours": "Heures de benevolat",
+      "familiesHelped": "Familles aidees",
+      "studentsHelped": "Eleves aides",
+      "campaignsJoined": "Campagnes rejointes",
+      "graatekExchanges": "Echanges Graatek",
+      "ideasCompleted": "Idees terminees",
+      "memoriesShared": "Memoires partagees"
+    },
+    "yearly": {
+      "eyebrow": "Resume annuel",
+      "title": "Votre impact communautaire - {year}",
+      "donated": "Vous avez donne",
+      "volunteered": "Vous avez fait du benevolat",
+      "helped": "Vous avez aide",
+      "completedGraatek": "Vous avez termine des echanges Graatek",
+      "participatedCampaigns": "Vous avez participe a des campagnes",
+      "sharedMemories": "Vous avez partage des memoires",
+      "thankYou": "Merci de rendre Nouadhibou plus forte."
+    },
+    "leaderboards": {
+      "title": "Classements separes",
+      "description": "Il n existe pas de classement global unique. Chaque type de contribution a sa propre reconnaissance.",
+      "separate": "Reconnaissance separee, pas de score global.",
+      "volunteers": "Meilleurs benevoles",
+      "donors": "Meilleurs donateurs",
+      "graatek": "Meilleurs contributeurs Graatek",
+      "builders": "Meilleurs batisseurs communautaires",
+      "memories": "Meilleurs contributeurs de memoires",
+      "ideas": "Meilleurs contributeurs d idees"
     }
   }
 }

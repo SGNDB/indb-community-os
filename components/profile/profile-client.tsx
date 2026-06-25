@@ -24,8 +24,10 @@ import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 
 import {getContributionRankKey} from "@/lib/contribution";
+import type {CommunityImpactStats} from "@/lib/data/community-impact";
 import type {CommentWithAuthor, FadlaWithOwner, IdeaWithAuthor, MemoryWithContributor, PostWithAuthor, ProfileEducationRow, ProfileHobbyRow, ProfileInterestRow, ProfileLinkRow, ProfileTravelRow, ProfileWorkRow, ProfileWithCounts} from "@/types/database";
 
+import {CommunityImpactSection} from "./community-impact-section";
 import {ProfileAbout} from "./profile-about";
 import {ProfileCompleteness} from "./profile-completeness";
 
@@ -78,6 +80,7 @@ interface ProfileClientProps {
   travel: ProfileTravelRow[];
   currentUserId: string;
   locale: string;
+  impact: CommunityImpactStats;
 }
 
 export function ProfileClient({
@@ -94,6 +97,7 @@ export function ProfileClient({
   travel,
   currentUserId,
   locale,
+  impact,
 }: ProfileClientProps) {
   const t = useTranslations("Profile");
   const navbarT = useTranslations("Navbar");
@@ -313,6 +317,10 @@ export function ProfileClient({
               />
             </div>
           )}
+
+          <div className="mt-4">
+            <CommunityImpactSection impact={impact} locale={locale} />
+          </div>
 
           {/* Tabs */}
           <div className="mt-4 flex gap-1 overflow-x-auto rounded-2xl border border-border/70 bg-card p-1">

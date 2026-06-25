@@ -854,7 +854,8 @@
       "moderation": "Moderation",
       "analytics": "Analytics",
       "payments": "Payments",
-      "settings": "Settings"
+      "settings": "Settings",
+      "impact": "Community Impact"
     },
     "kpi": {
       "totalUsers": "Total Users",
@@ -2320,6 +2321,29 @@
       "close": "Close sidebar",
       "collapse": "Collapse sidebar",
       "expand": "Expand sidebar"
+    },
+    "impactPage": {
+      "eyebrow": "Community Impact analytics",
+      "title": "Community Impact",
+      "description": "Monitor positive contribution across donations, volunteering, Graatek, ideas, and memory preservation without reducing people to one score.",
+      "totalVolunteerHours": "Total volunteer hours",
+      "totalDonations": "Total donations",
+      "familiesHelped": "Families helped",
+      "graatekSuccessRate": "Graatek success rate",
+      "ideasCompleted": "Ideas completed",
+      "memoriesPublished": "Memories published",
+      "activeContributors": "Active contributors",
+      "analytics": "Analytics",
+      "growthTitle": "Growth of Community Impact",
+      "leaderboardsEyebrow": "Separate leaderboards",
+      "leaderboardsTitle": "Recognize every contribution path",
+      "topVolunteers": "Top volunteers",
+      "topDonors": "Top donors",
+      "topGraatek": "Top Graatek contributors",
+      "topBuilders": "Top community builders",
+      "topMemories": "Top memory contributors",
+      "topIdeas": "Top idea contributors",
+      "emptyState": "No impact data yet. Run the migration/backfill to populate aggregates."
     }
   },
   "Categories": {
@@ -3063,6 +3087,112 @@
       "campaignFamilies": "Family support",
       "campaignClean": "Clean Nouadhibou",
       "campaignHealth": "Treatment and health"
+    }
+  },
+  "CommunityImpact": {
+    "eyebrow": "Positive contribution record",
+    "title": "Community Impact",
+    "description": "A transparent record of how this member contributes to Nouadhibou through support, volunteering, Graatek, ideas, and memories.",
+    "passportLink": "My Community Impact",
+    "passportEyebrow": "Community passport",
+    "passportTitle": "My Community Impact",
+    "passportDescription": "Celebrate your yearly contribution to Nouadhibou without a global score. Every kind of help matters.",
+    "levelLabel": "Community level",
+    "modulesActive": "{count} active areas",
+    "notScore": "Not a social score",
+    "noActivity": "No activity yet",
+    "hours": "hours",
+    "families": "families",
+    "badgesTitle": "Badges unlocked",
+    "badgesDescription": "Badges recognize different kinds of community contribution equally.",
+    "noBadges": "Badges will appear as this member contributes across the community.",
+    "levels": {
+      "community_supporter": "Community Supporter",
+      "active_contributor": "Active Contributor",
+      "community_builder": "Community Builder",
+      "community_champion": "Community Champion",
+      "guardian_of_nouadhibou": "Guardian of Nouadhibou"
+    },
+    "badges": {
+      "water_supporter": "Water Supporter",
+      "family_supporter": "Family Supporter",
+      "education_supporter": "Education Supporter",
+      "health_supporter": "Health Supporter",
+      "community_cleaner": "Community Cleaner",
+      "volunteer": "Volunteer",
+      "graatek_helper": "Graatek Helper",
+      "innovator": "Innovator",
+      "story_keeper": "Story Keeper",
+      "community_builder": "Community Builder"
+    },
+    "modules": {
+      "donations": {
+        "title": "Donations",
+        "total": "Total donated",
+        "count": "Donations",
+        "campaigns": "Campaigns supported",
+        "last": "Last donation"
+      },
+      "volunteering": {
+        "title": "Volunteering",
+        "hours": "Volunteer hours",
+        "activities": "Activities completed",
+        "attendance": "Attendance rate",
+        "current": "Current opportunities"
+      },
+      "graatek": {
+        "title": "Graatek",
+        "shared": "Items shared",
+        "completed": "Completed exchanges",
+        "helped": "People helped",
+        "rate": "Completion rate"
+      },
+      "ideas": {
+        "title": "Ideas",
+        "created": "Ideas published",
+        "supported": "Ideas supported",
+        "completed": "Ideas completed",
+        "participants": "Participants"
+      },
+      "memories": {
+        "title": "Memories",
+        "created": "Published memories",
+        "views": "Views",
+        "reactions": "Community reactions",
+        "featured": "Featured memories"
+      }
+    },
+    "passport": {
+      "totalDonations": "Total donations",
+      "volunteerHours": "Volunteer hours",
+      "familiesHelped": "Families helped",
+      "studentsHelped": "Students helped",
+      "campaignsJoined": "Campaigns joined",
+      "graatekExchanges": "Graatek exchanges",
+      "ideasCompleted": "Ideas completed",
+      "memoriesShared": "Memories shared"
+    },
+    "yearly": {
+      "eyebrow": "Yearly summary",
+      "title": "Your Community Impact - {year}",
+      "donated": "You donated",
+      "volunteered": "You volunteered",
+      "helped": "You helped",
+      "completedGraatek": "You completed Graatek exchanges",
+      "participatedCampaigns": "You participated in campaigns",
+      "sharedMemories": "You shared memories",
+      "thankYou": "Thank you for making Nouadhibou stronger."
+    },
+    "leaderboards": {
+      "title": "Separate leaderboards",
+      "description": "There is no one global ranking. Each contribution type has its own recognition path.",
+      "separate": "Separate recognition, not a global score.",
+      "volunteers": "Top volunteers",
+      "donors": "Top donors",
+      "graatek": "Top Graatek contributors",
+      "builders": "Top community builders",
+      "memories": "Top memory contributors",
+      "ideas": "Top idea contributors"
     }
   }
 }

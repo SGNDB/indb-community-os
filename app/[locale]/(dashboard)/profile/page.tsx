@@ -9,6 +9,7 @@ import {getProfileWithCounts} from "@/lib/data/profile";
 import {getUserMemories} from "@/lib/data/memories";
 import {getUserIdeas} from "@/lib/data/ideas";
 import {getUserCommunityShares} from "@/lib/data/fadla";
+import {getCommunityImpact} from "@/lib/data/community-impact";
 import {redirect} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/server";
 
@@ -50,12 +51,13 @@ export default async function ProfilePage({
 
   const currentUserId = user.id;
 
-  const [allPosts, memories, ideas, shares, profileDetails] = await Promise.all([
+  const [allPosts, memories, ideas, shares, profileDetails, impact] = await Promise.all([
     getUserPosts(profile.id, currentUserId),
     getUserMemories(profile.id),
     getUserIdeas(profile.id),
     getUserCommunityShares(profile.id),
     getFullProfileDetails(profile.id),
+    getCommunityImpact(profile.id),
   ]);
 
   const postsWithComments = await Promise.all(
@@ -80,6 +82,7 @@ export default async function ProfilePage({
       travel={profileDetails.travel}
       currentUserId={currentUserId}
       locale={locale}
+      impact={impact}
     />
   );
 }
