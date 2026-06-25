@@ -242,7 +242,7 @@ export default async function CampaignDetailPage({
 
       <a
         href="#donate"
-        className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30 flex min-h-13 items-center justify-center rounded-full bg-primary text-sm font-black text-primary-foreground shadow-[0_12px_30px_rgba(237,33,36,0.35)] lg:hidden"
+        className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30 flex min-h-13 items-center justify-center rounded-full bg-primary text-sm font-black text-primary-foreground shadow-[0_12px_30px_rgba(237,33,36,0.35)] transition active:scale-[0.97] lg:hidden"
       >
         {t("donateNow")}
       </a>

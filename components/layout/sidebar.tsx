@@ -36,13 +36,14 @@ export function Sidebar() {
   const pathname = usePathname();
   const unreadCount = useUnreadConversationsCount();
 
-  const brandTitle = locale === "ar" ? "مجتمع INDB" : "INDB Community";
-  const brandTagline = locale === "ar" ? "نحب نواذيبو" : locale === "fr" ? "Je t'aime NDB" : "I Love NDB";
+  const isRtl = ["ar", "ff", "snk"].includes(locale);
+  const brandTitle = isRtl ? "مجتمع INDB" : "INDB Community";
+  const brandTagline = isRtl ? "نحب نواذيبو" : locale === "fr" ? "Je t'aime NDB" : "I Love NDB";
 
   return (
     <div className="sticky top-22 space-y-4">
       <div className="rounded-2xl border border-border/70 bg-card shadow-[0_12px_30px_rgba(7,31,54,0.08)]">
-        <div className="flex items-center gap-3 p-4" dir={locale === "ar" ? "rtl" : undefined}>
+        <div className="flex items-center gap-3 p-4" dir={isRtl ? "rtl" : undefined}>
           <Logo size="sm" className="shrink-0" />
           <div className="flex flex-col leading-tight">
             <span className="text-sm font-semibold text-foreground">

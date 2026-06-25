@@ -8,6 +8,8 @@ import {submitDonation} from "@/components/support/donation-actions";
 import {Button, buttonVariants} from "@/components/ui/button";
 import {cn} from "@/lib/utils/cn";
 
+const rtlLocales = ["ar", "ff", "snk"];
+
 const STEP = {METHOD: 1, AMOUNT: 2, REVIEW: 3, CONFIRM: 4} as const;
 
 type PaymentMethod = {
@@ -64,7 +66,7 @@ export function DonationModal({
   const stepRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const isRtl = locale === "ar";
+  const isRtl = rtlLocales.includes(locale);
 
   const paymentMethods: PaymentMethod[] = [
     {method: "bankily", label: "Bankily", description: labels.pmBankily, enabled: true},
@@ -111,6 +113,15 @@ export function DonationModal({
     else if (step === STEP.REVIEW) setStep(STEP.AMOUNT);
   }, [step, isPending]);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => setMounted(true));
+    } else {
+      setMounted(false);
+    }
+  }, [open]);
+
   if (!open) return null;
 
   if (!isLoggedIn) {
@@ -130,8 +141,8 @@ export function DonationModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-black/45 p-2 backdrop-blur-sm sm:items-center sm:justify-center sm:p-4" dir={isRtl ? "rtl" : "ltr"}>
-      <div className="relative w-full overflow-hidden rounded-3xl border border-border bg-card shadow-2xl transition-all duration-300 sm:max-w-md">
+    <div className={cn("fixed inset-0 z-50 flex items-end bg-black/45 p-2 backdrop-blur-sm transition-opacity duration-200 sm:items-center sm:justify-center sm:p-4", mounted ? "opacity-100" : "opacity-0")} style={{paddingBottom: "calc(0.5rem + env(safe-area-inset-bottom))"}} dir={isRtl ? "rtl" : "ltr"}>
+      <div className={cn("relative w-full overflow-hidden rounded-3xl border border-border bg-card shadow-2xl transition-all duration-300 sm:max-w-md", mounted ? "translate-y-0 sm:scale-100" : "translate-y-4 sm:scale-95")}>
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-2">
             {step > STEP.METHOD ? (
