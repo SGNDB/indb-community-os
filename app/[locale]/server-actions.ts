@@ -4609,6 +4609,8 @@ export async function adminSetSupportContributionStatusAction(formData: FormData
   const contributionId = formData.get('contributionId');
   const nextStatus = formData.get('nextStatus');
   const rejectedReason = formData.get('rejectedReason');
+  const returnPath = formData.get('returnPath');
+  const statusPrefix = formData.get('statusPrefix');
 
   const { getCurrentAdminProfile } = await import('@/lib/data/admin');
   const adminProfile = await getCurrentAdminProfile();
@@ -4630,6 +4632,15 @@ export async function adminSetSupportContributionStatusAction(formData: FormData
 
   revalidatePath('/support');
   revalidatePath('/admin/support');
+  revalidatePath('/admin/volunteer');
+  if (
+    typeof returnPath === 'string' &&
+    returnPath.startsWith('/admin/volunteer') &&
+    !returnPath.startsWith('//')
+  ) {
+    const prefix = statusPrefix === 'volunteer' ? 'volunteer' : 'donation';
+    redirect(withLocale(`${returnPath}?status=${prefix}-${nextStatus}`, locale));
+  }
   redirect(withLocale(`/admin/support?status=donation-${nextStatus}`, locale));
 }
 

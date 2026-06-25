@@ -1,59 +1,189 @@
 import {getTranslations} from "next-intl/server";
-import {createClient} from "@/lib/supabase/server";
 
-export default async function AdminVolunteerPage({params}: {params: Promise<{locale: string}>}) {
-  const {locale} = await params;
-  const t = await getTranslations({locale, namespace: "Admin"});
-  const supabase = await createClient();
+import {AdminVolunteerClient, type AdminVolunteerRequest} from "./admin-volunteer-client";
+import {getAdminSupportCampaigns} from "@/lib/data/support";
+import {createAdminClient} from "@/lib/supabase/admin";
 
-  const {data: campaigns} = await supabase
-    .from("support_campaigns")
-    .select("*")
+const volunteerLabelKeys = [
+  "eyebrow",
+  "title",
+  "description",
+  "totalVolunteers",
+  "activeOpportunities",
+  "pendingApplications",
+  "completedActivities",
+  "volunteerHours",
+  "monthlyGrowth",
+  "today",
+  "days7",
+  "days30",
+  "days90",
+  "year1",
+  "allTime",
+  "analytics",
+  "volunteerGrowthOverTime",
+  "volunteerHoursByMonth",
+  "opportunitiesByCategory",
+  "participationRate",
+  "completedVsActive",
+  "opportunitiesTitle",
+  "opportunitiesDescription",
+  "applicationsTitle",
+  "applicationsDescription",
+  "attendanceTitle",
+  "attendanceDescription",
+  "profilesTitle",
+  "impactTitle",
+  "organizersTitle",
+  "updatesTitle",
+  "notificationsTitle",
+  "opportunity",
+  "category",
+  "organizer",
+  "location",
+  "date",
+  "volunteersNeeded",
+  "volunteersJoined",
+  "progress",
+  "status",
+  "actions",
+  "view",
+  "edit",
+  "approve",
+  "close",
+  "cancel",
+  "export",
+  "accept",
+  "reject",
+  "waitlist",
+  "messageApplicant",
+  "applicant",
+  "skills",
+  "message",
+  "submitted",
+  "attended",
+  "absent",
+  "late",
+  "completedHours",
+  "name",
+  "phone",
+  "language",
+  "joinedOpportunities",
+  "completedActivitiesLabel",
+  "totalHours",
+  "reliabilityScore",
+  "badges",
+  "communityHelper",
+  "cleanupVolunteer",
+  "educationSupporter",
+  "familySupport",
+  "healthSupport",
+  "peopleHelped",
+  "neighborhoodsServed",
+  "activitiesCompleted",
+  "activeOrganizers",
+  "recurringVolunteers",
+  "verifiedOrganizers",
+  "createOpportunities",
+  "manageVolunteers",
+  "markAttendance",
+  "publishUpdates",
+  "approveOrganizer",
+  "revokeOrganizer",
+  "reviewActivity",
+  "monthlyReport",
+  "attendanceReport",
+  "hoursReport",
+  "opportunityReport",
+  "noApplications",
+  "unknownVolunteer",
+  "notAvailable",
+  "statusOpen",
+  "statusFull",
+  "statusInProgress",
+  "statusCompleted",
+  "statusCancelled",
+  "statusArchived",
+  "statusPending",
+  "statusVerified",
+  "statusRejected",
+  "statusRefunded",
+  "categoryEnvironment",
+  "categoryEducation",
+  "categoryFamilies",
+  "categoryHealth",
+  "categoryCommunity",
+  "categoryYouthSports",
+  "campaignWater",
+  "campaignEducation",
+  "campaignFamilies",
+  "campaignClean",
+  "campaignHealth",
+  "exportCSV",
+  "exportExcel",
+  "exportPDF",
+  "exportTitle",
+  "statusVolunteerVerified",
+  "statusVolunteerRejected",
+  "statusVolunteerRefunded",
+] as const;
+
+async function getVolunteerRequests(): Promise<AdminVolunteerRequest[]> {
+  const admin = createAdminClient();
+  if (!admin) return [];
+
+  const {data, error} = await admin
+    .from("support_contributions")
+    .select(`
+      id,
+      campaign_id,
+      contributor_id,
+      volunteer_message,
+      status,
+      created_at,
+      updated_at,
+      campaign:support_campaigns(id, slug, emoji, title, status, volunteers_count, last_update_at),
+      contributor:profiles(id, full_name, username, avatar_url)
+    `)
+    .eq("contribution_type", "volunteer")
     .order("created_at", {ascending: false})
-    .limit(20);
+    .limit(100);
 
-  const totalVolunteers = (campaigns ?? []).reduce((sum, c: {volunteers_count?: number}) => sum + (c.volunteers_count ?? 0), 0);
-  const activeCount = (campaigns ?? []).filter((c: {status: string}) => c.status === "active").length;
+  if (error) {
+    console.error("getVolunteerRequests error:", error);
+    return [];
+  }
+
+  return (data ?? []).map((item) => ({
+    ...item,
+    campaign: Array.isArray(item.campaign) ? item.campaign[0] ?? null : item.campaign,
+    contributor: Array.isArray(item.contributor) ? item.contributor[0] ?? null : item.contributor,
+  })) as AdminVolunteerRequest[];
+}
+
+export default async function AdminVolunteerPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{locale: string}>;
+  searchParams: Promise<{status?: string}>;
+}) {
+  const {locale} = await params;
+  const {status} = await searchParams;
+  const t = await getTranslations({locale, namespace: "Admin.volunteeringPage"});
+  const [campaigns, requests] = await Promise.all([
+    getAdminSupportCampaigns(),
+    getVolunteerRequests(),
+  ]);
+  const labels = Object.fromEntries(volunteerLabelKeys.map((key) => [key, t(key)]));
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
-      <div>
-        <h1 className="text-2xl font-black text-foreground">{t("nav.volunteer")}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage volunteer opportunities</p>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-border/60 bg-card p-5">
-          <p className="text-xs text-muted-foreground">Total Opportunities</p>
-          <p className="mt-1 text-2xl font-black text-foreground">{campaigns?.length ?? 0}</p>
-        </div>
-        <div className="rounded-2xl border border-border/60 bg-card p-5">
-          <p className="text-xs text-muted-foreground">Active</p>
-          <p className="mt-1 text-2xl font-black text-green-600">{activeCount}</p>
-        </div>
-        <div className="rounded-2xl border border-border/60 bg-card p-5">
-          <p className="text-xs text-muted-foreground">Total Volunteers</p>
-          <p className="mt-1 text-2xl font-black text-foreground">{totalVolunteers}</p>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        {(campaigns ?? []).map((campaign: {id: string; title: string; status: string; volunteers_count?: number; created_at: string}) => (
-          <div key={campaign.id} className="rounded-2xl border border-border/60 bg-card p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-semibold text-foreground">{campaign.title}</h3>
-                <p className="text-xs text-muted-foreground">
-                  {campaign.volunteers_count ?? 0} volunteers · {new Date(campaign.created_at).toLocaleDateString()}
-                </p>
-              </div>
-              <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                {campaign.status}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <AdminVolunteerClient
+      locale={locale}
+      status={status ?? null}
+      labels={labels}
+      campaigns={campaigns}
+      requests={requests}
+    />
   );
 }
