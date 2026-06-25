@@ -1,7 +1,7 @@
 "use client";
 
 import {useActionState, useCallback, useEffect, useRef, useState} from "react";
-import {ArrowLeft, Banknote, CheckCircle2, CreditCard, Heart, Wallet, X} from "lucide-react";
+import {ArrowLeft, Banknote, CreditCard, Heart, Wallet, X} from "lucide-react";
 import Link from "next/link";
 
 import {submitDonation} from "@/components/support/donation-actions";
@@ -76,7 +76,6 @@ export function DonationModal({
 
   const amount = unformatNumber(amountStr);
   const amountValid = amount > 0;
-  const canProceedAmount = selectedMethod !== null;
   const canProceedReview = amountValid;
   const selectedMethodData = paymentMethods.find((m) => m.method === selectedMethod);
 
@@ -159,20 +158,24 @@ export function DonationModal({
 
               <div className="space-y-3">
                 {paymentMethods.map((pm) => {
-                  const selected = selectedMethod === pm.method;
                   return (
                     <button
                       key={pm.method}
                       type="button"
-                      onClick={() => setSelectedMethod(pm.method)}
+                      onClick={() => {
+                        if (!pm.enabled) return;
+                        setSelectedMethod(pm.method);
+                        setStep(STEP.AMOUNT);
+                        setTimeout(() => inputRef.current?.focus(), 300);
+                      }}
                       disabled={!pm.enabled}
                       className={cn(
                         "flex w-full items-center gap-4 rounded-2xl border-2 bg-background p-4 text-start transition-all duration-200 active:scale-[0.98]",
-                        selected ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-muted-foreground/30 hover:shadow-sm",
+                        "border-border hover:border-muted-foreground/30 hover:shadow-sm",
                         !pm.enabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
                       )}
                     >
-                      <span className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-colors duration-200", selected ? "bg-primary text-primary-foreground" : "bg-muted")}>
+                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted">
                         {methodIcons[pm.method]}
                       </span>
                       <div className="min-w-0 flex-1">
@@ -183,25 +186,12 @@ export function DonationModal({
                         <span className="shrink-0 rounded-full bg-muted px-3 py-1 text-xs font-bold text-muted-foreground">
                           {labels.comingSoon}
                         </span>
-                      ) : selected ? (
-                        <CheckCircle2 size={20} className="shrink-0 text-primary" />
                       ) : null}
                     </button>
                   );
                 })}
               </div>
 
-              <Button
-                type="button"
-                onClick={() => {
-                  setStep(STEP.AMOUNT);
-                  setTimeout(() => inputRef.current?.focus(), 300);
-                }}
-                disabled={!canProceedAmount}
-                className="h-14 w-full rounded-2xl text-base font-black"
-              >
-                {labels.continue}
-              </Button>
             </div>
           ) : null}
 
