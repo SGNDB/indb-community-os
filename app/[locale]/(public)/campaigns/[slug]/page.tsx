@@ -7,7 +7,7 @@ import {SupportContributionPanel} from "@/components/support/support-contributio
 import {SupportCampaignVisual} from "@/components/support/support-campaign-visual";
 import {Badge} from "@/components/ui/badge";
 import {createClient} from "@/lib/supabase/server";
-import {getCampaignProgress, getDaysRemaining, getSupportCampaignBySlug, getSupportPaymentReceivers} from "@/lib/data/support";
+import {getCampaignProgress, getDaysRemaining, getSupportCampaignBySlug} from "@/lib/data/support";
 import {Link} from "@/lib/i18n/routing";
 
 const formatter = new Intl.NumberFormat("fr-MR");
@@ -60,7 +60,6 @@ export default async function CampaignDetailPage({
   if (!result) notFound();
 
   const {campaign, updates, photos} = result;
-  const paymentReceivers = getSupportPaymentReceivers();
   const progress = getCampaignProgress(campaign);
   const daysRemaining = getDaysRemaining(campaign);
   const remaining = Math.max(0, campaign.goal_amount - campaign.raised_amount);
@@ -233,16 +232,15 @@ export default async function CampaignDetailPage({
           <SupportContributionPanel
             campaignId={campaign.id}
             campaignSlug={campaign.slug}
+            campaignTitle={campaign.title}
+            campaignEmoji={campaign.emoji}
             locale={locale}
             isLoggedIn={!!user}
-            paymentReceivers={paymentReceivers}
             t={{
               title: t("contribution.title"),
               money: t("contribution.money"),
               volunteer: t("contribution.volunteer"),
               materials: t("contribution.materials"),
-              suggested: t("contribution.suggested"),
-              otherAmount: t("contribution.otherAmount"),
               note: t("contribution.note"),
               send: t("contribution.send"),
               helpButton: t("contribution.helpButton"),
