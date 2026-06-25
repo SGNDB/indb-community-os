@@ -77,6 +77,8 @@ const copy = {
     volunteersNeeded: "المتطوعون المطلوبون",
     progress: "التقدم",
     skils: "المهارات المطلوبة",
+    linkCopied: "تم نسخ الرابط",
+    shareFailed: "تعذر المشاركة",
   },
   fr: {
     metaTitle: "Bénévolat | I ❤️ NDB",
@@ -149,6 +151,8 @@ const copy = {
     volunteersNeeded: "Bénévoles requis",
     progress: "Progression",
     skils: "Compétences requises",
+    linkCopied: "Lien copié",
+    shareFailed: "Échec du partage",
   },
   en: {
     metaTitle: "Volunteering | I ❤️ NDB",
@@ -221,6 +225,8 @@ const copy = {
     volunteersNeeded: "Volunteers Needed",
     progress: "Progress",
     skils: "Skills Required",
+    linkCopied: "Link copied",
+    shareFailed: "Share failed",
   },
 };
 

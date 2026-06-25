@@ -23,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import {toast} from "sonner";
 
 import {Button, buttonVariants} from "@/components/ui/button";
 import {cn} from "@/lib/utils/cn";
@@ -231,6 +232,21 @@ export function VolunteerPageClient({
     return {success: true};
   }, []);
 
+  const handleShare = useCallback(async (title: string, text: string, url: string) => {
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({title, text, url});
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success(labels.linkCopied || "Link copied");
+      }
+    } catch {
+      if (typeof navigator !== "undefined" && !navigator.share) {
+        toast.error(labels.shareFailed || "Unable to share");
+      }
+    }
+  }, [labels]);
+
   const catLabel = (cat: typeof categories[0]) => {
     if (locale === "ar") return cat.labelAr;
     if (locale === "fr") return cat.labelFr;
@@ -244,9 +260,8 @@ export function VolunteerPageClient({
 
   const storyForLocale = (s: typeof stories[0], field: "name" | "activity" | "quote") => {
     const key = field as string;
-    if (locale === "ar") return s[`${key}Ar` as keyof typeof s] || s[`${key}En` as keyof typeof s] || "";
-    if (locale === "fr") return s[`${key}Fr` as keyof typeof s] || s[`${key}En` as keyof typeof s] || "";
-    return s[`${key}En` as keyof typeof s] || "";
+    const value = (locale === "ar" ? s[`${key}Ar` as keyof typeof s] : locale === "fr" ? s[`${key}Fr` as keyof typeof s] : s[`${key}En` as keyof typeof s]) || "";
+    return String(value);
   };
 
   const activityForLocale = (a: typeof upcomingActivities[0], field: "date" | "title") => {
@@ -262,6 +277,14 @@ export function VolunteerPageClient({
       {/* ================================================================ */}
       <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-card shadow-[0_12px_34px_rgba(8,33,56,0.06)]">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-transparent pointer-events-none" />
+        <button
+          type="button"
+          onClick={() => handleShare(labels.heroTitle, labels.heroSubtitle, window.location.href)}
+          className="absolute top-3 end-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 text-muted-foreground shadow-xs backdrop-blur-sm hover:bg-background hover:text-foreground active:scale-90 transition"
+          aria-label={labels.share}
+        >
+          <Share2 size={15} />
+        </button>
         <div className="relative px-5 py-7 sm:px-7 sm:py-10">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-2xl">
@@ -353,9 +376,7 @@ export function VolunteerPageClient({
                     <HeartHandshake size={17} />
                     {labels.joinNow}
                   </Button>
-                  <Button variant="outline" onClick={() => {
-                    if (navigator.share) navigator.share({title: featured.title, text: featured.description});
-                  }} className="h-12 rounded-2xl px-6 text-sm font-bold gap-2">
+                  <Button variant="outline" onClick={() => handleShare(featured.title, featured.description, `/${locale}/campaigns/${featured.slug}`)} className="h-12 rounded-2xl px-6 text-sm font-bold gap-2">
                     <Share2 size={17} />
                     {labels.share}
                   </Button>
@@ -481,6 +502,14 @@ export function VolunteerPageClient({
                   {/* Image area */}
                   <div className="relative h-36 bg-gradient-to-br from-primary/[0.06] to-primary/[0.02] flex items-center justify-center overflow-hidden">
                     <span className="text-5xl transition-transform duration-300 group-hover:scale-110">{opp.emoji}</span>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); handleShare(opp.title, opp.description, `/${locale}/campaigns/${opp.slug}`); }}
+                      className="absolute top-3 end-3 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 text-muted-foreground shadow-xs backdrop-blur-sm hover:bg-background hover:text-foreground active:scale-90 transition"
+                      aria-label={labels.share}
+                    >
+                      <Share2 size={13} />
+                    </button>
                   </div>
 
                   <div className="p-4 space-y-3">
@@ -606,15 +635,27 @@ export function VolunteerPageClient({
           </div>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {stories.map((story, i) => (
-              <div key={i} className="rounded-2xl border border-border/70 bg-card p-5 shadow-[0_8px_22px_rgba(8,33,56,0.05)]">
+              <div key={i} className="relative rounded-2xl border border-border/70 bg-card p-5 shadow-[0_8px_22px_rgba(8,33,56,0.05)]">
                 <div className="flex items-center gap-3">
                   <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-muted">
                     <img src={story.image} alt="" className="h-full w-full object-cover" loading="lazy" />
                   </div>
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold">{storyForLocale(story, "name")}</p>
                     <p className="text-xs text-muted-foreground">{storyForLocale(story, "activity")}</p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => handleShare(
+                      storyForLocale(story, "name"),
+                      storyForLocale(story, "quote"),
+                      window.location.href
+                    )}
+                    className="shrink-0 flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground active:scale-90 transition"
+                    aria-label={labels.share}
+                  >
+                    <Share2 size={13} />
+                  </button>
                 </div>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground italic">
                   &ldquo;{storyForLocale(story, "quote")}&rdquo;
@@ -653,10 +694,24 @@ export function VolunteerPageClient({
                     <span className="flex items-center gap-1"><BadgeCheck size={12} />{activity.organizer}</span>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" className="shrink-0 h-10 rounded-xl text-xs font-bold gap-1">
-                  {labels.viewDetails}
-                  <ArrowLeft size={14} className={cn(isRtl ? "" : "rotate-180")} />
-                </Button>
+                <div className="shrink-0 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleShare(
+                      activityForLocale(activity, "title"),
+                      `${activityForLocale(activity, "date")} · ${activity.location}`,
+                      window.location.href
+                    )}
+                    className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground active:scale-90 transition"
+                    aria-label={labels.share}
+                  >
+                    <Share2 size={14} />
+                  </button>
+                  <Button variant="outline" size="sm" className="h-10 rounded-xl text-xs font-bold gap-1">
+                    {labels.viewDetails}
+                    <ArrowLeft size={14} className={cn(isRtl ? "" : "rotate-180")} />
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
