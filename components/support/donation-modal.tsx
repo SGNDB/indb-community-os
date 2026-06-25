@@ -2,12 +2,13 @@
 
 import {useActionState, useCallback, useEffect, useRef, useState} from "react";
 import {ArrowLeft, Banknote, CheckCircle2, CreditCard, Heart, Wallet, X} from "lucide-react";
+import Link from "next/link";
 
 import {submitDonation} from "@/components/support/donation-actions";
 import {Button, buttonVariants} from "@/components/ui/button";
 import {cn} from "@/lib/utils/cn";
 
-const STEP = {AMOUNT: 1, METHOD: 2, REVIEW: 3, CONFIRM: 4} as const;
+const STEP = {METHOD: 1, AMOUNT: 2, REVIEW: 3, CONFIRM: 4} as const;
 
 type PaymentMethod = {
   method: "bankily" | "masrivi" | "sedad" | "visa" | "mastercard";
@@ -57,7 +58,7 @@ export function DonationModal({
   isLoggedIn,
   labels,
 }: DonationModalProps) {
-  const [step, setStep] = useState<number>(STEP.AMOUNT);
+  const [step, setStep] = useState<number>(STEP.METHOD);
   const [amountStr, setAmountStr] = useState("");
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod["method"] | null>(null);
   const stepRef = useRef<HTMLDivElement>(null);
@@ -69,16 +70,15 @@ export function DonationModal({
     {method: "bankily", label: "Bankily", description: labels.pmBankily, enabled: true},
     {method: "masrivi", label: "Masrivi", description: labels.pmMasrivi, enabled: true},
     {method: "sedad", label: "Sedad", description: labels.pmSedad, enabled: true},
+    {method: "mastercard", label: "Mastercard", description: labels.pmMastercard, enabled: true},
     {method: "visa", label: "Visa", description: labels.pmVisa, enabled: false},
-    {method: "mastercard", label: "Mastercard", description: labels.pmMastercard, enabled: false},
   ];
 
   const amount = unformatNumber(amountStr);
   const amountValid = amount > 0;
-  const canProceedMethod = amountValid;
-  const canProceedReview = selectedMethod !== null;
+  const canProceedAmount = selectedMethod !== null;
+  const canProceedReview = amountValid;
   const selectedMethodData = paymentMethods.find((m) => m.method === selectedMethod);
-  const isCard = selectedMethod === "visa" || selectedMethod === "mastercard";
 
   const [state, formAction, isPending] = useActionState(submitDonation, null);
 
@@ -90,10 +90,9 @@ export function DonationModal({
 
   useEffect(() => {
     if (open) {
-      setStep(STEP.AMOUNT);
+      setStep(STEP.METHOD);
       setAmountStr("");
       setSelectedMethod(null);
-      setTimeout(() => inputRef.current?.focus(), 300);
     }
   }, [open]);
 
@@ -109,8 +108,8 @@ export function DonationModal({
 
   const handleBack = useCallback(() => {
     if (isPending) return;
-    if (step === STEP.METHOD) setStep(STEP.AMOUNT);
-    else if (step === STEP.REVIEW) setStep(STEP.METHOD);
+    if (step === STEP.AMOUNT) setStep(STEP.METHOD);
+    else if (step === STEP.REVIEW) setStep(STEP.AMOUNT);
   }, [step, isPending]);
 
   if (!open) return null;
@@ -133,21 +132,16 @@ export function DonationModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end bg-black/45 p-2 backdrop-blur-sm sm:items-center sm:justify-center sm:p-4" dir={isRtl ? "rtl" : "ltr"}>
-      <div
-        className={cn(
-          "relative w-full overflow-hidden rounded-3xl border border-border bg-card shadow-2xl transition-all duration-300 sm:max-w-md",
-          step === STEP.AMOUNT ? "sm:max-w-sm" : "sm:max-w-md",
-        )}
-      >
+      <div className="relative w-full overflow-hidden rounded-3xl border border-border bg-card shadow-2xl transition-all duration-300 sm:max-w-md">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-2">
-            {step > STEP.AMOUNT ? (
+            {step > STEP.METHOD ? (
               <button type="button" onClick={handleBack} disabled={isPending} className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted active:scale-95">
                 <ArrowLeft size={18} className={isRtl ? "rotate-180" : ""} />
               </button>
             ) : null}
             <span className="text-sm text-muted-foreground">
-              {step === STEP.AMOUNT ? labels.stepAmount : step === STEP.METHOD ? labels.stepMethod : step === STEP.REVIEW ? labels.stepReview : ""}
+              {step === STEP.METHOD ? labels.stepMethod : step === STEP.AMOUNT ? labels.stepAmount : step === STEP.REVIEW ? labels.stepReview : ""}
             </span>
           </div>
           <button type="button" onClick={handleClose} disabled={isPending} className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted active:scale-95">
@@ -156,6 +150,61 @@ export function DonationModal({
         </div>
 
         <div ref={stepRef} className="overflow-y-auto p-5" style={{maxHeight: "min(80dvh, 32rem)"}}>
+          {step === STEP.METHOD ? (
+            <div className={cn("space-y-4", isRtl && "text-right")}>
+              <div>
+                <h2 className="text-xl font-black">{labels.chooseMethod}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">{labels.chooseMethodHint}</p>
+              </div>
+
+              <div className="space-y-3">
+                {paymentMethods.map((pm) => {
+                  const selected = selectedMethod === pm.method;
+                  return (
+                    <button
+                      key={pm.method}
+                      type="button"
+                      onClick={() => setSelectedMethod(pm.method)}
+                      disabled={!pm.enabled}
+                      className={cn(
+                        "flex w-full items-center gap-4 rounded-2xl border-2 bg-background p-4 text-start transition-all duration-200 active:scale-[0.98]",
+                        selected ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-muted-foreground/30 hover:shadow-sm",
+                        !pm.enabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
+                      )}
+                    >
+                      <span className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-colors duration-200", selected ? "bg-primary text-primary-foreground" : "bg-muted")}>
+                        {methodIcons[pm.method]}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-black">{pm.label}</p>
+                        <p className="mt-0.5 text-sm text-muted-foreground">{pm.description}</p>
+                      </div>
+                      {!pm.enabled ? (
+                        <span className="shrink-0 rounded-full bg-muted px-3 py-1 text-xs font-bold text-muted-foreground">
+                          {labels.comingSoon}
+                        </span>
+                      ) : selected ? (
+                        <CheckCircle2 size={20} className="shrink-0 text-primary" />
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <Button
+                type="button"
+                onClick={() => {
+                  setStep(STEP.AMOUNT);
+                  setTimeout(() => inputRef.current?.focus(), 300);
+                }}
+                disabled={!canProceedAmount}
+                className="h-14 w-full rounded-2xl text-base font-black"
+              >
+                {labels.continue}
+              </Button>
+            </div>
+          ) : null}
+
           {step === STEP.AMOUNT ? (
             <div className={cn("space-y-5 text-center", isRtl && "text-right")}>
               <div>
@@ -188,58 +237,6 @@ export function DonationModal({
 
               <Button
                 type="button"
-                onClick={() => setStep(STEP.METHOD)}
-                disabled={!canProceedMethod}
-                className="h-14 w-full rounded-2xl text-base font-black"
-              >
-                {labels.continue}
-              </Button>
-            </div>
-          ) : null}
-
-          {step === STEP.METHOD ? (
-            <div className={cn("space-y-4", isRtl && "text-right")}>
-              <div>
-                <h2 className="text-xl font-black">{labels.chooseMethod}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{labels.amount} {amount.toLocaleString()} MRU</p>
-              </div>
-
-              <div className="space-y-3">
-                {paymentMethods.map((pm) => {
-                  const selected = selectedMethod === pm.method;
-                  return (
-                    <button
-                      key={pm.method}
-                      type="button"
-                      onClick={() => setSelectedMethod(pm.method)}
-                      disabled={!pm.enabled}
-                      className={cn(
-                        "flex w-full items-center gap-4 rounded-2xl border-2 bg-background p-4 text-start transition active:scale-[0.99]",
-                        selected ? "border-primary bg-primary/5" : "border-border",
-                        !pm.enabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
-                      )}
-                    >
-                      <span className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-xl", selected ? "bg-primary text-primary-foreground" : "bg-muted")}>
-                        {methodIcons[pm.method]}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-black">{pm.label}</p>
-                        <p className="mt-0.5 text-sm text-muted-foreground">{pm.description}</p>
-                      </div>
-                      {!pm.enabled ? (
-                        <span className="shrink-0 rounded-full bg-muted px-3 py-1 text-xs font-bold text-muted-foreground">
-                          {labels.comingSoon}
-                        </span>
-                      ) : selected ? (
-                        <CheckCircle2 size={20} className="shrink-0 text-primary" />
-                      ) : null}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <Button
-                type="button"
                 onClick={() => setStep(STEP.REVIEW)}
                 disabled={!canProceedReview}
                 className="h-14 w-full rounded-2xl text-base font-black"
@@ -262,15 +259,15 @@ export function DonationModal({
                   <span className="text-sm font-black">{campaignEmoji} {campaignTitle}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">{labels.amountLabel}</span>
-                  <span className="text-lg font-black">{amount.toLocaleString()} MRU</span>
-                </div>
-                <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">{labels.methodLabel}</span>
                   <span className="flex items-center gap-1.5 text-sm font-black">
                     {selectedMethodData ? methodIcons[selectedMethodData.method] : null}
                     {selectedMethodData?.label}
                   </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">{labels.amountLabel}</span>
+                  <span className="text-lg font-black">{amount.toLocaleString()} MRU</span>
                 </div>
                 <div className="flex items-center justify-between border-t border-border pt-3">
                   <span className="text-sm text-muted-foreground">{labels.estTime}</span>
@@ -322,9 +319,14 @@ export function DonationModal({
                 </p>
                 <p className="mt-2 text-sm text-muted-foreground">{labels.notificationHint}</p>
               </div>
-              <Button onClick={onClose} variant="outline" className="w-full rounded-2xl">
-                {labels.close}
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Link href={`/${locale}/campaigns`} className={cn(buttonVariants(), "h-14 w-full rounded-2xl text-base font-black")}>
+                  {labels.backToCampaigns}
+                </Link>
+                <Button onClick={onClose} variant="outline" className="h-14 w-full rounded-2xl text-base font-black">
+                  {labels.continueBrowsing}
+                </Button>
+              </div>
             </div>
           ) : null}
         </div>
