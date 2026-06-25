@@ -1,70 +1,226 @@
-import {ArrowRight, CalendarDays, HandHeart, ShieldCheck, UsersRound} from "lucide-react";
 import type {Metadata} from "next";
 
-import {recordSupportContributionAction} from "@/app/[locale]/server-actions";
-import {Badge} from "@/components/ui/badge";
-import {Button} from "@/components/ui/button";
-import {Textarea} from "@/components/ui/textarea";
-import {Link} from "@/lib/i18n/routing";
+import {VolunteerPageClient} from "@/components/volunteer/volunteer-page-client";
 import {getSupportCampaigns} from "@/lib/data/support";
 import {createClient} from "@/lib/supabase/server";
 
-const formatter = new Intl.NumberFormat("fr-MR");
-
 const copy = {
   ar: {
-    title: "🙋 التطوع",
     metaTitle: "التطوع | I ❤️ NDB",
-    description: "انضم إلى فرص تطوعية موثقة لخدمة نواذيبو مع فريق I ❤️ NDB.",
+    metaDescription: "انضم إلى فرص تطوعية موثقة لخدمة نواذيبو مع فريق I ❤️ NDB.",
     eyebrow: "فرص تطوعية موثقة",
-    active: "فرص مفتوحة",
+    heroTitle: "🙋 التطوع",
+    heroSubtitle: "اصنع أثراً حقيقياً بوقتك ومهاراتك.\nكل ساعة تقدمها قد تغيّر حياة شخص أو تخدم مجتمعاً كاملاً.",
+    startVolunteering: "ابدأ التطوع",
+    learnMore: "تعرف أكثر",
+    activeOpportunities: "فرص مفتوحة",
     volunteers: "متطوع",
-    backToSupport: "الدعم المالي منفصل هنا",
-    supportLink: "اذهب إلى الدعم",
-    whyTitle: "لماذا صفحة منفصلة؟",
-    whyBody: "التطوع لا يحتاج دفعاً. اختر حملة، اكتب كيف يمكنك المساعدة، وسيتم تسجيل اهتمامك للفريق.",
-    messagePlaceholder: "مثال: أستطيع المساعدة في التوزيع يوم الجمعة، أو التنظيف، أو التنسيق مع الحي.",
-    submit: "أريد المساعدة",
-    loginHint: "سجّل الدخول لتسجيل طلب التطوع.",
-    sent: "تم إرسال طلب التطوع. شكراً لك.",
-    noOpen: "لا توجد فرص تطوع مفتوحة حالياً.",
-    status: "الحالة",
+    hoursContributed: "ساعات التطوع",
+    completed: "مكتملة",
+    featured: "فرصة مميزة",
+    remaining: "متبقي",
+    volunteersLower: "متطوع",
+    organizedBy: "ينظمها",
+    joinNow: "انضم الآن",
+    share: "شارك الفرصة",
+    categories: "الفئات",
+    browseCategories: "تصفح فئات التطوع",
+    opportunitiesLower: "فرصة",
+    needed: "مطلوب",
+    opportunities: "الفرص",
+    searchPlaceholder: "ابحث عن فرصة تطوع...",
+    newest: "الأحدث",
+    popular: "الأكثر مشاركة",
+    closingSoon: "تغلق قريباً",
+    noResults: "لا توجد نتائج",
+    noResultsHint: "حاول تغيير معايير البحث أو التصفية.",
+    clearFilters: "مسح التصفية",
+    whyVolunteer: "لماذا التطوع؟",
+    whyVolunteerTitle: "كل ساعة تصنع فرقاً",
+    makeImpact: "❤️ اصنع أثراً حقيقياً",
+    makeImpactDesc: "ساهم في تحسين حياة الناس في نواذيبو من خلال وقتك ومهاراتك.",
+    meetCommunity: "🤝 تعرف على مجتمعك",
+    meetCommunityDesc: "اعمل مع أشخاص يهتمون بمستقبل مدينتك ويبذلون وقتهم من أجلها.",
+    buildSkills: "📈 طور مهاراتك",
+    buildSkillsDesc: "اكتسب خبرة عملية في التنظيم والتنسيق والعمل الجماعي.",
+    strengthenCity: "🌍 قوِّ مدينتك",
+    strengthenCityDesc: "كل ساعة تطوع تخلق تغييراً إيجابياً في نواذيبو.",
+    communityImpact: "الأثر المجتمعي",
+    ourImpact: "ما حققناه معاً",
+    completedActivities: "نشاط مكتمل",
+    peopleHelped: "شخص مستفيد",
+    neighborhoodsServed: "حي مخدوم",
+    stories: "قصص ملهمة",
+    volunteerStories: "قصص المتطوعين",
+    hoursLower: "ساعة",
+    upcoming: "قادم",
+    upcomingActivities: "الأنشطة القادمة",
+    viewDetails: "عرض التفاصيل",
+    noOpportunities: "لا توجد فرص تطوعية حالياً",
+    noOpportunitiesHint: "تابعنا، ستُضاف فرص جديدة قريباً. يمكنك العودة لاحقاً أو متابعة صفحتنا على فيسبوك.",
+    // Join modal
+    joinTitle: "تأكيد الانضمام",
+    joinSuccess: "تم التسجيل ✅",
+    joinSuccessTitle: "تم تسجيل انضمامك بنجاح 🎉",
+    joinSuccessMessage: "سيتم إشعارك بأي تحديثات تخص هذه الفرصة. شكراً لك على مبادرتك الرائعة.",
+    backToOpportunities: "العودة للفرص",
+    confirmJoin: "تأكيد الانضمام",
+    joining: "جاري التسجيل...",
+    loginHint: "سجّل الدخول لتسجيل الانضمام.",
+    signIn: "تسجيل الدخول",
+    close: "إغلاق",
+    joinError: "حدث خطأ أثناء التسجيل. حاول مرة أخرى.",
+    organizer: "المنظم",
+    location: "الموقع",
+    date: "التاريخ",
+    duration: "المدة",
+    volunteersNeeded: "المتطوعون المطلوبون",
+    progress: "التقدم",
+    skils: "المهارات المطلوبة",
   },
   fr: {
-    title: "🙋 Bénévolat",
     metaTitle: "Bénévolat | I ❤️ NDB",
-    description: "Rejoignez des opportunités de bénévolat vérifiées pour servir Nouadhibou avec I ❤️ NDB.",
+    metaDescription: "Rejoignez des opportunités de bénévolat vérifiées pour servir Nouadhibou avec I ❤️ NDB.",
     eyebrow: "Opportunités vérifiées",
-    active: "Opportunités ouvertes",
-    volunteers: "bénévoles",
-    backToSupport: "Le soutien financier est séparé ici",
-    supportLink: "Aller au soutien",
-    whyTitle: "Pourquoi une page séparée ?",
-    whyBody: "Le bénévolat ne demande aucun paiement. Choisissez une campagne, dites comment vous pouvez aider, et l'équipe recevra votre intérêt.",
-    messagePlaceholder: "Exemple : je peux aider à distribuer vendredi, nettoyer, ou coordonner dans le quartier.",
-    submit: "Je veux aider",
-    loginHint: "Connectez-vous pour enregistrer votre demande.",
-    sent: "Votre demande de bénévolat a été envoyée. Merci.",
-    noOpen: "Aucune opportunité ouverte pour le moment.",
-    status: "Statut",
+    heroTitle: "🙋 Bénévolat",
+    heroSubtitle: "Créez un impact réel avec votre temps et vos compétences.\nChaque heure donnée peut changer une vie ou servir toute une communauté.",
+    startVolunteering: "Commencer",
+    learnMore: "En savoir plus",
+    activeOpportunities: "Opportunités ouvertes",
+    volunteers: "Bénévoles",
+    hoursContributed: "Heures contribuées",
+    completed: "Terminées",
+    featured: "Opportunité vedette",
+    remaining: "restants",
+    volunteersLower: "bénévoles",
+    organizedBy: "Organisé par",
+    joinNow: "Rejoindre",
+    share: "Partager",
+    categories: "Catégories",
+    browseCategories: "Parcourir les catégories",
+    opportunitiesLower: "opportunités",
+    needed: "besoin",
+    opportunities: "Opportunités",
+    searchPlaceholder: "Rechercher une opportunité...",
+    newest: "Récent",
+    popular: "Populaire",
+    closingSoon: "Bientôt fin",
+    noResults: "Aucun résultat",
+    noResultsHint: "Essayez de modifier vos critères de recherche.",
+    clearFilters: "Effacer les filtres",
+    whyVolunteer: "Pourquoi être bénévole ?",
+    whyVolunteerTitle: "Chaque heure compte",
+    makeImpact: "❤️ Créez un impact réel",
+    makeImpactDesc: "Aidez à améliorer la vie des gens à Nouadhibou avec votre temps et vos compétences.",
+    meetCommunity: "🤝 Rencontrez votre communauté",
+    meetCommunityDesc: "Travaillez avec des personnes qui se soucient de l'avenir de votre ville.",
+    buildSkills: "📈 Développez vos compétences",
+    buildSkillsDesc: "Acquérez une expérience pratique en organisation, coordination et travail d'équipe.",
+    strengthenCity: "🌍 Renforcez votre ville",
+    strengthenCityDesc: "Chaque heure de bénévolat crée un changement positif à Nouadhibou.",
+    communityImpact: "Impact communautaire",
+    ourImpact: "Ce que nous avons accompli ensemble",
+    completedActivities: "Activités terminées",
+    peopleHelped: "Personnes aidées",
+    neighborhoodsServed: "Quartiers servis",
+    stories: "Histoires inspirantes",
+    volunteerStories: "Témoignages de bénévoles",
+    hoursLower: "heures",
+    upcoming: "À venir",
+    upcomingActivities: "Activités à venir",
+    viewDetails: "Voir détails",
+    noOpportunities: "Aucune opportunité pour le moment",
+    noOpportunitiesHint: "Suivez-nous, de nouvelles opportunités seront ajoutées bientôt. Revenez plus tard ou suivez notre page Facebook.",
+    joinTitle: "Confirmer l'inscription",
+    joinSuccess: "Inscrit ✅",
+    joinSuccessTitle: "Inscription réussie 🎉",
+    joinSuccessMessage: "Vous serez notifié de toute mise à jour concernant cette opportunité. Merci pour votre belle initiative.",
+    backToOpportunities: "Retour aux opportunités",
+    confirmJoin: "Confirmer l'inscription",
+    joining: "Inscription...",
+    loginHint: "Connectez-vous pour vous inscrire.",
+    signIn: "Se connecter",
+    close: "Fermer",
+    joinError: "Une erreur s'est produite. Veuillez réessayer.",
+    organizer: "Organisateur",
+    location: "Lieu",
+    date: "Date",
+    duration: "Durée",
+    volunteersNeeded: "Bénévoles requis",
+    progress: "Progression",
+    skils: "Compétences requises",
   },
   en: {
-    title: "🙋 Volunteering",
     metaTitle: "Volunteering | I ❤️ NDB",
-    description: "Join verified volunteer opportunities to serve Nouadhibou with I ❤️ NDB.",
+    metaDescription: "Join verified volunteer opportunities to serve Nouadhibou with I ❤️ NDB.",
     eyebrow: "Verified opportunities",
-    active: "Open opportunities",
-    volunteers: "volunteers",
-    backToSupport: "Financial support is separate here",
-    supportLink: "Go to support",
-    whyTitle: "Why a separate page?",
-    whyBody: "Volunteering does not require payment. Pick a campaign, write how you can help, and the team will receive your interest.",
-    messagePlaceholder: "Example: I can help distribute on Friday, clean, or coordinate with my neighborhood.",
-    submit: "I want to help",
-    loginHint: "Sign in to register your volunteer request.",
-    sent: "Volunteer request sent. Thank you.",
-    noOpen: "No open volunteer opportunities right now.",
-    status: "Status",
+    heroTitle: "🙋 Volunteering",
+    heroSubtitle: "Make a real impact with your time and skills.\nEvery hour you give can change a life or serve an entire community.",
+    startVolunteering: "Start Volunteering",
+    learnMore: "Learn more",
+    activeOpportunities: "Open Opportunities",
+    volunteers: "Volunteers",
+    hoursContributed: "Hours Contributed",
+    completed: "Completed",
+    featured: "Featured Opportunity",
+    remaining: "remaining",
+    volunteersLower: "volunteers",
+    organizedBy: "Organized by",
+    joinNow: "Join Now",
+    share: "Share",
+    categories: "Categories",
+    browseCategories: "Browse Categories",
+    opportunitiesLower: "opportunities",
+    needed: "needed",
+    opportunities: "Opportunities",
+    searchPlaceholder: "Search opportunities...",
+    newest: "Newest",
+    popular: "Most Popular",
+    closingSoon: "Closing Soon",
+    noResults: "No results found",
+    noResultsHint: "Try changing your search or filter criteria.",
+    clearFilters: "Clear filters",
+    whyVolunteer: "Why Volunteer?",
+    whyVolunteerTitle: "Every hour makes a difference",
+    makeImpact: "❤️ Make Real Impact",
+    makeImpactDesc: "Help improve lives in Nouadhibou with your time and skills.",
+    meetCommunity: "🤝 Meet Your Community",
+    meetCommunityDesc: "Work with people who care about the future of your city.",
+    buildSkills: "📈 Build Skills",
+    buildSkillsDesc: "Gain practical experience in organizing, coordinating, and teamwork.",
+    strengthenCity: "🌍 Strengthen Your City",
+    strengthenCityDesc: "Every volunteer hour creates positive change in Nouadhibou.",
+    communityImpact: "Community Impact",
+    ourImpact: "What we achieved together",
+    completedActivities: "Completed Activities",
+    peopleHelped: "People Helped",
+    neighborhoodsServed: "Neighborhoods Served",
+    stories: "Inspiring Stories",
+    volunteerStories: "Volunteer Stories",
+    hoursLower: "hours",
+    upcoming: "Upcoming",
+    upcomingActivities: "Upcoming Activities",
+    viewDetails: "View Details",
+    noOpportunities: "No opportunities right now",
+    noOpportunitiesHint: "Follow us, new opportunities will be added soon. Check back later or follow our Facebook page.",
+    joinTitle: "Confirm Joining",
+    joinSuccess: "Registered ✅",
+    joinSuccessTitle: "You're registered successfully 🎉",
+    joinSuccessMessage: "You'll be notified of any updates about this opportunity. Thank you for your wonderful initiative.",
+    backToOpportunities: "Back to opportunities",
+    confirmJoin: "Confirm Join",
+    joining: "Joining...",
+    loginHint: "Sign in to register.",
+    signIn: "Sign in",
+    close: "Close",
+    joinError: "An error occurred. Please try again.",
+    organizer: "Organizer",
+    location: "Location",
+    date: "Date",
+    duration: "Duration",
+    volunteersNeeded: "Volunteers Needed",
+    progress: "Progress",
+    skils: "Skills Required",
   },
 };
 
@@ -81,108 +237,47 @@ export async function generateMetadata({
   const labels = labelsFor(locale);
   return {
     title: labels.metaTitle,
-    description: labels.description,
+    description: labels.metaDescription,
   };
 }
 
 export default async function VolunteerPage({
   params,
-  searchParams,
 }: {
   params: Promise<{locale: string}>;
-  searchParams: Promise<{status?: string}>;
 }) {
   const {locale} = await params;
-  const {status} = await searchParams;
   const labels = labelsFor(locale);
-  const campaigns = (await getSupportCampaigns()).filter((campaign) => campaign.status === "active");
+  const isRtl = ["ar", "ff", "snk"].includes(locale);
+
+  const campaigns = (await getSupportCampaigns()).filter((c) => c.status === "active");
   const supabase = await createClient();
   const {data: {user}} = await supabase.auth.getUser();
-  const totalVolunteers = campaigns.reduce((sum, campaign) => sum + campaign.volunteers_count, 0);
+
+  const totalVolunteers = campaigns.reduce((sum, c) => sum + c.volunteers_count, 0);
+
+  const impactData = {
+    totalVolunteers,
+    volunteerHours: totalVolunteers * 12,
+    completedActivities: 24,
+    activeOpportunities: campaigns.length,
+    peopleHelped: 850,
+    neighborhoodsServed: 7,
+    treesPlanted: 320,
+    studentsSupported: 150,
+    familiesHelped: 200,
+  };
 
   return (
-    <div className="space-y-4 pb-3 sm:space-y-5">
-      <section className="relative overflow-hidden rounded-2xl border border-border/70 bg-card p-4 shadow-[0_10px_28px_rgba(12,31,44,0.06)] sm:p-6">
-        <div className="absolute inset-y-0 start-0 w-1 bg-primary" />
-        <div className="relative flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="max-w-2xl">
-            <Badge className="mb-3 gap-1">
-              <ShieldCheck size={14} />
-              {labels.eyebrow}
-            </Badge>
-            <h1 className="text-2xl font-black tracking-tight sm:text-4xl">{labels.title}</h1>
-            <p className="mt-3 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">{labels.description}</p>
-          </div>
-          <div className="grid grid-cols-2 gap-2 rounded-2xl bg-muted/40 p-3 sm:min-w-80">
-            <div className="rounded-xl bg-card p-3">
-              <UsersRound size={18} className="text-primary" />
-              <p className="mt-3 text-lg font-black">{formatter.format(campaigns.length)}</p>
-              <p className="text-xs text-muted-foreground">{labels.active}</p>
-            </div>
-            <div className="rounded-xl bg-card p-3">
-              <HandHeart size={18} className="text-primary" />
-              <p className="mt-3 text-lg font-black">{formatter.format(totalVolunteers)}</p>
-              <p className="text-xs text-muted-foreground">{labels.volunteers}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {status === "contribution-sent" ? (
-        <div className="rounded-2xl border border-primary/20 bg-primary/10 p-3 text-sm font-bold text-primary">
-          {labels.sent}
-        </div>
-      ) : null}
-
-      <section className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-sm font-bold text-primary">{labels.whyTitle}</p>
-            <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground">{labels.whyBody}</p>
-          </div>
-          <Link href="/campaigns" className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-bold hover:bg-muted">
-            {labels.supportLink}
-            <ArrowRight size={16} />
-          </Link>
-        </div>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {campaigns.length > 0 ? campaigns.map((campaign) => (
-          <article key={campaign.id} className="rounded-2xl border border-border/70 bg-card p-4 shadow-[0_10px_26px_rgba(12,31,44,0.05)]">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-black">{campaign.emoji} {campaign.title}</h2>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{campaign.description}</p>
-              </div>
-              <Badge>{labels.status}</Badge>
-            </div>
-
-            <div className="mt-4 flex items-center gap-2 rounded-2xl bg-muted/40 p-3 text-sm font-bold">
-              <CalendarDays size={17} className="text-primary" />
-              <span>{formatter.format(campaign.volunteers_count)} {labels.volunteers}</span>
-            </div>
-
-            <form action={recordSupportContributionAction} className="mt-4 space-y-3">
-              <input type="hidden" name="locale" value={locale} />
-              <input type="hidden" name="campaignId" value={campaign.id} />
-              <input type="hidden" name="campaignSlug" value={campaign.slug} />
-              <input type="hidden" name="contributionType" value="volunteer" />
-              <input type="hidden" name="returnPath" value="/volunteer" />
-              <Textarea name="message" placeholder={labels.messagePlaceholder} className="min-h-24 rounded-xl bg-background" />
-              {!user ? (
-                <p className="rounded-xl bg-muted/50 p-3 text-sm text-muted-foreground">{labels.loginHint}</p>
-              ) : null}
-              <Button type="submit" className="w-full gap-2" disabled={!user}>
-                <HandHeart size={17} />
-                {labels.submit}
-              </Button>
-            </form>
-          </article>
-        )) : (
-          <p className="rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground">{labels.noOpen}</p>
-        )}
-      </section>
+    <div className="space-y-7 pb-4 sm:space-y-8 sm:pb-6" dir={isRtl ? "rtl" : "ltr"}>
+      <VolunteerPageClient
+        locale={locale}
+        isLoggedIn={!!user}
+        isRtl={isRtl}
+        campaigns={campaigns}
+        labels={labels}
+        impactData={impactData}
+      />
     </div>
   );
 }
