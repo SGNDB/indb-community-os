@@ -502,14 +502,6 @@ export function VolunteerPageClient({
                   {/* Image area */}
                   <div className="relative h-36 bg-gradient-to-br from-primary/[0.06] to-primary/[0.02] flex items-center justify-center overflow-hidden">
                     <span className="text-5xl transition-transform duration-300 group-hover:scale-110">{opp.emoji}</span>
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); handleShare(opp.title, opp.description, `/${locale}/campaigns/${opp.slug}`); }}
-                      className="absolute top-3 end-3 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 text-muted-foreground shadow-xs backdrop-blur-sm hover:bg-background hover:text-foreground active:scale-90 transition"
-                      aria-label={labels.share}
-                    >
-                      <Share2 size={13} />
-                    </button>
                   </div>
 
                   <div className="p-4 space-y-3">
@@ -536,13 +528,23 @@ export function VolunteerPageClient({
                       </div>
                     </div>
 
-                    {/* Organizer + CTA */}
+                    {/* Organizer + Actions */}
                     <div className="flex items-center justify-between pt-1">
                       <span className="text-xs text-muted-foreground">{labels.organizedBy} <span className="font-bold text-foreground">{opp.organizer}</span></span>
-                      <Button onClick={() => setJoinTarget(opp)} className="h-10 rounded-xl px-4 text-xs font-black gap-1.5">
-                        <HeartHandshake size={15} />
-                        {labels.joinNow}
-                      </Button>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleShare(opp.title, opp.description, `/${locale}/campaigns/${opp.slug}`)}
+                          className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground active:scale-90 transition"
+                          aria-label={labels.share}
+                        >
+                          <Share2 size={15} />
+                        </button>
+                        <Button onClick={() => setJoinTarget(opp)} className="h-10 rounded-xl px-4 text-xs font-black gap-1.5">
+                          <HeartHandshake size={15} />
+                          {labels.joinNow}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </article>
@@ -651,10 +653,11 @@ export function VolunteerPageClient({
                       storyForLocale(story, "quote"),
                       window.location.href
                     )}
-                    className="shrink-0 flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground active:scale-90 transition"
+                    className="shrink-0 flex items-center gap-1.5 rounded-xl border border-border/60 px-3 py-1.5 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition"
                     aria-label={labels.share}
                   >
                     <Share2 size={13} />
+                    {labels.share}
                   </button>
                 </div>
                 <p className="mt-3 text-sm leading-6 text-muted-foreground italic">
@@ -694,7 +697,7 @@ export function VolunteerPageClient({
                     <span className="flex items-center gap-1"><BadgeCheck size={12} />{activity.organizer}</span>
                   </div>
                 </div>
-                <div className="shrink-0 flex items-center gap-2">
+                <div className="shrink-0 flex items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => handleShare(
@@ -702,10 +705,11 @@ export function VolunteerPageClient({
                       `${activityForLocale(activity, "date")} · ${activity.location}`,
                       window.location.href
                     )}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground active:scale-90 transition"
+                    className="flex h-10 items-center gap-1.5 rounded-xl border border-border/60 px-3 text-xs font-bold text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition"
                     aria-label={labels.share}
                   >
                     <Share2 size={14} />
+                    {labels.share}
                   </button>
                   <Button variant="outline" size="sm" className="h-10 rounded-xl text-xs font-bold gap-1">
                     {labels.viewDetails}
