@@ -1,7 +1,7 @@
 import {createClient} from "@/lib/supabase/server";
 import {createAdminClient} from "@/lib/supabase/admin";
 
-export type SupportCampaignStatus = "active" | "completed" | "paused";
+export type SupportCampaignStatus = "upcoming" | "active" | "paused" | "completed" | "archived";
 export type SupportContributionType = "money" | "volunteer" | "materials";
 export type SupportPaymentMethod = "bankily" | "masrivi" | "sedad" | "card";
 export type SupportDonationStatus = "pending" | "verified" | "rejected" | "refunded";
@@ -270,7 +270,9 @@ function normalizeCampaign(row: Record<string, unknown>): SupportCampaign {
     raised_amount: Number(row.raised_amount ?? fallback.raised_amount),
     contributors_count: Number(row.contributors_count ?? fallback.contributors_count),
     volunteers_count: Number(row.volunteers_count ?? fallback.volunteers_count),
-    status: row.status === "completed" || row.status === "paused" ? row.status : "active",
+    status: ["upcoming", "active", "paused", "completed", "archived"].includes(String(row.status))
+      ? row.status as SupportCampaignStatus
+      : "active",
     organizer: String(row.organizer ?? fallback.organizer),
     verified: Boolean(row.verified ?? fallback.verified),
     starts_at: String(row.starts_at ?? fallback.starts_at),

@@ -141,8 +141,12 @@
       "description": "Demander la suppression de vos données de la plateforme communautaire I ❤️ NDB."
     },
     "support": {
-      "title": "Soutien communautaire | I ❤️ NDB",
-      "description": "Soutenez les initiatives qui créent un impact réel à Nouadhibou."
+      "title": "Campagnes | I Love NDB",
+      "description": "Contribuez aux campagnes verifiees qui creent un impact reel a Nouadhibou."
+    },
+    "campaigns": {
+      "title": "Campagnes | I Love NDB",
+      "description": "Contribuez aux campagnes verifiees qui creent un impact reel a Nouadhibou."
     }
   },
   "Privacy": {
@@ -292,8 +296,8 @@
         "short": "Messages"
       },
       "support": {
-        "label": "🤝 Soutien",
-        "short": "Soutien"
+        "label": "Campagnes",
+        "short": "Campagnes"
       },
       "volunteer": {
         "label": "🙋 Bénévolat",
@@ -848,7 +852,7 @@
       "graatek": "Graatek",
       "memories": "Souvenirs",
       "messages": "Messages",
-      "support": "Support",
+      "support": "Campagnes",
       "volunteering": "Bénévolat",
       "notifications": "Notifications",
       "moderation": "Modération",
@@ -2788,12 +2792,12 @@
     }
   },
   "Support": {
-    "title": "🤝 Community Support",
-    "description": "Support initiatives creating real impact in Nouadhibou.",
-    "verifiedHub": "Official verified campaigns",
+    "title": "Campagnes",
+    "description": "Contribuez aux initiatives qui creent un impact reel a Nouadhibou.",
+    "verifiedHub": "Campagnes officielles verifiees",
     "phaseOne": "Phase 1: 5 campaigns",
-    "campaignsTitle": "Choose a verified campaign to support",
-    "contributeNow": "Contribute now",
+    "campaignsTitle": "Choisissez une campagne verifiee pour faire un don",
+    "contributeNow": "Faire un don",
     "goal": "Goal",
     "raised": "Raised",
     "remaining": "Remaining",
@@ -2802,7 +2806,7 @@
     "daysRemaining": "{count} days left",
     "verified": "Verified",
     "verifiedWithCheck": "Verified ✅",
-    "backToSupport": "Back to support",
+    "backToSupport": "Retour aux campagnes",
     "updates": "Updates",
     "updatesTitle": "Latest updates",
     "updatesTimeline": "Updates timeline",
@@ -2818,14 +2822,22 @@
     "sections": {
       "activeCampaigns": "Active campaigns",
       "latestUpdates": "Latest updates",
-      "impact": "Achieved impact",
-      "waysToContribute": "Ways to contribute"
+      "impact": "Impact communautaire",
+      "waysToContribute": "Ways to contribute",
+      "featuredCampaign": "Campagne en vedette",
+      "campaignCategories": "Categories de campagnes",
+      "completedCampaigns": "Campagnes terminees recemment"
     },
     "impact": {
       "totalDonations": "Total donations",
       "contributors": "Contributors",
       "volunteers": "Volunteers",
-      "completed": "Completed campaigns"
+      "completed": "Completed campaigns",
+      "familiesHelped": "Familles aidees",
+      "studentsSupported": "Eleves soutenus",
+      "waterDistributed": "Eau distribuee",
+      "healthCases": "Cas medicaux soutenus",
+      "neighborhoodsServed": "Quartiers servis"
     },
     "ways": {
       "money": "💰 Financial contribution",
@@ -2837,16 +2849,20 @@
       "heading": "Every campaign is clear and verified",
       "organizer": "Organizer",
       "status": "Status",
-      "lastUpdate": "Last update"
+      "lastUpdate": "Last update",
+      "description": "Chaque campagne est creee par I Love NDB, verifiee par l administration, et mise a jour avec les depenses, photos et rapports finaux.",
+      "start": "Debut"
     },
     "campaignStatus": {
       "active": "Active",
-      "completed": "Completed",
-      "paused": "Paused"
+      "completed": "Terminee",
+      "paused": "En pause",
+      "upcoming": "A venir",
+      "archived": "Archivee"
     },
     "contribution": {
-      "title": "Ways to contribute",
-      "money": "Financial contribution",
+      "title": "Faire un don",
+      "money": "Faire un don",
       "volunteer": "Volunteer",
       "materials": "Donate materials",
       "suggested": "Suggested amounts",
@@ -2864,12 +2880,12 @@
       "defaultReport": "The final report and photos will be published after closing the campaign."
     },
     "status": {
-      "contributionSent": "Your contribution was recorded. Thank you.",
+      "contributionSent": "Merci pour votre don. Il est en cours de verification.",
       "saved": "Saved."
     },
     "admin": {
-      "title": "Gestion du soutien",
-      "description": "Pilotez les campagnes verifiees, la verification des dons, les mises a jour de transparence et l'impact communautaire depuis un centre admin fiable.",
+      "title": "Gestion des campagnes",
+      "description": "Gerez les campagnes verifiees, la verification des dons, les mises a jour de transparence et l impact communautaire depuis un centre fiable.",
       "verifiedOnly": "Campagnes officielles I love NDB uniquement",
       "raisedAmount": "Montant collecte",
       "contributors": "Contributeurs",
@@ -3002,7 +3018,27 @@
       "campaignEducation": "Soutien a l'education",
       "campaignFamilies": "Soutien aux familles",
       "campaignClean": "Nettoyer Nouadhibou",
-      "campaignHealth": "Traitement et sante"
+      "campaignHealth": "Traitement et sante",
+      "statusUpcoming": "A venir"
+    },
+    "donateNow": "Faire un don",
+    "completedCampaignsTitle": "Campagnes terminees",
+    "viewReport": "Voir le rapport",
+    "whyTitle": "Pourquoi cette campagne existe",
+    "whyDescription": "Cette campagne officielle repond a un besoin communautaire verifie par l equipe I Love NDB.",
+    "beneficiariesTitle": "Qui va en beneficier",
+    "beneficiariesDescription": "Familles, eleves, patients, quartiers et residents directement lies au besoin de la campagne.",
+    "timelineTitle": "Calendrier de la campagne",
+    "timelineDescription": "La campagne va du lancement a la verification, l achat ou la prestation, les mises a jour et le rapport final public.",
+    "searchFilters": {
+      "title": "Recherche et filtres",
+      "placeholder": "Rechercher campagne, categorie ou besoin...",
+      "all": "Toutes",
+      "active": "Actives",
+      "endingSoon": "Bientot terminees",
+      "mostFunded": "Les plus financees",
+      "completed": "Campagnes terminees",
+      "recent": "Recemment ajoutees"
     }
   },
   "CommunityImpact": {

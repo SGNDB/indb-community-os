@@ -141,8 +141,12 @@
       "description": "Request deletion of your data from the I ❤️ NDB community platform."
     },
     "support": {
-      "title": "Community Support | I ❤️ NDB",
-      "description": "Support initiatives creating real impact in Nouadhibou."
+      "title": "Campaigns | I Love NDB",
+      "description": "Contribute to verified campaigns creating real impact in Nouadhibou."
+    },
+    "campaigns": {
+      "title": "Campaigns | I Love NDB",
+      "description": "Contribute to verified campaigns creating real impact in Nouadhibou."
     }
   },
   "Privacy": {
@@ -292,8 +296,8 @@
         "short": "Profile"
       },
       "support": {
-        "label": "🤝 Support",
-        "short": "Support"
+        "label": "Campaigns",
+        "short": "Campaigns"
       },
       "volunteer": {
         "label": "🙋 Volunteer",
@@ -848,7 +852,7 @@
       "graatek": "Graatek",
       "memories": "Memories",
       "messages": "Messages",
-      "support": "Support",
+      "support": "Campaigns",
       "volunteering": "Volunteering",
       "notifications": "Notifications",
       "moderation": "Moderation",
@@ -2872,12 +2876,12 @@
     }
   },
   "Support": {
-    "title": "🤝 Community Support",
-    "description": "Support initiatives creating real impact in Nouadhibou.",
+    "title": "Campaigns",
+    "description": "Contribute to initiatives creating real impact in Nouadhibou.",
     "verifiedHub": "Official verified campaigns",
     "phaseOne": "Phase 1: 5 campaigns",
-    "campaignsTitle": "Choose a verified campaign to support",
-    "contributeNow": "Contribute now",
+    "campaignsTitle": "Choose a verified campaign to donate to",
+    "contributeNow": "Donate now",
     "goal": "Goal",
     "raised": "Raised",
     "remaining": "Remaining",
@@ -2886,7 +2890,7 @@
     "daysRemaining": "{count} days left",
     "verified": "Verified",
     "verifiedWithCheck": "Verified ✅",
-    "backToSupport": "Back to support",
+    "backToSupport": "Back to campaigns",
     "updates": "Updates",
     "updatesTitle": "Latest updates",
     "updatesTimeline": "Updates timeline",
@@ -2902,14 +2906,22 @@
     "sections": {
       "activeCampaigns": "Active campaigns",
       "latestUpdates": "Latest updates",
-      "impact": "Achieved impact",
-      "waysToContribute": "Ways to contribute"
+      "impact": "Community Impact",
+      "waysToContribute": "Ways to contribute",
+      "featuredCampaign": "Featured Campaign",
+      "campaignCategories": "Campaign Categories",
+      "completedCampaigns": "Recently Completed Campaigns"
     },
     "impact": {
       "totalDonations": "Total donations",
       "contributors": "Contributors",
       "volunteers": "Volunteers",
-      "completed": "Completed campaigns"
+      "completed": "Completed campaigns",
+      "familiesHelped": "Families helped",
+      "studentsSupported": "Students supported",
+      "waterDistributed": "Water distributed",
+      "healthCases": "Medical cases supported",
+      "neighborhoodsServed": "Neighborhoods served"
     },
     "ways": {
       "money": "💰 Financial contribution",
@@ -2921,16 +2933,20 @@
       "heading": "Every campaign is clear and verified",
       "organizer": "Organizer",
       "status": "Status",
-      "lastUpdate": "Last update"
+      "lastUpdate": "Last update",
+      "description": "Every campaign is created by I Love NDB, verified by the administration, and updated with spending, photos, and final reports.",
+      "start": "Start"
     },
     "campaignStatus": {
       "active": "Active",
       "completed": "Completed",
-      "paused": "Paused"
+      "paused": "Paused",
+      "upcoming": "Upcoming",
+      "archived": "Archived"
     },
     "contribution": {
-      "title": "Ways to contribute",
-      "money": "Financial contribution",
+      "title": "Donate now",
+      "money": "Donate now",
       "volunteer": "Volunteer",
       "materials": "Donate materials",
       "suggested": "Suggested amounts",
@@ -2948,11 +2964,11 @@
       "defaultReport": "The final report and photos will be published after closing the campaign."
     },
     "status": {
-      "contributionSent": "Your contribution was recorded. Thank you.",
+      "contributionSent": "Thank you for your donation. It is being verified.",
       "saved": "Saved."
     },
     "admin": {
-      "title": "Support Management",
+      "title": "Campaigns Management",
       "description": "Control verified campaigns, donation verification, transparency updates, and community impact from one trusted admin center.",
       "verifiedOnly": "Official I love NDB campaigns only",
       "raisedAmount": "Raised amount",
@@ -3086,7 +3102,27 @@
       "campaignEducation": "Education support",
       "campaignFamilies": "Family support",
       "campaignClean": "Clean Nouadhibou",
-      "campaignHealth": "Treatment and health"
+      "campaignHealth": "Treatment and health",
+      "statusUpcoming": "Upcoming"
+    },
+    "donateNow": "Donate now",
+    "completedCampaignsTitle": "Completed campaigns",
+    "viewReport": "View report",
+    "whyTitle": "Why this campaign exists",
+    "whyDescription": "This official campaign responds to a verified community need reviewed by the I Love NDB team.",
+    "beneficiariesTitle": "Who will benefit",
+    "beneficiariesDescription": "Families, students, patients, neighborhoods, and residents directly connected to the campaign need.",
+    "timelineTitle": "Campaign timeline",
+    "timelineDescription": "The campaign runs from launch to verification, purchase or service delivery, updates, and a public final report.",
+    "searchFilters": {
+      "title": "Search and filters",
+      "placeholder": "Search campaign, category, or need...",
+      "all": "All",
+      "active": "Active",
+      "endingSoon": "Ending soon",
+      "mostFunded": "Most funded",
+      "completed": "Completed campaigns",
+      "recent": "Recently added"
     }
   },
   "CommunityImpact": {

@@ -266,7 +266,7 @@ export function AdminNotificationsClient({locale, status, labels, logs}: Props) 
               </label>
               <label className="space-y-1 text-sm font-bold">
                 {labels.optionalLink}
-                <Input name="link" placeholder="/support" />
+                <Input name="link" placeholder="/campaigns" />
               </label>
             </div>
             <label className="space-y-1 text-sm font-bold">

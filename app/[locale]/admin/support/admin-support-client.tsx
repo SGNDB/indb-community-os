@@ -174,6 +174,7 @@ export function AdminSupportClient({
   }));
 
   const completionChart = [
+    {name: labels.statusUpcoming ?? "Upcoming", value: campaigns.filter((item) => item.status === "upcoming").length},
     {name: labels.statusActive, value: campaigns.filter((item) => item.status === "active").length},
     {name: labels.statusPaused, value: campaigns.filter((item) => item.status === "paused").length},
     {name: labels.statusCompleted, value: campaigns.filter((item) => item.status === "completed").length},
@@ -408,9 +409,11 @@ export function AdminSupportClient({
                     <Input name="contributorsCount" type="number" min="0" step="1" defaultValue={campaign.contributors_count} aria-label={labels.contributors} />
                     <Input name="volunteersCount" type="number" min="0" step="1" defaultValue={campaign.volunteers_count} aria-label={labels.impactMetrics} />
                     <select name="campaignStatus" defaultValue={campaign.status} className="h-11 rounded-xl border border-input bg-background px-3 text-sm">
+                      <option value="upcoming">{labels.statusUpcoming ?? "Upcoming"}</option>
                       <option value="active">{labels.statusActive}</option>
                       <option value="paused">{labels.statusPaused}</option>
                       <option value="completed">{labels.statusCompleted}</option>
+                      <option value="archived">{labels.statusArchived}</option>
                     </select>
                     <Textarea name="finalReport" defaultValue={campaign.final_report ?? ""} placeholder={labels.finalReport} className="min-h-20 md:col-span-3" />
                     <Button type="submit" className="gap-2">

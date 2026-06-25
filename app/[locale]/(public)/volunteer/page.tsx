@@ -140,7 +140,7 @@ export default async function VolunteerPage({
             <p className="text-sm font-bold text-primary">{labels.whyTitle}</p>
             <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground">{labels.whyBody}</p>
           </div>
-          <Link href="/support" className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-bold hover:bg-muted">
+          <Link href="/campaigns" className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-bold hover:bg-muted">
             {labels.supportLink}
             <ArrowRight size={16} />
           </Link>

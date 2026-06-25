@@ -33,7 +33,7 @@ interface SupportContributionPanelProps {
   isLoggedIn: boolean;
 }
 
-const suggestedAmounts = [100, 500, 1000, 5000];
+const suggestedAmounts = [100, 250, 500, 1000, 5000];
 
 const methodCopy: Record<string, Record<string, string>> = {
   ar: {
@@ -71,10 +71,12 @@ const methodCopy: Record<string, Record<string, string>> = {
     close: "Fermer",
   },
   en: {
-    contributeNow: "Contribute now",
-    modalTitle: "Financial contribution",
+    contributeNow: "Donate now",
+    modalTitle: "Financial donation",
     amount: "Amount",
     method: "Payment method",
+    review: "Review",
+    confirmation: "Confirmation",
     instructions: "Instructions",
     transactionId: "Transaction ID",
     transactionPlaceholder: "Enter the transaction ID after payment",
@@ -84,7 +86,7 @@ const methodCopy: Record<string, Record<string, string>> = {
     manualInstructions: "Send the amount to the official receiver, then enter the transaction ID and upload the receipt if available.",
     comingSoon: "Coming soon",
     cardInstructions: "Cards must be handled by a secure payment provider only. I ❤️ NDB never stores raw card numbers.",
-    submitPending: "Submit for review",
+    submitPending: "Submit donation for review",
     close: "Close",
   },
 };
@@ -111,7 +113,7 @@ export function SupportContributionPanel({
   const methodDisabled = method?.method === "card" ? !method.cardReady : !method?.configured;
 
   return (
-    <aside className="space-y-3 rounded-2xl border border-border/70 bg-card p-3.5 shadow-[0_10px_26px_rgba(12,31,44,0.06)] sm:p-4">
+    <aside id="donate" className="space-y-3 rounded-2xl border border-border/70 bg-card p-3.5 shadow-[0_10px_26px_rgba(12,31,44,0.06)] sm:p-4">
       <h2 className="text-lg font-black sm:text-xl">{t.title}</h2>
       {!isLoggedIn ? (
         <p className="rounded-xl bg-muted/60 p-3 text-sm text-muted-foreground">{t.loginHint}</p>
@@ -185,8 +187,8 @@ export function SupportContributionPanel({
               <input type="hidden" name="contributionType" value="money" />
 
               <section>
-                <p className="mb-2 text-sm font-black">{labels.amount}</p>
-                <div className="grid grid-cols-2 gap-2 min-[420px]:grid-cols-4">
+                <p className="mb-2 text-sm font-black">1. {labels.amount}</p>
+                <div className="grid grid-cols-2 gap-2 min-[420px]:grid-cols-3">
                   {suggestedAmounts.map((amount) => (
                     <label key={amount} className="cursor-pointer rounded-xl border border-border bg-background px-3 py-2 text-center text-sm font-bold has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:checked]:text-primary">
                       <input type="radio" name="amount" value={amount} className="sr-only" defaultChecked={amount === 500} />
@@ -198,7 +200,7 @@ export function SupportContributionPanel({
               </section>
 
               <section>
-                <p className="mb-2 text-sm font-black">{labels.method}</p>
+                <p className="mb-2 text-sm font-black">2. {labels.method}</p>
                 <div className="grid gap-2 min-[420px]:grid-cols-2">
                   {paymentReceivers.map((item) => {
                     const disabled = item.method === "card" ? !item.cardReady : !item.configured;
@@ -233,7 +235,7 @@ export function SupportContributionPanel({
               <section className="rounded-2xl border border-border bg-muted/30 p-3">
                 <div className="mb-2 flex items-center gap-2 text-sm font-black">
                   <ReceiptText size={17} className="text-primary" />
-                  {labels.instructions}
+                  3. {labels.review ?? labels.instructions}
                 </div>
                 <p className="text-sm leading-6 text-muted-foreground">
                   {method?.method === "card" ? labels.cardInstructions : labels.manualInstructions}
@@ -248,6 +250,7 @@ export function SupportContributionPanel({
               </section>
 
               <section className={cn("space-y-3", methodDisabled && "pointer-events-none opacity-50")}>
+                <p className="text-sm font-black">4. {labels.confirmation ?? labels.instructions}</p>
                 <label className="block space-y-1 text-sm font-bold">
                   {labels.transactionId}
                   <Input name="transactionId" placeholder={labels.transactionPlaceholder} className="bg-background" required={!methodDisabled} />

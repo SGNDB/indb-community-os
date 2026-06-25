@@ -4,7 +4,7 @@ import {useEffect, useState, useRef, useTransition} from "react";
 import {
   Award,
   BarChart3,
-  HandHeart,
+  Megaphone,
   HeartHandshake,
   ChevronLeft,
   ChevronRight,
@@ -55,7 +55,7 @@ const iconMap: Record<AdminSidebarIconKey, LucideIcon> = {
   content: Newspaper,
   credits: Award,
   analytics: BarChart3,
-  support: HandHeart,
+  support: Megaphone,
   settings: Settings,
   ideas: Lightbulb,
   graatek: Gift,

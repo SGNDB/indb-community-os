@@ -3,10 +3,10 @@
 import {useState, useTransition} from "react";
 import {
   BriefcaseBusiness,
+  Megaphone,
   CalendarDays,
   Gift,
   GraduationCap,
-  HandHeart,
   Home,
   Images,
   Languages,
@@ -45,7 +45,7 @@ const bottomItems = [
 
 const moreItems = [
   {href: "/memory", key: "memory", icon: Images, badge: null},
-  {href: "/support", key: "support", icon: HandHeart, badge: "support"},
+  {href: "/campaigns", key: "support", icon: Megaphone, badge: "support"},
   {href: "/volunteer", key: "volunteer", icon: UsersRound, badge: "volunteer"},
   {href: "/feed", key: "feed", icon: Newspaper, badge: null},
   {href: "/profile", key: "profile", icon: UserRound, badge: null},

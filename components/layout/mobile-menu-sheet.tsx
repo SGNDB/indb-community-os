@@ -3,9 +3,9 @@
 import {useState, useTransition} from "react";
 import {
   CalendarDays,
+  Megaphone,
   FolderKanban,
   Gift,
-  HandHeart,
   Home,
   Images,
   Lightbulb,
@@ -36,7 +36,7 @@ const menuItems = [
   {href: "/ideas", key: "ideas", icon: Lightbulb},
   {href: "/fadla", key: "fadla", icon: Gift},
   {href: "/messages", key: "messages", icon: MessageCircleMore},
-  {href: "/support", key: "support", icon: HandHeart},
+  {href: "/campaigns", key: "support", icon: Megaphone},
   {href: "/polls", key: "polls", icon: Vote},
   {href: "/events", key: "events", icon: CalendarDays},
   {href: "/projects", key: "projects", icon: FolderKanban},

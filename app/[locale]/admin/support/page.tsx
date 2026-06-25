@@ -74,6 +74,7 @@ const supportAdminLabelKeys = [
   "verified",
   "notConfigured",
   "configured",
+  "statusUpcoming",
   "statusPending",
   "statusVerified",
   "statusRejected",

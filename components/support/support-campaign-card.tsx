@@ -83,7 +83,7 @@ export function SupportCampaignCard({
         </div>
 
         <Link
-          href={`/support/${campaign.slug}`}
+          href={`/campaigns/${campaign.slug}`}
           className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-bold text-primary-foreground transition hover:opacity-90"
         >
           {contributeLabel}

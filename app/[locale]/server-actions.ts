@@ -4523,7 +4523,7 @@ export async function recordSupportContributionAction(formData: FormData) {
     typeof campaignSlug !== 'string' ||
     !['money', 'volunteer', 'materials'].includes(String(contributionType))
   ) {
-    redirect(withLocale('/support', locale));
+    redirect(withLocale('/campaigns', locale));
   }
 
   const parsedCustomAmount = typeof customAmount === 'string' && customAmount.trim()
@@ -4542,21 +4542,21 @@ export async function recordSupportContributionAction(formData: FormData) {
 
   if (safeContributionType === 'money') {
     if (!parsedAmount || parsedAmount <= 0 || !safePaymentMethod) {
-      redirect(withLocale(`/support/${campaignSlug}?status=invalid-payment`, locale));
+      redirect(withLocale(`/campaigns/${campaignSlug}?status=invalid-payment`, locale));
     }
 
     if (safePaymentMethod === 'card') {
-      redirect(withLocale(`/support/${campaignSlug}?status=cards-coming-soon`, locale));
+      redirect(withLocale(`/campaigns/${campaignSlug}?status=cards-coming-soon`, locale));
     }
 
     const { getSupportPaymentReceivers } = await import('@/lib/data/support');
     const selectedReceiver = getSupportPaymentReceivers().find((receiver) => receiver.method === safePaymentMethod);
     if (!selectedReceiver?.configured) {
-      redirect(withLocale(`/support/${campaignSlug}?status=payment-not-ready`, locale));
+      redirect(withLocale(`/campaigns/${campaignSlug}?status=payment-not-ready`, locale));
     }
 
     if (typeof transactionId !== 'string' || transactionId.trim().length < 3) {
-      redirect(withLocale(`/support/${campaignSlug}?status=transaction-required`, locale));
+      redirect(withLocale(`/campaigns/${campaignSlug}?status=transaction-required`, locale));
     }
   }
 
@@ -4570,14 +4570,14 @@ export async function recordSupportContributionAction(formData: FormData) {
   ) {
     const validationError = validateImageFile(receiptFile, 'post');
     if (validationError) {
-      redirect(withLocale(`/support/${campaignSlug}?status=receipt-invalid`, locale));
+      redirect(withLocale(`/campaigns/${campaignSlug}?status=receipt-invalid`, locale));
     }
 
     const uploaded = await uploadFile(receiptFile, 'support-receipts', user.id, 'receipts');
     receiptUrl = uploaded.url;
     receiptStoragePath = uploaded.storagePath;
     if (!receiptStoragePath) {
-      redirect(withLocale(`/support/${campaignSlug}?status=receipt-upload-failed`, locale));
+        redirect(withLocale(`/campaigns/${campaignSlug}?status=receipt-upload-failed`, locale));
     }
   }
 
@@ -4595,13 +4595,13 @@ export async function recordSupportContributionAction(formData: FormData) {
     volunteerMessage: safeContributionType === 'volunteer' && typeof message === 'string' ? message.trim().slice(0, 500) : null,
   });
 
-  revalidatePath('/support');
-  revalidatePath(`/support/${campaignSlug}`);
+  revalidatePath('/campaigns');
+  revalidatePath(`/campaigns/${campaignSlug}`);
   if (typeof returnPath === 'string' && returnPath.startsWith('/') && !returnPath.startsWith('//')) {
     revalidatePath(returnPath);
     redirect(withLocale(`${returnPath}?status=contribution-sent`, locale));
   }
-  redirect(withLocale(`/support/${campaignSlug}?status=contribution-sent`, locale));
+  redirect(withLocale(`/campaigns/${campaignSlug}?status=contribution-sent`, locale));
 }
 
 export async function adminSetSupportContributionStatusAction(formData: FormData) {
@@ -4630,7 +4630,7 @@ export async function adminSetSupportContributionStatusAction(formData: FormData
     rejectedReason: typeof rejectedReason === 'string' ? rejectedReason.trim().slice(0, 500) : null,
   });
 
-  revalidatePath('/support');
+  revalidatePath('/campaigns');
   revalidatePath('/admin/support');
   revalidatePath('/admin/volunteer');
   if (
@@ -4659,7 +4659,9 @@ export async function adminUpdateSupportCampaignAction(formData: FormData) {
     redirect(withLocale('/', locale));
   }
 
-  const status = campaignStatus === 'completed' || campaignStatus === 'paused' ? campaignStatus : 'active';
+  const status = ['upcoming', 'active', 'paused', 'completed', 'archived'].includes(String(campaignStatus))
+    ? campaignStatus as 'upcoming' | 'active' | 'paused' | 'completed' | 'archived'
+    : 'active';
   const { adminUpdateSupportCampaign } = await import('@/lib/data/support');
   await adminUpdateSupportCampaign({
     campaignId,
@@ -4670,7 +4672,7 @@ export async function adminUpdateSupportCampaignAction(formData: FormData) {
     finalReport: typeof finalReport === 'string' && finalReport.trim() ? finalReport.trim().slice(0, 2000) : null,
   });
 
-  revalidatePath('/support');
+  revalidatePath('/campaigns');
   revalidatePath('/admin/support');
   redirect(withLocale('/admin/support?status=saved', locale));
 }
@@ -4715,7 +4717,7 @@ export async function adminCreateSupportCampaignAction(formData: FormData) {
     endsAt,
   });
 
-  revalidatePath('/support');
+  revalidatePath('/campaigns');
   revalidatePath('/admin/support');
   redirect(withLocale('/admin/support?status=created', locale));
 }
@@ -4739,7 +4741,7 @@ export async function adminCreateSupportUpdateAction(formData: FormData) {
     body: body.trim().slice(0, 1000),
   });
 
-  revalidatePath('/support');
+  revalidatePath('/campaigns');
   revalidatePath('/admin/support');
   redirect(withLocale('/admin/support?status=update-published', locale));
 }
