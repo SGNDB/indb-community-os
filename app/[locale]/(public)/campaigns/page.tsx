@@ -1,10 +1,12 @@
 import {Megaphone, CheckCircle2, HandHeart, PackageCheck, Search, ShieldCheck, Sparkles, Users} from "lucide-react";
 import type {Metadata} from "next";
+import {redirect} from "next/navigation";
 import {getTranslations} from "next-intl/server";
 
 import {SupportCampaignCard} from "@/components/support/support-campaign-card";
 import {Badge} from "@/components/ui/badge";
 import {getLatestSupportUpdates, getSupportCampaigns, getSupportImpact} from "@/lib/data/support";
+import {createClient} from "@/lib/supabase/server";
 
 const formatter = new Intl.NumberFormat("fr-MR");
 
@@ -28,6 +30,13 @@ export default async function CampaignsPage({
   params: Promise<{locale: string}>;
 }) {
   const {locale} = await params;
+  const supabase = await createClient();
+  const {data: {user}} = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/${locale}/login`);
+  }
+
   const t = await getTranslations({locale, namespace: "Support"});
   const [campaigns, impact, latestUpdates] = await Promise.all([
     getSupportCampaigns(),

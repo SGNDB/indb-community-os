@@ -3,6 +3,7 @@ import { getUserConversations, getConversationById, getConversationMessages } fr
 import { ConversationList } from "@/components/messages/conversation-list";
 import { ConversationChat } from "@/components/messages/conversation-chat";
 import { MessageCircleMore } from "lucide-react";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 export default async function MessagesPage({
@@ -18,23 +19,20 @@ export default async function MessagesPage({
   const { data: { user } } = await supabase.auth.getUser();
   const t = await getTranslations({ locale, namespace: "Messages" });
 
-  let conversations: Awaited<ReturnType<typeof getUserConversations>> = [];
-  let currentUserId = "";
-  let totalCount = 0;
-  let unreadCount = 0;
-
-  if (user) {
-    currentUserId = user.id;
-    conversations = await getUserConversations(user.id);
-    totalCount = conversations.length;
-    unreadCount = conversations.reduce((sum, c) => sum + c.unread_count, 0);
+  if (!user) {
+    redirect(`/${locale}/login`);
   }
+
+  const conversations = await getUserConversations(user.id);
+  const currentUserId = user.id;
+  const totalCount = conversations.length;
+  const unreadCount = conversations.reduce((sum, c) => sum + c.unread_count, 0);
 
   // Handle ?conversation= param: auto-select that conversation in the right panel
   let selectedConversation: Awaited<ReturnType<typeof getConversationById>> = null;
   let selectedMessages: Awaited<ReturnType<typeof getConversationMessages>> = [];
 
-  if (sp.conversation && user) {
+  if (sp.conversation) {
     const inboxConversation = conversations.find((item) => item.id === sp.conversation) ?? null;
     selectedConversation = await getConversationById(sp.conversation, user.id, inboxConversation);
     if (selectedConversation) {

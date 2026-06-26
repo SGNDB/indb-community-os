@@ -1,6 +1,6 @@
 import {ArrowRight, CalendarDays, CheckCircle2, Clock3, FileText, HeartHandshake, Images, ShieldCheck, Target, Users} from "lucide-react";
 import type {Metadata} from "next";
-import {notFound} from "next/navigation";
+import {notFound, redirect} from "next/navigation";
 import {getTranslations} from "next-intl/server";
 
 import {SupportContributionPanel} from "@/components/support/support-contribution-panel";
@@ -55,6 +55,13 @@ export default async function CampaignDetailPage({
 }) {
   const {locale, slug} = await params;
   const {status} = await searchParams;
+  const supabase = await createClient();
+  const {data: {user}} = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/${locale}/login`);
+  }
+
   const t = await getTranslations({locale, namespace: "Support"});
   const result = await getSupportCampaignBySlug(slug);
   if (!result) notFound();
@@ -63,8 +70,6 @@ export default async function CampaignDetailPage({
   const progress = getCampaignProgress(campaign);
   const daysRemaining = getDaysRemaining(campaign);
   const remaining = Math.max(0, campaign.goal_amount - campaign.raised_amount);
-  const supabase = await createClient();
-  const {data: {user}} = await supabase.auth.getUser();
   const statusText = campaignStatusMessage(status, locale, t("status.contributionSent"), t("status.saved"));
   const statCards = [
     [t("goal"), `${formatter.format(campaign.goal_amount)} MRU`, Target],
@@ -235,7 +240,7 @@ export default async function CampaignDetailPage({
             campaignTitle={campaign.title}
             campaignEmoji={campaign.emoji}
             locale={locale}
-            isLoggedIn={!!user}
+            isLoggedIn={true}
           />
         </div>
       </section>

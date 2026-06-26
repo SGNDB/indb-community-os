@@ -1,4 +1,5 @@
 import type {Metadata} from "next";
+import {redirect} from "next/navigation";
 
 import {VolunteerPageClient} from "@/components/volunteer/volunteer-page-client";
 import {getSupportCampaigns} from "@/lib/data/support";
@@ -256,11 +257,15 @@ export default async function VolunteerPage({
   const labels = labelsFor(locale);
   const isRtl = ["ar", "ff", "snk"].includes(locale);
 
-  const allCampaigns = await getSupportCampaigns();
-  const campaigns = allCampaigns.filter((c) => c.status === "active");
   const supabase = await createClient();
   const {data: {user}} = await supabase.auth.getUser();
 
+  if (!user) {
+    redirect(`/${locale}/login`);
+  }
+
+  const allCampaigns = await getSupportCampaigns();
+  const campaigns = allCampaigns.filter((c) => c.status === "active");
   const totalVolunteers = campaigns.reduce((sum, c) => sum + c.volunteers_count, 0);
 
   const impactData = {
@@ -279,7 +284,7 @@ export default async function VolunteerPage({
     <div className="space-y-7 pb-4 sm:space-y-8 sm:pb-6" dir={isRtl ? "rtl" : "ltr"}>
       <VolunteerPageClient
         locale={locale}
-        isLoggedIn={!!user}
+        isLoggedIn={true}
         isRtl={isRtl}
         campaigns={campaigns}
         labels={labels}
