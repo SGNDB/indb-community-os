@@ -129,159 +129,47 @@ export function getSupportPaymentReceivers(): SupportPaymentReceiver[] {
   ];
 }
 
-const now = "2026-06-24T00:00:00.000Z";
-
-export const fallbackSupportCampaigns: SupportCampaign[] = [
-  {
-    id: "support-water",
-    slug: "water",
-    emoji: "💧",
-    title: "السقاية",
-    description: "كل قطرة تصنع فرقاً",
-    long_description: "حملة موثقة لتوفير الماء للأسر والنقاط المجتمعية التي تحتاج إلى دعم عاجل في نواذيبو.",
-    goal_amount: 50000,
-    raised_amount: 37500,
-    contributors_count: 125,
-    volunteers_count: 18,
-    status: "active",
-    organizer: "I ❤️ NDB",
-    verified: true,
-    starts_at: "2026-06-01T00:00:00.000Z",
-    ends_at: "2026-07-31T23:59:59.000Z",
-    last_update_at: now,
-    material_needs: ["قنينات ماء", "خزانات صغيرة", "وسائل نقل"],
-    impact_points: ["12 نقطة ماء مدعومة", "45 أسرة استفادت", "3 أحياء تمت تغطيتها"],
-    final_report: null,
-    visual: {tone: "from-sky-500", accent: "to-cyan-200", pattern: "bg-sky-50"},
-  },
-  {
-    id: "support-education",
-    slug: "education",
-    emoji: "🎒",
-    title: "دعم التعليم",
-    description: "استثمر في مستقبل أبنائنا",
-    long_description: "مبادرة لتوفير الحقائب والدفاتر واللوازم المدرسية للتلاميذ الأكثر احتياجاً.",
-    goal_amount: 80000,
-    raised_amount: 46200,
-    contributors_count: 98,
-    volunteers_count: 24,
-    status: "active",
-    organizer: "I ❤️ NDB",
-    verified: true,
-    starts_at: "2026-06-05T00:00:00.000Z",
-    ends_at: "2026-08-20T23:59:59.000Z",
-    last_update_at: now,
-    material_needs: ["دفاتر", "حقائب", "أقلام", "كتب"],
-    impact_points: ["100 حقيبة مدرسية قيد التجهيز", "40 تلميذاً استفادوا من الدفعة الأولى"],
-    final_report: null,
-    visual: {tone: "from-amber-500", accent: "to-yellow-100", pattern: "bg-amber-50"},
-  },
-  {
-    id: "support-families",
-    slug: "families",
-    emoji: "🍲",
-    title: "دعم الأسر",
-    description: "يداً بيد لدعم الأسر الأكثر احتياجاً",
-    long_description: "حملة لتجميع مساهمات مالية ومواد غذائية وملابس للأسر التي تحتاج إلى سند مجتمعي.",
-    goal_amount: 65000,
-    raised_amount: 28100,
-    contributors_count: 76,
-    volunteers_count: 15,
-    status: "active",
-    organizer: "I ❤️ NDB",
-    verified: true,
-    starts_at: "2026-06-10T00:00:00.000Z",
-    ends_at: "2026-08-05T23:59:59.000Z",
-    last_update_at: now,
-    material_needs: ["مواد غذائية", "ملابس", "بطانيات", "حليب أطفال"],
-    impact_points: ["50 أسرة ضمن قائمة التوزيع", "20 سلة غذائية جاهزة"],
-    final_report: null,
-    visual: {tone: "from-rose-500", accent: "to-orange-100", pattern: "bg-rose-50"},
-  },
-  {
-    id: "support-clean",
-    slug: "clean-nouadhibou",
-    emoji: "🧹",
-    title: "نظافة نواذيبو",
-    description: "مدينة أجمل تبدأ من أحيائنا",
-    long_description: "تنسيق حملات تطوعية ومستلزمات تنظيف لتحسين الفضاءات العامة والأحياء.",
-    goal_amount: 40000,
-    raised_amount: 19000,
-    contributors_count: 61,
-    volunteers_count: 42,
-    status: "active",
-    organizer: "I ❤️ NDB",
-    verified: true,
-    starts_at: "2026-06-12T00:00:00.000Z",
-    ends_at: "2026-07-25T23:59:59.000Z",
-    last_update_at: now,
-    material_needs: ["أكياس نظافة", "قفازات", "مجارف", "دهانات"],
-    impact_points: ["3 أحياء محددة للتدخل", "42 متطوعاً مسجلاً"],
-    final_report: null,
-    visual: {tone: "from-emerald-500", accent: "to-lime-100", pattern: "bg-emerald-50"},
-  },
-  {
-    id: "support-health",
-    slug: "health",
-    emoji: "🏥",
-    title: "العلاج والصحة",
-    description: "المساعدة في الوصول إلى العلاج والرعاية",
-    long_description: "دعم الحالات الصحية المجتمعية بتنسيق موثق وشفاف مع متابعة التحديثات والأثر.",
-    goal_amount: 120000,
-    raised_amount: 52500,
-    contributors_count: 87,
-    volunteers_count: 9,
-    status: "active",
-    organizer: "I ❤️ NDB",
-    verified: true,
-    starts_at: "2026-06-15T00:00:00.000Z",
-    ends_at: "2026-09-01T23:59:59.000Z",
-    last_update_at: now,
-    material_needs: ["أدوية", "مستلزمات إسعاف", "نقل للحالات", "مرافقة تطوعية"],
-    impact_points: ["7 حالات قيد المتابعة", "مستلزمات إسعاف أولية مطلوبة"],
-    final_report: null,
-    visual: {tone: "from-red-500", accent: "to-teal-100", pattern: "bg-red-50"},
-  },
-];
-
-export const fallbackSupportUpdates: SupportUpdate[] = [
-  {id: "u-1", campaign_id: "support-education", title: "تحديث رقم 1", body: "تم شراء 100 دفتر.", created_at: "2026-06-18T10:00:00.000Z"},
-  {id: "u-2", campaign_id: "support-education", title: "تحديث رقم 2", body: "تم توزيع المستلزمات على 40 تلميذاً.", created_at: "2026-06-21T10:00:00.000Z"},
-  {id: "u-3", campaign_id: "support-clean", title: "تحديث رقم 1", body: "تم تحديد أول ثلاث نقاط تدخل مع المتطوعين.", created_at: "2026-06-20T10:00:00.000Z"},
-];
-
-export const fallbackSupportPhotos: SupportPhoto[] = [];
-
 function normalizeStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 }
 
+const DEFAULT_VISUAL = {tone: "from-primary", accent: "to-rose-100", pattern: "bg-muted"};
+
+const CAMPAIGN_VISUALS: Record<string, SupportCampaign["visual"]> = {
+  water: {tone: "from-sky-500", accent: "to-cyan-200", pattern: "bg-sky-50"},
+  education: {tone: "from-amber-500", accent: "to-yellow-100", pattern: "bg-amber-50"},
+  families: {tone: "from-rose-500", accent: "to-orange-100", pattern: "bg-rose-50"},
+  "clean-nouadhibou": {tone: "from-emerald-500", accent: "to-lime-100", pattern: "bg-emerald-50"},
+  health: {tone: "from-red-500", accent: "to-teal-100", pattern: "bg-red-50"},
+};
+
 function normalizeCampaign(row: Record<string, unknown>): SupportCampaign {
-  const fallback = fallbackSupportCampaigns.find((campaign) => campaign.slug === row.slug) ?? fallbackSupportCampaigns[0];
+  const slug = String(row.slug ?? "");
+  const createdAt = typeof row.created_at === "string" ? row.created_at : "1970-01-01T00:00:00.000Z";
+  const updatedAt = typeof row.updated_at === "string" ? row.updated_at : createdAt;
   return {
-    ...fallback,
-    id: String(row.id ?? fallback.id),
-    slug: String(row.slug ?? fallback.slug),
-    emoji: String(row.emoji ?? fallback.emoji),
-    title: String(row.title ?? fallback.title),
-    description: String(row.description ?? fallback.description),
-    long_description: String(row.long_description ?? fallback.long_description),
-    goal_amount: Number(row.goal_amount ?? fallback.goal_amount),
-    raised_amount: Number(row.raised_amount ?? fallback.raised_amount),
-    contributors_count: Number(row.contributors_count ?? fallback.contributors_count),
-    volunteers_count: Number(row.volunteers_count ?? fallback.volunteers_count),
+    id: String(row.id ?? ""),
+    slug,
+    emoji: String(row.emoji ?? "🤝"),
+    title: String(row.title ?? ""),
+    description: String(row.description ?? ""),
+    long_description: String(row.long_description ?? row.description ?? ""),
+    goal_amount: Number(row.goal_amount ?? 0),
+    raised_amount: Number(row.raised_amount ?? 0),
+    contributors_count: Number(row.contributors_count ?? 0),
+    volunteers_count: Number(row.volunteers_count ?? 0),
     status: ["upcoming", "active", "paused", "completed", "archived"].includes(String(row.status))
       ? row.status as SupportCampaignStatus
-      : "active",
-    organizer: String(row.organizer ?? fallback.organizer),
-    verified: Boolean(row.verified ?? fallback.verified),
-    starts_at: String(row.starts_at ?? fallback.starts_at),
-    ends_at: String(row.ends_at ?? fallback.ends_at),
-    last_update_at: String(row.last_update_at ?? row.updated_at ?? fallback.last_update_at),
-    material_needs: normalizeStringArray(row.material_needs).length ? normalizeStringArray(row.material_needs) : fallback.material_needs,
-    impact_points: normalizeStringArray(row.impact_points).length ? normalizeStringArray(row.impact_points) : fallback.impact_points,
+      : "upcoming",
+    organizer: String(row.organizer ?? "I ❤️ NDB"),
+    verified: Boolean(row.verified ?? false),
+    starts_at: String(row.starts_at ?? createdAt),
+    ends_at: String(row.ends_at ?? createdAt),
+    last_update_at: String(row.last_update_at ?? updatedAt),
+    material_needs: normalizeStringArray(row.material_needs),
+    impact_points: normalizeStringArray(row.impact_points),
     final_report: typeof row.final_report === "string" ? row.final_report : null,
-    visual: fallback.visual,
+    visual: CAMPAIGN_VISUALS[slug] ?? DEFAULT_VISUAL,
   };
 }
 
@@ -303,12 +191,12 @@ export async function getSupportCampaigns(): Promise<SupportCampaign[]> {
     .select("*")
     .order("sort_order", {ascending: true});
 
-  if (error || !data?.length) {
+  if (error) {
     if (error) console.error("getSupportCampaigns error:", error);
-    return fallbackSupportCampaigns;
+    return [];
   }
 
-  return (data as Record<string, unknown>[]).map(normalizeCampaign);
+  return ((data ?? []) as Record<string, unknown>[]).map(normalizeCampaign);
 }
 
 export async function getSupportCampaignBySlug(slug: string) {
@@ -335,8 +223,8 @@ export async function getSupportCampaignBySlug(slug: string) {
     if (photosError) console.error("getSupportCampaign photos error:", photosError);
     return {
       campaign,
-      updates: fallbackSupportUpdates.filter((update) => update.campaign_id === campaign.id),
-      photos: fallbackSupportPhotos.filter((photo) => photo.campaign_id === campaign.id),
+      updates: [],
+      photos: [],
     };
   }
 
@@ -345,6 +233,22 @@ export async function getSupportCampaignBySlug(slug: string) {
     updates: (updates ?? []) as SupportUpdate[],
     photos: (photos ?? []) as SupportPhoto[],
   };
+}
+
+export async function getLatestSupportUpdates(limit = 3): Promise<SupportUpdate[]> {
+  const supabase = await createClient();
+  const {data, error} = await supabase
+    .from("support_campaign_updates")
+    .select("*")
+    .order("created_at", {ascending: false})
+    .limit(limit);
+
+  if (error) {
+    console.error("getLatestSupportUpdates error:", error);
+    return [];
+  }
+
+  return (data ?? []) as SupportUpdate[];
 }
 
 export async function getSupportImpact() {
@@ -357,14 +261,14 @@ export async function getSupportImpact() {
 }
 
 export async function getSupportNavCounts() {
-  const fallbackActive = fallbackSupportCampaigns.filter((campaign) => campaign.status === "active").length;
   const supabase = await createClient();
   const {count, error} = await supabase
     .from("support_campaigns")
     .select("*", {count: "exact", head: true})
     .eq("status", "active");
 
-  const activeCampaigns = error ? fallbackActive : count ?? fallbackActive;
+  if (error) console.error("getSupportNavCounts error:", error);
+  const activeCampaigns = error ? 0 : count ?? 0;
 
   return {
     activeCampaigns,
@@ -536,7 +440,7 @@ export async function adminCreateSupportCampaign(input: {
     last_update_at: new Date().toISOString(),
     material_needs: [],
     impact_points: [],
-    sort_order: (count ?? fallbackSupportCampaigns.length) + 1,
+    sort_order: (count ?? 0) + 1,
   });
 
   if (error) {

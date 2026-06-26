@@ -65,18 +65,9 @@ const whyCards = [
   {icon: Globe, colors: "bg-violet-500/10 text-violet-500"},
 ];
 
-const stories = [
-  {nameAr: "أحمد ولد محمد", nameFr: "Ahmed Ould Mohamed", nameEn: "Ahmed Ould Mohamed", activityAr: "تنظيف شاطئ نواذيبو", activityFr: "Nettoyage de la plage de Nouadhibou", activityEn: "Nouadhibou Beach Cleanup", hours: 48, quoteAr: "المشاركة في تنظيف المدينة أعطتني شعوراً بالفخر. كل ساعة قضيتها مع الفريق كانت استثماراً في مستقبل نواذيبو.", quoteFr: "Participer au nettoyage de la ville m'a rendu fier. Chaque heure passée avec l'équipe était un investissement pour l'avenir de Nouadhibou.", quoteEn: "Participating in cleaning the city made me proud. Every hour with the team was an investment in Nouadhibou's future.", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=face"},
-  {nameAr: "فاطمة منت الشيخ", nameFr: "Fatima Mint Cheikh", nameEn: "Fatima Mint Cheikh", activityAr: "دروس تقوية للأطفال", activityFr: "Cours de soutien pour enfants", activityEn: "Tutoring for Children", hours: 72, quoteAr: "تعليم الأطفال حرف واحد قد يغير مستقبلهم. أنا فخورة بأني جزء من هذه المبادرة.", quoteFr: "Enseigner une lettre aux enfants peut changer leur avenir. Je suis fière de faire partie de cette initiative.", quoteEn: "Teaching a single letter can change a child's future. I'm proud to be part of this initiative.", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face"},
-  {nameAr: "سالم ولد عبد الله", nameFr: "Salem Ould Abdallah", nameEn: "Salem Ould Abdallah", activityAr: "حملة التوعية الصحية", activityFr: "Campagne de sensibilisation sanitaire", activityEn: "Health Awareness Campaign", hours: 36, quoteAr: "نشر الوعي الصحي بين الجيران كان تجربة رائعة. الناس بحاجة للمعلومة أكثر مما نتصور.", quoteFr: "Sensibiliser les voisins à la santé était une expérience formidable. Les gens ont besoin d'information plus qu'on ne le pense.", quoteEn: "Spreading health awareness among neighbors was a great experience. People need information more than we imagine.", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&h=120&fit=crop&crop=face"},
-];
+const stories: any[] = [];
 
-const upcomingActivities = [
-  {dateAr: "السبت 28 يونيو", dateFr: "Samedi 28 juin", dateEn: "Saturday, June 28", location: "حي أزويرات", remainingPlaces: 12, organizer: "I ❤️ NDB", titleAr: "حملة نظافة الأحياء", titleFr: "Campagne de nettoyage des quartiers", titleEn: "Neighborhood Cleanup Campaign"},
-  {dateAr: "الأحد 29 يونيو", dateFr: "Dimanche 29 juin", dateEn: "Sunday, June 29", location: "مدرسة الأمل", remainingPlaces: 8, organizer: "I ❤️ NDB", titleAr: "دروس تقوية في الرياضيات", titleFr: "Cours de soutien en maths", titleEn: "Math Tutoring Session"},
-  {dateAr: "السبت 5 يوليو", dateFr: "Samedi 5 juillet", dateEn: "Saturday, July 5", location: "المركز الصحي", remainingPlaces: 15, organizer: "I ❤️ NDB", titleAr: "فحص طبي مجاني", titleFr: "Examen médical gratuit", titleEn: "Free Medical Checkup"},
-  {dateAr: "الأحد 6 يوليو", dateFr: "Dimanche 6 juillet", dateEn: "Sunday, July 6", location: "ملعب المدينة", remainingPlaces: 20, organizer: "I ❤️ NDB", titleAr: "بطولة كرة القدم", titleFr: "Tournoi de football", titleEn: "Football Tournament"},
-];
+const upcomingActivities: any[] = [];
 
 interface VolunteerPageClientProps {
   locale: string;

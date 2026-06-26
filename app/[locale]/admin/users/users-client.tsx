@@ -395,8 +395,7 @@ export function AdminUsersClient({
           chart={<MiniSparkline data={initialKpi.dailyGrowth.slice(-7).map(d => ({value: d.value}))} color="#10b981" />} />
         <UsersKpiCard label={labels.kpiNewThisMonth} value={localeNum(initialKpi.newThisMonth)} icon={UserPlus}
           chart={<MiniSparkline data={initialKpi.dailyGrowth.slice(-30).map(d => ({value: d.value}))} color="#3b82f6" />} />
-        <UsersKpiCard label={labels.kpiVerifiedUsers} value={localeNum(initialKpi.verifiedUsers)} icon={ShieldCheck}
-          chart={<MiniSparkline data={initialKpi.monthlyGrowth.map(() => ({value: Math.floor(Math.random() * 10) + 5}))} color="#8b5cf6" />} />
+        <UsersKpiCard label={labels.kpiVerifiedUsers} value={localeNum(initialKpi.verifiedUsers)} icon={ShieldCheck} />
         <UsersKpiCard label={labels.kpiByLanguage} value={initialKpi.languageDistribution.length.toString()} icon={Globe}
           chart={<MiniSparkline data={initialKpi.languageDistribution.map(d => ({value: d.count}))} color="#f59e0b" />} />
         <UsersKpiCard label={labels.kpiMonthlyGrowth} value={`${trend6.positive ? "+" : ""}${trend6.value}`} trend={trend6} icon={TrendingUp} />

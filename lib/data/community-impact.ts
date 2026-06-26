@@ -262,7 +262,7 @@ async function computeCommunityImpact(userId: string): Promise<CommunityImpactSt
   impact.campaigns_supported = campaignIds.size;
 
   impact.volunteer_activities = volunteerRes.data?.length ?? 0;
-  impact.volunteer_hours = impact.volunteer_activities * 4;
+  impact.volunteer_hours = 0;
   impact.volunteer_attendance_rate = impact.volunteer_activities > 0 ? 100 : 0;
   impact.current_opportunities = opportunitiesRes.count ?? 0;
 

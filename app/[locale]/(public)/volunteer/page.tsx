@@ -256,7 +256,8 @@ export default async function VolunteerPage({
   const labels = labelsFor(locale);
   const isRtl = ["ar", "ff", "snk"].includes(locale);
 
-  const campaigns = (await getSupportCampaigns()).filter((c) => c.status === "active");
+  const allCampaigns = await getSupportCampaigns();
+  const campaigns = allCampaigns.filter((c) => c.status === "active");
   const supabase = await createClient();
   const {data: {user}} = await supabase.auth.getUser();
 
@@ -264,14 +265,14 @@ export default async function VolunteerPage({
 
   const impactData = {
     totalVolunteers,
-    volunteerHours: totalVolunteers * 12,
-    completedActivities: 24,
+    volunteerHours: 0,
+    completedActivities: allCampaigns.filter((c) => c.status === "completed").length,
     activeOpportunities: campaigns.length,
-    peopleHelped: 850,
-    neighborhoodsServed: 7,
-    treesPlanted: 320,
-    studentsSupported: 150,
-    familiesHelped: 200,
+    peopleHelped: 0,
+    neighborhoodsServed: 0,
+    treesPlanted: 0,
+    studentsSupported: 0,
+    familiesHelped: 0,
   };
 
   return (

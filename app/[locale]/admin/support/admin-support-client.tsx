@@ -153,14 +153,8 @@ export function AdminSupportClient({
   }, [campaigns, pendingContributions.length, verifiedContributions.length]);
 
   const donationTrend = useMemo(() => {
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-    const base = campaigns.reduce((sum, campaign) => sum + campaign.raised_amount, 0);
-    return months.map((month, index) => ({
-      month,
-      value: Math.round((base / months.length) * (0.55 + index * 0.11)),
-      contributors: Math.max(10, Math.round(totals.contributors * (0.08 + index * 0.035))),
-    }));
-  }, [campaigns, totals.contributors]);
+    return [] as {month: string; value: number; contributors: number}[];
+  }, []);
 
   const campaignChart = campaigns.map((campaign) => ({
     name: campaignDisplayTitle(campaign, labels),
@@ -170,7 +164,7 @@ export function AdminSupportClient({
 
   const paymentMethodChart = receivers.map((receiver) => ({
     name: receiver.label,
-    value: Math.max(1, moneyContributions.filter((item) => item.payment_method === receiver.method).length),
+    value: moneyContributions.filter((item) => item.payment_method === receiver.method).length,
   }));
 
   const completionChart = [
@@ -528,11 +522,11 @@ export function AdminSupportClient({
           <h2 className="text-xl font-black">{labels.impactMetrics}</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
             {[
-              [labels.familiesHelped, "50"],
-              [labels.studentsSupported, "140"],
-              [labels.waterDistributions, "12"],
-              [labels.healthCases, "7"],
-              [labels.cleanupActions, "3"],
+              [labels.familiesHelped, "0"],
+              [labels.studentsSupported, "0"],
+              [labels.waterDistributions, "0"],
+              [labels.healthCases, "0"],
+              [labels.cleanupActions, "0"],
               [labels.campaignsCompleted, `${totals.completedCampaigns}`],
             ].map(([label, value]) => (
               <div key={label} className="flex items-center justify-between rounded-2xl bg-muted/30 p-3">

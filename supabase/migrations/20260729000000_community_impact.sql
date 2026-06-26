@@ -318,7 +318,7 @@ begin
     v_donations_count,
     v_campaigns_supported,
     v_last_donation_at,
-    v_volunteer_activities * 4,
+    0,
     v_volunteer_activities,
     case when v_volunteer_activities > 0 then 100 else 0 end,
     v_current_opportunities,

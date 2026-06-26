@@ -1,10 +1,10 @@
-import {Megaphone, CheckCircle2, Droplets, GraduationCap, HandHeart, HeartPulse, PackageCheck, Search, ShieldCheck, Soup, Sparkles, Users} from "lucide-react";
+import {Megaphone, CheckCircle2, HandHeart, PackageCheck, Search, ShieldCheck, Sparkles, Users} from "lucide-react";
 import type {Metadata} from "next";
 import {getTranslations} from "next-intl/server";
 
 import {SupportCampaignCard} from "@/components/support/support-campaign-card";
 import {Badge} from "@/components/ui/badge";
-import {getSupportCampaigns, getSupportImpact, fallbackSupportUpdates} from "@/lib/data/support";
+import {getLatestSupportUpdates, getSupportCampaigns, getSupportImpact} from "@/lib/data/support";
 
 const formatter = new Intl.NumberFormat("fr-MR");
 
@@ -29,17 +29,20 @@ export default async function CampaignsPage({
 }) {
   const {locale} = await params;
   const t = await getTranslations({locale, namespace: "Support"});
-  const [campaigns, impact] = await Promise.all([getSupportCampaigns(), getSupportImpact()]);
+  const [campaigns, impact, latestUpdates] = await Promise.all([
+    getSupportCampaigns(),
+    getSupportImpact(),
+    getLatestSupportUpdates(3),
+  ]);
   const activeCampaigns = campaigns.filter((campaign) => campaign.status === "active");
   const completedCampaigns = campaigns.filter((campaign) => campaign.status === "completed");
   const featured = activeCampaigns[0] ?? campaigns[0];
-  const latestUpdates = fallbackSupportUpdates.slice(0, 3);
   const impactCards = [
-    {label: t("impact.familiesHelped"), value: "150", icon: Soup},
-    {label: t("impact.studentsSupported"), value: "320", icon: GraduationCap},
-    {label: t("impact.waterDistributed"), value: "25", icon: Droplets},
-    {label: t("impact.healthCases"), value: "18", icon: HeartPulse},
-    {label: t("impact.neighborhoodsServed"), value: "7", icon: Users},
+    {label: t("impact.totalDonations"), value: `${formatter.format(impact.totalRaised)} MRU`, icon: HandHeart},
+    {label: t("impact.contributors"), value: formatter.format(impact.contributors), icon: Users},
+    {label: t("sections.activeCampaigns"), value: formatter.format(activeCampaigns.length), icon: Megaphone},
+    {label: t("updates"), value: formatter.format(latestUpdates.length), icon: CheckCircle2},
+    {label: t("ways.volunteer"), value: formatter.format(campaigns.reduce((sum, campaign) => sum + campaign.volunteers_count, 0)), icon: Sparkles},
     {label: t("impact.completed"), value: formatter.format(impact.completed), icon: PackageCheck},
   ];
   const categories = [
@@ -91,9 +94,9 @@ export default async function CampaignsPage({
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
         <div className="rounded-3xl border border-border/70 bg-card p-4 shadow-[0_12px_34px_rgba(8,33,56,0.06)] sm:p-5">
           <p className="text-sm font-bold text-primary">{t("sections.featuredCampaign")}</p>
-          <h2 className="mt-1 text-2xl font-black">{featured?.title}</h2>
           {featured ? (
             <div className="mt-4">
+              <h2 className="mb-4 text-2xl font-black">{featured.title}</h2>
               <SupportCampaignCard
                 campaign={featured}
                 contributeLabel={t("donateNow")}
@@ -104,7 +107,9 @@ export default async function CampaignsPage({
                 verifiedLabel={t("verified")}
               />
             </div>
-          ) : null}
+          ) : (
+            <p className="mt-4 rounded-2xl bg-muted/40 p-4 text-sm text-muted-foreground">{t("noUpdates")}</p>
+          )}
         </div>
 
         <div className="rounded-3xl border border-border/70 bg-card p-4 sm:p-5">
@@ -152,6 +157,9 @@ export default async function CampaignsPage({
               verifiedLabel={t("verified")}
             />
           ))}
+          {activeCampaigns.slice(1).length === 0 ? (
+            <p className="rounded-2xl bg-muted/40 p-4 text-sm text-muted-foreground md:col-span-2 xl:col-span-3">{t("noUpdates")}</p>
+          ) : null}
         </div>
       </section>
 
@@ -160,7 +168,7 @@ export default async function CampaignsPage({
           <p className="text-sm font-bold text-primary">{t("sections.latestUpdates")}</p>
           <h2 className="text-2xl font-black">{t("updatesTitle")}</h2>
           <div className="mt-5 space-y-0">
-            {latestUpdates.map((update, index) => {
+            {latestUpdates.length > 0 ? latestUpdates.map((update, index) => {
               const campaign = campaigns.find((item) => item.id === update.campaign_id);
               return (
                 <div key={update.id} className="grid grid-cols-[auto_1fr] gap-3">
@@ -176,7 +184,9 @@ export default async function CampaignsPage({
                   </div>
                 </div>
               );
-            })}
+            }) : (
+              <p className="rounded-2xl bg-muted/40 p-4 text-sm text-muted-foreground">{t("noUpdates")}</p>
+            )}
           </div>
         </div>
 

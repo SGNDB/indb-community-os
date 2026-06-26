@@ -189,7 +189,7 @@ export default async function AdminMemoriesPage({params}: {params: Promise<{loca
       reactions_count: reactions,
       comments_count: comments,
       saves_count: saves,
-      views_count: Math.max(12, reactions * 5 + comments * 8 + saves * 6 + shares * 4),
+      views_count: 0,
       created_at: String(memory.created_at ?? ""),
       updated_at: String(memory.updated_at ?? ""),
       contributor: singleProfile(memory.contributor),

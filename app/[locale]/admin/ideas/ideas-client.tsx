@@ -350,11 +350,11 @@ export function IdeasClient({
         <KpiCard label={labels.kpiActive} value={localeNum(initialKpi.activeIdeas)} icon={Activity}
           chart={<MiniSparkline data={initialKpi.dailyGrowth.slice(-14).map(d => ({value: d.value}))} color="#10b981" />} color="#10b981" />
         <KpiCard label={labels.kpiCompleted} value={localeNum(initialKpi.completedIdeas)} icon={CheckCircle}
-          chart={<MiniSparkline data={initialKpi.dailyGrowth.slice(-14).map(() => ({value: Math.floor(Math.random() * 5)}))} color="#8b5cf6" />} color="#8b5cf6" />
+          color="#8b5cf6" />
         <KpiCard label={labels.kpiParticipants} value={localeNum(initialKpi.totalParticipants)} icon={Users}
           chart={<MiniSparkline data={initialKpi.monthlyGrowth.map(m => ({value: Math.max(0, m.value - 1)}))} color="#f59e0b" />} color="#f59e0b" />
         <KpiCard label={labels.kpiAvgSupport} value={`${initialKpi.avgSupportScore}%`} icon={Star}
-          chart={<MiniSparkline data={initialKpi.monthlyGrowth.map(() => ({value: Math.floor(Math.random() * 40) + 40}))} color="#ec4899" />} color="#ec4899" />
+          color="#ec4899" />
       </div>
 
       {/* ANALYTICS CHARTS */}

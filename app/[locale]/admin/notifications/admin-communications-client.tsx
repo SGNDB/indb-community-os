@@ -23,10 +23,10 @@ import {Textarea} from "@/components/ui/textarea";
 import {
   type AudienceSegment, type CampaignAnalytics, type CampaignLanguage,
   type CampaignStatus, type CampaignType, type DeliveryHealthMetric,
-  type EmailCampaign, type EmailTemplateItem,
-  audienceSegments, campaignTypes, deliveryHealthMetrics,
-  emailTemplates, formatNumber, mockAnalytics, mockCampaigns,
-  recentActivity, audienceSegmentNames,
+  type EmailCampaign, type EmailTemplateItem, type ActivityItem,
+  campaignTypes,
+  emailTemplates, formatNumber,
+  audienceSegmentNames,
 } from "@/lib/data/communications";
 
 /* ─── helpers ─── */
@@ -50,10 +50,35 @@ const HEALTH_STYLES: Record<string, string> = {
 
 type Labels = Record<string, string>;
 
+const emailCampaigns: EmailCampaign[] = [];
+const deliveryHealth: DeliveryHealthMetric[] = [];
+const activityLog: ActivityItem[] = [];
+const audienceSegments = ([
+  "all", "arabic", "french", "english", "donors", "volunteers", "graatek", "ideas", "inactive", "new_users", "premium",
+] as AudienceSegment[]).map((id) => ({id, name: audienceSegmentNames[id], count: 0, growth: "0%"}));
+
+const emptyAnalytics: {trends: {date: string; sent: number; opened: number; clicked: number; bounced: number}[]; topCampaigns: {name: string; sent: number; openRate: number}[]; kpis: CampaignAnalytics} = {
+  trends: [],
+  topCampaigns: [],
+  kpis: {
+    sent: 0,
+    delivered: 0,
+    opened: 0,
+    clicked: 0,
+    bounced: 0,
+    complained: 0,
+    openRate: 0,
+    clickRate: 0,
+    deliveryRate: 0,
+    bounceRate: 0,
+    engagementRate: 0,
+  },
+};
+
 /* ─── sub-components ─── */
 
 function KpiCard({label, value, trend, icon: Icon, tone, data, color}: {
-  label: string; value: string; trend: string; icon: LucideIcon; tone: string;
+  label: string; value: string; trend?: string; icon: LucideIcon; tone: string;
   data?: number[]; color?: string;
 }) {
   const max = data ? Math.max(...data, 1) : 1;
@@ -61,12 +86,12 @@ function KpiCard({label, value, trend, icon: Icon, tone, data, color}: {
     <GlassCard className="p-5" hover={false}>
       <div className="flex items-start justify-between gap-3">
         <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${tone}`}><Icon size={20} /></div>
-        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-bold ${
+        {trend ? <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-bold ${
           trend.startsWith("+") ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600"
         }`}>
           <TrendingUp size={12} className={trend.startsWith("+") ? "" : "rotate-180"} />
           {trend}
-        </span>
+        </span> : null}
       </div>
       <p className="mt-5 text-2xl font-black tracking-tight">{value}</p>
       <p className="mt-1 text-sm text-muted-foreground">{label}</p>
@@ -131,33 +156,21 @@ export function AdminCommunicationsClient({locale, labels}: {locale: string; lab
   const [typeFilter, setTypeFilter] = useState<CampaignType|"all">("all");
 
   /* data */
-  const analytics = useMemo(() => mockAnalytics(), []);
-  const filteredCampaigns = useMemo(() => mockCampaigns.filter((c) =>
+  const analytics = useMemo(() => emptyAnalytics, []);
+  const filteredCampaigns = useMemo(() => emailCampaigns.filter((c) =>
     (campaignFilter === "all" || c.status === campaignFilter) &&
     (typeFilter === "all" || c.type === typeFilter)
   ), [campaignFilter, typeFilter]);
 
   const kpis = useMemo(() => {
-    const total = mockCampaigns.reduce((s, c) => s + c.sent, 0);
-    const opened = mockCampaigns.reduce((s, c) => s + c.opened, 0);
-    const clicked = mockCampaigns.reduce((s, c) => s + c.clicked, 0);
-    const bounced = mockCampaigns.reduce((s, c) => s + c.bounced, 0);
+    const total = emailCampaigns.reduce((s, c) => s + c.sent, 0);
+    const opened = emailCampaigns.reduce((s, c) => s + c.opened, 0);
+    const clicked = emailCampaigns.reduce((s, c) => s + c.clicked, 0);
+    const bounced = emailCampaigns.reduce((s, c) => s + c.bounced, 0);
     return {sent: total, opened, clicked, bounced, delivered: total - bounced,
       openRate: total > 0 ? Math.round((opened / total) * 100) : 0,
       clickRate: total > 0 ? Math.round((clicked / total) * 100) : 0,
       bounceRate: total > 0 ? Math.round((bounced / total) * 100) : 0,
-    };
-  }, []);
-
-  const sparklines = useMemo(() => {
-    const base = [240, 380, 310, 520, 480, 610, 740, 690, 820, 780, 910, 1050];
-    return {
-      sent: base.map((v) => Math.round(v * (0.85 + Math.random() * 0.3))),
-      delivered: base.map((v) => Math.round(v * (0.75 + Math.random() * 0.2))),
-      opened: base.map((v) => Math.round(v * (0.35 + Math.random() * 0.2))),
-      clicked: base.map((v) => Math.round(v * (0.10 + Math.random() * 0.1))),
-      bounceRate: base.map(() => Math.round((0.5 + Math.random() * 2.5) * 10) / 10),
-      engagement: base.map((v) => Math.round((0.3 + Math.random() * 0.15) * v)),
     };
   }, []);
 
@@ -230,12 +243,12 @@ export function AdminCommunicationsClient({locale, labels}: {locale: string; lab
         <>
           {/* KPI cards */}
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
-            <KpiCard label={labels.kpiSent ?? "Emails Sent"} value={formatNumber(kpis.sent, locale)} trend="+12.4%" icon={Send} tone="bg-primary/10 text-primary" data={sparklines.sent} color="var(--primary)" />
-            <KpiCard label={labels.kpiDelivered ?? "Delivered"} value={formatNumber(kpis.delivered, locale)} trend="+11.8%" icon={CheckCircle2} tone="bg-emerald-500/10 text-emerald-600" data={sparklines.delivered} color="#10b981" />
-            <KpiCard label={labels.kpiOpened ?? "Opened"} value={formatNumber(kpis.opened, locale)} trend="+7.3%" icon={Eye} tone="bg-blue-500/10 text-blue-600" data={sparklines.opened} color="#0ea5e9" />
-            <KpiCard label={labels.kpiClicked ?? "Clicked"} value={formatNumber(kpis.clicked, locale)} trend="+4.9%" icon={MousePointerClick} tone="bg-violet-500/10 text-violet-600" data={sparklines.clicked} color="#8b5cf6" />
-            <KpiCard label={labels.kpiBounceRate ?? "Bounce Rate"} value={`${kpis.bounceRate}%`} trend="-0.8%" icon={AlertTriangle} tone="bg-amber-500/10 text-amber-600" data={sparklines.bounceRate} color="#f59e0b" />
-            <KpiCard label={labels.kpiEngagement ?? "Engagement"} value={`${kpis.openRate}%`} trend="+3.2%" icon={TrendingUp} tone="bg-rose-500/10 text-rose-600" data={sparklines.engagement} color="#ec4899" />
+            <KpiCard label={labels.kpiSent ?? "Emails Sent"} value={formatNumber(kpis.sent, locale)} icon={Send} tone="bg-primary/10 text-primary" />
+            <KpiCard label={labels.kpiDelivered ?? "Delivered"} value={formatNumber(kpis.delivered, locale)} icon={CheckCircle2} tone="bg-emerald-500/10 text-emerald-600" />
+            <KpiCard label={labels.kpiOpened ?? "Opened"} value={formatNumber(kpis.opened, locale)} icon={Eye} tone="bg-blue-500/10 text-blue-600" />
+            <KpiCard label={labels.kpiClicked ?? "Clicked"} value={formatNumber(kpis.clicked, locale)} icon={MousePointerClick} tone="bg-violet-500/10 text-violet-600" />
+            <KpiCard label={labels.kpiBounceRate ?? "Bounce Rate"} value={`${kpis.bounceRate}%`} icon={AlertTriangle} tone="bg-amber-500/10 text-amber-600" />
+            <KpiCard label={labels.kpiEngagement ?? "Engagement"} value={`${kpis.openRate}%`} icon={TrendingUp} tone="bg-rose-500/10 text-rose-600" />
           </div>
 
           {/* action cards */}
@@ -269,7 +282,7 @@ export function AdminCommunicationsClient({locale, labels}: {locale: string; lab
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/60">
-                    {mockCampaigns.slice(0, 6).map((c) => (
+                    {emailCampaigns.slice(0, 6).map((c) => (
                       <tr key={c.id} className="hover:bg-muted/20 transition-colors">
                         <td className="px-4 py-3 font-bold">{c.name}</td>
                         <td className="px-4 py-3"><TypeBadge type={c.type} /></td>
@@ -291,7 +304,7 @@ export function AdminCommunicationsClient({locale, labels}: {locale: string; lab
               <GlassCard className="p-4 md:p-5" hover={false}>
                 <h2 className="text-xl font-black">{labels.deliveryHealth ?? "Delivery Health"}</h2>
                 <div className="mt-4 space-y-2">
-                  {deliveryHealthMetrics.slice(0, 5).map((m) => (
+                  {deliveryHealth.slice(0, 5).map((m) => (
                     <div key={m.labelKey} className="flex items-center justify-between rounded-xl border border-border/60 bg-background p-3">
                       <div className="flex items-center gap-3">
                         <span className={`flex h-2.5 w-2.5 shrink-0 rounded-full ${
@@ -312,7 +325,7 @@ export function AdminCommunicationsClient({locale, labels}: {locale: string; lab
               <GlassCard className="p-4 md:p-5" hover={false}>
                 <h2 className="text-xl font-black">{labels.recentActivity ?? "Recent Activity"}</h2>
                 <div className="mt-4 space-y-0">
-                  {recentActivity.slice(0, 6).map((a) => (
+                  {activityLog.slice(0, 6).map((a) => (
                     <div key={a.id} className="flex items-start gap-3 border-b border-border/30 py-3 last:border-0">
                       <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
                         a.type === "sent" ? "bg-emerald-500/10 text-emerald-600" :
@@ -440,11 +453,11 @@ export function AdminCommunicationsClient({locale, labels}: {locale: string; lab
                       </div>
                       <div className="flex justify-between rounded-xl border border-border/60 bg-background p-3">
                         <span className="text-sm font-semibold">{labels.avgOpenRate ?? "Avg. Open Rate"}</span>
-                        <span className="text-sm font-black">{Math.round(35 + Math.random() * 30)}%</span>
+                        <span className="text-sm font-black">0%</span>
                       </div>
                       <div className="flex justify-between rounded-xl border border-border/60 bg-background p-3">
                         <span className="text-sm font-semibold">{labels.avgClickRate ?? "Avg. Click Rate"}</span>
-                        <span className="text-sm font-black">{Math.round(8 + Math.random() * 18)}%</span>
+                        <span className="text-sm font-black">0%</span>
                       </div>
                       <Button className="w-full gap-2"><Send size={16} />{labels.sendToSegment ?? "Send to this segment"}</Button>
                     </div>
@@ -718,7 +731,7 @@ export function AdminCommunicationsClient({locale, labels}: {locale: string; lab
           <GlassCard className="p-4 md:p-5" hover={false}>
             <h2 className="text-xl font-black">{labels.deliveryHealthFull ?? "Delivery Health Overview"}</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {deliveryHealthMetrics.map((m) => (
+              {deliveryHealth.map((m) => (
                 <div key={m.labelKey} className={`rounded-2xl border p-4 ${m.status === "critical" ? "border-red-500/30 bg-red-500/5" : "border-border/60 bg-card"}`}>
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-semibold">{labels[m.labelKey] ?? m.label}</p>

@@ -1799,7 +1799,7 @@ export async function getAdminIdeasWithStats(
     author: idea.author,
     comments_count: commentCounts.get(idea.id) ?? 0,
     messages_count: messageCounts.get(idea.id) ?? 0,
-    views: Math.floor((idea.votes_count ?? 0) * 3 + (idea.supporters_count ?? 0) * 5 + Math.random() * 20),
+    views: 0,
     supportPercentage: idea.votes_count > 0
       ? Math.round(((idea.supporters_count ?? 0) / (idea.votes_count ?? 1)) * 100)
       : 0,
@@ -1892,7 +1892,7 @@ export async function getAdminIdeaDetail(id: string): Promise<AdminIdeaDetail | 
     author: singleProfile(idea.author),
     comments_count: commentsCount,
     messages_count: messagesCount,
-    views: Math.floor((idea.votes_count ?? 0) * 3 + (idea.supporters_count ?? 0) * 5 + Math.random() * 20),
+    views: 0,
     supportPercentage: idea.votes_count > 0
       ? Math.round(((idea.supporters_count ?? 0) / (idea.votes_count ?? 1)) * 100)
       : 0,
@@ -2429,22 +2429,20 @@ export async function getAdminImpactMetrics(): Promise<AdminImpactMetrics> {
     } catch { return 0; }
   }
 
-  const [familiesSupported, graatekCompleted, campaignsCompleted, campaignCount] = await Promise.all([
-    safeCount(supabase.from("donations").select("*", {count: "exact", head: true})),
+  const [graatekCompleted, campaignsCompleted] = await Promise.all([
     safeCount(supabase.from("graatek_items").select("*", {count: "exact", head: true}).eq("status", "completed")),
-    safeCount(supabase.from("support_campaigns").select("*", {count: "exact", head: true})),
-    safeCount(supabase.from("support_campaigns").select("*", {count: "exact", head: true})),
+    safeCount(supabase.from("support_campaigns").select("*", {count: "exact", head: true}).eq("status", "completed")),
   ]);
 
   return {
-    familiesSupported: Math.max(1, Math.round(familiesSupported * 1.4)),
-    studentsHelped: Math.max(1, Math.round(familiesSupported * 0.8)),
-    waterDistributions: Math.max(1, Math.round(familiesSupported * 0.3)),
-    healthCasesSupported: Math.max(1, Math.round(familiesSupported * 0.15)),
-    cleanupCampaignsCompleted: Math.max(1, Math.round(campaignCount * 0.25)),
+    familiesSupported: 0,
+    studentsHelped: 0,
+    waterDistributions: 0,
+    healthCasesSupported: 0,
+    cleanupCampaignsCompleted: 0,
     volunteerHours: 0,
     graatekExchanges: graatekCompleted,
-    campaignsCompleted: campaignCount,
+    campaignsCompleted,
   };
 }
 

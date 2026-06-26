@@ -5,26 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Shield, Check, X, AlertTriangle } from "lucide-react";
 import type { MessagesAdminLabels } from "./messages-labels";
 
-const mockReports = [
-  {
-    id: "REP-492",
-    reasonKey: "reasonHarassment",
-    reporter: { full_name: "Sarah J.", username: "sarahj", avatar_url: null },
-    conversationId: "CONV-9823",
-    reportDateKey: "minutesAgo",
-    priority: "high",
-    status: "pending",
-  },
-  {
-    id: "REP-491",
-    reasonKey: "reasonSpam",
-    reporter: { full_name: "Ahmed K.", username: "ahmedk", avatar_url: null },
-    conversationId: "CONV-9102",
-    reportDateKey: "hoursAgo",
-    priority: "low",
-    status: "pending",
-  },
-];
+const reports: {
+  id: string;
+  reasonKey: keyof MessagesAdminLabels;
+  reporter: {full_name: string | null; username: string | null; avatar_url: string | null};
+  conversationId: string;
+  reportDateKey: keyof MessagesAdminLabels;
+  priority: "high" | "low";
+  status: string;
+}[] = [];
 
 export function ReportedConversations({labels}: {labels: MessagesAdminLabels}) {
   return (
@@ -40,7 +29,7 @@ export function ReportedConversations({labels}: {labels: MessagesAdminLabels}) {
       </div>
 
       <div className="grid gap-4">
-        {mockReports.map((report) => (
+        {reports.map((report) => (
           <GlassCard key={report.id} className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-start gap-4">
               <div className={`p-3 rounded-xl ${report.priority === 'high' ? 'bg-rose-100 text-rose-600 dark:bg-rose-900/30' : 'bg-amber-100 text-amber-600 dark:bg-amber-900/30'}`}>
@@ -80,7 +69,7 @@ export function ReportedConversations({labels}: {labels: MessagesAdminLabels}) {
           </GlassCard>
         ))}
 
-        {mockReports.length === 0 && (
+        {reports.length === 0 && (
           <div className="p-8 text-center bg-muted/30 rounded-2xl border border-dashed border-border">
             <Shield className="mx-auto h-12 w-12 text-muted-foreground/50 mb-3" />
             <h3 className="text-lg font-medium text-foreground">{labels.queueEmpty}</h3>

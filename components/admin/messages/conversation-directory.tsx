@@ -6,38 +6,16 @@ import { Eye, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { MessagesAdminLabels } from "./messages-labels";
 
-const mockConversations = [
-  {
-    id: "CONV-9821",
-    typeKey: "typeIdea",
-    participants: [{ full_name: "Aisha M.", username: "aisha", avatar_url: null }, { full_name: "Yusuf K.", username: "yusuf", avatar_url: null }],
-    statusKey: "statusActive",
-    status: "active",
-    lastActivityKey: "minutesAgo",
-    messagesCount: 42,
-    reported: false,
-  },
-  {
-    id: "CONV-9822",
-    typeKey: "typeGraatek",
-    participants: [{ full_name: "Fatima S.", username: "fatima", avatar_url: null }, { full_name: "Omar R.", username: "omar", avatar_url: null }],
-    statusKey: "statusCompleted",
-    status: "completed",
-    lastActivityKey: "hourAgo",
-    messagesCount: 15,
-    reported: false,
-  },
-  {
-    id: "CONV-9823",
-    typeKey: "typeGroup",
-    participants: [{ full_name: "Group Chat", username: "group", avatar_url: null }],
-    statusKey: "statusActive",
-    status: "active",
-    lastActivityKey: "minutesAgo",
-    messagesCount: 128,
-    reported: true,
-  },
-];
+const conversations: {
+  id: string;
+  typeKey: keyof MessagesAdminLabels;
+  participants: {full_name: string | null; username: string | null; avatar_url: string | null}[];
+  statusKey: keyof MessagesAdminLabels;
+  status: string;
+  lastActivityKey: keyof MessagesAdminLabels;
+  messagesCount: number;
+  reported: boolean;
+}[] = [];
 
 export function ConversationDirectory({labels}: {labels: MessagesAdminLabels}) {
   const [selectedConv, setSelectedConv] = useState<string | null>(null);
@@ -58,7 +36,7 @@ export function ConversationDirectory({labels}: {labels: MessagesAdminLabels}) {
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
-              {mockConversations.map((conv) => (
+              {conversations.map((conv) => (
                 <tr key={conv.id} className="hover:bg-muted/30 transition-colors">
                   <td className="px-6 py-4">
                     <div className="font-medium text-foreground">{conv.id}</div>
@@ -89,6 +67,13 @@ export function ConversationDirectory({labels}: {labels: MessagesAdminLabels}) {
                   </td>
                 </tr>
               ))}
+              {conversations.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-10 text-center text-sm text-muted-foreground">
+                    {labels.queueEmpty}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

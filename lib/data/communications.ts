@@ -85,39 +85,20 @@ export interface CampaignAnalytics {
   engagementRate: number;
 }
 
-const now = Date.now();
-const day = 86400000;
-
-export const mockCampaigns: EmailCampaign[] = [
-  { id: "c1", name: "Monthly Newsletter – June 2026", subject: "Your monthly dose of community news", type: "newsletter", audience: "all", language: "all", sent: 12840, opened: 6741, clicked: 2153, bounced: 89, status: "sent", created_at: new Date(now - 2 * day).toISOString(), scheduled_at: null, recurrence: "monthly" },
-  { id: "c2", name: "Water Campaign Fundraiser", subject: "Help us bring clean water to Nouadhibou", type: "fundraising", audience: "donors", language: "all", sent: 3421, opened: 2013, clicked: 876, bounced: 23, status: "sent", created_at: new Date(now - 5 * day).toISOString(), scheduled_at: null, recurrence: null },
-  { id: "c3", name: "Volunteer Appreciation Week", subject: "You're invited! Volunteer appreciation event", type: "volunteer_confirmation", audience: "volunteers", language: "fr", sent: 892, opened: 612, clicked: 389, bounced: 4, status: "sent", created_at: new Date(now - 7 * day).toISOString(), scheduled_at: null, recurrence: null },
-  { id: "c4", name: "New Feature: Community Stories", subject: "Check out the new Stories feature!", type: "announcement", audience: "all", language: "en", sent: 0, opened: 0, clicked: 0, bounced: 0, status: "draft", created_at: new Date(now - 1 * day).toISOString(), scheduled_at: null, recurrence: null },
-  { id: "c5", name: "Ramadan 2026 Campaign", subject: "Spread kindness this Ramadan", type: "campaign_update", audience: "arabic", language: "ar", sent: 0, opened: 0, clicked: 0, bounced: 0, status: "scheduled", created_at: new Date(now - 3 * day).toISOString(), scheduled_at: new Date(now + 14 * day).toISOString(), recurrence: null },
-  { id: "c6", name: "Graatek Exchange Notification", subject: "Your Graatek request has been matched!", type: "graatek_notification", audience: "graatek", language: "all", sent: 0, opened: 0, clicked: 0, bounced: 0, status: "scheduled", created_at: new Date(now - 4 * day).toISOString(), scheduled_at: new Date(now + 1 * day).toISOString(), recurrence: null },
-  { id: "c7", name: "Weekly Digest – Week 25", subject: "Top stories from this week", type: "newsletter", audience: "all", language: "all", sent: 12500, opened: 5875, clicked: 1750, bounced: 112, status: "sent", created_at: new Date(now - 9 * day).toISOString(), scheduled_at: null, recurrence: "weekly" },
-  { id: "c8", name: "IDEA Platform Update", subject: "New ideas need your votes!", type: "idea_update", audience: "ideas", language: "en", sent: 2150, opened: 1398, clicked: 645, bounced: 10, status: "sent", created_at: new Date(now - 12 * day).toISOString(), scheduled_at: null, recurrence: null },
-  { id: "c9", name: "Welcome – New Members June", subject: "Welcome to I ❤️ NDB Community!", type: "welcome", audience: "new_users", language: "all", sent: 456, opened: 342, clicked: 267, bounced: 5, status: "sending", created_at: new Date(now - 1 * day).toISOString(), scheduled_at: null, recurrence: null },
-  { id: "c10", name: "Maintenance Scheduled", subject: "Platform maintenance on July 2nd", type: "maintenance", audience: "all", language: "all", sent: 0, opened: 0, clicked: 0, bounced: 0, status: "draft", created_at: new Date(now - 0.5 * day).toISOString(), scheduled_at: null, recurrence: null },
-  { id: "c11", name: "Re-engagement Campaign", subject: "We miss you! Come back to the community", type: "reengagement", audience: "inactive", language: "fr", sent: 3200, opened: 896, clicked: 312, bounced: 98, status: "sent", created_at: new Date(now - 20 * day).toISOString(), scheduled_at: null, recurrence: null },
-  { id: "c12", name: "Donation Receipt – June", subject: "Thank you for your donation!", type: "donation_receipt", audience: "donors", language: "all", sent: 0, opened: 0, clicked: 0, bounced: 0, status: "failed", created_at: new Date(now - 3 * day).toISOString(), scheduled_at: null, recurrence: null },
-  { id: "c13", name: "Magazine: Summer 2026", subject: "Summer 2026 Magazine is here!", type: "magazine_digest", audience: "all", language: "fr", sent: 9500, opened: 4275, clicked: 1520, bounced: 76, status: "sent", created_at: new Date(now - 15 * day).toISOString(), scheduled_at: null, recurrence: null },
-  { id: "c14", name: "Password Reset Alert", subject: "Your password was reset", type: "password_reset", audience: "all", language: "all", sent: 234, opened: 0, clicked: 0, bounced: 2, status: "sent", created_at: new Date(now - 6 * day).toISOString(), scheduled_at: null, recurrence: null },
-  { id: "c15", name: "Event: Beach Cleanup", subject: "Join us for a beach cleanup!", type: "event_invitation", audience: "volunteers", language: "ar", sent: 0, opened: 0, clicked: 0, bounced: 0, status: "cancelled", created_at: new Date(now - 10 * day).toISOString(), scheduled_at: new Date(now - 2 * day).toISOString(), recurrence: null },
-];
+export const emailCampaignLog: EmailCampaign[] = [];
 
 export const audienceSegments: AudienceSegmentInfo[] = [
-  { id: "all", name: "All Users", count: 24850, growth: "+12.4%" },
-  { id: "arabic", name: "Arabic Users", count: 12420, growth: "+8.2%" },
-  { id: "french", name: "French Users", count: 8930, growth: "+15.7%" },
-  { id: "english", name: "English Users", count: 3500, growth: "+5.1%" },
-  { id: "donors", name: "Donors", count: 4280, growth: "+22.3%" },
-  { id: "volunteers", name: "Volunteers", count: 3150, growth: "+18.9%" },
-  { id: "graatek", name: "Graatek Users", count: 1870, growth: "+34.2%" },
-  { id: "ideas", name: "Idea Participants", count: 2340, growth: "+9.6%" },
-  { id: "inactive", name: "Inactive (90d)", count: 6540, growth: "-2.1%" },
-  { id: "new_users", name: "New (30d)", count: 1120, growth: "+45.8%" },
-  { id: "premium", name: "Premium Members", count: 890, growth: "+67.3%" },
+  { id: "all", name: "All Users", count: 0, growth: "0%" },
+  { id: "arabic", name: "Arabic Users", count: 0, growth: "0%" },
+  { id: "french", name: "French Users", count: 0, growth: "0%" },
+  { id: "english", name: "English Users", count: 0, growth: "0%" },
+  { id: "donors", name: "Donors", count: 0, growth: "0%" },
+  { id: "volunteers", name: "Volunteers", count: 0, growth: "0%" },
+  { id: "graatek", name: "Graatek Users", count: 0, growth: "0%" },
+  { id: "ideas", name: "Idea Participants", count: 0, growth: "0%" },
+  { id: "inactive", name: "Inactive (90d)", count: 0, growth: "0%" },
+  { id: "new_users", name: "New (30d)", count: 0, growth: "0%" },
+  { id: "premium", name: "Premium Members", count: 0, growth: "0%" },
 ];
 
 export const emailTemplates: EmailTemplateItem[] = [
@@ -147,70 +128,20 @@ export const campaignTypes: { value: CampaignType; label: string }[] = [
   { value: "reengagement", label: "Re-engagement" },
 ];
 
-export const recentActivity: ActivityItem[] = [
-  { id: "a1", action: "sent", target: "Monthly Newsletter – June 2026", user: "Admin", timestamp: new Date(now - 2 * day).toISOString(), type: "sent" },
-  { id: "a2", action: "scheduled", target: "Ramadan 2026 Campaign", user: "Admin", timestamp: new Date(now - 3 * day).toISOString(), type: "scheduled" },
-  { id: "a3", action: "created", target: "New Feature: Community Stories", user: "Sarah K.", timestamp: new Date(now - 1 * day).toISOString(), type: "draft" },
-  { id: "a4", action: "failed", target: "Donation Receipt – June", user: "System", timestamp: new Date(now - 3 * day).toISOString(), type: "failed" },
-  { id: "a5", action: "sent", target: "Water Campaign Fundraiser", user: "Admin", timestamp: new Date(now - 5 * day).toISOString(), type: "sent" },
-  { id: "a6", action: "sent", target: "Welcome – New Members June", user: "Automation", timestamp: new Date(now - 1 * day).toISOString(), type: "sent" },
-  { id: "a7", action: "scheduled", target: "Graatek Exchange Notification", user: "Admin", timestamp: new Date(now - 4 * day).toISOString(), type: "scheduled" },
-  { id: "a8", action: "cancelled", target: "Event: Beach Cleanup", user: "Admin", timestamp: new Date(now - 10 * day).toISOString(), type: "cancelled" },
-  { id: "a9", action: "sent", target: "Magazine: Summer 2026", user: "Content Team", timestamp: new Date(now - 15 * day).toISOString(), type: "sent" },
-  { id: "a10", action: "created", target: "Maintenance Scheduled", user: "Tech Admin", timestamp: new Date(now - 0.5 * day).toISOString(), type: "draft" },
-];
+export const activityLog: ActivityItem[] = [];
 
-export function mockAnalytics(): { trends: AnalyticsDataPoint[]; topCampaigns: { name: string; sent: number; openRate: number }[]; kpis: CampaignAnalytics } {
-  const trends: AnalyticsDataPoint[] = Array.from({ length: 30 }, (_, i) => {
-    const dayOffset = 29 - i;
-    const base = Math.max(200, 800 - i * 18 + Math.round(Math.random() * 120));
-    return {
-      date: new Date(now - dayOffset * day).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-      sent: base,
-      opened: Math.round(base * (0.45 + Math.random() * 0.15)),
-      clicked: Math.round(base * (0.12 + Math.random() * 0.10)),
-      bounced: Math.round(base * (0.005 + Math.random() * 0.025)),
-    };
-  });
-  const totalSent = trends.reduce((s, d) => s + d.sent, 0);
-  const totalOpened = trends.reduce((s, d) => s + d.opened, 0);
-  const totalClicked = trends.reduce((s, d) => s + d.clicked, 0);
-  const totalBounced = trends.reduce((s, d) => s + d.bounced, 0);
+export function emptyCommunicationsAnalytics(): { trends: AnalyticsDataPoint[]; topCampaigns: { name: string; sent: number; openRate: number }[]; kpis: CampaignAnalytics } {
   return {
-    trends,
-    topCampaigns: [
-      { name: "Monthly Newsletter – June 2026", sent: 12840, openRate: 52.5 },
-      { name: "Magazine: Summer 2026", sent: 9500, openRate: 45.0 },
-      { name: "Weekly Digest – Week 25", sent: 12500, openRate: 47.0 },
-      { name: "IDEA Platform Update", sent: 2150, openRate: 65.0 },
-      { name: "Water Campaign Fundraiser", sent: 3421, openRate: 58.8 },
-    ],
+    trends: [],
+    topCampaigns: [],
     kpis: {
-      sent: totalSent,
-      delivered: totalSent - totalBounced,
-      opened: totalOpened,
-      clicked: totalClicked,
-      bounced: totalBounced,
-      complained: Math.round(totalSent * 0.001),
-      openRate: totalSent > 0 ? Math.round((totalOpened / totalSent) * 10000) / 100 : 0,
-      clickRate: totalSent > 0 ? Math.round((totalClicked / totalSent) * 10000) / 100 : 0,
-      deliveryRate: totalSent > 0 ? Math.round(((totalSent - totalBounced) / totalSent) * 10000) / 100 : 0,
-      bounceRate: totalSent > 0 ? Math.round((totalBounced / totalSent) * 10000) / 100 : 0,
-      engagementRate: totalSent > 0 ? Math.round(((totalOpened + totalClicked) / (totalSent * 2)) * 10000) / 100 : 0,
+      sent: 0, delivered: 0, opened: 0, clicked: 0, bounced: 0, complained: 0,
+      openRate: 0, clickRate: 0, deliveryRate: 0, bounceRate: 0, engagementRate: 0,
     },
   };
 }
 
-export const deliveryHealthMetrics: DeliveryHealthMetric[] = [
-  { labelKey: "dhSmtpServer", label: "SMTP Server", status: "healthy", valueKey: "dhOperational", value: "Operational", detailKey: "dhSmtpDetail", detail: "99.9% uptime (30d)" },
-  { labelKey: "dhBounceRate", label: "Bounce Rate", status: "warning", valueKey: "dhBounceValue", value: "2.1%", detailKey: "dhBounceDetail", detail: "Above 2% threshold" },
-  { labelKey: "dhSpamComplaints", label: "Spam Complaints", status: "healthy", valueKey: "dhSpamValue", value: "0.03%", detailKey: "dhSpamDetail", detail: "Below 0.1% threshold" },
-  { labelKey: "dhQueueDepth", label: "Queue Depth", status: "healthy", valueKey: "dhQueueValue", value: "12 emails", detailKey: "dhQueueDetail", detail: "Processing normally" },
-  { labelKey: "dhDkimSpf", label: "DKIM/SPF", status: "healthy", valueKey: "dhDkimValue", value: "Passing", detailKey: "dhDkimDetail", detail: "All records verified" },
-  { labelKey: "dhDeliveryLatency", label: "Delivery Latency", status: "warning", valueKey: "dhLatencyValue", value: "4.2s avg", detailKey: "dhLatencyDetail", detail: "Above 3s baseline" },
-  { labelKey: "dhBlacklist", label: "Blacklist Status", status: "critical", valueKey: "dhBlacklistValue", value: "Listed on 1", detailKey: "dhBlacklistDetail", detail: "ZenSpam – investigation needed" },
-  { labelKey: "dhRateLimiting", label: "Rate Limiting", status: "healthy", valueKey: "dhRateValue", value: "No throttling", detailKey: "dhRateDetail", detail: "Within SendGrid limits" },
-];
+export const deliveryHealthMetrics: DeliveryHealthMetric[] = [];
 
 export const audienceSegmentNames: Record<AudienceSegment, string> = {
   all: "All", arabic: "Arabic", french: "French", english: "English",

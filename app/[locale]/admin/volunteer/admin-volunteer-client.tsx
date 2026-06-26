@@ -132,7 +132,7 @@ function KpiCard({
 }: {
   label: string;
   value: string;
-  trend: string;
+  trend?: string;
   icon: typeof UsersRound;
   tone: string;
 }) {
@@ -142,18 +142,13 @@ function KpiCard({
         <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${tone}`}>
           <Icon size={20} />
         </div>
-        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1 text-[11px] font-bold text-emerald-600">
+        {trend ? <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1 text-[11px] font-bold text-emerald-600">
           <TrendingUp size={12} />
           {trend}
-        </span>
+        </span> : null}
       </div>
       <p className="mt-5 text-2xl font-black tracking-tight">{value}</p>
       <p className="mt-1 text-sm text-muted-foreground">{label}</p>
-      <div className="mt-4 flex h-8 items-end gap-1">
-        {[38, 44, 31, 56, 62, 49, 78, 70, 88].map((height, index) => (
-          <span key={index} className="flex-1 rounded-t-full bg-primary/20" style={{height: `${height}%`}} />
-        ))}
-      </div>
     </GlassCard>
   );
 }
@@ -166,16 +161,12 @@ export function AdminVolunteerClient({locale, status, labels, campaigns, request
   const activeCampaigns = campaigns.filter((campaign) => campaign.status === "active");
   const completedCampaigns = campaigns.filter((campaign) => campaign.status === "completed");
   const totalVolunteers = campaigns.reduce((sum, campaign) => sum + campaign.volunteers_count, 0);
-  const estimatedHours = approvedRequests.length * 4 + completedCampaigns.length * 36 + totalVolunteers * 2;
+  const verifiedHours = 0;
   const selectedRequest = requests.find((request) => request.id === selectedRequestId) ?? requests[0] ?? null;
 
   const trend = useMemo(() => {
-    return Array.from({length: 6}, (_item, index) => ({
-      month: new Date(2026, index, 1).toLocaleDateString(locale === "ar" ? "ar-SA" : locale === "fr" ? "fr-FR" : "en-US", {month: "short"}),
-      volunteers: Math.max(0, Math.round(totalVolunteers * (0.35 + index * 0.13))),
-      hours: Math.max(8, Math.round(estimatedHours * (0.2 + index * 0.12))),
-    }));
-  }, [estimatedHours, locale, totalVolunteers]);
+    return [] as {month: string; volunteers: number; hours: number}[];
+  }, []);
 
   const categoryData = useMemo(() => {
     const grouped = new Map<string, number>();
@@ -238,12 +229,12 @@ export function AdminVolunteerClient({locale, status, labels, campaigns, request
       </GlassCard>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
-        <KpiCard label={labels.totalVolunteers} value={formatNumber(totalVolunteers, locale)} trend="+14.2%" icon={UsersRound} tone="bg-primary/10 text-primary" />
-        <KpiCard label={labels.activeOpportunities} value={formatNumber(activeCampaigns.length, locale)} trend="+6.0%" icon={HandHeart} tone="bg-emerald-500/10 text-emerald-600" />
-        <KpiCard label={labels.pendingApplications} value={formatNumber(pendingRequests.length, locale)} trend="+3.5%" icon={Clock3} tone="bg-amber-500/10 text-amber-600" />
-        <KpiCard label={labels.completedActivities} value={formatNumber(completedCampaigns.length, locale)} trend="+8.7%" icon={CheckCircle2} tone="bg-green-500/10 text-green-600" />
-        <KpiCard label={labels.volunteerHours} value={formatNumber(estimatedHours, locale)} trend="+11.8%" icon={ListChecks} tone="bg-blue-500/10 text-blue-600" />
-        <KpiCard label={labels.monthlyGrowth} value="21.4%" trend="+4.1%" icon={TrendingUp} tone="bg-violet-500/10 text-violet-600" />
+        <KpiCard label={labels.totalVolunteers} value={formatNumber(totalVolunteers, locale)} icon={UsersRound} tone="bg-primary/10 text-primary" />
+        <KpiCard label={labels.activeOpportunities} value={formatNumber(activeCampaigns.length, locale)} icon={HandHeart} tone="bg-emerald-500/10 text-emerald-600" />
+        <KpiCard label={labels.pendingApplications} value={formatNumber(pendingRequests.length, locale)} icon={Clock3} tone="bg-amber-500/10 text-amber-600" />
+        <KpiCard label={labels.completedActivities} value={formatNumber(completedCampaigns.length, locale)} icon={CheckCircle2} tone="bg-green-500/10 text-green-600" />
+        <KpiCard label={labels.volunteerHours} value={formatNumber(verifiedHours, locale)} icon={ListChecks} tone="bg-blue-500/10 text-blue-600" />
+        <KpiCard label={labels.monthlyGrowth} value="0%" icon={TrendingUp} tone="bg-violet-500/10 text-violet-600" />
       </div>
 
       <GlassCard className="p-4 md:p-5" hover={false}>
@@ -504,9 +495,9 @@ export function AdminVolunteerClient({locale, status, labels, campaigns, request
           <div className="mt-4 grid gap-3">
             {[
               [labels.attended, approvedRequests.length],
-              [labels.absent, Math.max(0, Math.round(pendingRequests.length / 3))],
-              [labels.late, Math.max(0, Math.round(approvedRequests.length / 5))],
-              [labels.completedHours, estimatedHours],
+              [labels.absent, 0],
+              [labels.late, 0],
+              [labels.completedHours, verifiedHours],
             ].map(([label, value]) => (
               <div key={label} className="flex items-center justify-between rounded-2xl bg-muted/30 p-3">
                 <span className="text-sm text-muted-foreground">{label}</span>
@@ -520,11 +511,11 @@ export function AdminVolunteerClient({locale, status, labels, campaigns, request
           <h2 className="text-xl font-black">{labels.impactTitle}</h2>
           <div className="mt-4 grid gap-3">
             {[
-              [labels.volunteerHours, estimatedHours],
-              [labels.peopleHelped, totalVolunteers * 3],
-              [labels.neighborhoodsServed, Math.max(3, activeCampaigns.length)],
+              [labels.volunteerHours, verifiedHours],
+              [labels.peopleHelped, 0],
+              [labels.neighborhoodsServed, 0],
               [labels.activitiesCompleted, completedCampaigns.length],
-              [labels.activeOrganizers, Math.max(1, activeCampaigns.length)],
+              [labels.activeOrganizers, activeCampaigns.length],
               [labels.recurringVolunteers, approvedRequests.length],
             ].map(([label, value]) => (
               <div key={label} className="flex items-center justify-between rounded-2xl bg-muted/30 p-3">
