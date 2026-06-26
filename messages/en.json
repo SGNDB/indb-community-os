@@ -298,6 +298,10 @@
       "volunteer": {
         "label": "🙋 Volunteer",
         "short": "Volunteer"
+      },
+      "aboutPlatform": {
+        "label": "About",
+        "short": "About"
       }
     }
   },
@@ -1694,7 +1698,6 @@
       "deliverySuccess": "Delivery Success Rate",
       "audienceGrowth": "Audience Growth",
       "topCampaigns": "Top Campaigns by Performance",
-      "deliveryRate": "Delivery Rate",
       "lblEngagement": "Engagement",
       "complained": "Complained",
       "openRateShort": "open",
@@ -3244,7 +3247,6 @@
       "campaignHealth": "Treatment and health",
       "statusUpcoming": "Upcoming"
     },
-    "donateNow": "Donate now",
     "completedCampaignsTitle": "Completed campaigns",
     "viewReport": "View report",
     "whyTitle": "Why this campaign exists",
@@ -3368,6 +3370,306 @@
       "builders": "Top community builders",
       "memories": "Top memory contributors",
       "ideas": "Top idea contributors"
+    }
+  },
+  "AboutPlatform": {
+    "meta": {
+      "title": "About the Platform",
+      "description": "The official presentation of I Love NDB: the community platform connecting citizens, ideas, memories, support, volunteering, and transparent impact in Nouadhibou."
+    },
+    "hero": {
+      "badge": "Official platform presentation",
+      "title": "I Love NDB is Nouadhibou's digital community home.",
+      "subtitle": "A civic platform where citizens, associations, institutions, companies, volunteers, and donors can connect around useful action: sharing daily life, preserving memory, supporting campaigns, exchanging resources, building ideas, and measuring community impact transparently.",
+      "primaryCta": "Join the community",
+      "secondaryCta": "Explore campaigns",
+      "audiences": [
+        "Citizens",
+        "NGOs",
+        "Companies",
+        "Government",
+        "Universities",
+        "Partners",
+        "Donors",
+        "Volunteers"
+      ],
+      "visual": {
+        "hub": "Community operating system",
+        "trust": "Verified",
+        "live": "One city, many ways to contribute",
+        "modules": [
+          "Ideas",
+          "Graatek",
+          "Campaigns",
+          "Memories",
+          "Volunteering",
+          "Impact"
+        ]
+      }
+    },
+    "story": {
+      "eyebrow": "Our story",
+      "title": "Built from love for Nouadhibou, designed for real coordination.",
+      "paragraphs": [
+        "I Love NDB was created because a city grows stronger when people can see each other, help each other, and organize around shared priorities.",
+        "Nouadhibou has fishermen, students, teachers, entrepreneurs, families, volunteers, elders, health workers, craftsmen, and community leaders. The platform gives those voices one trusted digital place to meet, remember, propose, contribute, and act.",
+        "This is more than a social feed. It is a community infrastructure layer for local trust, transparent support, heritage preservation, and future civic innovation."
+      ]
+    },
+    "vision": {
+      "title": "Vision",
+      "text": "A connected Nouadhibou where every citizen can participate in building a safer, cleaner, more generous, more creative, and more informed city."
+    },
+    "mission": {
+      "title": "Mission",
+      "text": "To provide a trusted digital platform that turns community energy into visible action: ideas become projects, donations become verified support, memories become shared heritage, and contribution becomes recognized impact."
+    },
+    "features": {
+      "eyebrow": "Platform features",
+      "title": "Everything the city needs to move together.",
+      "text": "Each module solves a real community need while staying simple enough for daily use.",
+      "items": [
+        {
+          "icon": "citizens",
+          "title": "Community feed",
+          "text": "Citizens share updates, questions, photos, comments, and local conversations that keep the city informed."
+        },
+        {
+          "icon": "graatek",
+          "title": "Graatek",
+          "text": "A community sharing space where people can offer useful items, request help, and complete transparent exchanges."
+        },
+        {
+          "icon": "ideas",
+          "title": "Ideas",
+          "text": "Residents propose improvements, gather supporters, accept participants, and coordinate through private idea group chats."
+        },
+        {
+          "icon": "memory",
+          "title": "Memories",
+          "text": "Stories, photos, places, traditions, and historical moments preserve Nouadhibou's living heritage."
+        },
+        {
+          "icon": "campaigns",
+          "title": "Campaigns",
+          "text": "Verified support campaigns let citizens contribute money, materials, or effort with clear progress and updates."
+        },
+        {
+          "icon": "volunteer",
+          "title": "Volunteering",
+          "text": "Open opportunities connect people with useful local action, from education to cleaning to health support."
+        },
+        {
+          "icon": "impact",
+          "title": "Community Impact",
+          "text": "Verified actions build a contribution passport that recognizes real donations, completed Graatek, completed ideas, and published memories."
+        },
+        {
+          "icon": "messages",
+          "title": "Messaging",
+          "text": "Private conversations and idea groups help people coordinate respectfully, quickly, and securely."
+        }
+      ]
+    },
+    "how": {
+      "eyebrow": "How it works",
+      "title": "A simple path from intention to impact.",
+      "text": "The platform is designed so anyone can participate without needing technical knowledge.",
+      "steps": [
+        {
+          "title": "Create or join",
+          "text": "A citizen joins the community, chooses a language, completes a profile, and starts following local activity."
+        },
+        {
+          "title": "Participate",
+          "text": "They post, support an idea, request a Graatek item, save a memory, volunteer, or contribute to a verified campaign."
+        },
+        {
+          "title": "Coordinate",
+          "text": "Discussions, private chats, accepted participants, and admin workflows help move from conversation to organized action."
+        },
+        {
+          "title": "Verify",
+          "text": "Campaign payments, completed exchanges, accepted participation, and published memories are validated before they count as impact."
+        },
+        {
+          "title": "Recognize",
+          "text": "The platform shows contribution history and community impact clearly, helping partners understand what is happening in the city."
+        }
+      ]
+    },
+    "impact": {
+      "eyebrow": "Community impact",
+      "title": "Transparent impact, not invented numbers.",
+      "text": "I Love NDB is moving toward production-grade measurement where public counters and dashboards reflect verified database activity only.",
+      "note": "These counters describe platform capabilities. Live dashboards use real data and show zero when data does not exist.",
+      "counters": [
+        {
+          "value": 5,
+          "suffix": "+",
+          "label": "Major community modules"
+        },
+        {
+          "value": 3,
+          "suffix": "",
+          "label": "Ways to support campaigns"
+        },
+        {
+          "value": 8,
+          "suffix": "+",
+          "label": "Partner types served"
+        },
+        {
+          "value": 100,
+          "suffix": "%",
+          "label": "Commitment to transparency"
+        }
+      ]
+    },
+    "trust": {
+      "eyebrow": "Trust and safety",
+      "title": "Why institutions and citizens can trust I Love NDB.",
+      "text": "Trust is built into the product architecture, not added as decoration.",
+      "items": [
+        {
+          "icon": "transparency",
+          "title": "Transparent campaigns",
+          "text": "Support campaigns show organizer identity, status, updates, payment verification, and final reports when completed."
+        },
+        {
+          "icon": "privacy",
+          "title": "Privacy by design",
+          "text": "Private chats, participant permissions, and protected workflows keep sensitive coordination away from public view."
+        },
+        {
+          "icon": "impact",
+          "title": "Verified impact",
+          "text": "The platform avoids fake scores and only recognizes events that can be traced to real completed or verified actions."
+        },
+        {
+          "icon": "partners",
+          "title": "Institution-ready",
+          "text": "The structure supports NGOs, companies, universities, donors, and public institutions without losing community simplicity."
+        },
+        {
+          "icon": "citizens",
+          "title": "Multilingual access",
+          "text": "Arabic, French, and English support make the platform easier to present across civic, educational, and partner contexts."
+        },
+        {
+          "icon": "growth",
+          "title": "Future ready",
+          "text": "The data model prepares for recommendations, trending content, and richer city services without changing the core community promise."
+        }
+      ]
+    },
+    "values": {
+      "eyebrow": "Values",
+      "title": "The principles behind the platform",
+      "items": [
+        "Love for Nouadhibou",
+        "Community dignity",
+        "Transparency before growth",
+        "Useful technology",
+        "Local culture and memory",
+        "Participation for everyone"
+      ]
+    },
+    "team": {
+      "eyebrow": "Meet the team",
+      "title": "Built by Zidnni",
+      "text": "Zidnni is the team behind I Love NDB: product, engineering, design, and community thinking focused on practical technology for Nouadhibou.",
+      "members": [
+        {
+          "name": "Zidnni",
+          "role": "Platform team",
+          "text": "Responsible for product architecture, engineering, design systems, platform operations, and future AI readiness."
+        },
+        {
+          "name": "I Love NDB",
+          "role": "Community mission",
+          "text": "The public identity that represents love for Nouadhibou, civic contribution, and trusted local collaboration."
+        }
+      ]
+    },
+    "partners": {
+      "eyebrow": "Partners",
+      "title": "Designed for collaboration",
+      "text": "The platform can support many kinds of partners while keeping campaigns and community data transparent.",
+      "items": [
+        {
+          "title": "NGOs and associations",
+          "text": "Coordinate campaigns, volunteer activity, education support, and field updates."
+        },
+        {
+          "title": "Public institutions",
+          "text": "Understand local priorities and communicate trusted initiatives to citizens."
+        },
+        {
+          "title": "Universities and schools",
+          "text": "Connect youth, preserve knowledge, and support educational participation."
+        },
+        {
+          "title": "Donors and companies",
+          "text": "Contribute with visibility, verification, and clear reporting on community outcomes."
+        }
+      ]
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Common questions",
+      "text": "Clear answers for citizens, partners, and institutions.",
+      "items": [
+        {
+          "question": "Is I Love NDB only a social networkA",
+          "answer": "No. It includes social activity, but the platform is broader: ideas, memories, Graatek, campaigns, volunteering, private coordination, and impact tracking."
+        },
+        {
+          "question": "Can normal users create support campaignsA",
+          "answer": "In the initial phase, only verified I Love NDB administrators create official campaigns. This protects trust and transparency."
+        },
+        {
+          "question": "How do donations workA",
+          "answer": "Local payment methods can be submitted with transaction IDs and receipts. Admins verify donations before totals are updated."
+        },
+        {
+          "question": "How is privacy protectedA",
+          "answer": "Only accepted participants can access idea group chats. Public users, pending users, and rejected participants cannot access private coordination spaces."
+        },
+        {
+          "question": "How does Community Impact workA",
+          "answer": "Impact is based on verified events such as verified donations, completed Graatek exchanges, completed ideas, and approved memories. Empty data displays as zero."
+        }
+      ]
+    },
+    "contact": {
+      "eyebrow": "Contact",
+      "title": "Start a conversation with I Love NDB",
+      "text": "Citizens, partners, NGOs, companies, and institutions can reach out to explore collaboration, support, or platform participation.",
+      "items": [
+        {
+          "icon": "mail",
+          "label": "Email",
+          "value": "contact@indb.community"
+        },
+        {
+          "icon": "phone",
+          "label": "Phone",
+          "value": "+222 -- -- -- --"
+        },
+        {
+          "icon": "location",
+          "label": "City",
+          "value": "Nouadhibou, Mauritania"
+        }
+      ]
+    },
+    "final": {
+      "eyebrow": "Join the movement",
+      "title": "Help Nouadhibou become more connected, generous, and visible.",
+      "text": "Whether you are a citizen, volunteer, donor, company, NGO, school, or public institution, I Love NDB gives you a trusted place to contribute to the city.",
+      "primaryCta": "Create an account",
+      "secondaryCta": "Volunteer"
     }
   }
 }

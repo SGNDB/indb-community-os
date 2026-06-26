@@ -298,6 +298,10 @@
       "volunteer": {
         "label": "🙋 Bénévolat",
         "short": "Bénévolat"
+      },
+      "aboutPlatform": {
+        "label": "A propos",
+        "short": "A propos"
       }
     }
   },
@@ -1694,7 +1698,6 @@
       "deliverySuccess": "Taux de livraison",
       "audienceGrowth": "Croissance de l'audience",
       "topCampaigns": "Meilleures campagnes par performance",
-      "deliveryRate": "Taux de livraison",
       "lblEngagement": "Engagement",
       "complained": "Plainte",
       "openRateShort": "ouvert",
@@ -3160,7 +3163,6 @@
       "campaignHealth": "Traitement et sante",
       "statusUpcoming": "A venir"
     },
-    "donateNow": "Faire un don",
     "completedCampaignsTitle": "Campagnes terminees",
     "viewReport": "Voir le rapport",
     "whyTitle": "Pourquoi cette campagne existe",
@@ -3284,6 +3286,306 @@
       "builders": "Meilleurs batisseurs communautaires",
       "memories": "Meilleurs contributeurs de memoires",
       "ideas": "Meilleurs contributeurs d idees"
+    }
+  },
+  "AboutPlatform": {
+    "meta": {
+      "title": "A propos de la plateforme",
+      "description": "La prAsentation officielle de I Love NDB : la plateforme communautaire qui relie citoyens, idAes, mAmoire, soutien, bAnAvolat et impact transparent A Nouadhibou."
+    },
+    "hero": {
+      "badge": "PrAsentation officielle",
+      "title": "I Love NDB est la maison numArique de la communautA de Nouadhibou.",
+      "subtitle": "Une plateforme civique oA citoyens, associations, institutions, entreprises, bAnAvoles et donateurs se connectent autour d'actions utiles : partager la vie quotidienne, prAserver la mAmoire, soutenir des campagnes, Achanger des ressources, construire des idAes et mesurer l'impact communautaire.",
+      "primaryCta": "Rejoindre la communautA",
+      "secondaryCta": "Voir les campagnes",
+      "audiences": [
+        "Citoyens",
+        "ONG",
+        "Entreprises",
+        "Gouvernement",
+        "UniversitAs",
+        "Partenaires",
+        "Donateurs",
+        "BAnAvoles"
+      ],
+      "visual": {
+        "hub": "SystAme communautaire",
+        "trust": "VArifiA",
+        "live": "Une ville, plusieurs faAons de contribuer",
+        "modules": [
+          "IdAes",
+          "Graatek",
+          "Campagnes",
+          "MAmoire",
+          "BAnAvolat",
+          "Impact"
+        ]
+      }
+    },
+    "story": {
+      "eyebrow": "Notre histoire",
+      "title": "NAe de l'amour de Nouadhibou, pensAe pour une vraie coordination.",
+      "paragraphs": [
+        "I Love NDB existe parce qu'une ville devient plus forte lorsque les habitants peuvent se voir, s'aider et s'organiser autour de prioritAs communes.",
+        "Nouadhibou rassemble pAcheurs, Atudiants, enseignants, entrepreneurs, familles, bAnAvoles, anciens, soignants, artisans et leaders communautaires. La plateforme donne A ces voix un espace numArique fiable pour se rencontrer, se souvenir, proposer, contribuer et agir.",
+        "Ce n'est pas seulement un fil social. C'est une infrastructure communautaire pour la confiance locale, le soutien transparent, la mAmoire vivante et l'innovation civique future."
+      ]
+    },
+    "vision": {
+      "title": "Vision",
+      "text": "Une Nouadhibou connectAe oA chaque citoyen peut participer A construire une ville plus sAre, plus propre, plus gAnAreuse, plus crAative et mieux informAe."
+    },
+    "mission": {
+      "title": "Mission",
+      "text": "Offrir une plateforme numArique fiable qui transforme l'Anergie communautaire en action visible : les idAes deviennent des projets, les dons deviennent un soutien vArifiA, les souvenirs deviennent un patrimoine partagA et la contribution devient un impact reconnu."
+    },
+    "features": {
+      "eyebrow": "FonctionnalitAs",
+      "title": "Tout ce dont la ville a besoin pour avancer ensemble.",
+      "text": "Chaque module rApond A un besoin rAel tout en restant simple pour un usage quotidien.",
+      "items": [
+        {
+          "icon": "citizens",
+          "title": "Fil communautaire",
+          "text": "Les citoyens partagent actualitAs, questions, photos, commentaires et conversations locales."
+        },
+        {
+          "icon": "graatek",
+          "title": "Graatek",
+          "text": "Un espace de partage oA l'on peut offrir des objets utiles, demander de l'aide et conclure des Achanges transparents."
+        },
+        {
+          "icon": "ideas",
+          "title": "IdAes",
+          "text": "Les habitants proposent des amAliorations, rassemblent des soutiens, acceptent des participants et coordonnent en groupes privAs."
+        },
+        {
+          "icon": "memory",
+          "title": "MAmoire",
+          "text": "Histoires, photos, lieux, traditions et moments historiques prAservent le patrimoine vivant de Nouadhibou."
+        },
+        {
+          "icon": "campaigns",
+          "title": "Campagnes",
+          "text": "Des campagnes vArifiAes permettent de contribuer avec argent, matAriel ou temps, avec progrAs et mises A jour clairs."
+        },
+        {
+          "icon": "volunteer",
+          "title": "BAnAvolat",
+          "text": "Des opportunitAs relient les personnes A des actions utiles : Aducation, nettoyage, santA et soutien social."
+        },
+        {
+          "icon": "impact",
+          "title": "Impact communautaire",
+          "text": "Les actions vArifiAes construisent un passeport de contribution basA sur les vrais AvAnements."
+        },
+        {
+          "icon": "messages",
+          "title": "Messagerie",
+          "text": "Les conversations privAes et groupes d'idAes aident A coordonner rapidement et respectueusement."
+        }
+      ]
+    },
+    "how": {
+      "eyebrow": "Fonctionnement",
+      "title": "Un chemin simple de l'intention A l'impact.",
+      "text": "La plateforme permet A chacun de participer sans connaissance technique.",
+      "steps": [
+        {
+          "title": "CrAer ou rejoindre",
+          "text": "Un citoyen rejoint la communautA, choisit sa langue, complAte son profil et suit l'activitA locale."
+        },
+        {
+          "title": "Participer",
+          "text": "Il publie, soutient une idAe, demande un objet Graatek, sauvegarde un souvenir, se porte bAnAvole ou contribue A une campagne."
+        },
+        {
+          "title": "Coordonner",
+          "text": "Discussions, chats privAs, participants acceptAs et workflows admin aident A passer de la conversation A l'action."
+        },
+        {
+          "title": "VArifier",
+          "text": "Paiements, Achanges terminAs, participations acceptAes et souvenirs publiAs sont validAs avant de compter comme impact."
+        },
+        {
+          "title": "ReconnaAtre",
+          "text": "La plateforme montre l'historique de contribution et l'impact communautaire de faAon claire."
+        }
+      ]
+    },
+    "impact": {
+      "eyebrow": "Impact communautaire",
+      "title": "Un impact transparent, pas des chiffres inventAs.",
+      "text": "I Love NDB Avolue vers une mesure de production oA compteurs et tableaux reflAtent uniquement l'activitA vArifiAe en base de donnAes.",
+      "note": "Ces compteurs dAcrivent les capacitAs de la plateforme. Les tableaux de bord affichent les donnAes rAelles et zAro lorsqu'il n'y a pas de donnAes.",
+      "counters": [
+        {
+          "value": 5,
+          "suffix": "+",
+          "label": "Modules communautaires"
+        },
+        {
+          "value": 3,
+          "suffix": "",
+          "label": "FaAons de contribuer"
+        },
+        {
+          "value": 8,
+          "suffix": "+",
+          "label": "Types de partenaires"
+        },
+        {
+          "value": 100,
+          "suffix": "%",
+          "label": "Engagement transparence"
+        }
+      ]
+    },
+    "trust": {
+      "eyebrow": "Confiance",
+      "title": "Pourquoi citoyens et institutions peuvent faire confiance A I Love NDB.",
+      "text": "La confiance est intAgrAe dans l'architecture du produit.",
+      "items": [
+        {
+          "icon": "transparency",
+          "title": "Campagnes transparentes",
+          "text": "Les campagnes affichent l'organisateur, le statut, les mises A jour, la vArification et les rapports finaux."
+        },
+        {
+          "icon": "privacy",
+          "title": "ConfidentialitA",
+          "text": "Chats privAs, permissions et workflows protAgAs gardent la coordination sensible hors du public."
+        },
+        {
+          "icon": "impact",
+          "title": "Impact vArifiA",
+          "text": "La plateforme Avite les scores fictifs et reconnaAt seulement les actions vArifiables."
+        },
+        {
+          "icon": "partners",
+          "title": "PrAte pour les institutions",
+          "text": "La structure soutient ONG, entreprises, universitAs, donateurs et institutions publiques."
+        },
+        {
+          "icon": "citizens",
+          "title": "AccAs multilingue",
+          "text": "L'arabe, le franAais et l'anglais facilitent la prAsentation dans diffArents contextes."
+        },
+        {
+          "icon": "growth",
+          "title": "PrAte pour l'avenir",
+          "text": "Le modAle prApare recommandations, tendances et nouveaux services de ville."
+        }
+      ]
+    },
+    "values": {
+      "eyebrow": "Valeurs",
+      "title": "Les principes de la plateforme",
+      "items": [
+        "Amour de Nouadhibou",
+        "DignitA communautaire",
+        "Transparence avant croissance",
+        "Technologie utile",
+        "Culture et mAmoire locales",
+        "Participation pour tous"
+      ]
+    },
+    "team": {
+      "eyebrow": "Aquipe",
+      "title": "Construite par Zidnni",
+      "text": "Zidnni est l'Aquipe derriAre I Love NDB : produit, ingAnierie, design et rAflexion communautaire au service de Nouadhibou.",
+      "members": [
+        {
+          "name": "Zidnni",
+          "role": "Aquipe plateforme",
+          "text": "Responsable de l'architecture produit, de l'ingAnierie, du design system, des opArations et de la prAparation IA."
+        },
+        {
+          "name": "I Love NDB",
+          "role": "Mission communautaire",
+          "text": "L'identitA publique qui reprAsente l'amour de Nouadhibou, la contribution civique et la collaboration locale."
+        }
+      ]
+    },
+    "partners": {
+      "eyebrow": "Partenaires",
+      "title": "PensAe pour collaborer",
+      "text": "La plateforme soutient plusieurs partenaires tout en gardant campagnes et donnAes transparentes.",
+      "items": [
+        {
+          "title": "ONG et associations",
+          "text": "Coordination des campagnes, bAnAvolat, soutien Aducatif et mises A jour terrain."
+        },
+        {
+          "title": "Institutions publiques",
+          "text": "Comprendre les prioritAs locales et communiquer des initiatives fiables."
+        },
+        {
+          "title": "UniversitAs et Acoles",
+          "text": "Relier les jeunes, prAserver le savoir et soutenir l'Aducation."
+        },
+        {
+          "title": "Donateurs et entreprises",
+          "text": "Contribuer avec visibilitA, vArification et rapports clairs."
+        }
+      ]
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Questions frAquentes",
+      "text": "RAponses claires pour citoyens, partenaires et institutions.",
+      "items": [
+        {
+          "question": "I Love NDB est-elle seulement un rAseau social A",
+          "answer": "Non. Elle inclut le social, mais aussi idAes, mAmoire, Graatek, campagnes, bAnAvolat, coordination privAe et impact."
+        },
+        {
+          "question": "Les utilisateurs peuvent-ils crAer des campagnes A",
+          "answer": "Au lancement, seules les Aquipes administratrices vArifiAes crAent les campagnes officielles."
+        },
+        {
+          "question": "Comment fonctionnent les dons A",
+          "answer": "Les paiements locaux sont soumis avec identifiant de transaction et reAu. Les admins vArifient avant mise A jour des totaux."
+        },
+        {
+          "question": "Comment la confidentialitA est-elle protAgAe A",
+          "answer": "Seuls les participants acceptAs accAdent aux groupes privAs d'idAes."
+        },
+        {
+          "question": "Comment fonctionne l'impact communautaire A",
+          "answer": "Il repose sur des AvAnements vArifiAs : dons validAs, Graatek terminAs, idAes complAtAes et souvenirs approuvAs."
+        }
+      ]
+    },
+    "contact": {
+      "eyebrow": "Contact",
+      "title": "Parler avec I Love NDB",
+      "text": "Citoyens, partenaires, ONG, entreprises et institutions peuvent proposer une collaboration ou une participation.",
+      "items": [
+        {
+          "icon": "mail",
+          "label": "Email",
+          "value": "contact@indb.community"
+        },
+        {
+          "icon": "phone",
+          "label": "TAlAphone",
+          "value": "+222 -- -- -- --"
+        },
+        {
+          "icon": "location",
+          "label": "Ville",
+          "value": "Nouadhibou, Mauritanie"
+        }
+      ]
+    },
+    "final": {
+      "eyebrow": "Rejoindre le mouvement",
+      "title": "Aidons Nouadhibou A devenir plus connectAe, gAnAreuse et visible.",
+      "text": "Citoyen, bAnAvole, donateur, entreprise, ONG, Acole ou institution : I Love NDB vous donne un lieu fiable pour contribuer A la ville.",
+      "primaryCta": "CrAer un compte",
+      "secondaryCta": "Devenir bAnAvole"
     }
   }
 }

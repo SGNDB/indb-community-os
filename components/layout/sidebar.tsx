@@ -10,6 +10,7 @@ import {
   UserRound,
   MessageCircleMore,
   UsersRound,
+  Info,
 } from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
 
@@ -27,6 +28,7 @@ const navItems = [
   {href: "/messages", key: "messages", icon: MessageCircleMore},
   {href: "/volunteer", key: "volunteer", icon: UsersRound},
   {href: "/campaigns", key: "campaigns", icon: Megaphone},
+  {href: "/about", key: "aboutPlatform", icon: Info},
   {href: "/profile", key: "profile", icon: UserRound},
 ] as const;
 
