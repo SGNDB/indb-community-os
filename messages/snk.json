@@ -1854,7 +1854,7 @@
   },
   "Messages": {
     "title": "Ndotooje",
-     "idea": "Miijo",
+    "idea": "Miijo",
     "direct": "Ndotooje suturaaxa",
     "search": "Ndaar ndotooje...",
     "empty": "Alaa ndotooje haa jooni",
@@ -1926,7 +1926,11 @@
         "admin_cannot_leave": "Miijo jom nta gure katta ra.",
         "image_upload_failed": "Foto jooli nta a ra.",
         "group_image_upload_failed": "Gure foto jooli nta a ra.",
-        "name_too_short": "Harafi filli walla me be."
+        "name_too_short": "Harafi filli walla me be.",
+        "edit_failed": "Xibaare ya mana wa yiitene.",
+        "delete_failed": "Xibaare ya mana wa dingana.",
+        "report_received": "An ni ce. Xibaare ya kini xoolon do.",
+        "report_failed": "Xibaare ya mana wa naxaamunu."
       },
       "you": "Anke",
       "backToMessages": "Karu xibaarun ŋa",
@@ -1944,7 +1948,18 @@
       "cancel": "Faayi",
       "editName": "Toxo yaŋqinde",
       "nameTooShort": "Harafi filli walla me be.",
-      "uploadingPhoto": "Foto di yille"
+      "uploadingPhoto": "Foto di yille",
+      "messageActions": "Xibaare golle",
+      "edit": "Yiitene",
+      "delete": "Dinga",
+      "copy": "Kopi",
+      "report": "Naxaamu",
+      "edited": "Yiitini",
+      "deletedMessage": "Xibaare ke dinga",
+      "confirmDelete": "A na xibaare ke dinga?",
+      "saving": "Kitaabini...",
+      "sent": "Mulla",
+      "read": "Karan"
     }
   },
   "Support": {

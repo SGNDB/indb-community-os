@@ -35,6 +35,11 @@ export interface ConversationMessageWithSender {
   image_storage_path: string | null;
   image_urls: string[];
   image_storage_paths: string[];
+  is_edited: boolean;
+  edited_at: string | null;
+  is_deleted: boolean;
+  deleted_at: string | null;
+  deleted_by: string | null;
   created_at: string;
   read_at: string | null;
   sender: ConversationUserProfile | null;
@@ -389,6 +394,11 @@ export async function getConversationMessages(
       image_storage_path: message.image_storage_path ?? null,
       image_urls: Array.isArray(message.image_urls) ? message.image_urls : (message.image_url ? [message.image_url] : []),
       image_storage_paths: Array.isArray(message.image_storage_paths) ? message.image_storage_paths : (message.image_storage_path ? [message.image_storage_path] : []),
+      is_edited: Boolean(message.is_edited),
+      edited_at: message.edited_at ?? null,
+      is_deleted: Boolean(message.is_deleted),
+      deleted_at: message.deleted_at ?? null,
+      deleted_by: message.deleted_by ?? null,
     }));
 }
 
@@ -462,6 +472,66 @@ export async function sendConversationMessage(
   if (rpcError) console.error('increment unread error:', rpcError);
 
   return data;
+}
+
+export async function editConversationMessage(
+  messageId: string,
+  userId: string,
+  message: string,
+): Promise<ConversationMessageWithSender | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .rpc('edit_conversation_message', {
+      p_message_id: messageId,
+      p_user_id: userId,
+      p_message: message,
+    })
+    .single();
+
+  if (error) {
+    console.error('editConversationMessage error:', error);
+    return null;
+  }
+
+  return data as ConversationMessageWithSender;
+}
+
+export async function deleteConversationMessage(
+  messageId: string,
+  userId: string,
+): Promise<ConversationMessageWithSender | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .rpc('delete_conversation_message', {
+      p_message_id: messageId,
+      p_user_id: userId,
+    })
+    .single();
+
+  if (error) {
+    console.error('deleteConversationMessage error:', error);
+    return null;
+  }
+
+  return data as ConversationMessageWithSender;
+}
+
+export async function reportConversationMessage(
+  messageId: string,
+  userId: string,
+): Promise<boolean> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('report_conversation_message', {
+    p_message_id: messageId,
+    p_user_id: userId,
+  });
+
+  if (error) {
+    console.error('reportConversationMessage error:', error);
+    return false;
+  }
+
+  return true;
 }
 
 export async function markConversationRead(

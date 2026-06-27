@@ -1,4 +1,4 @@
-﻿{
+{
   "Onboarding": {
     "title": "Nangal ci I â¤ï¸ NDB",
     "subtitle": "Sama suqal",
@@ -1854,7 +1854,7 @@
   },
   "Messages": {
     "title": "Ndotooje",
-     "idea": "Mbokk",
+    "idea": "Mbokk",
     "direct": "Ndotooje kirñu",
     "search": "Seet ndotooje...",
     "empty": "Amul ndotooje bu bees",
@@ -1926,7 +1926,11 @@
         "admin_cannot_leave": "Boroom xalaat bi manu gÃ©nn ci groupe bi.",
         "image_upload_failed": "Nataal bi manuÃ±u ko yeb.",
         "group_image_upload_failed": "Nataalu groupe bi manuÃ±u ko yeb.",
-        "name_too_short": "JÃ«fandikoo lu nÃ©ew-nÃ©ew Ã±aari araf."
+        "name_too_short": "JÃ«fandikoo lu nÃ©ew-nÃ©ew Ã±aari araf.",
+        "edit_failed": "Mënul soppi bataaxal bi.",
+        "delete_failed": "Mënul far bataaxal bi.",
+        "report_received": "Jërëjëf. Bataaxal bi yónneeku na ngir ñu xool ko.",
+        "report_failed": "Mënul yëgle bataaxal bi."
       },
       "you": "Yaw",
       "backToMessages": "Delluwaat ci bataaxal yi",
@@ -1944,7 +1948,18 @@
       "cancel": "Neenal",
       "editName": "Soppi tur wi",
       "nameTooShort": "JÃ«fandikoo lu nÃ©ew-nÃ©ew Ã±aari araf.",
-      "uploadingPhoto": "Yebum nataal bi"
+      "uploadingPhoto": "Yebum nataal bi",
+      "messageActions": "Jëfi bataaxal",
+      "edit": "Soppi",
+      "delete": "Far",
+      "copy": "Duppi",
+      "report": "Yëgle",
+      "edited": "Soppi na",
+      "deletedMessage": "Bataaxal bii far na",
+      "confirmDelete": "Ndax bëgg nga far bataaxal bii?",
+      "saving": "Mi ngi aar...",
+      "sent": "Yónnee na",
+      "read": "Jàng na"
     }
   },
   "Support": {
@@ -2304,4 +2319,3 @@
     }
   }
 }
-

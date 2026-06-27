@@ -4535,6 +4535,59 @@ export async function markConversationReadAction(
   return { success: true };
 }
 
+export async function editConversationMessageAction(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
+  const messageId = formData.get('messageId');
+  const message = formData.get('message');
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  if (typeof messageId !== 'string' || typeof message !== 'string') {
+    return { success: false, error: 'invalid' };
+  }
+
+  const cleanMessage = message.trim();
+  if (!cleanMessage || cleanMessage.length > 1000) {
+    return { success: false, error: 'invalid' };
+  }
+
+  const { editConversationMessage } = await import('@/lib/data/conversations');
+  const updated = await editConversationMessage(messageId, user.id, cleanMessage);
+  if (!updated) return { success: false, error: 'update_failed' };
+  return { success: true };
+}
+
+export async function deleteConversationMessageAction(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
+  const messageId = formData.get('messageId');
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  if (typeof messageId !== 'string') return { success: false, error: 'invalid' };
+
+  const { deleteConversationMessage } = await import('@/lib/data/conversations');
+  const updated = await deleteConversationMessage(messageId, user.id);
+  if (!updated) return { success: false, error: 'delete_failed' };
+  return { success: true };
+}
+
+export async function reportConversationMessageAction(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
+  const messageId = formData.get('messageId');
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  if (typeof messageId !== 'string') return { success: false, error: 'invalid' };
+
+  const { reportConversationMessage } = await import('@/lib/data/conversations');
+  const ok = await reportConversationMessage(messageId, user.id);
+  if (!ok) return { success: false, error: 'report_failed' };
+  return { success: true };
+}
+
 export async function searchConversationsAction(
   query: string,
 ): Promise<{

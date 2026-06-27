@@ -9,6 +9,8 @@ import {
   Camera,
   Check,
   CheckCheck,
+  Copy,
+  Flag,
   ImagePlus,
   Loader2,
   LogOut,
@@ -16,6 +18,7 @@ import {
   Pencil,
   Send,
   Shield,
+  Trash2,
   UserMinus,
   X,
 } from "lucide-react";
@@ -50,6 +53,35 @@ function profileHref(profile: ConversationUserProfile | null | undefined, userId
   return handle ? `/profile/${encodeURIComponent(handle)}` : null;
 }
 
+function normalizeRealtimeMessage(
+  raw: Record<string, unknown>,
+  participantById: Map<string, ConversationParticipantInfo>,
+): ConversationMessageWithSender {
+  const senderId = raw.sender_id as string;
+  const rawImageUrls = raw.image_urls as unknown;
+  const rawImageStoragePaths = raw.image_storage_paths as unknown;
+
+  return {
+    id: raw.id as string,
+    conversation_id: raw.conversation_id as string,
+    sender_id: senderId,
+    message: (raw.message as string | null) ?? null,
+    message_type: raw.message_type === "image" ? "image" : "text",
+    image_url: (raw.image_url as string | null) ?? null,
+    image_storage_path: (raw.image_storage_path as string | null) ?? null,
+    image_urls: Array.isArray(rawImageUrls) ? rawImageUrls as string[] : ((raw.image_url as string | null) ? [(raw.image_url as string)] : []),
+    image_storage_paths: Array.isArray(rawImageStoragePaths) ? rawImageStoragePaths as string[] : ((raw.image_storage_path as string | null) ? [(raw.image_storage_path as string)] : []),
+    is_edited: Boolean(raw.is_edited),
+    edited_at: (raw.edited_at as string | null) ?? null,
+    is_deleted: Boolean(raw.is_deleted),
+    deleted_at: (raw.deleted_at as string | null) ?? null,
+    deleted_by: (raw.deleted_by as string | null) ?? null,
+    created_at: raw.created_at as string,
+    read_at: (raw.read_at as string | null) ?? null,
+    sender: participantById.get(senderId)?.user ?? null,
+  };
+}
+
 type TranslationFn = (key: string, values?: Record<string, string | number>) => string;
 
 function statusLabel(status: string | null | undefined, t: TranslationFn) {
@@ -74,6 +106,8 @@ function friendlyError(error: string | null, t: TranslationFn) {
     "image_upload_failed",
     "group_image_upload_failed",
     "name_too_short",
+    "edit_failed",
+    "delete_failed",
   ];
   return errorKeys.includes(error) ? t(`groupChat.errors.${error}`) : error;
 }
@@ -180,9 +214,15 @@ export function ConversationChat({
   const [imageUploading, setImageUploading] = useState(false);
   const [localArchived, setLocalArchived] = useState(isArchived);
   const [localIdeaStatus, setLocalIdeaStatus] = useState(ideaStatus);
+  const [actionMessage, setActionMessage] = useState<ConversationMessageWithSender | null>(null);
+  const [actionMenuId, setActionMenuId] = useState<string | null>(null);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState("");
+  const [messageActionSaving, setMessageActionSaving] = useState(false);
 
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingBroadcastRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const groupImageInputRef = useRef<HTMLInputElement>(null);
@@ -289,29 +329,28 @@ export function ConversationChat({
         },
         (payload) => {
           const newMsg = payload.new as Record<string, unknown>;
-          const senderId = newMsg.sender_id as string;
-          const rawImageUrls = newMsg.image_urls as unknown;
-          const rawImageStoragePaths = newMsg.image_storage_paths as unknown;
           setMessages((prev) => {
             if (prev.some((m) => m.id === newMsg.id)) return prev;
-            return [
-              ...prev,
-              {
-                id: newMsg.id as string,
-                conversation_id: newMsg.conversation_id as string,
-                sender_id: senderId,
-                message: (newMsg.message as string | null) ?? null,
-                message_type: newMsg.message_type === "image" ? "image" : "text",
-                image_url: (newMsg.image_url as string | null) ?? null,
-                image_storage_path: (newMsg.image_storage_path as string | null) ?? null,
-                image_urls: Array.isArray(rawImageUrls) ? rawImageUrls as string[] : ((newMsg.image_url as string | null) ? [(newMsg.image_url as string)] : []),
-                image_storage_paths: Array.isArray(rawImageStoragePaths) ? rawImageStoragePaths as string[] : ((newMsg.image_storage_path as string | null) ? [(newMsg.image_storage_path as string)] : []),
-                created_at: newMsg.created_at as string,
-                read_at: (newMsg.read_at as string | null) ?? null,
-                sender: participantByIdRef.current.get(senderId)?.user ?? null,
-              },
-            ];
+            return [...prev, normalizeRealtimeMessage(newMsg, participantByIdRef.current)];
           });
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "conversation_messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          const nextMsg = normalizeRealtimeMessage(payload.new as Record<string, unknown>, participantByIdRef.current);
+          setMessages((prev) => prev.map((message) => message.id === nextMsg.id ? {...message, ...nextMsg, sender: message.sender ?? nextMsg.sender} : message));
+          setActionMessage((current) => current?.id === nextMsg.id ? {...current, ...nextMsg, sender: current.sender ?? nextMsg.sender} : current);
+          if (editingMessageId === nextMsg.id && nextMsg.is_deleted) {
+            setEditingMessageId(null);
+            setEditingText("");
+          }
         },
       )
       .on("broadcast", { event: "typing" }, (payload) => {
@@ -430,6 +469,11 @@ export function ConversationChat({
         image_storage_path: optimisticImages[0]?.storagePath ?? null,
         image_urls: optimisticImages.map((img) => img.url),
         image_storage_paths: optimisticImages.map((img) => img.storagePath),
+        is_edited: false,
+        edited_at: null,
+        is_deleted: false,
+        deleted_at: null,
+        deleted_by: null,
         created_at: optimisticCreatedAt,
         read_at: null,
         sender: currentParticipant?.user ?? null,
@@ -471,6 +515,11 @@ export function ConversationChat({
               image_storage_path: optimisticImages[0]?.storagePath ?? null,
               image_urls: optimisticImages.map((img) => img.url),
               image_storage_paths: optimisticImages.map((img) => img.storagePath),
+              is_edited: false,
+              edited_at: null,
+              is_deleted: false,
+              deleted_at: null,
+              deleted_by: null,
               created_at: res.message!.created_at,
               read_at: null,
               sender: currentParticipant?.user ?? null,
@@ -491,6 +540,144 @@ export function ConversationChat({
       setError("insert_failed");
     } finally {
       setSending(false);
+    }
+  }
+
+  function openMessageActions(message: ConversationMessageWithSender) {
+    setActionMessage(message);
+    setActionMenuId(null);
+  }
+
+  function startLongPress(message: ConversationMessageWithSender) {
+    if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+    longPressTimerRef.current = setTimeout(() => {
+      openMessageActions(message);
+      longPressTimerRef.current = null;
+    }, 480);
+  }
+
+  function cancelLongPress() {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  }
+
+  async function copyMessage(message: ConversationMessageWithSender) {
+    const text = message.is_deleted ? "" : (message.message ?? "");
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Clipboard can be blocked by the browser; keep the UI quiet.
+    }
+    setActionMessage(null);
+    setActionMenuId(null);
+  }
+
+  function beginEditMessage(message: ConversationMessageWithSender) {
+    if (message.sender_id !== currentUserId || message.is_deleted || isReadOnly) return;
+    setEditingMessageId(message.id);
+    setEditingText(message.message ?? "");
+    setActionMessage(null);
+    setActionMenuId(null);
+  }
+
+  async function saveMessageEdit(messageId: string) {
+    const cleanText = editingText.trim();
+    if (!cleanText || messageActionSaving) return;
+    setMessageActionSaving(true);
+    setError(null);
+    const previousMessages = messages;
+    setMessages((prev) => prev.map((message) => message.id === messageId ? {
+      ...message,
+      message: cleanText,
+      is_edited: true,
+      edited_at: new Date().toISOString(),
+    } : message));
+    setEditingMessageId(null);
+    setEditingText("");
+
+    const formData = new FormData();
+    formData.set("messageId", messageId);
+    formData.set("message", cleanText);
+
+    try {
+      const { editConversationMessageAction } = await import("@/app/[locale]/server-actions");
+      const res = await editConversationMessageAction(formData);
+      if (!res.success) {
+        setMessages(previousMessages);
+        setEditingMessageId(messageId);
+        setEditingText(previousMessages.find((message) => message.id === messageId)?.message ?? "");
+        setError(res.error ?? "edit_failed");
+      }
+    } catch (e) {
+      console.error("edit message error:", e);
+      setMessages(previousMessages);
+      setEditingMessageId(messageId);
+      setEditingText(previousMessages.find((message) => message.id === messageId)?.message ?? "");
+      setError("edit_failed");
+    } finally {
+      setMessageActionSaving(false);
+    }
+  }
+
+  function cancelMessageEdit() {
+    setEditingMessageId(null);
+    setEditingText("");
+  }
+
+  async function deleteMessage(message: ConversationMessageWithSender) {
+    if (message.sender_id !== currentUserId || message.is_deleted || isReadOnly || messageActionSaving) return;
+    if (!window.confirm(t("groupChat.confirmDelete"))) return;
+    setMessageActionSaving(true);
+    setError(null);
+    setActionMessage(null);
+    setActionMenuId(null);
+    const deletedAt = new Date().toISOString();
+    const previousMessages = messages;
+    setMessages((prev) => prev.map((item) => item.id === message.id ? {
+      ...item,
+      message: null,
+      image_url: null,
+      image_storage_path: null,
+      image_urls: [],
+      image_storage_paths: [],
+      is_deleted: true,
+      deleted_at: deletedAt,
+      deleted_by: currentUserId,
+    } : item));
+
+    const formData = new FormData();
+    formData.set("messageId", message.id);
+    try {
+      const { deleteConversationMessageAction } = await import("@/app/[locale]/server-actions");
+      const res = await deleteConversationMessageAction(formData);
+      if (!res.success) {
+        setMessages(previousMessages);
+        setError(res.error ?? "delete_failed");
+      }
+    } catch (e) {
+      console.error("delete message error:", e);
+      setMessages(previousMessages);
+      setError("delete_failed");
+    } finally {
+      setMessageActionSaving(false);
+    }
+  }
+
+  async function reportMessage(message: ConversationMessageWithSender) {
+    setActionMessage(null);
+    setActionMenuId(null);
+    const formData = new FormData();
+    formData.set("messageId", message.id);
+    try {
+      const { reportConversationMessageAction } = await import("@/app/[locale]/server-actions");
+      const res = await reportConversationMessageAction(formData);
+      window.alert(t(res.success ? "groupChat.errors.report_received" : "groupChat.errors.report_failed"));
+    } catch (e) {
+      console.error("report message error:", e);
+      window.alert(t("groupChat.errors.report_failed"));
     }
   }
 
@@ -692,13 +879,22 @@ export function ConversationChat({
             const isSameSenderAsPrev = prevMsg?.sender_id === msg.sender_id;
             const isFirstInGroup = !isSameSenderAsPrev;
             const msgImages = msg.image_urls?.length ? msg.image_urls : (msg.image_url ? [msg.image_url] : []);
-            const hasImage = msgImages.length > 0;
+            const isDeleted = Boolean(msg.is_deleted);
+            const hasImage = !isDeleted && msgImages.length > 0;
+            const isEditing = editingMessageId === msg.id;
+            const canMutate = isMine && !isDeleted && !isReadOnly && !msg.id.startsWith("optimistic-");
+            const hasText = Boolean(msg.message?.trim());
+            const hasBeenRead = isMine && participants.some((participant) => {
+              if (participant.user_id === currentUserId || !participant.last_read_at) return false;
+              return new Date(participant.last_read_at).getTime() >= new Date(msg.created_at).getTime();
+            });
+            const StatusIcon = hasBeenRead ? CheckCheck : Check;
 
             return (
               <div
                 key={msg.id}
                 className={cn(
-                  "flex w-full",
+                  "group/message flex w-full",
                   isMine ? "justify-end" : "justify-start",
                   index === 0 ? "mt-0" : isFirstInGroup ? "mt-3.5" : "mt-1",
                 )}
@@ -730,7 +926,7 @@ export function ConversationChat({
                       )}
                     </div>
                   )}
-                  <div className={cn("flex min-w-0 flex-col", isMine ? "items-end" : "items-start")}>
+                  <div className={cn("relative flex min-w-0 flex-col", isMine ? "items-end" : "items-start")}>
                     {!isMine && isIdeaGroup && (
                       senderProfileHref ? (
                         <Link
@@ -745,10 +941,57 @@ export function ConversationChat({
                         </p>
                       )
                     )}
+                    <button
+                      type="button"
+                      onClick={() => setActionMenuId((current) => current === msg.id ? null : msg.id)}
+                      className={cn(
+                        "absolute top-1 hidden h-7 w-7 items-center justify-center rounded-full bg-background/90 text-muted-foreground opacity-0 shadow-sm ring-1 ring-border transition hover:bg-muted hover:text-foreground group-hover/message:opacity-100 md:flex",
+                        isMine ? "-left-9" : "-right-9",
+                      )}
+                      aria-label={t("groupChat.messageActions")}
+                    >
+                      <MoreVertical size={15} />
+                    </button>
+                    {actionMenuId === msg.id ? (
+                      <div className={cn(
+                        "absolute top-8 z-20 hidden min-w-32 overflow-hidden rounded-xl border border-border bg-card py-1 text-sm shadow-xl md:block",
+                        isMine ? "right-0" : "left-0",
+                      )}>
+                        {canMutate ? (
+                          <button type="button" onClick={() => beginEditMessage(msg)} className="flex w-full items-center gap-2 px-3 py-2 text-start hover:bg-muted">
+                            <Pencil size={14} />
+                            {t("groupChat.edit")}
+                          </button>
+                        ) : null}
+                        {canMutate ? (
+                          <button type="button" onClick={() => deleteMessage(msg)} className="flex w-full items-center gap-2 px-3 py-2 text-start text-destructive hover:bg-destructive/10">
+                            <Trash2 size={14} />
+                            {t("groupChat.delete")}
+                          </button>
+                        ) : null}
+                        {hasText ? (
+                          <button type="button" onClick={() => copyMessage(msg)} className="flex w-full items-center gap-2 px-3 py-2 text-start hover:bg-muted">
+                            <Copy size={14} />
+                            {t("groupChat.copy")}
+                          </button>
+                        ) : null}
+                        {!isMine ? (
+                          <button type="button" onClick={() => reportMessage(msg)} className="flex w-full items-center gap-2 px-3 py-2 text-start hover:bg-muted">
+                            <Flag size={14} />
+                            {t("groupChat.report")}
+                          </button>
+                        ) : null}
+                      </div>
+                    ) : null}
                     <div
+                      onPointerDown={() => startLongPress(msg)}
+                      onPointerUp={cancelLongPress}
+                      onPointerLeave={cancelLongPress}
+                      onPointerCancel={cancelLongPress}
                       className={cn(
                         "min-w-[4rem] overflow-hidden rounded-2xl text-[14px] leading-relaxed shadow-sm",
-                        hasImage ? "p-1.5" : "px-3 py-2 md:px-3.5 md:py-2.5",
+                        hasImage && !isEditing ? "p-1.5" : "px-3 py-2 md:px-3.5 md:py-2.5",
+                        isDeleted && "italic",
                         isMine
                           ? "rounded-ee-[5px] bg-primary text-primary-foreground"
                           : "rounded-es-[5px] border border-border/50 bg-card text-foreground",
@@ -782,13 +1025,46 @@ export function ConversationChat({
                           ))}
                         </div>
                       )}
-                      {msg.message && (
+                      {isDeleted ? (
+                        <p>{t("groupChat.deletedMessage")}</p>
+                      ) : isEditing ? (
+                        <div className="space-y-2">
+                          <input
+                            value={editingText}
+                            onChange={(event) => setEditingText(event.target.value)}
+                            maxLength={msg.message_type === "image" ? 500 : 1000}
+                            autoFocus
+                            className={cn(
+                              "min-h-9 w-full min-w-44 rounded-lg border px-2.5 text-sm outline-none focus:ring-2",
+                              isMine
+                                ? "border-primary-foreground/40 bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/60 focus:ring-primary-foreground/30"
+                                : "border-border bg-background text-foreground focus:ring-primary/30",
+                            )}
+                          />
+                          <div className="flex justify-end gap-1.5">
+                            <button type="button" onClick={cancelMessageEdit} className="rounded-full px-2.5 py-1 text-xs font-semibold hover:bg-black/10">
+                              {t("groupChat.cancel")}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => saveMessageEdit(msg.id)}
+                              disabled={!editingText.trim() || messageActionSaving}
+                              className="rounded-full bg-primary-foreground px-2.5 py-1 text-xs font-semibold text-primary disabled:opacity-50"
+                            >
+                              {messageActionSaving ? t("groupChat.saving") : t("groupChat.save")}
+                            </button>
+                          </div>
+                        </div>
+                      ) : msg.message ? (
                         <p className={cn(hasImage && "px-2 py-1.5")}>{msg.message}</p>
-                      )}
+                      ) : null}
                       <div className={cn("mt-1 flex items-center justify-end gap-1 text-[10px]", isMine ? "text-primary-foreground/75" : "text-muted-foreground")}>
                         <span>{formatTime(msg.created_at)}</span>
+                        {msg.is_edited && !isDeleted ? (
+                          <span>{t("groupChat.edited")}</span>
+                        ) : null}
                         {isMine && (
-                          <CheckCheck size={13} aria-label={selfLabel} />
+                          <StatusIcon size={13} aria-label={hasBeenRead ? t("groupChat.read") : t("groupChat.sent")} />
                         )}
                       </div>
                     </div>
@@ -1109,6 +1385,43 @@ export function ConversationChat({
           </div>
         </div>
       )}
+
+      {actionMessage ? (
+        <div className="fixed inset-0 z-[70] flex items-end bg-black/35 p-3 md:hidden" onClick={() => setActionMessage(null)}>
+          <div className="w-full overflow-hidden rounded-3xl bg-card shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-muted-foreground/30" />
+            <div className="p-2">
+              {actionMessage.sender_id === currentUserId && !actionMessage.is_deleted && !isReadOnly ? (
+                <button type="button" onClick={() => beginEditMessage(actionMessage)} className="flex min-h-12 w-full items-center gap-3 rounded-2xl px-4 text-start text-sm font-semibold hover:bg-muted">
+                  <Pencil size={18} />
+                  {t("groupChat.edit")}
+                </button>
+              ) : null}
+              {actionMessage.sender_id === currentUserId && !actionMessage.is_deleted && !isReadOnly ? (
+                <button type="button" onClick={() => deleteMessage(actionMessage)} className="flex min-h-12 w-full items-center gap-3 rounded-2xl px-4 text-start text-sm font-semibold text-destructive hover:bg-destructive/10">
+                  <Trash2 size={18} />
+                  {t("groupChat.delete")}
+                </button>
+              ) : null}
+              {actionMessage.message && !actionMessage.is_deleted ? (
+                <button type="button" onClick={() => copyMessage(actionMessage)} className="flex min-h-12 w-full items-center gap-3 rounded-2xl px-4 text-start text-sm font-semibold hover:bg-muted">
+                  <Copy size={18} />
+                  {t("groupChat.copy")}
+                </button>
+              ) : null}
+              {actionMessage.sender_id !== currentUserId ? (
+                <button type="button" onClick={() => reportMessage(actionMessage)} className="flex min-h-12 w-full items-center gap-3 rounded-2xl px-4 text-start text-sm font-semibold hover:bg-muted">
+                  <Flag size={18} />
+                  {t("groupChat.report")}
+                </button>
+              ) : null}
+              <button type="button" onClick={() => setActionMessage(null)} className="mt-1 flex min-h-12 w-full items-center justify-center rounded-2xl px-4 text-sm font-semibold text-muted-foreground hover:bg-muted">
+                {t("groupChat.cancel")}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {viewerImages.length > 0 && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-4">

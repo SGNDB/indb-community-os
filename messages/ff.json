@@ -1857,7 +1857,7 @@
   },
   "Messages": {
     "title": "Ndotooje",
-     "idea": "Miijo",
+    "idea": "Miijo",
     "direct": "Ndotooje suturaaku",
     "search": "Ndaar ndotooje...",
     "empty": "Alaa ndotooje haa jooni",
@@ -1929,7 +1929,11 @@
         "admin_cannot_leave": "Jom miijo oo waawaa yaltude e dental ngal.",
         "image_upload_failed": "Natal waawaa joleede.",
         "group_image_upload_failed": "Natal dental ngal waawaa joleede.",
-        "name_too_short": "Huutoro alkule ɗiɗi walla ɓuri."
+        "name_too_short": "Huutoro alkule ɗiɗi walla ɓuri.",
+        "edit_failed": "Ɓatakuru waawaa taƴteede.",
+        "delete_failed": "Ɓatakuru waawaa momteede.",
+        "report_received": "A jaaraama. Ɓatakuru ndu neldaama ngam ƴeewteede.",
+        "report_failed": "Ɓatakuru ndu waawaa jaŋteede."
       },
       "you": "Aan",
       "backToMessages": "Rutto e ɓatakuuje",
@@ -1947,7 +1951,18 @@
       "cancel": "Haaytu",
       "editName": "Taƴto innde",
       "nameTooShort": "Huutoro alkule ɗiɗi walla ɓuri.",
-      "uploadingPhoto": "Nana yolla natal"
+      "uploadingPhoto": "Nana yolla natal",
+      "messageActions": "Golle ɓatakuru",
+      "edit": "Taƴto",
+      "delete": "Momtu",
+      "copy": "Natto",
+      "report": "Jaŋto",
+      "edited": "Taƴtaama",
+      "deletedMessage": "Ɓatakuru ndu momtaama",
+      "confirmDelete": "Aɗa yiɗi momtude ɓatakuru ndu?",
+      "saving": "Nana dannda...",
+      "sent": "Neldaama",
+      "read": "Tarama"
     }
   },
   "Support": {
