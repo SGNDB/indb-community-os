@@ -121,8 +121,8 @@ const sectionIcons = {
 
 function labelsFor(locale: string) {
   const ar = {
-    title: "الإعدادات",
-    subtitle: "مركز التحكم الشخصي لحسابك وتجربتك داخل I ❤️ NDB.",
+    title: "⚙️ الإعدادات",
+    subtitle: "مركز التحكم بحسابك وتفضيلاتك داخل I ❤️ NDB.\n\nيمكنك إدارة ملفك الشخصي، اللغة، الإشعارات، الخصوصية، والأمان من هنا.",
     save: "حفظ",
     saving: "جار الحفظ...",
     saved: "تم حفظ الإعدادات",
