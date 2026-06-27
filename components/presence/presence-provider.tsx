@@ -31,14 +31,20 @@ export function PresenceProvider({children}: {children: React.ReactNode}) {
     let cancelled = false;
 
     async function init() {
-      const {data} = await supabase
-        .from("user_settings")
-        .select("show_online_status")
-        .eq("user_id", userId)
-        .maybeSingle();
-
+      let showOnline = true;
+      try {
+        const {data} = await supabase
+          .from("user_settings")
+          .select("show_online_status")
+          .eq("user_id", userId)
+          .maybeSingle();
+        if (!cancelled) {
+          showOnline = data?.show_online_status ?? true;
+        }
+      } catch {
+        // Default to online if query fails (offline, column missing, etc.)
+      }
       if (cancelled) return;
-      const showOnline = data?.show_online_status ?? true;
       showOnlineRef.current = showOnline;
 
       const pChannel = supabase.channel("presence-online");
@@ -65,31 +71,35 @@ export function PresenceProvider({children}: {children: React.ReactNode}) {
           }
         });
 
-      const sChannel = supabase
-        .channel("presence-settings")
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "user_settings",
-            filter: `user_id=eq.${userId}`,
-          },
-          (payload) => {
-            if (cancelled) return;
-            const newVal = (payload.new as {show_online_status?: boolean} | null)?.show_online_status ?? true;
-            const oldVal = showOnlineRef.current;
-            showOnlineRef.current = newVal;
-            if (newVal && !oldVal) {
-              pChannel.track({user_id: userId, online_at: new Date().toISOString()});
-            } else if (!newVal && oldVal) {
-              pChannel.untrack();
-            }
-          },
-        )
-        .subscribe();
+      try {
+        const sChannel = supabase
+          .channel("presence-settings")
+          .on(
+            "postgres_changes",
+            {
+              event: "*",
+              schema: "public",
+              table: "user_settings",
+              filter: `user_id=eq.${userId}`,
+            },
+            (payload) => {
+              if (cancelled) return;
+              const newVal = (payload.new as {show_online_status?: boolean} | null)?.show_online_status ?? true;
+              const oldVal = showOnlineRef.current;
+              showOnlineRef.current = newVal;
+              if (newVal && !oldVal) {
+                pChannel.track({user_id: userId, online_at: new Date().toISOString()});
+              } else if (!newVal && oldVal) {
+                pChannel.untrack();
+              }
+            },
+          )
+          .subscribe();
 
-      settingsChannelRef.current = sChannel;
+        settingsChannelRef.current = sChannel;
+      } catch {
+        // postgres_changes subscription is non-critical; presence channel still works
+      }
     }
 
     init();
