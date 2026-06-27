@@ -22,7 +22,7 @@ alter table public.user_settings
   check (profile_visibility in ('public', 'members', 'followers', 'private'));
 
 alter table public.user_settings
-  add column if not exists show_online_status boolean not null default false,
+  add column if not exists show_online_status boolean not null default true,
   add column if not exists last_seen_visibility text not null default 'everyone',
   add column if not exists phone_visibility text not null default 'only_me',
   add column if not exists email_visibility text not null default 'no_one';

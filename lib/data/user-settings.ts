@@ -21,7 +21,7 @@ export const defaultUserSettings: UserSettingsRow = {
   show_volunteer_hours: true,
   show_completed_graatek: true,
   show_memories: true,
-  show_online_status: false,
+  show_online_status: true,
   last_seen_visibility: "everyone",
   phone_visibility: "only_me",
   email_visibility: "no_one",

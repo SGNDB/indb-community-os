@@ -34,7 +34,7 @@ export function PresenceProvider({children}: {children: React.ReactNode}) {
       .maybeSingle()
       .then(({data}) => {
         if (cancelled) return;
-        const showOnline = data?.show_online_status ?? false;
+        const showOnline = data?.show_online_status ?? true;
 
         const channel = supabase.channel("presence-online");
         channelRef.current = channel;

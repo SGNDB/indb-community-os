@@ -507,6 +507,8 @@ export async function registerAction(formData: FormData) {
     }
   }
 
+  await supabase.rpc("ensure_user_settings", {target_user_id: userId});
+
   console.log("REGISTER: attempting immediate sign-in with synthetic email credentials");
   const signInCredentials = getSyntheticPhoneLoginCredentials(normalizedPhone, password);
   const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword(signInCredentials);
