@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { OnlineAvatar, useOnlineUsers } from "@/components/presence";
+import { OnlineAvatar } from "@/components/presence";
 import { uploadMediaItem } from "@/lib/images/client-upload";
 import { Link, useRouter } from "@/lib/i18n/routing";
 import { createClient } from "@/lib/supabase/client";
@@ -101,6 +101,21 @@ function statusLabel(status: string | null | undefined, t: TranslationFn) {
     ? `groupChat.statuses.${status}`
     : "groupChat.active";
   return t(key);
+}
+
+function visibleImageLimit(count: number) {
+  return count > 3 ? 3 : count;
+}
+
+function imageGridClass(count: number) {
+  if (count <= 1) return "grid-cols-1";
+  return "grid-cols-2";
+}
+
+function imageTileClass(count: number, index: number) {
+  if (count <= 1) return "aspect-auto";
+  if (count === 2) return "aspect-square";
+  return index === 2 ? "col-span-2 aspect-[2/1]" : "aspect-square";
 }
 
 function friendlyError(error: string | null, t: TranslationFn) {
@@ -233,7 +248,6 @@ export function ConversationChat({
   const [messageActionSaving, setMessageActionSaving] = useState(false);
   const [viewerLoaded, setViewerLoaded] = useState(false);
   const [viewerError, setViewerError] = useState(false);
-  const [conversationOnlineUsers, setConversationOnlineUsers] = useState<Set<string>>(new Set());
 
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingBroadcastRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -248,7 +262,6 @@ export function ConversationChat({
   const viewerTouchStartYRef = useRef<number | null>(null);
 
   const isIdeaGroup = conversationType === "idea";
-  const onlineUsers = useOnlineUsers();
   const otherParticipant = participants.find((p) => p.user_id !== currentUserId)?.user;
   const otherUserId = otherParticipant?.id;
   const currentParticipant = participants.find((p) => p.user_id === currentUserId);
@@ -268,29 +281,6 @@ export function ConversationChat({
       !participant.removed_at
     );
   }, [participants, currentUserId]);
-  const visibleOtherUserIds = useMemo(() => {
-    const ids = new Set<string>();
-    for (const participant of activeOtherParticipants) {
-      ids.add(participant.user_id);
-    }
-    if (otherUserId && otherUserId !== currentUserId) {
-      ids.add(otherUserId);
-    }
-    for (const message of messages) {
-      if (message.sender_id && message.sender_id !== currentUserId) {
-        ids.add(message.sender_id);
-      }
-      if (message.sender?.id && message.sender.id !== currentUserId) {
-        ids.add(message.sender.id);
-      }
-    }
-    return ids;
-  }, [activeOtherParticipants, otherUserId, currentUserId, messages]);
-  const hasOnlineRecipient = useMemo(() => {
-    return Array.from(visibleOtherUserIds).some((userId) =>
-      onlineUsers.has(userId) || conversationOnlineUsers.has(userId)
-    );
-  }, [visibleOtherUserIds, onlineUsers, conversationOnlineUsers]);
 
   useEffect(() => {
     participantByIdRef.current = participantById;
@@ -467,23 +457,7 @@ export function ConversationChat({
     }
 
     const channel = supabase
-      .channel(`conv-messages-${conversationId}`, {
-        config: {
-          presence: {
-            key: currentUserId,
-          },
-        },
-      })
-      .on("presence", { event: "sync" }, () => {
-        const state = channel.presenceState();
-        const online = new Set<string>();
-        for (const presences of Object.values(state)) {
-          for (const presence of presences as { user_id?: string }[]) {
-            if (presence.user_id) online.add(presence.user_id);
-          }
-        }
-        setConversationOnlineUsers(online);
-      })
+      .channel(`conv-messages-${conversationId}`)
       .on(
         "postgres_changes",
         {
@@ -545,19 +519,10 @@ export function ConversationChat({
           typingTimeoutRef.current = setTimeout(() => setTypingName(null), 2500);
         }
       })
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          await channel.track({
-            user_id: currentUserId,
-            online_at: new Date().toISOString(),
-            conversation_id: conversationId,
-          });
-        }
-      });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
-      setConversationOnlineUsers(new Set());
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, [conversationId, currentUserId, memberFallback]);
@@ -1080,17 +1045,18 @@ export function ConversationChat({
             const isSameSenderAsPrev = prevMsg?.sender_id === msg.sender_id;
             const isFirstInGroup = !isSameSenderAsPrev;
             const msgImages = msg.image_urls?.length ? msg.image_urls : (msg.image_url ? [msg.image_url] : []);
+            const visibleImages = msgImages.slice(0, visibleImageLimit(msgImages.length));
             const isDeleted = Boolean(msg.is_deleted);
             const hasImage = !isDeleted && msgImages.length > 0;
             const isEditing = editingMessageId === msg.id;
             const canMutate = isMine && !isDeleted && !isReadOnly && !msg.id.startsWith("optimistic-");
             const hasText = Boolean(msg.message?.trim());
-            const hasBeenRead = isMine && activeOtherParticipants.some((participant) => {
+            const hasParticipantRead = activeOtherParticipants.some((participant) => {
               if (participant.user_id === currentUserId || !participant.last_read_at) return false;
               return new Date(participant.last_read_at).getTime() >= new Date(msg.created_at).getTime();
             });
-            const hasDeliveryConfirmation = hasBeenRead || hasOnlineRecipient;
-            const StatusIcon = hasDeliveryConfirmation ? CheckCheck : Check;
+            const hasBeenRead = isMine && (Boolean(msg.read_at) || hasParticipantRead);
+            const StatusIcon = hasBeenRead ? CheckCheck : Check;
 
             return (
               <div
@@ -1218,26 +1184,38 @@ export function ConversationChat({
                       dir="auto"
                     >
                       {hasImage && (
-                        <div className={cn("grid max-w-full gap-1 overflow-hidden", msgImages.length === 1 ? "grid-cols-1" : "grid-cols-2")}>
-                          {msgImages.slice(0, 4).map((url, i) => (
+                        <div
+                          className={cn(
+                            "grid max-w-full gap-1 overflow-hidden rounded-xl",
+                            imageGridClass(msgImages.length),
+                          )}
+                        >
+                          {visibleImages.map((url, i) => (
                             <button
                               key={i}
                               type="button"
                               onPointerDown={(event) => event.stopPropagation()}
                               onTouchStart={(event) => event.stopPropagation()}
                               onClick={() => openViewer(msgImages, Math.min(i, msgImages.length - 1))}
-                              className={cn("max-w-full overflow-hidden rounded-xl text-start", i === 3 && msgImages.length > 3 ? "relative" : "")}
+                              className={cn(
+                                "relative max-w-full overflow-hidden bg-black/5 text-start transition active:scale-[0.99]",
+                                imageTileClass(msgImages.length, i),
+                              )}
                               aria-label={t("groupChat.viewImage")}
                             >
                               <img
                                 src={url}
                                 alt=""
+                                loading="lazy"
+                                decoding="async"
                                 className={cn(
-                                  "h-full w-full max-w-full select-none object-cover [-webkit-user-drag:none]",
-                                  msgImages.length === 1 ? "max-h-80 min-w-40 sm:min-w-52" : "aspect-square",
+                                  "w-full max-w-full select-none [-webkit-user-drag:none]",
+                                  msgImages.length === 1
+                                    ? "h-auto max-h-80 object-contain"
+                                    : "h-full object-cover",
                                 )}
                               />
-                              {i === 3 && msgImages.length > 3 && (
+                              {i === 2 && msgImages.length > 3 && (
                                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-black/50 text-lg font-bold text-white">
                                   +{msgImages.length - 3}
                                 </div>
@@ -1285,7 +1263,11 @@ export function ConversationChat({
                           <span>{t("groupChat.edited")}</span>
                         ) : null}
                         {isMine && (
-                          <StatusIcon size={13} aria-label={hasDeliveryConfirmation ? t("groupChat.read") : t("groupChat.sent")} />
+                          <StatusIcon
+                            size={13}
+                            className={cn(hasBeenRead && "text-emerald-300")}
+                            aria-label={hasBeenRead ? t("groupChat.read") : t("groupChat.sent")}
+                          />
                         )}
                       </div>
                     </div>
