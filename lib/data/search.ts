@@ -1,4 +1,5 @@
 import {createClient} from "@/lib/supabase/server";
+import {canViewProfile} from "@/lib/data/user-settings";
 
 export type SearchResultType = "post" | "idea" | "memory" | "profile" | "fadla";
 
@@ -114,6 +115,8 @@ function firstRelation<T>(relation: T | T[] | null | undefined): T | null {
 async function getMatchingProfiles(query: string): Promise<ProfileSummary[]> {
   const supabase = await createClient();
   const pattern = ilikePattern(query);
+  const {data: {user}} = await supabase.auth.getUser();
+  const viewerId = user?.id ?? null;
 
   const {data} = await supabase
     .from("profiles")
@@ -126,7 +129,12 @@ async function getMatchingProfiles(query: string): Promise<ProfileSummary[]> {
     ]))
     .limit(50);
 
-  return (data ?? []) as ProfileSummary[];
+  const profiles = (data ?? []) as ProfileSummary[];
+  const visibleProfiles = await Promise.all(
+    profiles.map(async (profile) => (await canViewProfile(profile.id, viewerId)) ? profile : null),
+  );
+
+  return visibleProfiles.filter((profile): profile is ProfileSummary => Boolean(profile));
 }
 
 async function getMatchingCategories(query: string): Promise<CategorySummary[]> {

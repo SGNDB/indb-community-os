@@ -90,10 +90,16 @@ export function CommunityImpactSection({
   impact,
   locale,
   showPassportLink = true,
+  showVolunteer = true,
+  showGraatek = true,
+  showMemories = true,
 }: {
   impact: CommunityImpactStats;
   locale: string;
   showPassportLink?: boolean;
+  showVolunteer?: boolean;
+  showGraatek?: boolean;
+  showMemories?: boolean;
 }) {
   const t = useTranslations("CommunityImpact");
   const levelIndex = Math.max(0, levelOrder.indexOf(impact.community_level));
@@ -155,19 +161,23 @@ export function CommunityImpactSection({
           <StatLine label={t("modules.donations.last")} value={formatDate(impact.last_donation_at, locale, t("noActivity"))} />
         </ImpactModuleCard>
 
-        <ImpactModuleCard title={t("modules.volunteering.title")} icon={moduleIcons.volunteering}>
-          <StatLine label={t("modules.volunteering.hours")} value={formatNumber(impact.volunteer_hours, locale)} />
-          <StatLine label={t("modules.volunteering.activities")} value={formatNumber(impact.volunteer_activities, locale)} />
-          <StatLine label={t("modules.volunteering.attendance")} value={`${formatNumber(impact.volunteer_attendance_rate, locale)}%`} />
-          <StatLine label={t("modules.volunteering.current")} value={formatNumber(impact.current_opportunities, locale)} />
-        </ImpactModuleCard>
+        {showVolunteer ? (
+          <ImpactModuleCard title={t("modules.volunteering.title")} icon={moduleIcons.volunteering}>
+            <StatLine label={t("modules.volunteering.hours")} value={formatNumber(impact.volunteer_hours, locale)} />
+            <StatLine label={t("modules.volunteering.activities")} value={formatNumber(impact.volunteer_activities, locale)} />
+            <StatLine label={t("modules.volunteering.attendance")} value={`${formatNumber(impact.volunteer_attendance_rate, locale)}%`} />
+            <StatLine label={t("modules.volunteering.current")} value={formatNumber(impact.current_opportunities, locale)} />
+          </ImpactModuleCard>
+        ) : null}
 
-        <ImpactModuleCard title={t("modules.graatek.title")} icon={moduleIcons.graatek}>
-          <StatLine label={t("modules.graatek.shared")} value={formatNumber(impact.graatek_shared, locale)} />
-          <StatLine label={t("modules.graatek.completed")} value={formatNumber(impact.graatek_completed, locale)} />
-          <StatLine label={t("modules.graatek.helped")} value={formatNumber(impact.graatek_people_helped, locale)} />
-          <StatLine label={t("modules.graatek.rate")} value={`${formatNumber(impact.graatek_completion_rate, locale)}%`} />
-        </ImpactModuleCard>
+        {showGraatek ? (
+          <ImpactModuleCard title={t("modules.graatek.title")} icon={moduleIcons.graatek}>
+            <StatLine label={t("modules.graatek.shared")} value={formatNumber(impact.graatek_shared, locale)} />
+            <StatLine label={t("modules.graatek.completed")} value={formatNumber(impact.graatek_completed, locale)} />
+            <StatLine label={t("modules.graatek.helped")} value={formatNumber(impact.graatek_people_helped, locale)} />
+            <StatLine label={t("modules.graatek.rate")} value={`${formatNumber(impact.graatek_completion_rate, locale)}%`} />
+          </ImpactModuleCard>
+        ) : null}
 
         <ImpactModuleCard title={t("modules.ideas.title")} icon={moduleIcons.ideas}>
           <StatLine label={t("modules.ideas.created")} value={formatNumber(impact.ideas_created, locale)} />
@@ -176,12 +186,14 @@ export function CommunityImpactSection({
           <StatLine label={t("modules.ideas.participants")} value={formatNumber(impact.ideas_participants, locale)} />
         </ImpactModuleCard>
 
-        <ImpactModuleCard title={t("modules.memories.title")} icon={moduleIcons.memories}>
-          <StatLine label={t("modules.memories.created")} value={formatNumber(impact.memories_created, locale)} />
-          <StatLine label={t("modules.memories.views")} value={formatNumber(impact.memories_views, locale)} />
-          <StatLine label={t("modules.memories.reactions")} value={formatNumber(impact.memories_reactions, locale)} />
-          <StatLine label={t("modules.memories.featured")} value={formatNumber(impact.memories_featured, locale)} />
-        </ImpactModuleCard>
+        {showMemories ? (
+          <ImpactModuleCard title={t("modules.memories.title")} icon={moduleIcons.memories}>
+            <StatLine label={t("modules.memories.created")} value={formatNumber(impact.memories_created, locale)} />
+            <StatLine label={t("modules.memories.views")} value={formatNumber(impact.memories_views, locale)} />
+            <StatLine label={t("modules.memories.reactions")} value={formatNumber(impact.memories_reactions, locale)} />
+            <StatLine label={t("modules.memories.featured")} value={formatNumber(impact.memories_featured, locale)} />
+          </ImpactModuleCard>
+        ) : null}
       </div>
 
       <Card className="rounded-2xl border-border/70">

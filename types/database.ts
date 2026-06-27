@@ -49,8 +49,11 @@ export interface ProfileRow {
 }
 
 export type UserThemePreference = "light" | "dark" | "system";
-export type UserProfileVisibility = "public" | "members" | "private";
+export type UserProfileVisibility = "public" | "members" | "followers" | "private";
 export type UserMessagePermission = "everyone" | "members" | "followers" | "no_one";
+export type UserLastSeenVisibility = "everyone" | "members" | "no_one";
+export type UserPhoneVisibility = "only_me" | "followers" | "no_one";
+export type UserEmailVisibility = "only_me" | "no_one";
 export type UserFontSizePreference = "small" | "medium" | "large";
 export type UserAccountStatus = "active" | "deactivated" | "pending_deletion";
 
@@ -73,6 +76,10 @@ export interface UserSettingsRow {
   show_volunteer_hours: boolean;
   show_completed_graatek: boolean;
   show_memories: boolean;
+  show_online_status: boolean;
+  last_seen_visibility: UserLastSeenVisibility;
+  phone_visibility: UserPhoneVisibility;
+  email_visibility: UserEmailVisibility;
   recognition_visibility: {
     level: boolean;
     badges: boolean;

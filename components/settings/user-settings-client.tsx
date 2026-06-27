@@ -55,9 +55,12 @@ import {Link, localeLabels, routing, usePathname, useRouter} from "@/lib/i18n/ro
 import {cn} from "@/lib/utils/cn";
 import type {
   ProfileRow,
+  UserEmailVisibility,
   UserFontSizePreference,
+  UserLastSeenVisibility,
   UserMessagePermission,
   UserNotificationKey,
+  UserPhoneVisibility,
   UserProfileVisibility,
   UserSettingsRow,
   UserThemePreference,
@@ -186,10 +189,16 @@ function labelsFor(locale: string) {
       everyone: "الجميع",
       followers: "المتابعون",
       noOne: "لا أحد",
+      onlyMe: "أنا فقط",
       showRecognition: "إظهار التقدير المجتمعي",
       showVolunteer: "إظهار ساعات التطوع",
       showGraatek: "إظهار گرعتك المكتملة",
       showMemories: "إظهار الذكريات",
+      showOnline: "إظهار حالة الاتصال",
+      lastSeen: "من يمكنه رؤية آخر ظهور؟",
+      phoneVisibility: "من يمكنه رؤية رقم الهاتف؟",
+      emailVisibility: "من يمكنه رؤية البريد؟",
+      unsaved: "تغييرات الخصوصية غير محفوظة",
     },
     recognition: {
       level: "المستوى المجتمعي",
@@ -311,10 +320,16 @@ function labelsFor(locale: string) {
       everyone: "Tout le monde",
       followers: "Abonnés",
       noOne: "Personne",
+      onlyMe: "Moi seulement",
       showRecognition: "Afficher la reconnaissance",
       showVolunteer: "Afficher les heures bénévoles",
       showGraatek: "Afficher Graatek terminé",
       showMemories: "Afficher les souvenirs",
+      showOnline: "Afficher le statut en ligne",
+      lastSeen: "Qui peut voir ma dernière activité ?",
+      phoneVisibility: "Qui peut voir mon téléphone ?",
+      emailVisibility: "Qui peut voir mon e-mail ?",
+      unsaved: "Modifications de confidentialité non enregistrées",
     },
     recognition: {
       level: "Niveau communautaire",
@@ -436,10 +451,16 @@ function labelsFor(locale: string) {
       everyone: "Everyone",
       followers: "Followers",
       noOne: "No one",
+      onlyMe: "Only me",
       showRecognition: "Show community recognition",
       showVolunteer: "Show volunteer hours",
       showGraatek: "Show completed Graatek",
       showMemories: "Show memories",
+      showOnline: "Show online status",
+      lastSeen: "Who can see my last seen?",
+      phoneVisibility: "Who can see my phone number?",
+      emailVisibility: "Who can see my email?",
+      unsaved: "Unsaved privacy changes",
     },
     recognition: {
       level: "Community level",
@@ -628,6 +649,10 @@ export function UserSettingsClient({
     showVolunteerHours: settings.show_volunteer_hours,
     showCompletedGraatek: settings.show_completed_graatek,
     showMemories: settings.show_memories,
+    showOnlineStatus: settings.show_online_status,
+    lastSeenVisibility: settings.last_seen_visibility,
+    phoneVisibility: settings.phone_visibility,
+    emailVisibility: settings.email_visibility,
     recognitionVisibility: settings.recognition_visibility,
     inAppNotifications: settings.in_app_notifications,
     emailNotifications: settings.email_notifications,
@@ -635,6 +660,19 @@ export function UserSettingsClient({
     highContrast: settings.high_contrast,
     reduceAnimations: settings.reduce_animations,
   });
+  const [privacyDirty, setPrivacyDirty] = useState(false);
+  const initialPrivacyPreferences = useMemo(() => ({
+    profileVisibility: settings.profile_visibility,
+    messagePermission: settings.message_permission,
+    showCommunityRecognition: settings.show_community_recognition,
+    showVolunteerHours: settings.show_volunteer_hours,
+    showCompletedGraatek: settings.show_completed_graatek,
+    showMemories: settings.show_memories,
+    showOnlineStatus: settings.show_online_status,
+    lastSeenVisibility: settings.last_seen_visibility,
+    phoneVisibility: settings.phone_visibility,
+    emailVisibility: settings.email_visibility,
+  }), [settings]);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const selectedSection = activeSection ?? "account";
@@ -647,7 +685,7 @@ export function UserSettingsClient({
   }, [preferences.fontSize, preferences.highContrast, preferences.reduceAnimations]);
 
   useEffect(() => {
-    if (!accountDirty) return;
+    if (!accountDirty && !privacyDirty) return;
 
     function handleBeforeUnload(event: BeforeUnloadEvent) {
       event.preventDefault();
@@ -656,10 +694,13 @@ export function UserSettingsClient({
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [accountDirty]);
+  }, [accountDirty, privacyDirty]);
 
   function openSection(section: SectionKey | null) {
     if (accountDirty && section !== "account" && !window.confirm(labels.unsavedWarning)) {
+      return;
+    }
+    if (privacyDirty && section !== "privacy" && !window.confirm(labels.unsavedWarning)) {
       return;
     }
     setActiveSection(section);
@@ -675,8 +716,10 @@ export function UserSettingsClient({
     if (result.success) {
       if (showToast) toast.success(labels.saved);
       router.refresh();
+      return true;
     } else {
       toast.error(labels.saveFailed);
+      return false;
     }
   }
 
@@ -684,6 +727,14 @@ export function UserSettingsClient({
     const nextPreferences = {...preferences, [key]: value};
     setPreferences(nextPreferences);
     void persistPreferences(nextPreferences);
+  }
+
+  function setPrivacyPreference<K extends keyof typeof initialPrivacyPreferences>(
+    key: K,
+    value: (typeof initialPrivacyPreferences)[K],
+  ) {
+    setPreferences((current) => ({...current, [key]: value}));
+    setPrivacyDirty(true);
   }
 
   function setAccountField<K extends keyof typeof account>(key: K, value: (typeof account)[K]) {
@@ -772,11 +823,26 @@ export function UserSettingsClient({
     });
   }
 
+  async function savePrivacyPreferences() {
+    startTransition(async () => {
+      const saved = await persistPreferences(preferences, true);
+      if (saved) setPrivacyDirty(false);
+    });
+  }
+
   function cancelAccountChanges() {
     setAccount(initialAccount);
     setAvatarPreview(initialAccount.avatarUrl);
     setCoverPreview(initialAccount.coverImageUrl);
     setAccountDirty(false);
+  }
+
+  function cancelPrivacyChanges() {
+    setPreferences((current) => ({
+      ...current,
+      ...initialPrivacyPreferences,
+    }));
+    setPrivacyDirty(false);
   }
 
   async function updatePassword() {
@@ -822,6 +888,7 @@ export function UserSettingsClient({
   const visibilityOptions: Array<{value: UserProfileVisibility; label: string}> = [
     {value: "public", label: labels.privacy.public},
     {value: "members", label: labels.privacy.members},
+    {value: "followers", label: labels.privacy.followers},
     {value: "private", label: labels.privacy.private},
   ];
 
@@ -829,6 +896,23 @@ export function UserSettingsClient({
     {value: "everyone", label: labels.privacy.everyone},
     {value: "members", label: labels.privacy.members},
     {value: "followers", label: labels.privacy.followers},
+    {value: "no_one", label: labels.privacy.noOne},
+  ];
+
+  const lastSeenOptions: Array<{value: UserLastSeenVisibility; label: string}> = [
+    {value: "everyone", label: labels.privacy.everyone},
+    {value: "members", label: labels.privacy.members},
+    {value: "no_one", label: labels.privacy.noOne},
+  ];
+
+  const phoneVisibilityOptions: Array<{value: UserPhoneVisibility; label: string}> = [
+    {value: "only_me", label: labels.privacy.onlyMe},
+    {value: "followers", label: labels.privacy.followers},
+    {value: "no_one", label: labels.privacy.noOne},
+  ];
+
+  const emailVisibilityOptions: Array<{value: UserEmailVisibility; label: string}> = [
+    {value: "only_me", label: labels.privacy.onlyMe},
     {value: "no_one", label: labels.privacy.noOne},
   ];
 
@@ -1077,7 +1161,7 @@ export function UserSettingsClient({
               <Field label={labels.privacy.whoProfile}>
                 <select
                   value={preferences.profileVisibility}
-                  onChange={(event) => setPreference("profileVisibility", event.target.value as UserProfileVisibility)}
+                  onChange={(event) => setPrivacyPreference("profileVisibility", event.target.value as UserProfileVisibility)}
                   className="h-12 w-full rounded-xl border border-border bg-card px-3 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/30"
                 >
                   {visibilityOptions.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
@@ -1086,23 +1170,61 @@ export function UserSettingsClient({
               <Field label={labels.privacy.whoMessage}>
                 <select
                   value={preferences.messagePermission}
-                  onChange={(event) => setPreference("messagePermission", event.target.value as UserMessagePermission)}
+                  onChange={(event) => setPrivacyPreference("messagePermission", event.target.value as UserMessagePermission)}
                   className="h-12 w-full rounded-xl border border-border bg-card px-3 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/30"
                 >
                   {messageOptions.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
                 </select>
               </Field>
+              <Field label={labels.privacy.lastSeen}>
+                <select
+                  value={preferences.lastSeenVisibility}
+                  onChange={(event) => setPrivacyPreference("lastSeenVisibility", event.target.value as UserLastSeenVisibility)}
+                  className="h-12 w-full rounded-xl border border-border bg-card px-3 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  {lastSeenOptions.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+                </select>
+              </Field>
+              <Field label={labels.privacy.phoneVisibility}>
+                <select
+                  value={preferences.phoneVisibility}
+                  onChange={(event) => setPrivacyPreference("phoneVisibility", event.target.value as UserPhoneVisibility)}
+                  className="h-12 w-full rounded-xl border border-border bg-card px-3 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  {phoneVisibilityOptions.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+                </select>
+              </Field>
+              <Field label={labels.privacy.emailVisibility}>
+                <select
+                  value={preferences.emailVisibility}
+                  onChange={(event) => setPrivacyPreference("emailVisibility", event.target.value as UserEmailVisibility)}
+                  className="h-12 w-full rounded-xl border border-border bg-card px-3 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  {emailVisibilityOptions.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+                </select>
+              </Field>
             </div>
             <div className="mt-3 grid gap-2 rounded-2xl border border-border/70 p-2 md:grid-cols-2">
-              <Toggle checked={preferences.showCommunityRecognition} onChange={(value) => setPreference("showCommunityRecognition", value)} label={labels.privacy.showRecognition} />
-              <Toggle checked={preferences.showVolunteerHours} onChange={(value) => setPreference("showVolunteerHours", value)} label={labels.privacy.showVolunteer} />
-              <Toggle checked={preferences.showCompletedGraatek} onChange={(value) => setPreference("showCompletedGraatek", value)} label={labels.privacy.showGraatek} />
-              <Toggle checked={preferences.showMemories} onChange={(value) => setPreference("showMemories", value)} label={labels.privacy.showMemories} />
+              <Toggle checked={preferences.showCommunityRecognition} onChange={(value) => setPrivacyPreference("showCommunityRecognition", value)} label={labels.privacy.showRecognition} />
+              <Toggle checked={preferences.showVolunteerHours} onChange={(value) => setPrivacyPreference("showVolunteerHours", value)} label={labels.privacy.showVolunteer} />
+              <Toggle checked={preferences.showCompletedGraatek} onChange={(value) => setPrivacyPreference("showCompletedGraatek", value)} label={labels.privacy.showGraatek} />
+              <Toggle checked={preferences.showMemories} onChange={(value) => setPrivacyPreference("showMemories", value)} label={labels.privacy.showMemories} />
+              <Toggle checked={preferences.showOnlineStatus} onChange={(value) => setPrivacyPreference("showOnlineStatus", value)} label={labels.privacy.showOnline} />
             </div>
-            <Button onClick={savePreferences} disabled={isPending || preferencesSaving} className="mt-4 w-full gap-2 sm:w-auto">
-              <Save size={17} />
-              {isPending || preferencesSaving ? labels.saving : labels.save}
-            </Button>
+            {privacyDirty ? (
+              <p className="mt-3 rounded-2xl border border-amber-300/60 bg-amber-100/70 px-4 py-3 text-sm font-bold text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100">
+                {labels.privacy.unsaved}
+              </p>
+            ) : null}
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+              <Button onClick={savePrivacyPreferences} disabled={!privacyDirty || isPending || preferencesSaving} className="w-full gap-2 sm:w-auto">
+                <Save size={17} />
+                {isPending || preferencesSaving ? labels.saving : labels.save}
+              </Button>
+              <Button type="button" variant="outline" onClick={cancelPrivacyChanges} disabled={!privacyDirty || isPending || preferencesSaving} className="w-full sm:w-auto">
+                {labels.cancel}
+              </Button>
+            </div>
           </SectionCard>
 
           <SectionCard id="recognition" title={labels.sections.recognition} icon={Heart} visible={selectedSection === "recognition"}>

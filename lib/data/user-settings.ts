@@ -21,6 +21,10 @@ export const defaultUserSettings: UserSettingsRow = {
   show_volunteer_hours: true,
   show_completed_graatek: true,
   show_memories: true,
+  show_online_status: false,
+  last_seen_visibility: "members",
+  phone_visibility: "only_me",
+  email_visibility: "no_one",
   recognition_visibility: {
     level: true,
     badges: true,
@@ -101,4 +105,50 @@ export async function getUserSettings(userId: string): Promise<UserSettingsRow> 
     .maybeSingle();
 
   return normalizeUserSettings(data as Partial<UserSettingsRow> | null, userId);
+}
+
+export type PublicProfilePrivacy = Pick<
+  UserSettingsRow,
+  | "profile_visibility"
+  | "message_permission"
+  | "show_community_recognition"
+  | "show_volunteer_hours"
+  | "show_completed_graatek"
+  | "show_memories"
+  | "recognition_visibility"
+  | "show_online_status"
+  | "last_seen_visibility"
+  | "phone_visibility"
+  | "email_visibility"
+>;
+
+export async function getPublicProfilePrivacy(userId: string): Promise<PublicProfilePrivacy> {
+  const supabase = await createClient();
+  const {data} = await supabase
+    .rpc("get_public_profile_privacy", {target_user_id: userId})
+    .maybeSingle();
+
+  return normalizeUserSettings(data as Partial<UserSettingsRow> | null, userId);
+}
+
+export async function canViewProfile(userId: string, viewerId: string | null): Promise<boolean> {
+  const supabase = await createClient();
+  const {data, error} = await supabase.rpc("can_view_profile", {
+    target_user_id: userId,
+    viewer_id: viewerId,
+  });
+
+  if (error) return viewerId === userId;
+  return Boolean(data);
+}
+
+export async function canMessageUser(userId: string, viewerId: string | null): Promise<boolean> {
+  const supabase = await createClient();
+  const {data, error} = await supabase.rpc("can_message_user", {
+    target_user_id: userId,
+    viewer_id: viewerId,
+  });
+
+  if (error) return false;
+  return Boolean(data);
 }

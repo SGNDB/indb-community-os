@@ -54,6 +54,8 @@ interface ProfileTabsContentProps {
   };
   isOwnProfile: boolean;
   initialTab: string;
+  showMemories?: boolean;
+  showGraatek?: boolean;
 }
 
 export function ProfileTabsContent({
@@ -68,6 +70,8 @@ export function ProfileTabsContent({
   profileDetails,
   isOwnProfile,
   initialTab,
+  showMemories = true,
+  showGraatek = true,
 }: ProfileTabsContentProps) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const t = useTranslations("Profile");
@@ -79,10 +83,10 @@ export function ProfileTabsContent({
   const tabs = [
     {key: "about", label: t("tabs.about"), count: null},
     {key: "posts", label: t("tabs.posts"), count: allPosts.length},
-    {key: "memories", label: t("tabs.memories"), count: memories.length},
+    showMemories ? {key: "memories", label: t("tabs.memories"), count: memories.length} : null,
     {key: "ideas", label: t("tabs.ideas"), count: ideas.length},
-    {key: "shares", label: t("tabs.shares"), count: shares.length},
-  ] as const;
+    showGraatek ? {key: "shares", label: t("tabs.shares"), count: shares.length} : null,
+  ].filter((tab): tab is NonNullable<typeof tab> => Boolean(tab));
 
   return (
     <>

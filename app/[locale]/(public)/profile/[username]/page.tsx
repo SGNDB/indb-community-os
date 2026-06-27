@@ -21,6 +21,7 @@ import {getProfileByUsername} from "@/lib/data/profile";
 import {getUserMemories, getUserMemoriesCount} from "@/lib/data/memories";
 import {getUserIdeas, getUserIdeasCount} from "@/lib/data/ideas";
 import {getUserCommunityShares} from "@/lib/data/fadla";
+import {canViewProfile, getPublicProfilePrivacy} from "@/lib/data/user-settings";
 import {Link} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/server";
 
@@ -61,6 +62,8 @@ async function ProfileTabsFetcher({
   initialTab,
   profile,
   isOwnProfile,
+  showMemories,
+  showGraatek,
 }: {
   profileId: string;
   locale: string;
@@ -80,12 +83,14 @@ async function ProfileTabsFetcher({
     created_at: string;
   };
   isOwnProfile: boolean;
+  showMemories: boolean;
+  showGraatek: boolean;
 }) {
   const [allPosts, memories, ideas, shares, profileDetails] = await Promise.all([
     getUserPosts(profileId, currentUserId),
-    getUserMemories(profileId),
+    showMemories ? getUserMemories(profileId) : Promise.resolve([]),
     getUserIdeas(profileId),
-    getUserCommunityShares(profileId),
+    showGraatek ? getUserCommunityShares(profileId) : Promise.resolve([]),
     getFullProfileDetails(profileId),
   ]);
 
@@ -117,6 +122,8 @@ async function ProfileTabsFetcher({
         profileDetails={profileDetails}
         isOwnProfile={isOwnProfile}
         initialTab={initialTab}
+        showMemories={showMemories}
+        showGraatek={showGraatek}
       />
     </>
   );
@@ -147,14 +154,27 @@ export default async function PublicProfilePage({
   const supabase = await createClient();
   const {data: {user}} = await supabase.auth.getUser();
   const currentUserId = user?.id ?? null;
+  const isOwnProfile = currentUserId === profile.id;
+
+  const [viewerCanAccess, privacy] = await Promise.all([
+    canViewProfile(profile.id, currentUserId),
+    getPublicProfilePrivacy(profile.id),
+  ]);
+
+  if (!viewerCanAccess) notFound();
+
+  const showRecognition = isOwnProfile || privacy.show_community_recognition;
+  const showVolunteerHours = isOwnProfile || privacy.show_volunteer_hours;
+  const showGraatek = isOwnProfile || privacy.show_completed_graatek;
+  const showMemories = isOwnProfile || privacy.show_memories;
 
   const [followStats, currentUserIsFollowing, postsCount, memoriesCount, ideasCount, impact] = await Promise.all([
     getFollowStats(profile.id),
     isFollowing(currentUserId, profile.id),
     getUserPostsCount(profile.id),
-    getUserMemoriesCount(profile.id),
+    showMemories ? getUserMemoriesCount(profile.id) : Promise.resolve(0),
     getUserIdeasCount(profile.id),
-    getCommunityImpact(profile.id),
+    showRecognition ? getCommunityImpact(profile.id) : Promise.resolve(null),
   ]);
 
   const {data: postIds} = await supabase
@@ -175,7 +195,10 @@ export default async function PublicProfilePage({
   const joinDate = formatJoinDate(profile.created_at, locale);
   const contributionScore = profile.contribution_score ?? 0;
   const contributionRank = getContributionRankKey(contributionScore);
-  const currentTab = activeTab === "posts" ? "posts" : activeTab === "memories" ? "memories" : activeTab === "ideas" ? "ideas" : activeTab === "shares" ? "shares" : "about";
+  const requestedTab = activeTab === "posts" ? "posts" : activeTab === "memories" ? "memories" : activeTab === "ideas" ? "ideas" : activeTab === "shares" ? "shares" : "about";
+  const currentTab = (!showMemories && requestedTab === "memories") || (!showGraatek && requestedTab === "shares")
+    ? "about"
+    : requestedTab;
 
   const t = await getTranslations({locale, namespace: "Profile"});
 
@@ -244,17 +267,19 @@ export default async function PublicProfilePage({
                   {t("joined")} {joinDate}
                 </span>
               </div>
+              {showRecognition ? (
               <div className="mt-3 inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary sm:justify-start">
                 <Heart size={16} fill="currentColor" />
                 <span>{contributionScore} {t("contributionScore")}</span>
                 <span className="text-primary/60">•</span>
                 <span>{t(`contributionRanks.${contributionRank}`)}</span>
               </div>
+              ) : null}
             </div>
 
             <div className="mt-3 flex justify-center sm:mt-0 sm:self-center">
               <div className="flex flex-col items-center gap-2">
-                {currentUserId === profile.id ? (
+                {isOwnProfile ? (
                   <Link href="/profile">
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-4 py-2 text-xs font-medium text-primary hover:bg-primary/20">
                       {t("editProfile")}
@@ -269,7 +294,7 @@ export default async function PublicProfilePage({
                   initialIsFollowing={currentUserIsFollowing}
                   initialFollowersCount={followStats.followersCount}
                   followingCount={followStats.followingCount}
-                  showButton={currentUserId !== profile.id}
+                  showButton={!isOwnProfile}
                 />
               </div>
             </div>
@@ -296,7 +321,16 @@ export default async function PublicProfilePage({
         </CardContent>
       </Card>
 
-      <CommunityImpactSection impact={impact} locale={locale} showPassportLink={currentUserId === profile.id} />
+      {showRecognition && impact ? (
+        <CommunityImpactSection
+          impact={impact}
+          locale={locale}
+          showPassportLink={isOwnProfile}
+          showVolunteer={showVolunteerHours}
+          showGraatek={showGraatek}
+          showMemories={showMemories}
+        />
+      ) : null}
 
       <Suspense fallback={<ProfileTabsFallback />}>
         <ProfileTabsFetcher
@@ -317,7 +351,9 @@ export default async function PublicProfilePage({
             contribution_score: contributionScore,
             created_at: profile.created_at,
           }}
-          isOwnProfile={currentUserId === profile.id}
+          isOwnProfile={isOwnProfile}
+          showMemories={showMemories}
+          showGraatek={showGraatek}
         />
       </Suspense>
     </div>

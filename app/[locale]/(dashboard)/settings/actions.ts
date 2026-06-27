@@ -11,8 +11,11 @@ import {createClient} from "@/lib/supabase/server";
 import {normalizeMauritaniaPhone} from "@/lib/auth/phone";
 import type {
   UserAccountStatus,
+  UserEmailVisibility,
   UserFontSizePreference,
+  UserLastSeenVisibility,
   UserMessagePermission,
+  UserPhoneVisibility,
   UserNotificationKey,
   UserProfileVisibility,
   UserSettingsRow,
@@ -148,6 +151,10 @@ export async function saveUserPreferencesAction(input: {
   showVolunteerHours: boolean;
   showCompletedGraatek: boolean;
   showMemories: boolean;
+  showOnlineStatus: boolean;
+  lastSeenVisibility: UserLastSeenVisibility;
+  phoneVisibility: UserPhoneVisibility;
+  emailVisibility: UserEmailVisibility;
   recognitionVisibility: UserSettingsRow["recognition_visibility"];
   inAppNotifications: Record<UserNotificationKey, boolean>;
   emailNotifications: Record<UserNotificationKey, boolean>;
@@ -163,12 +170,21 @@ export async function saveUserPreferencesAction(input: {
     ? input.language
     : locale;
   const theme: UserThemePreference = ["light", "dark", "system"].includes(input.theme) ? input.theme : "system";
-  const profileVisibility: UserProfileVisibility = ["public", "members", "private"].includes(input.profileVisibility)
+  const profileVisibility: UserProfileVisibility = ["public", "members", "followers", "private"].includes(input.profileVisibility)
     ? input.profileVisibility
     : "public";
   const messagePermission: UserMessagePermission = ["everyone", "members", "followers", "no_one"].includes(input.messagePermission)
     ? input.messagePermission
     : "members";
+  const lastSeenVisibility: UserLastSeenVisibility = ["everyone", "members", "no_one"].includes(input.lastSeenVisibility)
+    ? input.lastSeenVisibility
+    : "members";
+  const phoneVisibility: UserPhoneVisibility = ["only_me", "followers", "no_one"].includes(input.phoneVisibility)
+    ? input.phoneVisibility
+    : "only_me";
+  const emailVisibility: UserEmailVisibility = ["only_me", "no_one"].includes(input.emailVisibility)
+    ? input.emailVisibility
+    : "no_one";
   const fontSize: UserFontSizePreference = ["small", "medium", "large"].includes(input.fontSize)
     ? input.fontSize
     : "medium";
@@ -211,6 +227,10 @@ export async function saveUserPreferencesAction(input: {
         show_volunteer_hours: Boolean(input.showVolunteerHours),
         show_completed_graatek: Boolean(input.showCompletedGraatek),
         show_memories: Boolean(input.showMemories),
+        show_online_status: Boolean(input.showOnlineStatus),
+        last_seen_visibility: lastSeenVisibility,
+        phone_visibility: phoneVisibility,
+        email_visibility: emailVisibility,
         recognition_visibility: {
           level: Boolean(input.recognitionVisibility?.level),
           badges: Boolean(input.recognitionVisibility?.badges),
