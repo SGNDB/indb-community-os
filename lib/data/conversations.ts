@@ -288,7 +288,7 @@ export async function getConversationById(
       return (a.created_at ?? '').localeCompare(b.created_at ?? '');
     });
 
-  if (activeParticipants.length === 0 && userId && resolvedInboxConversation) {
+  if (activeParticipants.length === 0 && userId) {
     const { data: currentProfile } = await supabase
       .from('profiles')
       .select('id, username, full_name, avatar_url')
@@ -300,11 +300,11 @@ export async function getConversationById(
       conversation_id: conversationId,
       user_id: userId,
       role: ideaAuthorId === userId ? 'admin' : 'member',
-      unread_count: resolvedInboxConversation.unread_count,
+      unread_count: resolvedInboxConversation?.unread_count ?? 0,
       user: currentProfile ?? null,
     }, ideaAuthorId));
 
-    if (resolvedInboxConversation.other_participant?.id) {
+    if (resolvedInboxConversation?.other_participant?.id) {
       activeParticipants.push(normalizeParticipant({
         id: '',
         conversation_id: conversationId,
@@ -313,6 +313,27 @@ export async function getConversationById(
         unread_count: 0,
         user: resolvedInboxConversation.other_participant,
       }, ideaAuthorId));
+    } else {
+      const otherParticipantIds = participants
+        ? ((participants ?? []) as unknown as RawConversationParticipant[]).map((p) => p.user_id).filter((pid) => pid !== userId)
+        : [];
+      for (const otherId of otherParticipantIds) {
+        const { data: otherProfile } = await supabase
+          .from('profiles')
+          .select('id, username, full_name, avatar_url')
+          .eq('id', otherId)
+          .maybeSingle();
+        if (otherProfile) {
+          activeParticipants.push(normalizeParticipant({
+            id: '',
+            conversation_id: conversationId,
+            user_id: otherId,
+            role: 'member',
+            unread_count: 0,
+            user: otherProfile,
+          }, ideaAuthorId));
+        }
+      }
     }
   }
 
@@ -392,7 +413,7 @@ export async function sendConversationMessage(
     .insert({
       conversation_id: conversationId,
       sender_id: senderId,
-      message: message || null,
+      message: messageType === 'image' && !message ? '' : (message || null),
       message_type: messageType,
       image_url: imageUrl,
       image_storage_path: imageStoragePath,
