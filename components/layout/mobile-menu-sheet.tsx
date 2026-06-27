@@ -15,6 +15,7 @@ import {
   MoonStar,
   Newspaper,
   Search,
+  Settings,
   SunMedium,
   UserRound,
   Vote,
@@ -41,6 +42,7 @@ const menuItems = [
   {href: "/events", key: "events", icon: CalendarDays},
   {href: "/projects", key: "projects", icon: FolderKanban},
   {href: "/profile", key: "profile", icon: UserRound},
+  {href: "/settings", key: "settings", icon: Settings},
 ] as const;
 
 const localLabels: Record<

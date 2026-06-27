@@ -37,11 +37,57 @@ export interface ProfileRow {
   bio: string | null;
   city: string | null;
   hometown: string | null;
+  phone: string | null;
+  phone_verified: boolean;
+  last_login: string | null;
   languages_spoken: string[];
   role: CommunityRole;
   contribution_score: number;
   language_preference: string;
   created_at: string;
+  updated_at: string;
+}
+
+export type UserThemePreference = "light" | "dark" | "system";
+export type UserProfileVisibility = "public" | "members" | "private";
+export type UserMessagePermission = "everyone" | "members" | "followers" | "no_one";
+export type UserFontSizePreference = "small" | "medium" | "large";
+export type UserAccountStatus = "active" | "deactivated" | "pending_deletion";
+
+export type UserNotificationKey =
+  | "messages"
+  | "comments"
+  | "reactions"
+  | "followers"
+  | "graatek"
+  | "campaigns"
+  | "volunteer"
+  | "announcements";
+
+export interface UserSettingsRow {
+  user_id: string;
+  theme: UserThemePreference;
+  profile_visibility: UserProfileVisibility;
+  message_permission: UserMessagePermission;
+  show_community_recognition: boolean;
+  show_volunteer_hours: boolean;
+  show_completed_graatek: boolean;
+  show_memories: boolean;
+  recognition_visibility: {
+    level: boolean;
+    badges: boolean;
+    summary: boolean;
+  };
+  in_app_notifications: Record<UserNotificationKey, boolean>;
+  email_notifications: Record<UserNotificationKey, boolean>;
+  contact_email: string | null;
+  font_size: UserFontSizePreference;
+  high_contrast: boolean;
+  reduce_animations: boolean;
+  two_factor_prepared: boolean;
+  account_status: UserAccountStatus;
+  deactivated_at: string | null;
+  deletion_requested_at: string | null;
   updated_at: string;
 }
 

@@ -299,6 +299,10 @@
         "label": "🙋 التطوع",
         "short": "التطوع"
       },
+      "settings": {
+        "label": "الإعدادات",
+        "short": "الإعدادات"
+      },
       "aboutPlatform": {
         "label": "عن المنصة",
         "short": "عن المنصة"

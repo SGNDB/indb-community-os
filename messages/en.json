@@ -299,6 +299,10 @@
         "label": "🙋 Volunteer",
         "short": "Volunteer"
       },
+      "settings": {
+        "label": "Settings",
+        "short": "Settings"
+      },
       "aboutPlatform": {
         "label": "About",
         "short": "About"

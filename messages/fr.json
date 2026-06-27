@@ -299,6 +299,10 @@
         "label": "🙋 Bénévolat",
         "short": "Bénévolat"
       },
+      "settings": {
+        "label": "Paramètres",
+        "short": "Paramètres"
+      },
       "aboutPlatform": {
         "label": "A propos",
         "short": "A propos"

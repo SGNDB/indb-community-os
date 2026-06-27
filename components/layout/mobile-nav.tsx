@@ -50,7 +50,7 @@ const moreItems = [
   {href: "/volunteer", key: "volunteer", icon: UsersRound, badge: "volunteer"},
   {href: "/feed", key: "feed", icon: Newspaper, badge: null},
   {href: "/profile", key: "profile", icon: UserRound, badge: null},
-  {href: "/profile/edit", key: "settings", icon: Settings, badge: null},
+  {href: "/settings", key: "settings", icon: Settings, badge: null},
 ] as const;
 
 const futureItems = [
