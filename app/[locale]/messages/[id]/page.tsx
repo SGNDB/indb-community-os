@@ -31,7 +31,7 @@ export default async function ConversationPage({
   const messages = await getConversationMessages(id);
 
   return (
-    <section className="flex h-full min-h-0 w-full overflow-hidden bg-background">
+    <section className="flex h-[calc(100dvh-3.5rem-var(--safe-top))] min-h-0 w-full overflow-hidden bg-background md:h-full">
       <div className="hidden min-h-0 w-full flex-col md:flex md:w-[30%] md:min-w-[17rem] md:shrink-0 md:border-e md:border-border/70">
         <ConversationList initialConversations={conversations} currentUserId={user.id} />
       </div>

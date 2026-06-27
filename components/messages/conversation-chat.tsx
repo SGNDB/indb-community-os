@@ -48,6 +48,16 @@ function displayName(profile: ConversationUserProfile | null | undefined, fallba
   return profile?.full_name ?? profile?.username ?? fallback;
 }
 
+function fireHaptic() {
+  if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+    try {
+      navigator.vibrate(12);
+    } catch {
+      // Some browsers expose vibrate but ignore it.
+    }
+  }
+}
+
 function profileHref(profile: ConversationUserProfile | null | undefined, userId: string) {
   const handle = profile?.username ?? userId;
   return handle ? `/profile/${encodeURIComponent(handle)}` : null;
@@ -551,6 +561,7 @@ export function ConversationChat({
   function startLongPress(message: ConversationMessageWithSender) {
     if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
     longPressTimerRef.current = setTimeout(() => {
+      fireHaptic();
       openMessageActions(message);
       longPressTimerRef.current = null;
     }, 480);
@@ -815,7 +826,7 @@ export function ConversationChat({
   const canSaveName = draftTitle.trim().length >= 2 && draftTitle.trim() !== groupTitle;
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-background">
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-background overscroll-contain">
       <div className="shrink-0 border-b border-border/70 bg-card/95 px-2 py-1.5 shadow-sm backdrop-blur md:px-2.5 md:py-2">
         <div className="flex min-h-[52px] items-center gap-2">
           <Link
@@ -856,8 +867,8 @@ export function ConversationChat({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto scroll-smooth bg-muted/20 px-2.5 py-3 md:px-5 md:py-4">
-        <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col">
+      <div className="min-h-0 flex-1 overflow-y-auto scroll-smooth bg-muted/20 px-2.5 py-3 overscroll-contain [overflow-anchor:none] md:px-5 md:py-4">
+        <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col justify-end">
           {isReadOnly && (
             <div className="mx-auto mb-4 flex max-w-md items-center justify-center gap-2 rounded-full bg-background/90 px-3 py-2 text-center text-xs text-muted-foreground shadow-sm">
               <Archive size={14} />
@@ -984,12 +995,20 @@ export function ConversationChat({
                       </div>
                     ) : null}
                     <div
-                      onPointerDown={() => startLongPress(msg)}
+                      onContextMenu={(event) => {
+                        event.preventDefault();
+                        openMessageActions(msg);
+                      }}
+                      onPointerDown={(event) => {
+                        if (event.pointerType === "mouse") return;
+                        event.preventDefault();
+                        startLongPress(msg);
+                      }}
                       onPointerUp={cancelLongPress}
                       onPointerLeave={cancelLongPress}
                       onPointerCancel={cancelLongPress}
                       className={cn(
-                        "min-w-[4rem] overflow-hidden rounded-2xl text-[14px] leading-relaxed shadow-sm",
+                        "min-w-[4rem] touch-manipulation select-none overflow-hidden rounded-2xl text-[14px] leading-relaxed shadow-sm [-webkit-touch-callout:none] [-webkit-user-select:none]",
                         hasImage && !isEditing ? "p-1.5" : "px-3 py-2 md:px-3.5 md:py-2.5",
                         isDeleted && "italic",
                         isMine
@@ -1004,6 +1023,7 @@ export function ConversationChat({
                             <button
                               key={i}
                               type="button"
+                              onPointerDown={(event) => event.stopPropagation()}
                               onClick={() => { setViewerImages(msgImages); setViewerIndex(i); }}
                               className={cn("overflow-hidden rounded-xl text-start", i === 3 && msgImages.length > 4 ? "relative" : "")}
                               aria-label={t("groupChat.viewImage")}
@@ -1012,7 +1032,7 @@ export function ConversationChat({
                                 src={url}
                                 alt=""
                                 className={cn(
-                                  "h-full w-full object-cover",
+                                  "h-full w-full select-none object-cover [-webkit-user-drag:none]",
                                   msgImages.length === 1 ? "max-h-80 min-w-40 sm:min-w-52" : "aspect-square",
                                 )}
                               />
@@ -1026,7 +1046,7 @@ export function ConversationChat({
                         </div>
                       )}
                       {isDeleted ? (
-                        <p>{t("groupChat.deletedMessage")}</p>
+                        <p className="select-none">{t("groupChat.deletedMessage")}</p>
                       ) : isEditing ? (
                         <div className="space-y-2">
                           <input
@@ -1056,7 +1076,7 @@ export function ConversationChat({
                           </div>
                         </div>
                       ) : msg.message ? (
-                        <p className={cn(hasImage && "px-2 py-1.5")}>{msg.message}</p>
+                        <p className={cn("select-none", hasImage && "px-2 py-1.5")}>{msg.message}</p>
                       ) : null}
                       <div className={cn("mt-1 flex items-center justify-end gap-1 text-[10px]", isMine ? "text-primary-foreground/75" : "text-muted-foreground")}>
                         <span>{formatTime(msg.created_at)}</span>
@@ -1092,7 +1112,7 @@ export function ConversationChat({
       )}
 
       {(error || !isReadOnly) && (
-        <div className="sticky bottom-0 z-10 shrink-0 border-t border-border/70 bg-background/95 px-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur md:px-4 md:pb-3 md:pt-2.5">
+        <div className="sticky bottom-0 z-10 shrink-0 border-t border-border/70 bg-background/95 px-[max(0.625rem,var(--safe-left))] pb-[calc(0.8rem+var(--safe-bottom))] pt-2 backdrop-blur supports-[backdrop-filter]:bg-background/90 md:px-4 md:pb-3 md:pt-2.5">
           {pendingImages.length > 0 && !isReadOnly && (
             <div className="mb-2 rounded-lg border border-border/70 bg-card p-2 shadow-sm">
               <div className="flex flex-wrap gap-2">
@@ -1139,6 +1159,7 @@ export function ConversationChat({
               </button>
               <input
                 type="text"
+                enterKeyHint="send"
                 value={input}
                 onChange={(e) => handleInputChange(e.target.value)}
                 maxLength={pendingImages.length > 0 ? 500 : 1000}
@@ -1387,8 +1408,8 @@ export function ConversationChat({
       )}
 
       {actionMessage ? (
-        <div className="fixed inset-0 z-[70] flex items-end bg-black/35 p-3 md:hidden" onClick={() => setActionMessage(null)}>
-          <div className="w-full overflow-hidden rounded-3xl bg-card shadow-2xl" onClick={(event) => event.stopPropagation()}>
+        <div className="fixed inset-0 z-[70] flex items-end bg-black/35 px-3 pb-[calc(0.75rem+var(--safe-bottom))] md:hidden" onClick={() => setActionMessage(null)}>
+          <div className="w-full animate-in slide-in-from-bottom-4 fade-in duration-150 overflow-hidden rounded-3xl bg-card shadow-2xl" onClick={(event) => event.stopPropagation()}>
             <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-muted-foreground/30" />
             <div className="p-2">
               {actionMessage.sender_id === currentUserId && !actionMessage.is_deleted && !isReadOnly ? (

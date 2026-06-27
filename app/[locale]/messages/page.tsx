@@ -44,7 +44,7 @@ export default async function MessagesPage({
   }
 
   return (
-    <section className="flex h-full min-h-0 w-full overflow-hidden bg-background">
+    <section className="flex h-[calc(100dvh-3.5rem-var(--safe-top))] min-h-0 w-full overflow-hidden bg-background md:h-full">
       <div className={`${selectedConversation ? "hidden md:flex" : "flex"} min-h-0 w-full flex-col md:w-[30%] md:min-w-[17rem] md:shrink-0 md:border-e md:border-border/70`}>
         <ConversationList initialConversations={conversations} currentUserId={currentUserId} />
       </div>
