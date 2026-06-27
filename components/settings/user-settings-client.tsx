@@ -40,12 +40,12 @@ import {
 
 import {
   changePasswordWithCurrentAction,
-  deactivateAccountAction,
   deleteAccountAction,
   saveAccountSettingsAction,
   saveUserPreferencesAction,
   sendEmailVerificationAction,
   sendPhoneOtpAction,
+  verifyPasswordAction,
   verifyPhoneOtpAction,
 } from "@/app/[locale]/(dashboard)/settings/actions";
 import {signOutAction} from "@/app/[locale]/server-actions";
@@ -264,12 +264,21 @@ function labelsFor(locale: string) {
     },
     actions: {
       logout: "تسجيل الخروج",
-      deactivate: "تعطيل الحساب",
-      delete: "حذف الحساب نهائياً",
-      deleteHint: "اكتب DELETE لتأكيد الحذف النهائي.",
-      confirmation: "كلمة التأكيد",
-      deactivateDone: "تم تعطيل الحساب",
+      delete: "حذف الحساب",
+      deleteWarningTitle: "حذف الحساب",
+      deleteWarningDescription: "سيؤدي حذف حسابك إلى إزالة بياناتك نهائياً.",
+      deleteWarningList: "• ملفك الشخصي\n• منشوراتك\n• ذكرياتك\n• مساهماتك في گرعتك\n• ساعات التطوع\n• التقدير المجتمعي والأوسمة\n• إعدادات حسابك",
+      deleteWarningIrreversible: "هذا الإجراء لا يمكن التراجع عنه.",
+      deleteCurrentPassword: "كلمة المرور الحالية",
+      deleteConfirmTitle: "هل أنت متأكد؟",
+      deleteConfirmDescription: "سيتم حذف حسابك نهائياً ولا يمكن استعادته.",
+      deleteConfirmButton: "حذف الحساب",
+      deleteCancelButton: "إلغاء",
+      deleteSuccess: "تم حذف الحساب بنجاح.",
       deleteFailed: "تعذر حذف الحساب",
+      wrongPassword: "كلمة المرور الحالية غير صحيحة",
+      back: "رجوع",
+      logoutSuccess: "تم تسجيل الخروج بنجاح.",
     },
   };
 
@@ -414,12 +423,21 @@ function labelsFor(locale: string) {
     },
     actions: {
       logout: "Se déconnecter",
-      deactivate: "Désactiver le compte",
-      delete: "Supprimer définitivement",
-      deleteHint: "Tapez DELETE pour confirmer la suppression.",
-      confirmation: "Mot de confirmation",
-      deactivateDone: "Compte désactivé",
+      delete: "Supprimer le compte",
+      deleteWarningTitle: "Supprimer le compte",
+      deleteWarningDescription: "La suppression de votre compte entraînera la suppression définitive de vos données.",
+      deleteWarningList: "• Votre profil\n• Vos publications\n• Vos souvenirs\n• Vos contributions Graatek\n• Vos heures de bénévolat\n• Votre reconnaissance et badges communautaires\n• Vos paramètres de compte",
+      deleteWarningIrreversible: "Cette action est irréversible.",
+      deleteCurrentPassword: "Mot de passe actuel",
+      deleteConfirmTitle: "Êtes-vous sûr ?",
+      deleteConfirmDescription: "Votre compte sera définitivement supprimé et ne pourra pas être récupéré.",
+      deleteConfirmButton: "Supprimer le compte",
+      deleteCancelButton: "Annuler",
+      deleteSuccess: "Compte supprimé avec succès.",
       deleteFailed: "Impossible de supprimer le compte",
+      wrongPassword: "Mot de passe actuel incorrect",
+      back: "Retour",
+      logoutSuccess: "Déconnexion réussie.",
     },
   };
 
@@ -564,12 +582,21 @@ function labelsFor(locale: string) {
     },
     actions: {
       logout: "Log out",
-      deactivate: "Deactivate account",
-      delete: "Permanently delete account",
-      deleteHint: "Type DELETE to confirm permanent deletion.",
-      confirmation: "Confirmation word",
-      deactivateDone: "Account deactivated",
+      delete: "Delete account",
+      deleteWarningTitle: "Delete Account",
+      deleteWarningDescription: "Deleting your account will permanently remove your data.",
+      deleteWarningList: "• Your profile\n• Your posts\n• Your memories\n• Your Graatek contributions\n• Your volunteer hours\n• Your community recognition and badges\n• Your account settings",
+      deleteWarningIrreversible: "This action cannot be undone.",
+      deleteCurrentPassword: "Current password",
+      deleteConfirmTitle: "Are you sure?",
+      deleteConfirmDescription: "Your account will be permanently deleted and cannot be recovered.",
+      deleteConfirmButton: "Delete Account",
+      deleteCancelButton: "Cancel",
+      deleteSuccess: "Account deleted successfully.",
       deleteFailed: "Could not delete account",
+      wrongPassword: "Current password is incorrect",
+      back: "Back",
+      logoutSuccess: "Logged out successfully.",
     },
   };
 
@@ -706,8 +733,10 @@ export function UserSettingsClient({
   const [avatarPreview, setAvatarPreview] = useState(profile.avatar_url);
   const [coverPreview, setCoverPreview] = useState(profile.cover_image_url);
   const [password, setPassword] = useState({password: "", confirmPassword: ""});
-  const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [accountDirty, setAccountDirty] = useState(false);
+  const [deleteStep, setDeleteStep] = useState<"idle" | "verify" | "confirm">("idle");
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState("");
   const [preferencesSaving, setPreferencesSaving] = useState(false);
   const [securityView, setSecurityView] = useState<"main" | "changePassword" | "phoneOtp">("main");
   const [verifyingEmail, setVerifyingEmail] = useState(false);
@@ -965,18 +994,31 @@ export function UserSettingsClient({
     setShowSecPassword((prev) => ({...prev, [field]: !prev[field]}));
   }
 
-  async function deactivate() {
+  async function handleVerifyDeletePassword() {
+    setDeleteError("");
     startTransition(async () => {
-      const result = await deactivateAccountAction(locale);
-      if (!result?.success) toast.error(labels.saveFailed);
+      const result = await verifyPasswordAction(deletePassword);
+      if (result.success) {
+        setDeleteStep("confirm");
+      } else {
+        setDeleteError(labels.actions.wrongPassword);
+      }
     });
   }
 
-  async function deleteAccount() {
+  async function handleConfirmDelete() {
+    setDeleteError("");
     startTransition(async () => {
-      const result = await deleteAccountAction({locale, confirmation: deleteConfirmation});
+      const result = await deleteAccountAction({locale, password: deletePassword});
       if (!result?.success) toast.error(labels.actions.deleteFailed);
     });
+  }
+
+  async function handleLogout() {
+    const form = new FormData();
+    form.set("locale", locale);
+    await signOutAction(form);
+    toast.success(labels.actions.logoutSuccess);
   }
 
   const themeOptions: Array<{value: UserThemePreference; label: string; icon: typeof Sun}> = [
@@ -1421,37 +1463,78 @@ export function UserSettingsClient({
           </SectionCard>
 
           <SectionCard id="actions" title={labels.sections.actions} icon={AlertTriangle} visible={selectedSection === "actions"}>
-            <div className="space-y-3">
-              <form action={signOutAction}>
-                <input type="hidden" name="locale" value={locale} />
-                <Button type="submit" variant="outline" className="w-full gap-2 sm:w-auto">
-                  <LogOut size={17} />
-                  {labels.actions.logout}
-                </Button>
-              </form>
-              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3">
-                <Button variant="outline" onClick={deactivate} disabled={isPending} className="w-full gap-2 border-amber-500/30 sm:w-auto">
-                  <EyeOff size={17} />
-                  {labels.actions.deactivate}
+            {deleteStep === "idle" ? (
+              <div className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70">
+                <button type="button" onClick={handleLogout}
+                  className="flex min-h-15 w-full items-center justify-between gap-3 px-4 py-3 text-start transition hover:bg-muted/40 active:scale-[0.99]"
+                >
+                  <span className="flex items-center gap-3">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary"><LogOut size={17} /></span>
+                    <span className="text-sm font-bold">{labels.actions.logout}</span>
+                  </span>
+                  <ChevronRight size={18} className={cn("text-muted-foreground", isRtl && "rotate-180")} />
+                </button>
+                <button type="button" onClick={() => {setDeleteStep("verify"); setDeletePassword(""); setDeleteError("");}}
+                  className="flex min-h-15 w-full items-center justify-between gap-3 px-4 py-3 text-start transition hover:bg-muted/40 active:scale-[0.99]"
+                >
+                  <span className="flex items-center gap-3">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-destructive/10 text-destructive"><Trash2 size={17} /></span>
+                    <span className="text-sm font-bold text-destructive">{labels.actions.delete}</span>
+                  </span>
+                  <ChevronRight size={18} className={cn("text-muted-foreground", isRtl && "rotate-180")} />
+                </button>
+              </div>
+            ) : deleteStep === "verify" ? (
+              <div>
+                <button type="button" onClick={() => setDeleteStep("idle")}
+                  className="mb-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-black text-muted-foreground shadow-sm"
+                >
+                  <ArrowLeft size={18} className={cn(isRtl && "rotate-180")} />
+                  {labels.actions.back}
+                </button>
+                <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4">
+                  <AlertTriangle size={28} className="mx-auto text-destructive" />
+                  <p className="mt-2 text-center text-sm font-black text-destructive">{labels.actions.deleteWarningTitle}</p>
+                  <p className="mt-1 text-center text-xs text-destructive/80">{labels.actions.deleteWarningDescription}</p>
+                  <div className="mt-3 space-y-1 text-xs text-destructive/70">
+                    {labels.actions.deleteWarningList.split("\n").map((item, i) => (
+                      <p key={i}>{item}</p>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-center text-xs font-bold text-destructive">{labels.actions.deleteWarningIrreversible}</p>
+                </div>
+                <div className="mt-4 space-y-1.5">
+                  <label className="text-xs font-black uppercase tracking-wide text-muted-foreground">{labels.actions.deleteCurrentPassword}</label>
+                  <Input type="password" value={deletePassword} onChange={(e) => {setDeletePassword(e.target.value); setDeleteError("");}} autoComplete="current-password" />
+                  {deleteError ? <p className="text-xs font-bold text-destructive">{deleteError}</p> : null}
+                </div>
+                <Button onClick={handleVerifyDeletePassword} disabled={isPending || !deletePassword} variant="destructive" className="mt-4 w-full gap-2">
+                  {isPending ? labels.saving : labels.actions.deleteConfirmButton}
                 </Button>
               </div>
-              <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-3">
-                <p className="text-sm font-bold text-destructive">{labels.actions.delete}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{labels.actions.deleteHint}</p>
-                <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                  <Input
-                    value={deleteConfirmation}
-                    onChange={(event) => setDeleteConfirmation(event.target.value)}
-                    placeholder={labels.actions.confirmation}
-                    className="bg-card"
-                  />
-                  <Button variant="destructive" onClick={deleteAccount} disabled={isPending || deleteConfirmation.toUpperCase() !== "DELETE"} className="gap-2">
-                    <Trash2 size={17} />
-                    {labels.actions.delete}
+            ) : (
+              <div>
+                <button type="button" onClick={() => setDeleteStep("verify")}
+                  className="mb-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-black text-muted-foreground shadow-sm"
+                >
+                  <ArrowLeft size={18} className={cn(isRtl && "rotate-180")} />
+                  {labels.actions.back}
+                </button>
+                <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-6 text-center">
+                  <AlertTriangle size={40} className="mx-auto text-destructive" />
+                  <p className="mt-3 text-lg font-black text-destructive">{labels.actions.deleteConfirmTitle}</p>
+                  <p className="mt-1 text-sm text-destructive/80">{labels.actions.deleteConfirmDescription}</p>
+                </div>
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                  <Button onClick={handleConfirmDelete} disabled={isPending} variant="destructive" className="flex-1 gap-2">
+                    {isPending ? labels.saving : labels.actions.deleteConfirmButton}
+                  </Button>
+                  <Button type="button" variant="outline" onClick={() => {setDeleteStep("idle"); setDeletePassword("");}} disabled={isPending} className="flex-1 gap-2">
+                    {labels.actions.deleteCancelButton}
                   </Button>
                 </div>
               </div>
-            </div>
+            )}
           </SectionCard>
         </main>
       </div>

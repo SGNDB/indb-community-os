@@ -354,25 +354,25 @@ export async function deactivateAccountAction(locale: string): Promise<ActionRes
   redirect(withLocale("/login?status=deactivated", safeLocale));
 }
 
+export async function verifyPasswordAction(password: string): Promise<ActionResult> {
+  const {supabase, user} = await getCurrentUser();
+  if (!user?.email) return {success: false, error: "not_authenticated"};
+  const {error} = await supabase.auth.signInWithPassword({email: user.email, password});
+  if (error) return {success: false, error: "wrong_password"};
+  return {success: true};
+}
+
 export async function deleteAccountAction(input: {
   locale: string;
-  confirmation: string;
+  password: string;
 }): Promise<ActionResult> {
   const safeLocale = normalizeLocale(input.locale);
   const {supabase, user} = await getCurrentUser();
   if (!user) return {success: false, error: "not_authenticated"};
-  if (input.confirmation.trim().toUpperCase() !== "DELETE") {
-    return {success: false, error: "confirmation_required"};
-  }
 
-  await ensureSettingsRow(user.id);
-  await supabase
-    .from("user_settings")
-    .update({
-      account_status: "pending_deletion" satisfies UserAccountStatus,
-      deletion_requested_at: new Date().toISOString(),
-    })
-    .eq("user_id", user.id);
+  // verify password before deletion
+  const pwCheck = await verifyPasswordAction(input.password);
+  if (!pwCheck.success) return {success: false, error: "wrong_password"};
 
   const admin = createAdminClient();
   if (!admin) return {success: false, error: "admin_not_configured"};
