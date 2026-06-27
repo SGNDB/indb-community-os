@@ -3,6 +3,7 @@
 import {createContext, useContext, useEffect, useState, useRef} from "react";
 import {createClient} from "@/lib/supabase/client";
 import {useCurrentUser} from "@/hooks/use-current-user";
+import type {RealtimeChannel} from "@supabase/supabase-js";
 
 interface PresenceContextValue {
   onlineUsers: Set<string>;
@@ -19,7 +20,9 @@ export function useIsOnline(userId: string | null | undefined): boolean {
 export function PresenceProvider({children}: {children: React.ReactNode}) {
   const {userId} = useCurrentUser();
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
-  const channelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null);
+  const presenceChannelRef = useRef<RealtimeChannel | null>(null);
+  const settingsChannelRef = useRef<RealtimeChannel | null>(null);
+  const showOnlineRef = useRef(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -27,44 +30,79 @@ export function PresenceProvider({children}: {children: React.ReactNode}) {
     const supabase = createClient();
     let cancelled = false;
 
-    supabase
-      .from("user_settings")
-      .select("show_online_status")
-      .eq("user_id", userId)
-      .maybeSingle()
-      .then(({data}) => {
-        if (cancelled) return;
-        const showOnline = data?.show_online_status ?? true;
+    async function init() {
+      const {data} = await supabase
+        .from("user_settings")
+        .select("show_online_status")
+        .eq("user_id", userId)
+        .maybeSingle();
 
-        const channel = supabase.channel("presence-online");
-        channelRef.current = channel;
+      if (cancelled) return;
+      const showOnline = data?.show_online_status ?? true;
+      showOnlineRef.current = showOnline;
 
-        channel
-          .on("presence", {event: "sync"}, () => {
-            const state = channel.presenceState();
-            const online = new Set<string>();
-            for (const presences of Object.values(state)) {
-              for (const p of (presences as {user_id?: string}[])) {
-                if (p.user_id) online.add(p.user_id);
-              }
+      const pChannel = supabase.channel("presence-online");
+      presenceChannelRef.current = pChannel;
+
+      pChannel
+        .on("presence", {event: "sync"}, () => {
+          if (cancelled) return;
+          const state = pChannel.presenceState();
+          const online = new Set<string>();
+          for (const presences of Object.values(state)) {
+            for (const p of (presences as {user_id?: string}[])) {
+              if (p.user_id) online.add(p.user_id);
             }
-            if (!cancelled) setOnlineUsers(online);
-          })
-          .subscribe(async (status) => {
-            if (status === "SUBSCRIBED" && showOnline && !cancelled) {
-              await channel.track({
-                user_id: userId,
-                online_at: new Date().toISOString(),
-              });
+          }
+          setOnlineUsers(online);
+        })
+        .subscribe(async (status) => {
+          if (status === "SUBSCRIBED" && showOnline && !cancelled) {
+            await pChannel.track({
+              user_id: userId,
+              online_at: new Date().toISOString(),
+            });
+          }
+        });
+
+      const sChannel = supabase
+        .channel("presence-settings")
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "user_settings",
+            filter: `user_id=eq.${userId}`,
+          },
+          (payload) => {
+            if (cancelled) return;
+            const newVal = (payload.new as {show_online_status?: boolean} | null)?.show_online_status ?? true;
+            const oldVal = showOnlineRef.current;
+            showOnlineRef.current = newVal;
+            if (newVal && !oldVal) {
+              pChannel.track({user_id: userId, online_at: new Date().toISOString()});
+            } else if (!newVal && oldVal) {
+              pChannel.untrack();
             }
-          });
-      });
+          },
+        )
+        .subscribe();
+
+      settingsChannelRef.current = sChannel;
+    }
+
+    init();
 
     return () => {
       cancelled = true;
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
+      if (presenceChannelRef.current) {
+        supabase.removeChannel(presenceChannelRef.current);
+        presenceChannelRef.current = null;
+      }
+      if (settingsChannelRef.current) {
+        supabase.removeChannel(settingsChannelRef.current);
+        settingsChannelRef.current = null;
       }
     };
   }, [userId]);
