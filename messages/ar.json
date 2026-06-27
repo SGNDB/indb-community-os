@@ -3024,6 +3024,8 @@
       "groupName": "اسم المجموعة",
       "closedAfterCompletion": "تم إغلاق المحادثة بعد إكمال الفكرة",
       "viewImage": "عرض الصورة",
+      "prevImage": "الصورة السابقة",
+      "nextImage": "الصورة التالية",
       "cancel": "إلغاء",
       "editName": "تعديل الاسم",
       "nameTooShort": "استخدم حرفين على الأقل.",

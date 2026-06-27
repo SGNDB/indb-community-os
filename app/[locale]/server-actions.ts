@@ -4312,6 +4312,8 @@ export async function sendConversationMessageAction(
   const messageTypeRaw = formData.get('messageType');
   const imageUrlRaw = formData.get('imageUrl');
   const imageStoragePathRaw = formData.get('imageStoragePath');
+  const imageUrlsRaw = formData.get('imageUrls');
+  const imageStoragePathsRaw = formData.get('imageStoragePaths');
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'unauthorized' };
@@ -4322,11 +4324,30 @@ export async function sendConversationMessageAction(
   const trimmed = typeof messageText === 'string' ? messageText.trim() : '';
   const imageUrl = typeof imageUrlRaw === 'string' && imageUrlRaw ? imageUrlRaw : null;
   const imageStoragePath = typeof imageStoragePathRaw === 'string' && imageStoragePathRaw ? imageStoragePathRaw : null;
+  let imageUrls: string[] = [];
+  let imageStoragePaths: string[] = [];
+  try {
+    if (typeof imageUrlsRaw === 'string') {
+      const parsed = JSON.parse(imageUrlsRaw) as unknown;
+      imageUrls = Array.isArray(parsed)
+        ? parsed.filter((url): url is string => typeof url === 'string' && url.length > 0).slice(0, 10)
+        : [];
+    }
+    if (typeof imageStoragePathsRaw === 'string') {
+      const parsed = JSON.parse(imageStoragePathsRaw) as unknown;
+      imageStoragePaths = Array.isArray(parsed)
+        ? parsed.filter((path): path is string => typeof path === 'string' && path.length > 0).slice(0, 10)
+        : [];
+    }
+  } catch { /* ignore parse errors */ }
+  if (!imageUrls.length && imageUrl) imageUrls = [imageUrl];
+  if (!imageStoragePaths.length && imageStoragePath) imageStoragePaths = [imageStoragePath];
+  const hasImage = imageUrls.length > 0;
 
   if (messageType === 'text' && (!trimmed || trimmed.length > 1000)) {
     return { success: false, error: 'invalid' };
   }
-  if (messageType === 'image' && (!imageUrl || !imageStoragePath || trimmed.length > 500)) {
+  if (messageType === 'image' && (!hasImage || trimmed.length > 500)) {
     return { success: false, error: 'invalid' };
   }
 
@@ -4344,8 +4365,10 @@ export async function sendConversationMessageAction(
   const result = await sendConversationMessage(conversationId, user.id, {
     message: trimmed || null,
     messageType,
-    imageUrl,
-    imageStoragePath,
+    imageUrl: imageUrls[0] ?? null,
+    imageStoragePath: imageStoragePaths[0] ?? null,
+    imageUrls,
+    imageStoragePaths,
   });
   if (!result) return { success: false, error: 'insert_failed' };
 
@@ -4368,7 +4391,7 @@ export async function sendConversationMessageAction(
           metadata: {
             conversationId,
             message: trimmed.slice(0, 100),
-            hasImage: messageType === 'image',
+            hasImage,
           },
         }),
       ),

@@ -1939,6 +1939,8 @@
       "groupName": "Gurupu toxo",
       "closedAfterCompletion": "Karu xibaare ya daabundi miijo banbanta koota.",
       "viewImage": "Foto wari",
+      "prevImage": "Foto kan ma",
+      "nextImage": "Foto nata",
       "cancel": "Faayi",
       "editName": "Toxo yaŋqinde",
       "nameTooShort": "Harafi filli walla me be.",

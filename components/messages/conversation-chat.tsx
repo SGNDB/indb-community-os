@@ -167,7 +167,8 @@ export function ConversationChat({
   const [typingName, setTypingName] = useState<string | null>(null);
   const [showGroupInfo, setShowGroupInfo] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
-  const [imageViewerUrl, setImageViewerUrl] = useState<string | null>(null);
+  const [viewerImages, setViewerImages] = useState<string[]>([]);
+  const [viewerIndex, setViewerIndex] = useState(0);
   const [groupTitle, setGroupTitle] = useState(conversationTitle);
   const [draftTitle, setDraftTitle] = useState(conversationTitle);
   const [groupImageUrl, setGroupImageUrl] = useState(conversationImageUrl);
@@ -175,7 +176,7 @@ export function ConversationChat({
   const [draftImageStoragePath, setDraftImageStoragePath] = useState(conversationImageStoragePath);
   const [groupImageUploading, setGroupImageUploading] = useState(false);
   const [profileSaving, setProfileSaving] = useState(false);
-  const [pendingImage, setPendingImage] = useState<{ url: string; storagePath: string } | null>(null);
+  const [pendingImages, setPendingImages] = useState<{ url: string; storagePath: string }[]>([]);
   const [imageUploading, setImageUploading] = useState(false);
   const [localArchived, setLocalArchived] = useState(isArchived);
   const [localIdeaStatus, setLocalIdeaStatus] = useState(ideaStatus);
@@ -233,7 +234,7 @@ export function ConversationChat({
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, pendingImage]);
+  }, [messages, pendingImages]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -289,6 +290,8 @@ export function ConversationChat({
         (payload) => {
           const newMsg = payload.new as Record<string, unknown>;
           const senderId = newMsg.sender_id as string;
+          const rawImageUrls = newMsg.image_urls as unknown;
+          const rawImageStoragePaths = newMsg.image_storage_paths as unknown;
           setMessages((prev) => {
             if (prev.some((m) => m.id === newMsg.id)) return prev;
             return [
@@ -301,6 +304,8 @@ export function ConversationChat({
                 message_type: newMsg.message_type === "image" ? "image" : "text",
                 image_url: (newMsg.image_url as string | null) ?? null,
                 image_storage_path: (newMsg.image_storage_path as string | null) ?? null,
+                image_urls: Array.isArray(rawImageUrls) ? rawImageUrls as string[] : ((newMsg.image_url as string | null) ? [(newMsg.image_url as string)] : []),
+                image_storage_paths: Array.isArray(rawImageStoragePaths) ? rawImageStoragePaths as string[] : ((newMsg.image_storage_path as string | null) ? [(newMsg.image_storage_path as string)] : []),
                 created_at: newMsg.created_at as string,
                 read_at: (newMsg.read_at as string | null) ?? null,
                 sender: participantByIdRef.current.get(senderId)?.user ?? null,
@@ -357,14 +362,19 @@ export function ConversationChat({
     if (value.trim()) broadcastTyping();
   }
 
-  async function handleImagePick(file: File | undefined) {
-    if (!file || isReadOnly || imageUploading) return;
+  async function handleImagePick(files: FileList | null) {
+    if (!files || files.length === 0 || isReadOnly || imageUploading) return;
     setImageUploading(true);
     setError(null);
     try {
-      const uploaded = await uploadMediaItem(file, "conversation");
-      if (uploaded.type !== "image") throw new Error("invalid");
-      setPendingImage({ url: uploaded.url, storagePath: uploaded.storagePath });
+      const availableSlots = Math.max(0, 10 - pendingImages.length);
+      const uploaded: { url: string; storagePath: string }[] = [];
+      for (let i = 0; i < Math.min(files.length, availableSlots); i++) {
+        const result = await uploadMediaItem(files[i], "conversation");
+        if (result.type !== "image") throw new Error("invalid");
+        uploaded.push({ url: result.url, storagePath: result.storagePath });
+      }
+      setPendingImages((prev) => [...prev, ...uploaded]);
     } catch (e) {
       console.error("image upload error:", e);
       setError("image_upload_failed");
@@ -400,14 +410,14 @@ export function ConversationChat({
   async function handleSend(e: FormEvent) {
     e.preventDefault();
     const trimmed = input.trim();
-    if ((!trimmed && !pendingImage) || sending || isReadOnly) return;
-    const optimisticImage = pendingImage;
+    if ((!trimmed && pendingImages.length === 0) || sending || isReadOnly) return;
+    const optimisticImages = pendingImages;
     const optimisticId = `optimistic-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const optimisticCreatedAt = new Date().toISOString();
     setSending(true);
     setError(null);
     setInput("");
-    setPendingImage(null);
+    setPendingImages([]);
     setMessages((prev) => [
       ...prev,
       {
@@ -415,9 +425,11 @@ export function ConversationChat({
         conversation_id: conversationId,
         sender_id: currentUserId,
         message: trimmed || null,
-        message_type: optimisticImage ? "image" : "text",
-        image_url: optimisticImage?.url ?? null,
-        image_storage_path: optimisticImage?.storagePath ?? null,
+        message_type: optimisticImages.length > 0 ? "image" : "text",
+        image_url: optimisticImages[0]?.url ?? null,
+        image_storage_path: optimisticImages[0]?.storagePath ?? null,
+        image_urls: optimisticImages.map((img) => img.url),
+        image_storage_paths: optimisticImages.map((img) => img.storagePath),
         created_at: optimisticCreatedAt,
         read_at: null,
         sender: currentParticipant?.user ?? null,
@@ -427,10 +439,12 @@ export function ConversationChat({
     const formData = new FormData();
     formData.set("conversationId", conversationId);
     formData.set("message", trimmed);
-    if (optimisticImage) {
+    if (optimisticImages.length > 0) {
       formData.set("messageType", "image");
-      formData.set("imageUrl", optimisticImage.url);
-      formData.set("imageStoragePath", optimisticImage.storagePath);
+      formData.set("imageUrls", JSON.stringify(optimisticImages.map((img) => img.url)));
+      formData.set("imageStoragePaths", JSON.stringify(optimisticImages.map((img) => img.storagePath)));
+      formData.set("imageUrl", optimisticImages[0].url);
+      formData.set("imageStoragePath", optimisticImages[0].storagePath);
     } else {
       formData.set("messageType", "text");
     }
@@ -452,9 +466,11 @@ export function ConversationChat({
               conversation_id: conversationId,
               sender_id: currentUserId,
               message: trimmed || null,
-              message_type: optimisticImage ? "image" : "text",
-              image_url: optimisticImage?.url ?? null,
-              image_storage_path: optimisticImage?.storagePath ?? null,
+              message_type: optimisticImages.length > 0 ? "image" : "text",
+              image_url: optimisticImages[0]?.url ?? null,
+              image_storage_path: optimisticImages[0]?.storagePath ?? null,
+              image_urls: optimisticImages.map((img) => img.url),
+              image_storage_paths: optimisticImages.map((img) => img.storagePath),
               created_at: res.message!.created_at,
               read_at: null,
               sender: currentParticipant?.user ?? null,
@@ -464,14 +480,14 @@ export function ConversationChat({
       } else {
         setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
         setInput(trimmed);
-        setPendingImage(optimisticImage);
+        setPendingImages(optimisticImages);
         setError(res.error ?? "insert_failed");
       }
     } catch (e) {
       console.error("send error:", e);
       setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
       setInput(trimmed);
-      setPendingImage(optimisticImage);
+      setPendingImages(optimisticImages);
       setError("insert_failed");
     } finally {
       setSending(false);
@@ -675,7 +691,8 @@ export function ConversationChat({
             const prevMsg = index > 0 ? messages[index - 1] : null;
             const isSameSenderAsPrev = prevMsg?.sender_id === msg.sender_id;
             const isFirstInGroup = !isSameSenderAsPrev;
-            const hasImage = msg.message_type === "image" && msg.image_url;
+            const msgImages = msg.image_urls?.length ? msg.image_urls : (msg.image_url ? [msg.image_url] : []);
+            const hasImage = msgImages.length > 0;
 
             return (
               <div
@@ -739,18 +756,31 @@ export function ConversationChat({
                       dir="auto"
                     >
                       {hasImage && (
-                        <button
-                          type="button"
-                          onClick={() => setImageViewerUrl(msg.image_url)}
-                          className="block overflow-hidden rounded-xl text-start"
-                          aria-label={t("groupChat.viewImage")}
-                        >
-                          <img
-                            src={msg.image_url ?? ""}
-                            alt=""
-                            className="max-h-80 w-full min-w-40 object-cover sm:min-w-52"
-                          />
-                        </button>
+                        <div className={cn("grid gap-1", msgImages.length === 1 ? "grid-cols-1" : "grid-cols-2")}>
+                          {msgImages.slice(0, 4).map((url, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={() => { setViewerImages(msgImages); setViewerIndex(i); }}
+                              className={cn("overflow-hidden rounded-xl text-start", i === 3 && msgImages.length > 4 ? "relative" : "")}
+                              aria-label={t("groupChat.viewImage")}
+                            >
+                              <img
+                                src={url}
+                                alt=""
+                                className={cn(
+                                  "h-full w-full object-cover",
+                                  msgImages.length === 1 ? "max-h-80 min-w-40 sm:min-w-52" : "aspect-square",
+                                )}
+                              />
+                              {i === 3 && msgImages.length > 4 && (
+                                <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-black/50 text-lg font-bold text-white">
+                                  +{msgImages.length - 4}
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
                       )}
                       {msg.message && (
                         <p className={cn(hasImage && "px-2 py-1.5")}>{msg.message}</p>
@@ -787,21 +817,24 @@ export function ConversationChat({
 
       {(error || !isReadOnly) && (
         <div className="sticky bottom-0 z-10 shrink-0 border-t border-border/70 bg-background/95 px-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur md:px-4 md:pb-3 md:pt-2.5">
-          {pendingImage && !isReadOnly && (
-            <div className="mb-2 flex items-start gap-2 rounded-lg border border-border/70 bg-card p-2 shadow-sm">
-              <img src={pendingImage.url} alt="" className="h-16 w-16 rounded-md object-cover" />
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium text-foreground">{t("groupChat.imageReady")}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{t("groupChat.addCaptionOrSend")}</p>
+          {pendingImages.length > 0 && !isReadOnly && (
+            <div className="mb-2 rounded-lg border border-border/70 bg-card p-2 shadow-sm">
+              <div className="flex flex-wrap gap-2">
+                {pendingImages.map((img, i) => (
+                  <div key={i} className="relative">
+                    <img src={img.url} alt="" className="h-16 w-16 rounded-md object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setPendingImages((prev) => prev.filter((_, idx) => idx !== i))}
+                      className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-background/90 text-muted-foreground shadow transition hover:bg-muted"
+                      aria-label={t("groupChat.removeImage")}
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
               </div>
-              <button
-                type="button"
-                onClick={() => setPendingImage(null)}
-                className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted"
-                aria-label={t("groupChat.removeImage")}
-              >
-                <X size={15} />
-              </button>
+              <p className="mt-1.5 text-xs text-muted-foreground">{t("groupChat.addCaptionOrSend")}</p>
             </div>
           )}
 
@@ -815,8 +848,9 @@ export function ConversationChat({
                 ref={imageInputRef}
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
+                multiple
                 className="hidden"
-                onChange={(event) => handleImagePick(event.target.files?.[0])}
+                onChange={(event) => handleImagePick(event.target.files)}
               />
               <button
                 type="button"
@@ -831,13 +865,13 @@ export function ConversationChat({
                 type="text"
                 value={input}
                 onChange={(e) => handleInputChange(e.target.value)}
-                maxLength={pendingImage ? 500 : 1000}
-                placeholder={pendingImage ? t("groupChat.addCaption") : t("placeholder")}
+                maxLength={pendingImages.length > 0 ? 500 : 1000}
+                placeholder={pendingImages.length > 0 ? t("groupChat.addCaption") : t("placeholder")}
                 className="min-h-10 min-w-0 flex-1 rounded-full border border-border/60 bg-card px-3.5 py-2 text-sm shadow-sm outline-none transition focus:border-primary/50 focus:ring-1 focus:ring-primary/30 md:min-h-11 md:px-4 md:py-2.5"
               />
               <button
                 type="submit"
-                disabled={(!input.trim() && !pendingImage) || sending}
+                disabled={(!input.trim() && pendingImages.length === 0) || sending}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition active:bg-primary/90 disabled:opacity-40 md:h-11 md:w-11 md:hover:bg-primary/90"
                 aria-label={t("groupChat.sendMessage")}
               >
@@ -1076,15 +1110,53 @@ export function ConversationChat({
         </div>
       )}
 
-      {imageViewerUrl && (
-        <button
-          type="button"
-          onClick={() => setImageViewerUrl(null)}
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-4"
-          aria-label={t("groupChat.close")}
-        >
-          <img src={imageViewerUrl} alt="" className="max-h-full max-w-full rounded-lg object-contain shadow-2xl" />
-        </button>
+      {viewerImages.length > 0 && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-4">
+          <button
+            type="button"
+            onClick={() => setViewerImages([])}
+            className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
+            aria-label={t("groupChat.close")}
+          >
+            <X size={20} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewerImages([])}
+            className="absolute inset-0"
+            aria-label={t("groupChat.close")}
+          />
+          {viewerImages.length > 1 && viewerIndex > 0 && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setViewerIndex((i) => i - 1); }}
+              className="absolute left-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
+              aria-label={t("groupChat.prevImage")}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+          )}
+          {viewerImages.length > 1 && viewerIndex < viewerImages.length - 1 && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setViewerIndex((i) => i + 1); }}
+              className="absolute right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
+              aria-label={t("groupChat.nextImage")}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          )}
+          <div className="relative z-10 flex max-h-full max-w-full flex-col items-center">
+            <img
+              src={viewerImages[viewerIndex]}
+              alt=""
+              className="max-h-full max-w-full rounded-lg object-contain shadow-2xl"
+            />
+            {viewerImages.length > 1 && (
+              <span className="mt-3 text-sm text-white/70">{viewerIndex + 1} / {viewerImages.length}</span>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

@@ -33,6 +33,8 @@ export interface ConversationMessageWithSender {
   message_type: ConversationMessageType;
   image_url: string | null;
   image_storage_path: string | null;
+  image_urls: string[];
+  image_storage_paths: string[];
   created_at: string;
   read_at: string | null;
   sender: ConversationUserProfile | null;
@@ -385,6 +387,8 @@ export async function getConversationMessages(
       message_type: normalizeMessageType(message.message_type),
       image_url: message.image_url ?? null,
       image_storage_path: message.image_storage_path ?? null,
+      image_urls: Array.isArray(message.image_urls) ? message.image_urls : (message.image_url ? [message.image_url] : []),
+      image_storage_paths: Array.isArray(message.image_storage_paths) ? message.image_storage_paths : (message.image_storage_path ? [message.image_storage_path] : []),
     }));
 }
 
@@ -396,6 +400,8 @@ export async function sendConversationMessage(
     messageType?: ConversationMessageType;
     imageUrl?: string | null;
     imageStoragePath?: string | null;
+    imageUrls?: string[];
+    imageStoragePaths?: string[];
   },
 ): Promise<{ id: string; created_at: string } | null> {
   const supabase = await createClient();
@@ -404,9 +410,11 @@ export async function sendConversationMessage(
   const message = (isTextInput ? input : input.message ?? '').trim();
   const imageUrl = isTextInput ? null : input.imageUrl ?? null;
   const imageStoragePath = isTextInput ? null : input.imageStoragePath ?? null;
+  const imageUrls = isTextInput ? [] : input.imageUrls ?? (imageUrl ? [imageUrl] : []);
+  const imageStoragePaths = isTextInput ? [] : input.imageStoragePaths ?? (imageStoragePath ? [imageStoragePath] : []);
 
   if (messageType === 'text' && !message) return null;
-  if (messageType === 'image' && (!imageUrl || !imageStoragePath)) return null;
+  if (messageType === 'image' && imageUrls.length === 0) return null;
 
   let { data, error } = await supabase
     .from('conversation_messages')
@@ -415,8 +423,10 @@ export async function sendConversationMessage(
       sender_id: senderId,
       message: messageType === 'image' && !message ? '' : (message || null),
       message_type: messageType,
-      image_url: imageUrl,
-      image_storage_path: imageStoragePath,
+      image_url: imageUrls[0] ?? null,
+      image_storage_path: imageStoragePaths[0] ?? null,
+      image_urls: imageUrls,
+      image_storage_paths: imageStoragePaths,
     })
     .select('id, created_at')
     .single();

@@ -3108,6 +3108,8 @@
       "groupName": "Group name",
       "closedAfterCompletion": "This conversation was closed after the idea was completed.",
       "viewImage": "View image",
+      "prevImage": "Previous image",
+      "nextImage": "Next image",
       "cancel": "Cancel",
       "editName": "Edit name",
       "nameTooShort": "Use at least 2 characters.",

@@ -3024,6 +3024,8 @@
       "groupName": "Nom du groupe",
       "closedAfterCompletion": "Cette conversation a été fermée après l’achèvement de l’idée.",
       "viewImage": "Voir l’image",
+      "prevImage": "Image précédente",
+      "nextImage": "Image suivante",
       "cancel": "Annuler",
       "editName": "Modifier le nom",
       "nameTooShort": "Utilisez au moins 2 caractères.",
