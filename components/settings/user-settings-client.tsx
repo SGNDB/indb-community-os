@@ -252,13 +252,15 @@ function labelsFor(locale: string) {
       verifyEmailAction: "توثيق البريد الإلكتروني",
     },
     about: {
-      version: "إصدار المنصة",
-      privacy: "سياسة الخصوصية",
-      terms: "شروط الاستخدام",
-      guidelines: "إرشادات المجتمع",
-      help: "مركز المساعدة",
-      contact: "التواصل مع الدعم",
-      about: "عن I ❤️ NDB",
+      aboutPlatform: "عن I ❤️ NDB",
+      helpCenter: "مركز المساعدة",
+      contactSupport: "التواصل مع الدعم",
+      privacyPolicy: "سياسة الخصوصية",
+      termsOfService: "شروط الاستخدام",
+      communityGuidelines: "إرشادات المجتمع",
+      aboutZidnni: "عن Zidnni",
+      version: "الإصدار",
+      versionNumber: "1.0.0",
     },
     actions: {
       logout: "تسجيل الخروج",
@@ -400,13 +402,15 @@ function labelsFor(locale: string) {
       verifyEmailAction: "Vérifier l'e-mail",
     },
     about: {
-      version: "Version de la plateforme",
-      privacy: "Politique de confidentialité",
-      terms: "Conditions d'utilisation",
-      guidelines: "Règles de communauté",
-      help: "Centre d'aide",
-      contact: "Contacter le support",
-      about: "À propos de I ❤️ NDB",
+      aboutPlatform: "À propos de I ❤️ NDB",
+      helpCenter: "Centre d'aide",
+      contactSupport: "Contacter le support",
+      privacyPolicy: "Politique de confidentialité",
+      termsOfService: "Conditions d'utilisation",
+      communityGuidelines: "Règles de communauté",
+      aboutZidnni: "À propos de Zidnni",
+      version: "Version",
+      versionNumber: "1.0.0",
     },
     actions: {
       logout: "Se déconnecter",
@@ -548,13 +552,15 @@ function labelsFor(locale: string) {
       verifyEmailAction: "Verify Email",
     },
     about: {
-      version: "Platform version",
-      privacy: "Privacy policy",
-      terms: "Terms of service",
-      guidelines: "Community guidelines",
-      help: "Help center",
-      contact: "Contact support",
-      about: "About I ❤️ NDB",
+      aboutPlatform: "About I ❤️ NDB",
+      helpCenter: "Help Center",
+      contactSupport: "Contact Support",
+      privacyPolicy: "Privacy Policy",
+      termsOfService: "Terms of Service",
+      communityGuidelines: "Community Guidelines",
+      aboutZidnni: "About Zidnni",
+      version: "Version",
+      versionNumber: "1.0.0",
     },
     actions: {
       logout: "Log out",
@@ -1391,17 +1397,26 @@ export function UserSettingsClient({
           </SectionCard>
 
           <SectionCard id="about" title={labels.sections.about} icon={Info} visible={selectedSection === "about"}>
-            <div className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70">
-              <AboutRow icon={Info} label={labels.about.version} value="1.0.0" />
-              <AboutLink icon={Shield} label={labels.about.privacy} href="/privacy" />
-              <AboutLink icon={Info} label={labels.about.terms} href="/terms" />
-              <AboutLink icon={Heart} label={labels.about.guidelines} href="/terms" />
-              <AboutLink icon={HelpCircle} label={labels.about.help} href="/data-deletion" />
-              <a href="mailto:support@indb.community" className="flex min-h-13 items-center justify-between gap-3 px-4 py-3 text-sm font-bold hover:bg-muted/60">
-                <span className="inline-flex items-center gap-3"><Phone size={18} className="text-primary" />{labels.about.contact}</span>
-                <ChevronRight size={17} className={cn(isRtl && "rotate-180")} />
-              </a>
-              <AboutLink icon={Info} label={labels.about.about} href="/" />
+            <div className="space-y-4">
+              <div className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70">
+                <AboutLink icon={Heart} label={labels.about.aboutPlatform} href="/" />
+              </div>
+              <div className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70">
+                <AboutLink icon={HelpCircle} label={labels.about.helpCenter} href="/data-deletion" />
+                <a href="mailto:support@indb.community" className="flex min-h-13 items-center justify-between gap-3 px-4 py-3 text-sm font-bold hover:bg-muted/60">
+                  <span className="inline-flex items-center gap-3"><Phone size={18} className="text-primary" />{labels.about.contactSupport}</span>
+                  <ChevronRight size={17} className={cn(isRtl && "rotate-180")} />
+                </a>
+              </div>
+              <div className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70">
+                <AboutLink icon={Shield} label={labels.about.privacyPolicy} href="/privacy" />
+                <AboutLink icon={Info} label={labels.about.termsOfService} href="/terms" />
+                <AboutLink icon={Heart} label={labels.about.communityGuidelines} href="/terms" />
+              </div>
+              <div className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70">
+                <AboutLink icon={Info} label={labels.about.aboutZidnni} href="/" />
+              </div>
+              <p className="text-center text-xs text-muted-foreground">{labels.about.version} {labels.about.versionNumber}</p>
             </div>
           </SectionCard>
 
@@ -1493,23 +1508,6 @@ function StatusRow({
         <p className="text-xs text-muted-foreground">{label}</p>
         <p className="text-sm font-black">{value}</p>
       </div>
-    </div>
-  );
-}
-
-function AboutRow({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: ComponentType<{size?: number; className?: string}>;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="flex min-h-13 items-center justify-between gap-3 px-4 py-3 text-sm font-bold">
-      <span className="inline-flex items-center gap-3"><Icon size={18} className="text-primary" />{label}</span>
-      <span className="text-muted-foreground">{value}</span>
     </div>
   );
 }
