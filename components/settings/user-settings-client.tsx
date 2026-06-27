@@ -15,7 +15,6 @@ import {
   Camera,
   CheckCircle2,
   ChevronRight,
-  Clock,
   Eye,
   EyeOff,
   Globe2,
@@ -33,25 +32,21 @@ import {
   Phone,
   Save,
   Shield,
-  Smartphone,
   Sparkles,
   Sun,
   Trash2,
   UserRound,
-  XCircle,
 } from "lucide-react";
 
 import {
   changePasswordWithCurrentAction,
   deactivateAccountAction,
   deleteAccountAction,
-  getUserSessionsAction,
-  logoutOtherDevicesAction,
-  removeSessionAction,
   saveAccountSettingsAction,
   saveUserPreferencesAction,
   sendEmailVerificationAction,
-  sendPhoneVerificationAction,
+  sendPhoneOtpAction,
+  verifyPhoneOtpAction,
 } from "@/app/[locale]/(dashboard)/settings/actions";
 import {signOutAction} from "@/app/[locale]/server-actions";
 import {Button} from "@/components/ui/button";
@@ -226,10 +221,6 @@ function labelsFor(locale: string) {
       notVerified: "غير موثق",
       verify: "توثيق",
       changePassword: "تغيير كلمة المرور",
-      activeDevices: "الأجهزة النشطة",
-      lastLogin: "آخر تسجيل دخول",
-      twoFactor: "التحقق بخطوتين",
-      twoFactorComingSoon: "سيتم توفير هذه الميزة قريباً.",
       currentPassword: "كلمة المرور الحالية",
       newPassword: "كلمة المرور الجديدة",
       confirmPassword: "تأكيد كلمة المرور",
@@ -242,17 +233,20 @@ function labelsFor(locale: string) {
       passwordChanged: "تم تغيير كلمة المرور بنجاح",
       wrongPassword: "كلمة المرور الحالية غير صحيحة",
       verifyEmailSent: "تم إرسال رابط التوثيق إلى بريدك الإلكتروني",
-      verifyPhoneSent: "تم إرسال رمز التوثيق إلى هاتفك",
-      manageDevices: "إدارة الأجهزة",
-      currentDevice: "الجهاز الحالي",
-      unknownDevice: "جهاز غير معروف",
-      removeDevice: "إزالة الجهاز",
-      deviceRemoved: "تم إزالة الجهاز بنجاح",
-      othersLoggedOut: "تم تسجيل الخروج من الأجهزة الأخرى بنجاح",
-      browser: "المتصفح",
-      today: "اليوم",
-      yesterday: "أمس",
+      otpSent: "تم إرسال رمز التوثيق إلى هاتفك",
+      phoneVerified: "تم توثيق رقم الهاتف بنجاح",
+      wrongCode: "رمز التوثيق غير صحيح",
+      enterCode: "أدخل رمز التوثيق",
+      codeSent: "تم إرسال رمز مكون من 6 أرقام إلى",
+      verifyPhone: "توثيق",
+      resendCode: "إعادة إرسال",
       back: "عودة",
+      phoneIsVerified: "رقم هاتفك موثق.",
+      emailIsVerified: "بريدك الإلكتروني موثق.",
+      phoneNotVerified: "رقم هاتفك غير موثق.",
+      emailNotVerified: "بريدك الإلكتروني غير موثق.",
+      verifyPhoneAction: "توثيق رقم الهاتف",
+      verifyEmailAction: "توثيق البريد الإلكتروني",
     },
     accessibility: {
       fontSize: "حجم الخط",
@@ -378,10 +372,6 @@ function labelsFor(locale: string) {
       notVerified: "Non vérifié",
       verify: "Vérifier",
       changePassword: "Changer le mot de passe",
-      activeDevices: "Appareils actifs",
-      lastLogin: "Dernière connexion",
-      twoFactor: "Authentification à deux facteurs",
-      twoFactorComingSoon: "Cette fonctionnalité sera bientôt disponible.",
       currentPassword: "Mot de passe actuel",
       newPassword: "Nouveau mot de passe",
       confirmPassword: "Confirmer le mot de passe",
@@ -394,17 +384,20 @@ function labelsFor(locale: string) {
       passwordChanged: "Mot de passe changé avec succès",
       wrongPassword: "Mot de passe actuel incorrect",
       verifyEmailSent: "Lien de vérification envoyé par e-mail",
-      verifyPhoneSent: "Code de vérification envoyé par téléphone",
-      manageDevices: "Gérer les appareils",
-      currentDevice: "Appareil actuel",
-      unknownDevice: "Appareil inconnu",
-      removeDevice: "Supprimer l'appareil",
-      deviceRemoved: "Appareil supprimé avec succès",
-      othersLoggedOut: "Autres appareils déconnectés avec succès",
-      browser: "Navigateur",
-      today: "Aujourd'hui",
-      yesterday: "Hier",
+      otpSent: "Code de vérification envoyé par téléphone",
+      phoneVerified: "Téléphone vérifié avec succès",
+      wrongCode: "Code de vérification incorrect",
+      enterCode: "Entrez le code de vérification",
+      codeSent: "Un code à 6 chiffres a été envoyé au",
+      verifyPhone: "Vérifier",
+      resendCode: "Renvoyer",
       back: "Retour",
+      phoneIsVerified: "Votre numéro de téléphone est vérifié.",
+      emailIsVerified: "Votre adresse e-mail est vérifiée.",
+      phoneNotVerified: "Votre numéro de téléphone n'est pas vérifié.",
+      emailNotVerified: "Votre adresse e-mail n'est pas vérifiée.",
+      verifyPhoneAction: "Vérifier le téléphone",
+      verifyEmailAction: "Vérifier l'e-mail",
     },
     accessibility: {
       fontSize: "Taille du texte",
@@ -530,10 +523,6 @@ function labelsFor(locale: string) {
       notVerified: "Not verified",
       verify: "Verify",
       changePassword: "Change Password",
-      activeDevices: "Active Devices",
-      lastLogin: "Last Login",
-      twoFactor: "Two-Factor Authentication",
-      twoFactorComingSoon: "This feature will be available soon.",
       currentPassword: "Current Password",
       newPassword: "New Password",
       confirmPassword: "Confirm Password",
@@ -546,17 +535,20 @@ function labelsFor(locale: string) {
       passwordChanged: "Password changed successfully",
       wrongPassword: "Current password is incorrect",
       verifyEmailSent: "Verification link sent to your email",
-      verifyPhoneSent: "Verification code sent to your phone",
-      manageDevices: "Manage Devices",
-      currentDevice: "Current Device",
-      unknownDevice: "Unknown device",
-      removeDevice: "Remove Device",
-      deviceRemoved: "Device removed successfully",
-      othersLoggedOut: "Other devices logged out successfully",
-      browser: "Browser",
-      today: "Today",
-      yesterday: "Yesterday",
+      otpSent: "Verification code sent to your phone",
+      phoneVerified: "Phone verified successfully",
+      wrongCode: "Verification code is incorrect",
+      enterCode: "Enter verification code",
+      codeSent: "A 6-digit code was sent to",
+      verifyPhone: "Verify",
+      resendCode: "Resend",
       back: "Back",
+      phoneIsVerified: "Your phone number is verified.",
+      emailIsVerified: "Your email address is verified.",
+      phoneNotVerified: "Your phone number is not verified.",
+      emailNotVerified: "Your email address is not verified.",
+      verifyPhoneAction: "Verify Phone",
+      verifyEmailAction: "Verify Email",
     },
     accessibility: {
       fontSize: "Font size",
@@ -722,14 +714,14 @@ export function UserSettingsClient({
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [accountDirty, setAccountDirty] = useState(false);
   const [preferencesSaving, setPreferencesSaving] = useState(false);
-  const [securityView, setSecurityView] = useState<"main" | "changePassword" | "manageDevices">("main");
+  const [securityView, setSecurityView] = useState<"main" | "changePassword" | "phoneOtp">("main");
   const [verifyingEmail, setVerifyingEmail] = useState(false);
   const [verifyingPhone, setVerifyingPhone] = useState(false);
+  const [phoneOtpSent, setPhoneOtpSent] = useState(false);
+  const [phoneOtpCode, setPhoneOtpCode] = useState("");
+  const [phoneOtpVerifying, setPhoneOtpVerifying] = useState(false);
   const [secPassword, setSecPassword] = useState({current: "", newPw: "", confirm: ""});
   const [showSecPassword, setShowSecPassword] = useState({current: false, newPw: false, confirm: false});
-  const [sessions, setSessions] = useState<Array<{id: string; created_at: string; updated_at: string; user_agent: string | null; ip: string | null; is_current: boolean}> | null>(null);
-  const [sessionsLoading, setSessionsLoading] = useState(false);
-  const [sessionsError, setSessionsError] = useState(false);
   const [preferences, setPreferences] = useState({
     language: profile.language_preference && routing.locales.includes(profile.language_preference as never)
       ? profile.language_preference
@@ -906,7 +898,7 @@ export function UserSettingsClient({
     setAccountDirty(false);
   }
 
-  async function sendEmailVerification() {
+  async function handleVerifyEmail() {
     setVerifyingEmail(true);
     const result = await sendEmailVerificationAction();
     setVerifyingEmail(false);
@@ -914,12 +906,34 @@ export function UserSettingsClient({
     else toast.error(labels.saveFailed);
   }
 
-  async function sendPhoneVerification() {
+  async function handleSendPhoneOtp() {
     setVerifyingPhone(true);
-    const result = await sendPhoneVerificationAction();
+    const result = await sendPhoneOtpAction();
     setVerifyingPhone(false);
-    if (result.success) toast.success(labels.security.verifyPhoneSent);
-    else toast.error(labels.saveFailed);
+    if (result.success) {
+      setPhoneOtpSent(true);
+      setPhoneOtpCode("");
+      setSecurityView("phoneOtp");
+      toast.success(labels.security.otpSent);
+    } else {
+      toast.error(labels.saveFailed);
+    }
+  }
+
+  async function handleVerifyPhoneOtp() {
+    if (phoneOtpCode.length < 4) return;
+    setPhoneOtpVerifying(true);
+    const result = await verifyPhoneOtpAction(phoneOtpCode);
+    setPhoneOtpVerifying(false);
+    if (result.success) {
+      toast.success(labels.security.phoneVerified);
+      setPhoneOtpSent(false);
+      setPhoneOtpCode("");
+      setSecurityView("main");
+      router.refresh();
+    } else {
+      toast.error(labels.security.wrongCode);
+    }
   }
 
   async function changePasswordWithCurrent() {
@@ -935,50 +949,6 @@ export function UserSettingsClient({
         toast.error(labels.saveFailed);
       }
     });
-  }
-
-  function formatBrowser(ua: string | null) {
-    if (!ua) return labels.security.unknownDevice;
-    if (ua.includes("Edg")) return "Edge";
-    if (ua.includes("Chrome")) return "Chrome";
-    if (ua.includes("Firefox")) return "Firefox";
-    if (ua.includes("Safari")) return "Safari";
-    if (ua.includes("Opera") || ua.includes("OPR")) return "Opera";
-    return ua.slice(0, 30);
-  }
-
-  function formatOS(ua: string | null) {
-    if (!ua) return "";
-    if (ua.includes("Windows")) return "Windows";
-    if (ua.includes("Mac OS")) return "macOS";
-    if (ua.includes("Linux")) return "Linux";
-    if (ua.includes("Android")) return "Android";
-    if (ua.includes("iPhone") || ua.includes("iPad")) return "iOS";
-    return "";
-  }
-
-  function formatSessionDate(iso: string) {
-    if (!iso) return "";
-    const d = new Date(iso);
-    const now = new Date();
-    const diff = now.getTime() - d.getTime();
-    if (diff < 86400000) return labels.security.today;
-    if (diff < 172800000) return labels.security.yesterday;
-    return d.toLocaleDateString(locale === "ar" ? "ar-SA" : locale === "fr" ? "fr-FR" : "en-US", {month: "short", day: "numeric"});
-  }
-
-  function formatSessionTime(iso: string) {
-    if (!iso) return "";
-    return new Date(iso).toLocaleTimeString(locale === "ar" ? "ar-SA" : locale === "fr" ? "fr-FR" : "en-US", {hour: "2-digit", minute: "2-digit"});
-  }
-
-  function formatLastLogin(iso: string | null) {
-    if (!iso) return "—";
-    const d = new Date(iso);
-    const now = new Date();
-    const diff = now.getTime() - d.getTime();
-    if (diff < 86400000) return `${labels.security.today}, ${d.toLocaleTimeString(locale === "ar" ? "ar-SA" : locale === "fr" ? "fr-FR" : "en-US", {hour: "2-digit", minute: "2-digit"})}`;
-    return d.toLocaleDateString(locale === "ar" ? "ar-SA" : locale === "fr" ? "fr-FR" : "en-US", {month: "short", day: "numeric", year: "numeric"});
   }
 
   function getPasswordStrength(pw: string): {label: string; score: number; color: string} {
@@ -998,40 +968,6 @@ export function UserSettingsClient({
 
   function toggleSecPassword(field: "current" | "newPw" | "confirm") {
     setShowSecPassword((prev) => ({...prev, [field]: !prev[field]}));
-  }
-
-  async function openManageDevices() {
-    setSecurityView("manageDevices");
-    if (sessions) return;
-    setSessionsLoading(true);
-    setSessionsError(false);
-    const result = await getUserSessionsAction();
-    if (result.success && result.sessions) {
-      setSessions(result.sessions);
-    } else {
-      setSessionsError(true);
-    }
-    setSessionsLoading(false);
-  }
-
-  async function handleRemoveSession(sessionId: string) {
-    const result = await removeSessionAction(sessionId);
-    if (result.success) {
-      setSessions((prev) => prev?.filter((s) => s.id !== sessionId) ?? null);
-      toast.success(labels.security.deviceRemoved);
-    } else {
-      toast.error(labels.saveFailed);
-    }
-  }
-
-  async function handleLogoutOthers() {
-    const result = await logoutOtherDevicesAction();
-    if (result.success) {
-      setSessions((prev) => prev?.filter((s) => !s.is_current) ?? null);
-      toast.success(labels.security.othersLoggedOut);
-    } else {
-      toast.error(labels.saveFailed);
-    }
   }
 
   async function deactivate() {
@@ -1383,12 +1319,9 @@ export function UserSettingsClient({
           <SectionCard id="security" title={labels.sections.security} icon={Lock} visible={selectedSection === "security"}>
             {securityView === "main" ? (
               <div className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70">
-                <SecurityStatusRow icon={Phone} label={labels.security.phoneNumber} status={profile.phone ? (profile.phone_verified ? labels.security.verified : labels.security.notVerified) : labels.security.notSet} statusSecure={!!profile.phone_verified} action={profile.phone && !profile.phone_verified ? {label: labels.security.verify, onClick: sendPhoneVerification, loading: verifyingPhone} : undefined} locale={locale} isRtl={isRtl} />
-                <SecurityStatusRow icon={Mail} label={labels.security.emailAddress} status={authEmail ? (emailVerified ? labels.security.verified : labels.security.notVerified) : labels.security.notSet} statusSecure={!!emailVerified} action={authEmail && !emailVerified ? {label: labels.security.verify, onClick: sendEmailVerification, loading: verifyingEmail} : undefined} locale={locale} isRtl={isRtl} />
+                <SecurityVerifyRow icon={Phone} label={labels.security.phoneNumber} isSet={!!profile.phone} isVerified={!!profile.phone_verified} verifiedText={labels.security.phoneIsVerified} notVerifiedText={labels.security.phoneNotVerified} verifyAction={profile.phone && !profile.phone_verified ? {label: labels.security.verifyPhoneAction, onClick: handleSendPhoneOtp, loading: verifyingPhone} : undefined} />
+                <SecurityVerifyRow icon={Mail} label={labels.security.emailAddress} isSet={!!authEmail} isVerified={!!emailVerified} verifiedText={labels.security.emailIsVerified} notVerifiedText={labels.security.emailNotVerified} verifyAction={authEmail && !emailVerified ? {label: labels.security.verifyEmailAction, onClick: handleVerifyEmail, loading: verifyingEmail} : undefined} />
                 <SecurityChevronRow icon={Lock} label={labels.security.changePassword} onClick={() => {setSecurityView("changePassword"); setSecPassword({current: "", newPw: "", confirm: ""});}} isRtl={isRtl} />
-                <SecurityChevronRow icon={Smartphone} label={labels.security.activeDevices} onClick={openManageDevices} isRtl={isRtl} />
-                <SecurityInfoRow icon={Clock} label={labels.security.lastLogin} value={formatLastLogin(profile.last_login)} isRtl={isRtl} />
-                <SecurityComingSoonRow icon={Shield} label={labels.security.twoFactor} message={labels.security.twoFactorComingSoon} isRtl={isRtl} />
               </div>
             ) : securityView === "changePassword" ? (
               <div>
@@ -1445,50 +1378,28 @@ export function UserSettingsClient({
               </div>
             ) : (
               <div>
-                <button type="button" onClick={() => setSecurityView("main")} className="mb-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-black text-muted-foreground shadow-sm">
+                <button type="button" onClick={() => {setSecurityView("main"); setPhoneOtpSent(false);}} className="mb-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-black text-muted-foreground shadow-sm">
                   <ArrowLeft size={18} className={cn(isRtl && "rotate-180")} />
                   {labels.security.back}
                 </button>
-                <div className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70">
-                  {(sessions ?? []).map((session) => (
-                    <div key={session.id} className={cn("flex min-h-15 items-center justify-between gap-3 px-4 py-3", session.is_current && "bg-primary/5")}>
-                      <div className="flex items-center gap-3">
-                        <span className={cn("flex h-9 w-9 items-center justify-center rounded-xl", session.is_current ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground")}>
-                          <Smartphone size={17} />
-                        </span>
-                        <div>
-                          <p className="text-sm font-black">{session.is_current ? labels.security.currentDevice : `${formatBrowser(session.user_agent)}${formatOS(session.user_agent) ? ` • ${formatOS(session.user_agent)}` : ""}`}</p>
-                          <p className="text-xs text-muted-foreground">{formatSessionDate(session.updated_at)}{formatSessionTime(session.updated_at) ? ` • ${formatSessionTime(session.updated_at)}` : ""}{session.ip ? ` • ${session.ip}` : ""}</p>
-                        </div>
-                      </div>
-                      {!session.is_current ? (
-                        <button type="button" onClick={() => handleRemoveSession(session.id)} className="shrink-0 text-muted-foreground hover:text-destructive" title={labels.security.removeDevice}>
-                          <XCircle size={19} />
-                        </button>
-                      ) : null}
-                    </div>
-                  ))}
-                  {sessionsLoading ? (
-                    <div className="flex min-h-16 items-center justify-center">
-                      <span className="text-sm font-bold text-muted-foreground">{labels.saving}</span>
-                    </div>
-                  ) : null}
-                  {!sessionsLoading && sessionsError ? (
-                    <div className="flex min-h-16 items-center justify-center">
-                      <span className="text-sm font-bold text-destructive">{labels.saveFailed}</span>
-                    </div>
-                  ) : null}
-                  {!sessionsLoading && !sessionsError && sessions && sessions.length === 0 ? (
-                    <div className="flex min-h-16 items-center justify-center">
-                      <span className="text-sm font-bold text-muted-foreground">{labels.security.notSet}</span>
-                    </div>
-                  ) : null}
-                </div>
-                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                  <Button onClick={handleLogoutOthers} disabled={isPending || (sessions?.length ?? 0) <= 1} variant="outline" className="gap-2">
-                    <LogOut size={17} />
-                    {labels.security.manageDevices}
-                  </Button>
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-border/70 bg-muted/20 p-4 text-center">
+                    <Phone size={28} className="mx-auto text-primary" />
+                    <p className="mt-2 text-sm font-black">{labels.security.verifyPhoneAction}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{labels.security.codeSent} {profile.phone}</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-black uppercase tracking-wide text-muted-foreground">{labels.security.enterCode}</label>
+                    <Input type="text" inputMode="numeric" autoComplete="one-time-code" value={phoneOtpCode} onChange={(e) => setPhoneOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="000000" className="text-center text-2xl font-black tracking-[0.5em]" maxLength={6} />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Button onClick={handleVerifyPhoneOtp} disabled={phoneOtpVerifying || phoneOtpCode.length < 4} className="w-full gap-2">
+                      {phoneOtpVerifying ? labels.saving : labels.security.verifyPhone}
+                    </Button>
+                    <button type="button" onClick={handleSendPhoneOtp} disabled={verifyingPhone} className="text-center text-xs font-bold text-primary">
+                      {verifyingPhone ? "..." : labels.security.resendCode}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -1574,21 +1485,21 @@ export function UserSettingsClient({
   );
 }
 
-function SecurityStatusRow({icon: Icon, label, status, statusSecure, action, locale, isRtl}: {icon: ComponentType<{size?: number; className?: string}>; label: string; status: string; statusSecure: boolean; action?: {label: string; onClick: () => void; loading: boolean} | undefined; locale: string; isRtl: boolean}) {
+function SecurityVerifyRow({icon: Icon, label, isSet, isVerified, verifiedText, notVerifiedText, verifyAction}: {icon: ComponentType<{size?: number; className?: string}>; label: string; isSet: boolean; isVerified: boolean; verifiedText: string; notVerifiedText: string; verifyAction?: {label: string; onClick: () => void; loading: boolean} | undefined}) {
   return (
     <div className="flex min-h-15 items-center justify-between gap-3 px-4 py-3">
       <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon size={17} /></span>
+        <span className={cn("flex h-9 w-9 items-center justify-center rounded-xl", isVerified ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30" : "bg-primary/10 text-primary")}><Icon size={17} /></span>
         <div>
           <p className="text-sm font-bold">{label}</p>
-          <span className={cn("inline-flex items-center gap-1 text-xs font-black", statusSecure ? "text-emerald-600" : "text-amber-600")}>
-            {statusSecure ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}{status}
-          </span>
+          <p className={cn("text-xs font-black", isVerified ? "text-emerald-600" : "text-amber-600")}>
+            {isSet ? (isVerified ? `✅ ${verifiedText}` : `⚠️ ${notVerifiedText}`) : "—"}
+          </p>
         </div>
       </div>
-      {action ? (
-        <button type="button" onClick={action.onClick} disabled={action.loading} className="shrink-0 rounded-xl bg-primary/10 px-4 py-2 text-xs font-black text-primary transition active:scale-95 disabled:opacity-50">
-          {action.loading ? "..." : action.label}
+      {verifyAction ? (
+        <button type="button" onClick={verifyAction.onClick} disabled={verifyAction.loading} className="shrink-0 rounded-xl bg-primary/10 px-4 py-2 text-xs font-black text-primary transition active:scale-95 disabled:opacity-50">
+          {verifyAction.loading ? "..." : verifyAction.label}
         </button>
       ) : null}
     </div>
@@ -1604,32 +1515,6 @@ function SecurityChevronRow({icon: Icon, label, onClick, isRtl}: {icon: Componen
       </span>
       <ChevronRight size={18} className={cn("text-muted-foreground", isRtl && "rotate-180")} />
     </button>
-  );
-}
-
-function SecurityInfoRow({icon: Icon, label, value, isRtl}: {icon: ComponentType<{size?: number; className?: string}>; label: string; value: string; isRtl: boolean}) {
-  return (
-    <div className="flex min-h-15 items-center justify-between gap-3 px-4 py-3">
-      <span className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon size={17} /></span>
-        <span className="text-sm font-bold">{label}</span>
-      </span>
-      <span className="text-right text-sm font-bold text-muted-foreground">{value}</span>
-    </div>
-  );
-}
-
-function SecurityComingSoonRow({icon: Icon, label, message, isRtl}: {icon: ComponentType<{size?: number; className?: string}>; label: string; message: string; isRtl: boolean}) {
-  return (
-    <div className="flex min-h-15 items-center justify-between gap-3 px-4 py-3">
-      <span className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted text-muted-foreground"><Icon size={17} /></span>
-        <div>
-          <p className="text-sm font-bold text-muted-foreground">{label}</p>
-          <p className="text-xs text-muted-foreground/70">{message}</p>
-        </div>
-      </span>
-    </div>
   );
 }
 

@@ -266,13 +266,30 @@ export async function sendEmailVerificationAction(): Promise<ActionResult> {
   return {success: true};
 }
 
-export async function sendPhoneVerificationAction(): Promise<ActionResult> {
+export async function sendPhoneOtpAction(): Promise<ActionResult> {
   const {supabase, user} = await getCurrentUser();
+  if (!user) return {success: false, error: "not_authenticated"};
+
+  const phone = user.phone;
+  if (!phone) return {success: false, error: "no_phone"};
+
+  const {error} = await supabase.auth.signInWithOtp({phone, options: {shouldCreateUser: false}});
+  if (error) return {success: false, error: "send_failed"};
+  return {success: true};
+}
+
+export async function verifyPhoneOtpAction(token: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {data: {user}} = await supabase.auth.getUser();
   if (!user) return {success: false, error: "not_authenticated"};
   if (!user.phone) return {success: false, error: "no_phone"};
 
-  const {error} = await supabase.auth.updateUser({phone: user.phone});
-  if (error) return {success: false, error: "send_failed"};
+  const {error} = await supabase.auth.verifyOtp({phone: user.phone, token, type: "sms"});
+  if (error) return {success: false, error: "verify_failed"};
+
+  const admin = createAdminClient();
+  if (admin) await admin.from("profiles").update({phone_verified: true}).eq("id", user.id);
+
   return {success: true};
 }
 
@@ -302,50 +319,10 @@ export async function changePasswordWithCurrentAction(input: {
   return {success: true};
 }
 
-export async function getUserSessionsAction(): Promise<{
-  success: boolean;
-  error?: string;
-  sessions?: Array<{id: string; created_at: string; updated_at: string; user_agent: string | null; ip: string | null; is_current: boolean}>;
-}> {
+export async function refreshEmailVerifiedAction(): Promise<ActionResult & {verified?: boolean}> {
   const {supabase, user} = await getCurrentUser();
   if (!user) return {success: false, error: "not_authenticated"};
-
-  const admin = createAdminClient();
-  if (!admin) return {success: false, error: "admin_not_configured"};
-
-  const {data: sessions, error} = await admin
-    .from("auth.sessions")
-    .select("id, created_at, updated_at, user_agent, ip")
-    .eq("user_id", user.id)
-    .order("updated_at", {ascending: false});
-
-  if (error) return {success: false, error: "fetch_failed"};
-
-  const list = (sessions ?? []) as Array<{id: string; created_at: string; updated_at: string; user_agent: string | null; ip: unknown}>;
-
-  return {
-    success: true,
-    sessions: list.map((s, i) => ({
-      id: s.id,
-      created_at: s.created_at ? String(s.created_at) : "",
-      updated_at: s.updated_at ? String(s.updated_at) : "",
-      user_agent: s.user_agent ?? null,
-      ip: s.ip != null ? String(s.ip) : null,
-      is_current: i === 0,
-    })),
-  };
-}
-
-export async function removeSessionAction(sessionId: string): Promise<ActionResult> {
-  const {user} = await getCurrentUser();
-  if (!user) return {success: false, error: "not_authenticated"};
-
-  const admin = createAdminClient();
-  if (!admin) return {success: false, error: "admin_not_configured"};
-
-  const {error} = await admin.from("auth.sessions").delete().eq("id", sessionId).eq("user_id", user.id);
-  if (error) return {success: false, error: "remove_failed"};
-  return {success: true};
+  return {success: true, verified: Boolean(user.email_confirmed_at)};
 }
 
 export async function logoutOtherDevicesAction(): Promise<ActionResult> {
