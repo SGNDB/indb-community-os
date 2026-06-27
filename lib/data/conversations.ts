@@ -480,6 +480,22 @@ export async function getUnreadConversationsCount(userId: string): Promise<numbe
   return data.reduce((sum, p) => sum + (p.unread_count ?? 0), 0);
 }
 
+export async function createOrGetDirectConversation(userId1: string, userId2: string): Promise<string | null> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.rpc('ensure_direct_conversation', {
+    p_user1_id: userId1,
+    p_user2_id: userId2,
+  });
+
+  if (error) {
+    console.error('createOrGetDirectConversation error:', error);
+    return null;
+  }
+
+  return data as string | null;
+}
+
 export async function ensureConversationExists(type: 'graatek' | 'idea', entityId: string): Promise<string | null> {
   const supabase = await createClient();
 

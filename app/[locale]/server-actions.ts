@@ -4239,6 +4239,29 @@ export async function getMyConversationsAction(): Promise<{
   return { success: true, conversations };
 }
 
+export async function createOrGetDirectConversationAction(
+  targetUserId: string,
+): Promise<{
+  success: boolean;
+  conversationId?: string;
+  error?: string;
+}> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  if (!targetUserId || targetUserId === user.id) return { success: false, error: 'invalid' };
+
+  const { canMessageUser } = await import('@/lib/data/user-settings');
+  const allowed = await canMessageUser(targetUserId, user.id);
+  if (!allowed) return { success: false, error: 'forbidden' };
+
+  const { createOrGetDirectConversation } = await import('@/lib/data/conversations');
+  const conversationId = await createOrGetDirectConversation(user.id, targetUserId);
+  if (!conversationId) return { success: false, error: 'failed' };
+
+  return { success: true, conversationId };
+}
+
 export async function getConversationMessagesAction(
   conversationId: string,
 ): Promise<{
@@ -4326,8 +4349,11 @@ export async function sendConversationMessageAction(
   });
   if (!result) return { success: false, error: 'insert_failed' };
 
-  const entityType = conv.type === 'graatek' ? 'community_share' : 'idea';
-  const entityId = (conv.graatek_id ?? conv.idea_id ?? conversationId) as string;
+  const directTargetId = conv.type === 'direct'
+    ? conv.participants.find((p) => p.user_id !== user.id)?.user_id ?? conversationId
+    : null;
+  const entityType = conv.type === 'graatek' ? 'community_share' : conv.type === 'direct' ? 'profile' : 'idea';
+  const entityId = conv.type === 'direct' ? directTargetId! : (conv.graatek_id ?? conv.idea_id ?? conversationId) as string;
   await Promise.all(
     conv.participants
       .filter((p) => p.user_id !== user.id)

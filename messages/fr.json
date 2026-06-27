@@ -746,6 +746,8 @@
       "comments": "Commentaires"
     },
     "editProfile": "Modifier le profil",
+    "message": "Message",
+    "cannotMessage": "Vous ne pouvez pas envoyer de message à cet utilisateur",
     "changeAvatar": "Changer la photo",
     "changeCover": "Changer la couverture",
     "shareProfile": "Partager le profil",
@@ -2937,7 +2939,8 @@
   },
   "Messages": {
     "title": "Messages",
-    "idea": "Idée",
+     "idea": "Idée",
+    "direct": "Message privé",
     "search": "Rechercher des conversations...",
     "empty": "Aucune conversation",
     "noTitle": "Sans titre",

@@ -746,6 +746,8 @@
       "comments": "تعليقات"
     },
     "editProfile": "تعديل الملف",
+    "message": "رسالة",
+    "cannotMessage": "لا يمكنك مراسلة هذا المستخدم",
     "changeAvatar": "تغيير الصورة",
     "changeCover": "تغيير الغلاف",
     "shareProfile": "مشاركة الملف",
@@ -2937,7 +2939,8 @@
   },
   "Messages": {
     "title": "الرسائل",
-    "idea": "فكرة",
+     "idea": "فكرة",
+    "direct": "رسالة خاصة",
     "search": "بحث في المحادثات...",
     "empty": "لا توجد محادثات بعد",
     "noTitle": "بدون عنوان",

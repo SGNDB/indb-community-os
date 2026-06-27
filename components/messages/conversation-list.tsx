@@ -31,7 +31,9 @@ function timeAgo(dateStr: string, locale: string, nowLabel: string): string {
 }
 
 function typeBadge(type: string, t: TranslationFn): string {
-  return type === "graatek" ? t("groupChat.gar3tak") : t("idea");
+  if (type === "graatek") return t("groupChat.gar3tak");
+  if (type === "direct") return t("direct");
+  return t("idea");
 }
 
 function statusLabel(status: string | null | undefined, t: TranslationFn): string {

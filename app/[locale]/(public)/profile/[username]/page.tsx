@@ -8,6 +8,7 @@ import {getTranslations} from "next-intl/server";
 import {ProfileCompleteness} from "@/components/profile/profile-completeness";
 import {ProfileTabsContent} from "@/components/profile/profile-tabs-content";
 import {FollowSummary} from "@/components/profile/follow-summary";
+import {MessageButton} from "@/components/messages/message-button";
 import {OnlineDot} from "@/components/presence";
 import {CommunityRecognition} from "@/components/profile/community-recognition";
 import {Badge} from "@/components/ui/badge";
@@ -21,7 +22,7 @@ import {getProfileByUsername} from "@/lib/data/profile";
 import {getUserMemories, getUserMemoriesCount} from "@/lib/data/memories";
 import {getUserIdeas, getUserIdeasCount} from "@/lib/data/ideas";
 import {getUserCommunityShares} from "@/lib/data/fadla";
-import {canViewProfile, getPublicProfilePrivacy} from "@/lib/data/user-settings";
+import {canMessageUser, canViewProfile, getPublicProfilePrivacy} from "@/lib/data/user-settings";
 import {Link} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/server";
 
@@ -169,6 +170,8 @@ export default async function PublicProfilePage({
   const showGraatek = isOwnProfile || privacy.show_completed_graatek;
   const showMemories = isOwnProfile || privacy.show_memories;
 
+  const canMessage = !isOwnProfile && currentUserId ? await canMessageUser(profile.id, currentUserId) : false;
+
   const [followStats, currentUserIsFollowing, postsCount, memoriesCount, ideasCount, impact] = await Promise.all([
     getFollowStats(profile.id),
     isFollowing(currentUserId, profile.id),
@@ -282,6 +285,8 @@ export default async function PublicProfilePage({
                       {t("editProfile")}
                     </span>
                   </Link>
+                ) : canMessage ? (
+                  <MessageButton targetUserId={profile.id} />
                 ) : null}
                 <FollowSummary
                   profileId={profile.id}

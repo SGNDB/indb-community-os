@@ -746,6 +746,8 @@
       "comments": "Comments"
     },
     "editProfile": "Edit profile",
+    "message": "Message",
+    "cannotMessage": "You cannot message this user",
     "changeAvatar": "Change Avatar",
     "changeCover": "Change Cover",
     "shareProfile": "Share profile",
@@ -3021,7 +3023,8 @@
   },
   "Messages": {
     "title": "Messages",
-    "idea": "Idea",
+     "idea": "Idea",
+    "direct": "Private message",
     "search": "Search conversations...",
     "empty": "No conversations yet",
     "noTitle": "No title",

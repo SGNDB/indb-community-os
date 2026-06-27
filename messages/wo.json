@@ -615,6 +615,8 @@
       "comments": "Nangu"
     },
     "editProfile": "Soppi profil",
+    "message": "Ndotooje",
+    "cannotMessage": "DÃ©ggulÃ© naka soppi ndotooje",
     "changeAvatar": "Soppi Nataal",
     "changeCover": "Soppi Lendu",
     "shareProfile": "Ngalif profil",
@@ -1852,7 +1854,8 @@
   },
   "Messages": {
     "title": "Ndotooje",
-    "idea": "Mbokk",
+     "idea": "Mbokk",
+    "direct": "Ndotooje kirñu",
     "search": "Seet ndotooje...",
     "empty": "Amul ndotooje bu bees",
     "noTitle": "Amul tÃ«riÅ‹",

@@ -615,6 +615,8 @@
       "comments": "Siiwu"
     },
     "editProfile": "Taƴtu profil",
+    "message": "Ndotooje",
+    "cannotMessage": "A waawaa ndotooje oo neɗɗo",
     "changeAvatar": "Taƴtu Nta",
     "changeCover": "Taƴtu Sutura",
     "shareProfile": "Nten profil",
@@ -1852,7 +1854,8 @@
   },
   "Messages": {
     "title": "Ndotooje",
-    "idea": "Miijo",
+     "idea": "Miijo",
+    "direct": "Ndotooje suturaaxa",
     "search": "Ndaar ndotooje...",
     "empty": "Alaa ndotooje haa jooni",
     "noTitle": "Alaa togo",

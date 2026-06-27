@@ -616,6 +616,8 @@
       "comments": "Wiɗtooji"
     },
     "editProfile": "Taƴto profil",
+    "message": "Ndotooje",
+    "cannotMessage": "A waawaa ndotooje oo neɗɗo",
     "changeAvatar": "Taƴto Foto",
     "changeCover": "Taƴto Suddude",
     "shareProfile": "Yeɗit profil",
@@ -1855,7 +1857,8 @@
   },
   "Messages": {
     "title": "Ndotooje",
-    "idea": "Miijo",
+     "idea": "Miijo",
+    "direct": "Ndotooje suturaaku",
     "search": "Ndaar ndotooje...",
     "empty": "Alaa ndotooje haa jooni",
     "noTitle": "Alaa innde",
