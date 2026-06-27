@@ -256,6 +256,21 @@ export function ConversationChat({
   }, [participantById]);
 
   useEffect(() => {
+    const root = document.documentElement;
+    const previousValue = root.dataset.chatOpen;
+    root.dataset.chatOpen = "true";
+
+    return () => {
+      if (previousValue === undefined) {
+        delete root.dataset.chatOpen;
+      } else {
+        root.dataset.chatOpen = previousValue;
+      }
+      cancelLongPress();
+    };
+  }, []);
+
+  useEffect(() => {
     setMessages(initialMessages);
   }, [initialMessages]);
 
@@ -999,6 +1014,15 @@ export function ConversationChat({
                         event.preventDefault();
                         openMessageActions(msg);
                       }}
+                      onSelect={(event) => event.preventDefault()}
+                      onDragStart={(event) => event.preventDefault()}
+                      onTouchStart={(event) => {
+                        event.preventDefault();
+                        startLongPress(msg);
+                      }}
+                      onTouchEnd={cancelLongPress}
+                      onTouchMove={cancelLongPress}
+                      onTouchCancel={cancelLongPress}
                       onPointerDown={(event) => {
                         if (event.pointerType === "mouse") return;
                         event.preventDefault();
@@ -1024,6 +1048,7 @@ export function ConversationChat({
                               key={i}
                               type="button"
                               onPointerDown={(event) => event.stopPropagation()}
+                              onTouchStart={(event) => event.stopPropagation()}
                               onClick={() => { setViewerImages(msgImages); setViewerIndex(i); }}
                               className={cn("overflow-hidden rounded-xl text-start", i === 3 && msgImages.length > 4 ? "relative" : "")}
                               aria-label={t("groupChat.viewImage")}

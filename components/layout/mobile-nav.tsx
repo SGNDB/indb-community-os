@@ -206,7 +206,7 @@ export function MobileNav({
 
   return (
     <>
-      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/70 bg-card/95 pb-[max(0.35rem,env(safe-area-inset-bottom))] ps-[max(0.5rem,env(safe-area-inset-left))] pe-[max(0.5rem,env(safe-area-inset-right))] pt-1 shadow-[0_-10px_28px_rgba(7,31,54,0.1)] backdrop-blur-xl lg:hidden">
+      <nav data-mobile-nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/70 bg-card/95 pb-[max(0.35rem,env(safe-area-inset-bottom))] ps-[max(0.5rem,env(safe-area-inset-left))] pe-[max(0.5rem,env(safe-area-inset-right))] pt-1 shadow-[0_-10px_28px_rgba(7,31,54,0.1)] backdrop-blur-xl lg:hidden">
         <ul className="mx-auto grid max-w-xl grid-cols-5 items-stretch gap-1">
           {bottomItems.map((item) => {
             const Icon = item.icon;

@@ -98,6 +98,7 @@ export default async function LocaleLayout({
         </Suspense>
         <PresenceProvider>
         <div
+          data-app-shell
           dir={isRtl ? "rtl" : "ltr"}
           className={cn(
             "min-h-screen overflow-x-clip text-start",

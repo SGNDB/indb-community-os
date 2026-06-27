@@ -143,6 +143,19 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+html[data-chat-open="true"] [data-mobile-nav] {
+  display: none !important;
+}
+
+html[data-chat-open="true"] [data-app-shell] {
+  padding-bottom: 0 !important;
+}
+
+html[data-chat-open="true"],
+html[data-chat-open="true"] body {
+  overscroll-behavior: none;
+}
+
 html[dir="rtl"] body {
   font-family: var(--font-arabic);
 }
