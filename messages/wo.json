@@ -1,6 +1,6 @@
-{
+﻿{
   "Onboarding": {
-    "title": "Nangal ci I ❤️ NDB",
+    "title": "Nangal ci I â¤ï¸ NDB",
     "subtitle": "Sama suqal",
     "back": "Dindi",
     "next": "Ci kanam",
@@ -13,24 +13,24 @@
       "fullNamePlaceholder": "Duggal sa tudd bu mat",
       "bio": "Bio",
       "bioPlaceholder": "Bind bio bu gudd ci sa bopp",
-      "city": "Dëkk",
-      "cityPlaceholder": "Duggal sa dëkk",
-      "languages": "Làkk yi",
-      "username": "Tur jëfandiku",
-      "usernamePlaceholder": "Tannal tur jëfandiku",
+      "city": "DÃ«kk",
+      "cityPlaceholder": "Duggal sa dÃ«kk",
+      "languages": "LÃ kk yi",
+      "username": "Tur jÃ«fandiku",
+      "usernamePlaceholder": "Tannal tur jÃ«fandiku",
       "skip": "Tere fi te",
       "saveAndContinue": "Denc ak dem",
       "saving": "Nana denc..."
     },
     "step2": {
-      "title": "I ❤️ NDB mooy ki la?",
+      "title": "I â¤ï¸ NDB mooy ki la?",
       "subtitle": "Gis li mbooloo mi def ko yees",
-      "whatIsINDB": "Mbootaayu ci Nouadhibou, dajale nit ñi ci bind, jikku, yoon, dimbali.",
+      "whatIsINDB": "Mbootaayu ci Nouadhibou, dajale nit Ã±i ci bind, jikku, yoon, dimbali.",
       "skip": "Tere fi te",
       "next": "Ci kanam",
       "features": {
         "home": {
-          "title": "Kër",
+          "title": "KÃ«r",
           "description": "Waxtu ak yoon bu bees ci mbooloo mi."
         },
         "community": {
@@ -43,46 +43,46 @@
         },
         "ideas": {
           "title": "Yoon",
-          "description": "Waxal yoon ngam dëkk dëpp ak dox."
+          "description": "Waxal yoon ngam dÃ«kk dÃ«pp ak dox."
         },
         "fadla": {
           "title": "Graatek",
-          "description": "Bind lu am solo nga doon def tey ak ñi ko soxla."
+          "description": "Bind lu am solo nga doon def tey ak Ã±i ko soxla."
         },
         "profile": {
           "title": "Profiil",
-          "description": "Waxal nga ki nga jëkk ak sa liggeey."
+          "description": "Waxal nga ki nga jÃ«kk ak sa liggeey."
         }
       }
     },
     "step3": {
       "title": "Nangal ci mbooloo gi ci Nouadhibou",
-      "message": "Fii, nanu denc jikku, nanu bind lu baax, nanu def dëkk ak ñépp.",
+      "message": "Fii, nanu denc jikku, nanu bind lu baax, nanu def dÃ«kk ak Ã±Ã©pp.",
       "getStarted": "Fayu"
     }
   },
   "Meta": {
     "siteTitle": "I love NDB",
-    "siteDescription": "Mbootaayu Nuwadibu ngir jikku siwil, tawtital, ak njariñ ñook.",
+    "siteDescription": "Mbootaayu Nuwadibu ngir jikku siwil, tawtital, ak njariÃ± Ã±ook.",
     "home": {
-      "title": "Kër",
-      "description": "Gis mbootaayu INDB ngir jikku, tawtital, ak liggéey ñook."
+      "title": "KÃ«r",
+      "description": "Gis mbootaayu INDB ngir jikku, tawtital, ak liggÃ©ey Ã±ook."
     },
     "feed": {
-      "title": "Kesɗi",
-      "description": "Topp mbootaayu yonati, taariix, ak waxtuwaayu yërmande."
+      "title": "KesÉ—i",
+      "description": "Topp mbootaayu yonati, taariix, ak waxtuwaayu yÃ«rmande."
     },
     "memory": {
       "title": "Mbangite Jikku",
-      "description": "Wëral jikku mbootaay, taariix, ak tarakta ñook."
+      "description": "WÃ«ral jikku mbootaay, taariix, ak tarakta Ã±ook."
     },
     "events": {
-      "title": "Jëli",
-      "description": "Gis jëli ñu kawe loxo ak mbootaayu ñook."
+      "title": "JÃ«li",
+      "description": "Gis jÃ«li Ã±u kawe loxo ak mbootaayu Ã±ook."
     },
     "projects": {
       "title": "Proje",
-      "description": "Topp proje siwil, liggéey mbindum ak cadde."
+      "description": "Topp proje siwil, liggÃ©ey mbindum ak cadde."
     },
     "polls": {
       "title": "Noot",
@@ -94,31 +94,31 @@
     },
     "fadla": {
       "title": "Graatek",
-      "description": "Ngalif ay mbariy yu gën a tàmbali ngir ñu koy soxla."
+      "description": "Ngalif ay mbariy yu gÃ«n a tÃ mbali ngir Ã±u koy soxla."
     },
     "fadlaArchive": {
       "title": "Graatek Archive",
-      "description": "Gis mbariy yu mukk ak yu tank, topp sa njariñ ci mbootaay bi."
+      "description": "Gis mbariy yu mukk ak yu tank, topp sa njariÃ± ci mbootaay bi."
     },
     "timeline": {
       "title": "Waxtu",
-      "description": "Wëral waxtu yi am solo ci jikku mbootaayu Nuwadibu."
+      "description": "WÃ«ral waxtu yi am solo ci jikku mbootaayu Nuwadibu."
     },
     "profile": {
       "title": "Profil",
-      "description": "Gis profil mbootaay, liggéey, ak jëfandikukat."
+      "description": "Gis profil mbootaay, liggÃ©ey, ak jÃ«fandikukat."
     },
     "admin": {
-      "title": "Platforme Njuɓɓte",
-      "description": "Njuɓɓte jëfandikukat, credi, ak mbariy yu bees."
+      "title": "Platforme NjuÉ“É“te",
+      "description": "NjuÉ“É“te jÃ«fandikukat, credi, ak mbariy yu bees."
     },
     "memorySubmit": {
       "title": "Ngalif Jikku",
-      "description": "Ngalif jikku mbootaay ag tàggatuwu ak cosaan melax."
+      "description": "Ngalif jikku mbootaay ag tÃ ggatuwu ak cosaan melax."
     },
     "ideaSubmit": {
       "title": "Ngalif Xalaat",
-      "description": "Sàng xalaat siwil ak tawtu ci li gën a njëk mbootaay."
+      "description": "SÃ ng xalaat siwil ak tawtu ci li gÃ«n a njÃ«k mbootaay."
     },
     "ideaEdit": {
       "title": "Soppi Xalaat",
@@ -138,25 +138,25 @@
     }
   },
   "LanguageSwitcher": {
-    "label": "Soppi làkk",
-    "changeTo": "Soppi làkk ba {language}"
+    "label": "Soppi lÃ kk",
+    "changeTo": "Soppi lÃ kk ba {language}"
   },
   "Navbar": {
     "memberAvatarLabel": "Profil mbindum mbootaay",
     "createAccount": "Sos ay jikko",
     "login": "Dugg",
-    "logout": "Génn",
-    "loggingOut": "Mungi génn..."
+    "logout": "GÃ©nn",
+    "loggingOut": "Mungi gÃ©nn..."
   },
   "Navigation": {
     "items": {
       "home": {
-        "label": "Kër",
-        "short": "Kër"
+        "label": "KÃ«r",
+        "short": "KÃ«r"
       },
       "feed": {
-        "label": "Kesɗi",
-        "short": "Kesɗi"
+        "label": "KesÉ—i",
+        "short": "KesÉ—i"
       },
       "memory": {
         "label": "Jikku",
@@ -175,8 +175,8 @@
         "short": "Noot"
       },
       "events": {
-        "label": "Jëli",
-        "short": "Jël"
+        "label": "JÃ«li",
+        "short": "JÃ«l"
       },
       "projects": {
         "label": "Proje",
@@ -195,7 +195,7 @@
         "short": "Campagnes"
       },
       "volunteer": {
-        "label": "🙋 Mboolo",
+        "label": "ðŸ™‹ Mboolo",
         "short": "Mboolo"
       }
     }
@@ -208,11 +208,11 @@
     "placeholder": "Seet mbootaay bi",
     "clear": "Far seet bi",
     "noResults": "Amul li gis",
-    "viewAll": "Gis ñoom lépp",
+    "viewAll": "Gis Ã±oom lÃ©pp",
     "searching": "Mungi seet...",
-    "error": "Mënul mu seet",
+    "error": "MÃ«nul mu seet",
     "minLength": "Bind 2 i mbind biri ngir seet.",
-    "resultsFor": "Njariñ seet ngir \"{query}\"",
+    "resultsFor": "NjariÃ± seet ngir \"{query}\"",
     "sections": {
       "posts": "Mbaal",
       "ideas": "Xalaat",
@@ -232,10 +232,10 @@
     "button": "Xibaar",
     "title": "Xibaar",
     "empty": "Amul xibaar ba leegi",
-    "markAllRead": "Ndànkkaaf lépp",
+    "markAllRead": "NdÃ nkkaaf lÃ©pp",
     "loading": "Mungi Yeb...",
-    "close": "Tëj",
-    "startedFollowing": "{actorName} tàmbali na la topp",
+    "close": "TÃ«j",
+    "startedFollowing": "{actorName} tÃ mbali na la topp",
     "reactedToPost": "{actorName} jaabi na mbaal bi",
     "commentedOnPost": "{actorName} nangu na ci mbaal bi",
     "commentedOnYourIdea": "{actorName} nangu na ci xalaat bi",
@@ -244,7 +244,7 @@
     "commentedOnYourMemory": "{actorName} commented on your memory",
     "sharedYourMemory": "{actorName} ngalif na jikku bi",
     "creditAwarded": "Yagg nga am {points} credi tawtital",
-    "communityShareRequested": "Nit ñaari laaj na mbariy bu ngalif",
+    "communityShareRequested": "Nit Ã±aari laaj na mbariy bu ngalif",
     "fadlaRequested": "{actorName} laaj na mbariy bu ngalif",
     "fadlaCompleted": "{actorName} yees na mbariy bu Graatek bi",
     "fadlaMessage": "{actorName} sent you a message about Graatek",
@@ -262,33 +262,33 @@
     "ideaMessage": "{actorName} sent a message about your idea",
     "ideaStatusChange": "{actorName} updated the idea status",
     "conversationMessage": "{actorName} bindu la ndotooje",
-    "ideaGroupMessage": "{actorName} yónnee bataaxal ci groupe xalaat bi",
+    "ideaGroupMessage": "{actorName} yÃ³nnee bataaxal ci groupe xalaat bi",
     "ideaGroupUpdated": "{actorName} yeesal groupe xalaat bi",
     "ideaGroupRemoved": "{actorName} dindi la ci groupe xalaat",
-    "ideaGroupLeft": "{actorName} génn ci groupe xalaat bi",
+    "ideaGroupLeft": "{actorName} gÃ©nn ci groupe xalaat bi",
     "ideaCompleted": "{actorName} jeexal xalaat bi",
-    "sharedYourPost": "{actorName} séddoo na sa post",
-    "sharedYourItem": "{actorName} séddoo na sa mbirum Graatek",
-    "genericNotification": "{actorName} yónnee na la ab yégal"
+    "sharedYourPost": "{actorName} sÃ©ddoo na sa post",
+    "sharedYourItem": "{actorName} sÃ©ddoo na sa mbirum Graatek",
+    "genericNotification": "{actorName} yÃ³nnee na la ab yÃ©gal"
   },
   "RightSidebar": {
-    "trendingTopics": "Topiku ñu taw",
-    "featuredMemories": "Jikku ñu tontu",
+    "trendingTopics": "Topiku Ã±u taw",
+    "featuredMemories": "Jikku Ã±u tontu",
     "activePoll": "Noot bi mungi dem",
     "votes": "{count} tontu",
-    "upcomingEvents": "Jëli ñu kawe"
+    "upcomingEvents": "JÃ«li Ã±u kawe"
   },
   "Landing": {
     "tagline": "Jikku - Tawtital - Kanam",
     "heroTitle": "Menn Jikku. Sos Kanam.",
     "heroDescription": "Platforme mbootaay digitalu Daqlat Nuwadibu.",
-    "mottoPrimary": "Nuwadibu moom nanu ñépp.",
-    "mottoSecondary": "Jikku mbootaay daa xëcc njariñ mbind.",
+    "mottoPrimary": "Nuwadibu moom nanu Ã±Ã©pp.",
+    "mottoSecondary": "Jikku mbootaay daa xÃ«cc njariÃ± mbind.",
     "joinCommunity": "Tawtu Mbootaay",
-    "exploreMemories": "Wëral Jikku",
+    "exploreMemories": "WÃ«ral Jikku",
     "latestPosts": "Mbaal yu bees",
     "pollPreview": "Nataal Noot",
-    "featuredMemories": "Jikku ñu tontu",
+    "featuredMemories": "Jikku Ã±u tontu",
     "communityIdeas": "Xalaat Mbootaay",
     "createAccount": "Sos ay jikko",
     "login": "Dugg"
@@ -296,42 +296,42 @@
   "Feed": {
     "ago": "bi",
     "save": "Tank",
-    "saved": "Tank nañu",
+    "saved": "Tank naÃ±u",
     "comments": "Nangu",
     "share": "Ngalif",
-    "linkCopied": "Lien mbaal bi jaabi nañu",
-    "shareFailed": "Mënul ngalif",
+    "linkCopied": "Lien mbaal bi jaabi naÃ±u",
+    "shareFailed": "MÃ«nul ngalif",
     "deleting": "Mungi far...",
     "sending": "Mungi yonne...",
     "commentPlaceholder": "Bind ay nangu...",
     "unknownAuthor": "Xamul",
-    "all": "Lépp",
+    "all": "LÃ©pp",
     "categories": {
       "community": "Mbootaay",
-      "events": "Jëli",
+      "events": "JÃ«li",
       "memory": "Jikku",
       "ideas": "Xalaat"
     },
     "reactions": {
-      "like": "Bëgg",
+      "like": "BÃ«gg",
       "love": "Sop",
       "support": "Doxal",
-      "celebrate": "Bës ba",
+      "celebrate": "BÃ«s ba",
       "insightful": "Xel",
       "sad": "Xiff"
     },
     "actionCounts": {
-      "likes": "{count} Bëgg",
+      "likes": "{count} BÃ«gg",
       "comments": "{count} Nangu",
       "saves": "{count} Tank"
     },
     "editComment": "Soppi nangu",
     "deleteComment": "Far nangu",
-    "cancel": "Tër",
+    "cancel": "TÃ«r",
     "commentUpdated": "Nangu bi sagal na",
     "commentDeleted": "Nangu bi far na",
-    "commentUpdateFailed": "Mënul sagal nangu",
-    "commentDeleteFailed": "Mënul far nangu"
+    "commentUpdateFailed": "MÃ«nul sagal nangu",
+    "commentDeleteFailed": "MÃ«nul far nangu"
   },
   "FeedComposer": {
     "title": "Sos mbaal",
@@ -339,7 +339,7 @@
     "quickActions": {
       "text": "Bind",
       "image": "Nataal",
-      "event": "Jël",
+      "event": "JÃ«l",
       "photo": "Nataal",
       "memory": "Jikku",
       "idea": "Xalaat"
@@ -347,29 +347,29 @@
     "composerTitle": "Ngalif sagal ci mbootaay bi",
     "form": {
       "title": "Tit",
-      "content": "Lu sos? Looy tànnal?",
-      "mediaUrl": "URL média (suññaayu)",
-      "selectCategory": "Tànnal kategory",
-      "publish": "Sàkk"
+      "content": "Lu sos? Looy tÃ nnal?",
+      "mediaUrl": "URL mÃ©dia (suÃ±Ã±aayu)",
+      "selectCategory": "TÃ nnal kategory",
+      "publish": "SÃ kk"
     },
-    "cancel": "Tër",
-    "post": "Sàkk",
-    "posting": "Mungi sàkk...",
+    "cancel": "TÃ«r",
+    "post": "SÃ kk",
+    "posting": "Mungi sÃ kk...",
     "socialPrompt": "Lu bees ci Nuwadibu?",
     "editTitle": "Soppi mbaal",
     "save": "Tank",
     "saving": "Mungi tank...",
     "notFound": "Mbaal bi amul",
-    "notFoundDescription": "Mbaal bi nga bëgg soppi amul.",
+    "notFoundDescription": "Mbaal bi nga bÃ«gg soppi amul.",
     "errors": {
-      "submitFailed": "Mënul sàkk mbaal. Tànnal cat.",
-      "postFailed": "Mënul sàkk mbaal. Tànnal cat.",
+      "submitFailed": "MÃ«nul sÃ kk mbaal. TÃ nnal cat.",
+      "postFailed": "MÃ«nul sÃ kk mbaal. TÃ nnal cat.",
       "uploading": "Please wait until media upload finishes."
     }
   },
   "Memory": {
     "title": "Mbangite Jikku",
-    "description": "Musée digitalu taariix mbootaay, nataal, ak cosaan.",
+    "description": "MusÃ©e digitalu taariix mbootaay, nataal, ak cosaan.",
     "openTimeline": "Ubbi Waxtu",
     "submitNew": "Ngalif jikku bees",
     "contributedBy": "Tawtute ci {name}",
@@ -377,65 +377,65 @@
     "noImage": "Amul nataal",
     "unknownContributor": "Tawtukat xamul",
     "share": "Ngalif",
-    "linkCopied": "Lien jikku bi jaabi nañu",
-    "shareFailed": "Mënul ngalif",
+    "linkCopied": "Lien jikku bi jaabi naÃ±u",
+    "shareFailed": "MÃ«nul ngalif",
     "edit": "Soppi jikku",
     "delete": "Far jikku",
     "confirmDelete": "Far",
     "confirmDeleteTitle": "Far jikku",
-    "deleteConfirm": "Nga bëgg far jikku bi?",
+    "deleteConfirm": "Nga bÃ«gg far jikku bi?",
     "memoryDeleted": "Jikku bi far na",
-    "deleteFailed": "Jikku bi far fuñu ko",
-    "cancel": "Tër",
+    "deleteFailed": "Jikku bi far fuÃ±u ko",
+    "cancel": "TÃ«r",
     "storyMemory": "Jikku Taariix",
     "verification": {
       "pending": "Mungi xame",
-      "approved": "Nangu nañu ko",
-      "rejected": "Taggi nañu ko",
+      "approved": "Nangu naÃ±u ko",
+      "rejected": "Taggi naÃ±u ko",
       "needsMoreInfo": "Soxla ay xibaar yu yoo"
     },
-    "memoryShared": "Jikku ngalif nañu kon",
+    "memoryShared": "Jikku ngalif naÃ±u kon",
     "memoryUpdated": "Jikku sagal na",
-    "memorySaved": "Jikku tank nañu ko",
-    "memoryUnsaved": "Jikku génn na ci tank"
+    "memorySaved": "Jikku tank naÃ±u ko",
+    "memoryUnsaved": "Jikku gÃ©nn na ci tank"
   },
   "MemoryReactions": {
     "love": "Sop",
     "respect": "Ngor",
     "nostalgia": "Jikku",
     "important": "Am solo",
-    "failed": "Jaabi mënul"
+    "failed": "Jaabi mÃ«nul"
   },
   "MemoryForm": {
     "title": "Ngalif jikku mbootaay",
     "editTitle": "Soppi jikku",
     "update": "Sagal jikku",
     "ready": "Jikku bi am na ngir ngalifte.",
-    "imageHelper": "Nangul nataal su la am. Jikku manuñu ngalif koom taariix.",
+    "imageHelper": "Nangul nataal su la am. Jikku manuÃ±u ngalif koom taariix.",
     "fields": {
       "title": "Tit jikku",
       "story": "Ngalif taariix ak cosaan",
-      "category": "Tànnal kategory",
-      "eraLabel": "Jamono (suññaay)",
-      "location": "Fexe (suññaay)"
+      "category": "TÃ nnal kategory",
+      "eraLabel": "Jamono (suÃ±Ã±aay)",
+      "location": "Fexe (suÃ±Ã±aay)"
     },
     "errors": {
       "title": "Bind tit jikku bu am solo.",
       "story": "Ngalif xibaar yu yoo ci taariix bi.",
-      "category": "Tànnal kategory.",
-      "submitFailed": "Lu mënul tàmbali ci ngalifte"
+      "category": "TÃ nnal kategory.",
+      "submitFailed": "Lu mÃ«nul tÃ mbali ci ngalifte"
     },
     "submitting": "Mungi yonne...",
     "submit": "Ngalif jikku",
-    "cancel": "Tër",
-    "successMessage": "Jikku ngalif nañu kon"
+    "cancel": "TÃ«r",
+    "successMessage": "Jikku ngalif naÃ±u kon"
   },
   "MemoryTimeline": {
     "title": "Waxtu Jikku",
-    "subtitle": "Wëral jikku mbootaay ci at, waxtu, ak kategori",
-    "browseDecades": "Wëral ci at",
+    "subtitle": "WÃ«ral jikku mbootaay ci at, waxtu, ak kategori",
+    "browseDecades": "WÃ«ral ci at",
     "noDecades": "Amul at ba leegi",
-    "pickYear": "Tànnal at",
+    "pickYear": "TÃ nnal at",
     "noYears": "Amul at ci bii waxtu",
     "memoriesFrom": "Jikku ci {year}",
     "noMemories": "Amul jikku mel nga seet",
@@ -444,37 +444,37 @@
     "loadingMemories": "Mungi yeb jikku...",
     "filterByCategory": "Seet ci kategori",
     "filterByLocation": "Seet ci fexe",
-    "allCategories": "Kategori lépp",
-    "sortBy": "Tànnal ci",
-    "sortNewest": "Bees jëk",
-    "sortOldest": "Kaw jëk",
-    "sortMostReacted": "Ëpp jaabi",
-    "sortMostSaved": "Ëpp tank",
-    "sortMostCommented": "Ëpp nangu",
+    "allCategories": "Kategori lÃ©pp",
+    "sortBy": "TÃ nnal ci",
+    "sortNewest": "Bees jÃ«k",
+    "sortOldest": "Kaw jÃ«k",
+    "sortMostReacted": "Ã‹pp jaabi",
+    "sortMostSaved": "Ã‹pp tank",
+    "sortMostCommented": "Ã‹pp nangu",
     "totalMemories": "{count} jikku",
-    "topCategories": "Kategori ëpp",
-    "topLocations": "Fexe ëpp",
+    "topCategories": "Kategori Ã«pp",
+    "topLocations": "Fexe Ã«pp",
     "backToTimeline": "Dindi ci waxtu",
     "backToDecades": "Dindi ci at",
     "memoryCount": "{count} jikku",
     "categories": {
-      "port": "Pòrt",
-      "railway": "Pènc",
-      "schools": "Ékól",
-      "families": "Wàllu",
-      "culture": "Ngàngu",
+      "port": "PÃ²rt",
+      "railway": "PÃ¨nc",
+      "schools": "Ã‰kÃ³l",
+      "families": "WÃ llu",
+      "culture": "NgÃ ngu",
       "sport": "Xewaru",
       "market": "Marche",
-      "beach": "Géwél",
-      "oldCity": "Dëkk bu mag",
-      "work": "Ligéey",
+      "beach": "GÃ©wÃ©l",
+      "oldCity": "DÃ«kk bu mag",
+      "work": "LigÃ©ey",
       "fishing": "Fijj",
-      "migration": "Déggi",
+      "migration": "DÃ©ggi",
       "cansado": "Kansado",
       "snim": "SNIM",
       "religiousEvents": "Xewar diine",
-      "nationalEvents": "Xewar réew",
-      "neighborhoods": "Këru",
+      "nationalEvents": "Xewar rÃ©ew",
+      "neighborhoods": "KÃ«ru",
       "other": "Dig"
     }
   },
@@ -482,40 +482,40 @@
     "title": "Xalaat Mbootaay",
     "description": "Tontu xalaat yu am solo ak tawtu ci ndimbalu Nuwadibu.",
     "voteLabel": "Tontu",
-    "voteLabelVoted": "Tontu nañu",
+    "voteLabelVoted": "Tontu naÃ±u",
     "supportPercent": "{percent}% ndimbal",
     "showSupporters": "Wone ndimbale",
-    "top10PopularIdeas": "10 xalaat yi gën a taw",
-    "showAll": "Wone lépp ({count})",
+    "top10PopularIdeas": "10 xalaat yi gÃ«n a taw",
+    "showAll": "Wone lÃ©pp ({count})",
     "badgeNewIdea": "Xalaat Bees",
     "badgeGrowingSupport": "Ndimbal Mungi Bare",
     "badgePopular": "Taw",
-    "badgeCommunityPriority": "Njëk Mbootaay",
-    "badgeTopPriority": "Mbégte Njëk",
+    "badgeCommunityPriority": "NjÃ«k Mbootaay",
+    "badgeTopPriority": "MbÃ©gte NjÃ«k",
     "share": "Ngalif",
-    "linkCopied": "Lien xalaat bi jaabi nañu",
+    "linkCopied": "Lien xalaat bi jaabi naÃ±u",
     "unknownAuthor": "Xamul",
-    "voteFailed": "Tontu mënul",
+    "voteFailed": "Tontu mÃ«nul",
     "commentsWithCount": "Nangu ({count})",
     "commentPlaceholder": "Bind ay nangu...",
-    "noCommentsYet": "Amul nangu ba leegi. Ngay jëk nangu.",
+    "noCommentsYet": "Amul nangu ba leegi. Ngay jÃ«k nangu.",
     "loginToComment": "Dugg ngir nangu",
-    "commentFailed": "Nangul mënul",
-    "commentDeleteFailed": "Far nangu mënul",
+    "commentFailed": "Nangul mÃ«nul",
+    "commentDeleteFailed": "Far nangu mÃ«nul",
     "delete": "Far",
-    "shareAnother": "Ngalif xalaat buñoom",
+    "shareAnother": "Ngalif xalaat buÃ±oom",
     "edit": "Soppi",
-    "deleteConfirm": "Nga bëgg far xalaat bi?",
+    "deleteConfirm": "Nga bÃ«gg far xalaat bi?",
     "confirmDelete": "Far",
     "confirmDeleteTitle": "Far xalaat",
-    "cancel": "Tër",
-    "ideaUpdated": "Xalaat sagal nañu kon",
-    "ideaDeleted": "Xalaat far nañu kon",
+    "cancel": "TÃ«r",
+    "ideaUpdated": "Xalaat sagal naÃ±u kon",
+    "ideaDeleted": "Xalaat far naÃ±u kon",
     "showMore": "Wone ya",
     "showLess": "Wone tuuti",
     "editIdea": "Soppi xalaat",
     "deleteIdea": "Far xalaat",
-    "allIdeas": "Xalaat Lépp",
+    "allIdeas": "Xalaat LÃ©pp",
     "support": "Support",
     "participate": "Participate",
     "discussionButton": "Discussion",
@@ -547,7 +547,7 @@
     "save": "Tank",
     "commentUpdated": "Nangu sagal na",
     "commentDeleted": "Nangu far na",
-    "commentUpdateFailed": "Mënul sagal nangu",
+    "commentUpdateFailed": "MÃ«nul sagal nangu",
     "discussion": {
       "empty": "No messages yet. Start the conversation.",
       "inputPlaceholder": "Type a message...",
@@ -565,29 +565,29 @@
     "ready": "Xalaat bi am na ngir ngalifte.",
     "fields": {
       "title": "Tit xalaat",
-      "description": "Nangul xalaat bi, njariñam, ak cat yi",
-      "category": "Tànnal kategory",
+      "description": "Nangul xalaat bi, njariÃ±am, ak cat yi",
+      "category": "TÃ nnal kategory",
       "others": "Ayeneen"
     },
     "errors": {
       "title": "Bind tit xalaat bu am solo.",
-      "description": "Nangul xalaat bi ba xereñ.",
-      "category": "Tànnal kategory.",
-      "submitFailed": "Mënul ngalif xalaat. Tànnal cat."
+      "description": "Nangul xalaat bi ba xereÃ±.",
+      "category": "TÃ nnal kategory.",
+      "submitFailed": "MÃ«nul ngalif xalaat. TÃ nnal cat."
     },
     "submitting": "Mungi yonne...",
     "submit": "Ngalif xalaat",
-    "cancel": "Tër",
-    "successMessage": "Xalaat ngalif nañu kon"
+    "cancel": "TÃ«r",
+    "successMessage": "Xalaat ngalif naÃ±u kon"
   },
   "Events": {
-    "title": "Jëli Mbootaay",
-    "description": "Gis jëli ñu kawe ak tawtu ci ndoorte ñook.",
+    "title": "JÃ«li Mbootaay",
+    "description": "Gis jÃ«li Ã±u kawe ak tawtu ci ndoorte Ã±ook.",
     "rsvp": "Mangi Tawtu"
   },
   "Projects": {
     "title": "Proje Mbootaay",
-    "description": "Topp cadde, mbindum ak njariñ ci proje siwil.",
+    "description": "Topp cadde, mbindum ak njariÃ± ci proje siwil.",
     "progress": "Cadde",
     "volunteers": "{count} mbindum",
     "status": {
@@ -599,15 +599,15 @@
   "Polls": {
     "title": "Noot Mbootaay",
     "description": "Noot yu werente ngir ndimbal mujj yu am solo ak tawtital.",
-    "totalVotes": "{count} tontu lépp",
+    "totalVotes": "{count} tontu lÃ©pp",
     "voteButton": "Tontu"
   },
   "Timeline": {
     "title": "Waxtu Nuwadibu"
   },
   "Profile": {
-    "bio": "Mbindum mbootaay, taariixkat ak ndimbal mbaañaana.",
-    "location": "Nuwadibu, Gànnaar",
+    "bio": "Mbindum mbootaay, taariixkat ak ndimbal mbaaÃ±aana.",
+    "location": "Nuwadibu, GÃ nnaar",
     "stats": {
       "posts": "Mbaal",
       "memories": "Jikku",
@@ -618,7 +618,7 @@
     "changeAvatar": "Soppi Nataal",
     "changeCover": "Soppi Lendu",
     "shareProfile": "Ngalif profil",
-    "tabsTitle": "Pɔrɔ Profil",
+    "tabsTitle": "PÉ”rÉ” Profil",
     "tabs": {
       "posts": "Mbaal",
       "memories": "Jikku",
@@ -628,29 +628,29 @@
     },
     "joined": "Tawtu na",
     "role": {
-      "admin": "Njuɓɓkat",
-      "moderator": "Kàddu gi"
+      "admin": "NjuÉ“É“kat",
+      "moderator": "KÃ ddu gi"
     },
     "recentMemories": "Jikku bu bees",
     "save": "Tank soppi",
     "saving": "Mungi tank...",
-    "updated": "Profil sagal nañu kon",
-    "cancel": "Tër",
+    "updated": "Profil sagal naÃ±u kon",
+    "cancel": "TÃ«r",
     "noBio": "Amul ba leegi.",
     "noBioYet": "Amul ba leegi.",
     "uploading": "Mungi yeb...",
     "photoUpdated": "Nataal profil sagal na",
     "coverUpdated": "Lendu sagal na",
-    "uploadFailed": "Mënul yeb nataal",
-    "noCity": "Amul dëkku b.",
+    "uploadFailed": "MÃ«nul yeb nataal",
+    "noCity": "Amul dÃ«kku b.",
     "createPost": "Sos mbaal",
-    "noPostsYet": "Amul mbaal ba leegi. Ngalif sagal bu jëk.",
+    "noPostsYet": "Amul mbaal ba leegi. Ngalif sagal bu jÃ«k.",
     "fields": {
-      "username": "Tur jëfandiku",
+      "username": "Tur jÃ«fandiku",
       "fullName": "Tur full",
       "bio": "Taariix",
-      "city": "Dëkku",
-      "languagePreference": "Làkk (wo, ar, fr, en, ff, snk)",
+      "city": "DÃ«kku",
+      "languagePreference": "LÃ kk (wo, ar, fr, en, ff, snk)",
       "avatarUrl": "Nataal",
       "coverImage": "Nataal lendu",
       "role": "Jikko",
@@ -668,16 +668,16 @@
   "Follow": {
     "follow": "Topp",
     "following": "Mungi topp",
-    "unfollow": "Bàyyi topp",
-    "followers": "Ñu koy topp",
+    "unfollow": "BÃ yyi topp",
+    "followers": "Ã‘u koy topp",
     "followingCount": "Mungi topp",
     "followedToast": "Nga topp profil bi ba leegi",
-    "unfollowedToast": "Nga bàyyi topp profil bi",
+    "unfollowedToast": "Nga bÃ yyi topp profil bi",
     "loginToFollow": "Dugg ngir topp nit",
-    "failed": "Mënul soppi daraja topp"
+    "failed": "MÃ«nul soppi daraja topp"
   },
   "ProfileCard": {
-    "bio": "Taariixkat mbootaay mungi bind jikku, xalaat ak proje ñook.",
+    "bio": "Taariixkat mbootaay mungi bind jikku, xalaat ak proje Ã±ook.",
     "location": "Daqlat Nuwadibu",
     "stats": {
       "posts": "Mbaal",
@@ -706,21 +706,21 @@
       "pending": "Mungi xame"
     },
     "reasons": {
-      "yearConfirmation": "Soxla tabiti at sàkku",
+      "yearConfirmation": "Soxla tabiti at sÃ kku",
       "respectfulTone": "Xame bind bi ngir ngor"
     },
     "commandCenter": "Centre INDB",
     "nouadhibouSignal": "Xeex Nuwadibu",
     "eyebrow": "Centre Jite Mbootaay",
     "signedInLabel": "Dugge",
-    "signedInAs": "Njuɓɓkat: {name}",
+    "signedInAs": "NjuÉ“É“kat: {name}",
     "hero": {
       "title": "Nuwadibu mungi wuuru. Bi xeexam.",
-      "description": "Topp nit, xalaat, jikku, ak ndimbal ñu koy sos INDB. Bi nàpp ngir jite mbootaay bu wuuru, du ngir njuɓɓte database."
+      "description": "Topp nit, xalaat, jikku, ak ndimbal Ã±u koy sos INDB. Bi nÃ pp ngir jite mbootaay bu wuuru, du ngir njuÉ“É“te database."
     },
     "nav": {
       "dashboard": "Platforme",
-      "users": "Jëfandikukat",
+      "users": "JÃ«fandikukat",
       "content": "Mbariy",
       "credits": "Credi",
       "analytics": "Analytik",
@@ -729,19 +729,19 @@
       "impact": "Impact communautaire"
     },
     "sections": {
-      "overview": "Wone lépp",
-      "users": "Jëfandikukat",
+      "overview": "Wone lÃ©pp",
+      "users": "JÃ«fandikukat",
       "credits": "Credi",
       "content": "Mbariy"
     },
     "health": {
-      "eyebrow": "Wér gi Mbootaay",
+      "eyebrow": "WÃ©r gi Mbootaay",
       "title": "Lu Mungi Dem Ba Leegi",
       "members": "Mbind",
       "posts": "Mbaal",
       "ideas": "Xalaat",
       "memories": "Jikku",
-      "activeToday": "Mungi liggéey bii",
+      "activeToday": "Mungi liggÃ©ey bii",
       "newToday": "+{count} bii",
       "today": "+{count} bii",
       "activeSignal": "xeex wuuru",
@@ -749,12 +749,12 @@
     },
     "pulse": {
       "eyebrow": "Xeex Mbootaay",
-      "title": "Waxtuwaayu ñu koy dindi dëkku bi",
+      "title": "Waxtuwaayu Ã±u koy dindi dÃ«kku bi",
       "noPreview": "Amul nataal ba leegi.",
       "type": {
-        "post": "Waxtuwaay bi gën liggéey",
-        "idea": "Xalaat bi gën liggéey",
-        "memory": "Jikku bi gën solo",
+        "post": "Waxtuwaay bi gÃ«n liggÃ©ey",
+        "idea": "Xalaat bi gÃ«n liggÃ©ey",
+        "memory": "Jikku bi gÃ«n solo",
         "member": "Mbind bees"
       }
     },
@@ -763,8 +763,8 @@
       "title": "Mbind yu Bees"
     },
     "contributors": {
-      "eyebrow": "Ñu gën Tawtu",
-      "title": "Nit ñi koy sos mbootaay bi",
+      "eyebrow": "Ã‘u gÃ«n Tawtu",
+      "title": "Nit Ã±i koy sos mbootaay bi",
       "rank": {
         "member": "Mbind",
         "contributor": "Tawtukat",
@@ -774,19 +774,19 @@
       }
     },
     "actions": {
-      "eyebrow": "Centre Liggéey",
+      "eyebrow": "Centre LiggÃ©ey",
       "title": "Dindi Mbootaay Bi Kawe",
       "awardCredits": "Ngalif Credi",
       "awardCreditsDescription": "Tontu mbind yu dimbali.",
       "reviewReports": "Xame Jaar-jaar",
       "reviewReportsDescription": "Xame lu soxla tigi.",
-      "viewUsers": "Gis Jëfandikukat",
+      "viewUsers": "Gis JÃ«fandikukat",
       "viewUsersDescription": "Gis mbind ak soppi daraja.",
       "analytics": "Analytik Mbootaay",
-      "analyticsDescription": "Jàng xeex ak liggéey."
+      "analyticsDescription": "JÃ ng xeex ak liggÃ©ey."
     },
     "overview": {
-      "totalUsers": "Jëfandikukat",
+      "totalUsers": "JÃ«fandikukat",
       "totalPosts": "Mbaal",
       "totalIdeas": "Xalaat",
       "totalMemories": "Jikku",
@@ -795,34 +795,34 @@
     "users": {
       "eyebrow": "Nit Mbootaay",
       "title": "Jite Mbind",
-      "description": "Jëfandikukat ñaan nañu mbind. Njuɓɓkat mën na far jikko bañ xaaj.",
-      "search": "Seet jëfandikukat",
+      "description": "JÃ«fandikukat Ã±aan naÃ±u mbind. NjuÉ“É“kat mÃ«n na far jikko baÃ± xaaj.",
+      "search": "Seet jÃ«fandikukat",
       "searchButton": "Seet",
-      "user": "Jëfandikukat",
+      "user": "JÃ«fandikukat",
       "email": "Imel",
       "role": "Jikko",
       "score": "Credi tawtital",
       "award": "Ngalif credi",
-      "noUsername": "Amul tur jëfandiku",
+      "noUsername": "Amul tur jÃ«fandiku",
       "emailUnavailable": "Amul",
       "updateRole": "Sagal",
-      "selfRoleProtected": "Jikko bi njuɓɓkat aar nañu ko",
+      "selfRoleProtected": "Jikko bi njuÉ“É“kat aar naÃ±u ko",
       "deleteUser": "Far jikko",
-      "deleteConfirm": "Far jikko jëfandikukat bi ci mbootaay bi? Bi mënul dindi ci platforme."
+      "deleteConfirm": "Far jikko jÃ«fandikukat bi ci mbootaay bi? Bi mÃ«nul dindi ci platforme."
     },
     "roles": {
       "member": "Mbind",
-      "admin": "Njuɓɓkat"
+      "admin": "NjuÉ“É“kat"
     },
     "credits": {
       "eyebrow": "Credi tawtital",
-      "title": "Tontu njariñ mbootaay",
+      "title": "Tontu njariÃ± mbootaay",
       "description": "Ngalif credi tawtital ak tank taariix.",
-      "user": "Jëfandikukat",
+      "user": "JÃ«fandikukat",
       "points": "Credi",
       "reason": "Ngelaw",
       "note": "Bind",
-      "notePlaceholder": "Bind suññaay",
+      "notePlaceholder": "Bind suÃ±Ã±aay",
       "award": "Ngalif credi",
       "recent": "Credi yu bees",
       "empty": "Amul credi ngalif ba leegi."
@@ -830,42 +830,42 @@
     "graatekPage": {
       "eyebrow": "Ngalifte mbootaay",
       "title": "Jite Graatek",
-      "description": "Jite ak natt liggéeyu séddoo mbootaay.",
+      "description": "Jite ak natt liggÃ©eyu sÃ©ddoo mbootaay.",
       "active": "Dafa dox",
-      "requested": "Laaj nañu",
-      "reserved": "Tegg nañu",
+      "requested": "Laaj naÃ±u",
+      "reserved": "Tegg naÃ±u",
       "completed": "Mukk na",
       "available": "Am na",
-      "archived": "Tank nañu",
-      "itemsShared": "Mbariy yu séddoo",
-      "totalItems": "Mbariy Graatek yépp",
+      "archived": "Tank naÃ±u",
+      "itemsShared": "Mbariy yu sÃ©ddoo",
+      "totalItems": "Mbariy Graatek yÃ©pp",
       "activeListings": "Ngalifte yu dox",
       "successfulExchanges": "Weccoo yu am na ndam",
-      "reservedItems": "Mbariy yuñu teg",
+      "reservedItems": "Mbariy yuÃ±u teg",
       "completionRate": "Tolluwaayu mukk",
-      "peopleHelped": "Nit ñu dimbali",
-      "categoryPerformance": "Liggéey kategory",
+      "peopleHelped": "Nit Ã±u dimbali",
+      "categoryPerformance": "LiggÃ©ey kategory",
       "createdOverTime": "Graatek ci jamono",
       "successfulExchangesChart": "Weccoo yu am na ndam",
       "categoryGrowth": "Yokkute kategory",
       "communityDemand": "Laaju mbootaay",
       "directory": "Doggali Graatek",
-      "impact": "Njariñ mbootaay",
+      "impact": "NjariÃ± mbootaay",
       "needs": "Soxlay mbootaay",
       "reports": "Rapoor",
       "moderation": "Xoolaat",
-      "futureMap": "Kartu séddoo bu ëllëg",
+      "futureMap": "Kartu sÃ©ddoo bu Ã«llÃ«g",
       "pendingRequests": "Laaj yu xaar",
       "acceptedRequest": "Laaj bu nangu",
-      "rejectedRequests": "Laaj yu bañ",
+      "rejectedRequests": "Laaj yu baÃ±",
       "avgTime": "Diggante jamono ba muy mukk",
       "exportCSV": "Jigg CSV",
       "exportExcel": "Jigg Excel",
       "exportPDF": "Jigg PDF",
       "search": "Seet ci tur, boroom, walla kategory...",
-      "filters": "Ceɗe",
-      "allStatuses": "Daraja yépp",
-      "allCategories": "Kategory yépp",
+      "filters": "CeÉ—e",
+      "allStatuses": "Daraja yÃ©pp",
+      "allCategories": "Kategory yÃ©pp",
       "tableImage": "Nataal",
       "tableTitle": "Tur",
       "tableCategory": "Kategory",
@@ -873,8 +873,8 @@
       "tableStatus": "Daraja",
       "tableRequests": "Laaj",
       "tableViews": "Gis",
-      "tableCreated": "Bésu sos",
-      "tableCompleted": "Bésu mukk",
+      "tableCreated": "BÃ©su sos",
+      "tableCompleted": "BÃ©su mukk",
       "view": "Gis",
       "viewListing": "Gis ngalifte",
       "archive": "Tank",
@@ -884,39 +884,39 @@
       "moderate": "Xoolaat",
       "resolve": "Saafara xuloo",
       "detailTitle": "Benn-bennal ngalifte",
-      "noResults": "Amul mbariy Graatek buñu gis.",
+      "noResults": "Amul mbariy Graatek buÃ±u gis.",
       "periodToday": "Tey",
       "period7d": "7 fan",
       "period30d": "30 fan",
       "period90d": "90 fan",
       "period1y": "1 at",
-      "periodAll": "Jamono yépp",
-      "smartFilters": "Ceɗe xel",
-      "mostRequested": "Yi ñu gën laaj",
-      "recentlyCreated": "Yu ñu sos léegi",
-      "mapReady": "Kartu tundu bu tàng na pare",
-      "mapDescription": "Nokku yi dañu leen di denc ngir natt soxla tundu yi ci ëllëg.",
-      "reportMostSharedCategories": "Kategory yu gën séddoo",
-      "reportMonthlySharing": "Séddoo weer wi",
-      "reportCommunityImpact": "Njariñ mbootaay",
+      "periodAll": "Jamono yÃ©pp",
+      "smartFilters": "CeÉ—e xel",
+      "mostRequested": "Yi Ã±u gÃ«n laaj",
+      "recentlyCreated": "Yu Ã±u sos lÃ©egi",
+      "mapReady": "Kartu tundu bu tÃ ng na pare",
+      "mapDescription": "Nokku yi daÃ±u leen di denc ngir natt soxla tundu yi ci Ã«llÃ«g.",
+      "reportMostSharedCategories": "Kategory yu gÃ«n sÃ©ddoo",
+      "reportMonthlySharing": "SÃ©ddoo weer wi",
+      "reportCommunityImpact": "NjariÃ± mbootaay",
       "reportSuccessfulExchanges": "Weccoo yu am ndam",
-      "shortages": "Li ñàkk",
-      "noShortageSignals": "Amul màndarga ñàkk ba leegi.",
-      "unfulfilledItems": "Mbariy yu ñu taxul",
+      "shortages": "Li Ã±Ã kk",
+      "noShortageSignals": "Amul mÃ ndarga Ã±Ã kk ba leegi.",
+      "unfulfilledItems": "Mbariy yu Ã±u taxul",
       "noUnfulfilledRequests": "Amul laaj bu taxul.",
       "requestManagement": "Jite laaj yi",
       "messages": "Bataaxal",
       "unknown": "Kenn xamul",
       "dayShort": "f",
       "categoryFood": "Lekk",
-      "categoryClothes": "Yére",
-      "categoryBooks": "Téere",
-      "categorySchoolSupplies": "Jàng mbariy",
+      "categoryClothes": "YÃ©re",
+      "categoryBooks": "TÃ©ere",
+      "categorySchoolSupplies": "JÃ ng mbariy",
       "categoryFurniture": "Penc",
-      "categoryTools": "Jumtu liggéey",
+      "categoryTools": "Jumtu liggÃ©ey",
       "categoryElectronics": "Elektronik",
       "categoryMedical": "Jumtukaayu faj",
-      "categoryHousehold": "Mbariy kër",
+      "categoryHousehold": "Mbariy kÃ«r",
       "categoryBabyItems": "Mbariy doom",
       "categoryServices": "Sarwiis",
       "categoryOther": "Leneen"
@@ -924,9 +924,9 @@
     "creditReasons": {
       "helpedCommunity": "Dimbali na mbootaay bi",
       "sharedValuableMemory": "Ngalif na jikku bu am solo",
-      "proposedUsefulIdea": "Sàng na xalaat bu am solo",
+      "proposedUsefulIdea": "SÃ ng na xalaat bu am solo",
       "volunteerWork": "Liggeey mbindum",
-      "cityImprovementAction": "Liggeey dindi dëkku bi kawe",
+      "cityImprovementAction": "Liggeey dindi dÃ«kku bi kawe",
       "other": "Ayeneen"
     },
     "content": {
@@ -947,7 +947,7 @@
       "title": "Waxtu mbootaay",
       "type": {
         "post": "{name} ngalif na mbaal: {title}",
-        "idea": "{name} sàng na xalaat: {title}",
+        "idea": "{name} sÃ ng na xalaat: {title}",
         "memory": "{name} ngalif na jikku: {title}",
         "credit": "{name} am na {title} credi",
         "member": "{title} tawtu na mbootaay bi"
@@ -955,28 +955,28 @@
     },
     "identity": {
       "eyebrow": "Sifa Mbootaay",
-      "title": "Nga sos kër digitalu Nuwadibu.",
-      "description": "Credi bu nekk, xame, ak sagal daraja war nañu dimbali nit yi gis nu, am njariñ ak jëm ci dëkku bi.",
-      "settingsNote": "Sagal ak analytik yu xóot manuñu kawe. MVP mungi faw ci nit ak tawtital."
+      "title": "Nga sos kÃ«r digitalu Nuwadibu.",
+      "description": "Credi bu nekk, xame, ak sagal daraja war naÃ±u dimbali nit yi gis nu, am njariÃ± ak jÃ«m ci dÃ«kku bi.",
+      "settingsNote": "Sagal ak analytik yu xÃ³ot manuÃ±u kawe. MVP mungi faw ci nit ak tawtital."
     },
     "statusMessage": {
-      "roleUpdated": "Daraja sagal nañu kon.",
-      "creditsAwarded": "Credi ngalif nañu kon.",
-      "contentDeleted": "Mbariy far nañu kon.",
-      "invalid": "Liggeey njuɓɓkat bu baaxul.",
-      "roleError": "Mënul sagal daraja.",
-      "creditError": "Mënul ngalif credi. Xame Supabase migration bi mungi dem.",
-      "deleteError": "Mënul far mbariy.",
-      "selfRoleBlocked": "Mënul génn sa daraja njuɓɓkat ci xët wi.",
-      "userDeleted": "Jikko jëfandikukat génn na ci mbootaay bi.",
-      "userDeleteError": "Mënul far jikko jëfandikukat. Xame Supabase service role permissions, tànnal cat.",
-      "selfDeleteBlocked": "Mënul far sa jikko njuɓɓkat ci xët wi.",
-      "userDeleteConfigError": "Suppu Supabase service role amul. Nangul SUPABASE_SERVICE_ROLE_KEY ci Vercel jëk."
+      "roleUpdated": "Daraja sagal naÃ±u kon.",
+      "creditsAwarded": "Credi ngalif naÃ±u kon.",
+      "contentDeleted": "Mbariy far naÃ±u kon.",
+      "invalid": "Liggeey njuÉ“É“kat bu baaxul.",
+      "roleError": "MÃ«nul sagal daraja.",
+      "creditError": "MÃ«nul ngalif credi. Xame Supabase migration bi mungi dem.",
+      "deleteError": "MÃ«nul far mbariy.",
+      "selfRoleBlocked": "MÃ«nul gÃ©nn sa daraja njuÉ“É“kat ci xÃ«t wi.",
+      "userDeleted": "Jikko jÃ«fandikukat gÃ©nn na ci mbootaay bi.",
+      "userDeleteError": "MÃ«nul far jikko jÃ«fandikukat. Xame Supabase service role permissions, tÃ nnal cat.",
+      "selfDeleteBlocked": "MÃ«nul far sa jikko njuÉ“É“kat ci xÃ«t wi.",
+      "userDeleteConfigError": "Suppu Supabase service role amul. Nangul SUPABASE_SERVICE_ROLE_KEY ci Vercel jÃ«k."
     },
     "sidebar": {
       "backToSite": "Dindi ci site",
-      "close": "Tëj sidebar",
-      "collapse": "Làq sidebar",
+      "close": "TÃ«j sidebar",
+      "collapse": "LÃ q sidebar",
       "expand": "Ubbi sidebar"
     },
     "memoriesPage": {
@@ -989,7 +989,7 @@
       "exportPDF": "Export PDF",
       "filters": "Filters",
       "search": "Seet ci tur, bindkat, kategory, jamono, walla nokku...",
-      "totalMemories": "Jikku yépp",
+      "totalMemories": "Jikku yÃ©pp",
       "newThisMonth": "New Memories This Month",
       "featuredMemories": "Featured Memories",
       "totalViews": "Total Views",
@@ -1067,22 +1067,22 @@
       "period30d": "30 fan",
       "period90d": "90 fan",
       "period1y": "1 at",
-      "periodAll": "Jamono yépp",
+      "periodAll": "Jamono yÃ©pp",
       "categoryHistory": "Taariix",
       "categoryCulture": "Aada",
-      "categoryFishing": "Liiɗe",
-      "categoryEducation": "Jàng",
+      "categoryFishing": "LiiÉ—e",
+      "categoryEducation": "JÃ ng",
       "categorySports": "Tarwa",
       "categoryCommunity": "Mbootaay",
-      "categoryFestivals": "Jàmmarloo",
+      "categoryFestivals": "JÃ mmarloo",
       "categoryArchitecture": "Tabax",
       "categoryOther": "Leneen",
       "collectionHistory": "Taariixu Nuwadibu",
-      "collectionFishing": "Taariixu liiɗe",
-      "collectionSchools": "Jàngukaay yu mag",
+      "collectionFishing": "Taariixu liiÉ—e",
+      "collectionSchools": "JÃ ngukaay yu mag",
       "collectionLeaders": "Jitkat mbootaay",
       "collectionMarkets": "Marse aada",
-      "collectionCelebrations": "Màggal réew",
+      "collectionCelebrations": "MÃ ggal rÃ©ew",
       "engagement": "Engagement",
       "growthOverTime": "Growth Over Time",
       "verify": "Verify"
@@ -1430,14 +1430,14 @@
   "Categories": {
     "memory": {
       "history": "Taariix",
-      "railway": "Pàp",
+      "railway": "PÃ p",
       "fishing": "Fis",
       "culture": "Melo"
     },
     "idea": {
-      "education": "Jàng",
+      "education": "JÃ ng",
       "environment": "Mbootaay",
-      "youth": "Mbaañaana",
+      "youth": "MbaaÃ±aana",
       "culture": "Melo"
     }
   },
@@ -1445,65 +1445,65 @@
     "login": {
       "title": "Dugg",
       "done": "Dugg mukk na.",
-      "phone": "Numéro portable",
-      "password": "Sàmm",
+      "phone": "NumÃ©ro portable",
+      "password": "SÃ mm",
       "submit": "Dugg",
       "submitting": "Mungi dugg...",
       "noAccount": "Amul jikko?",
       "register": "Sos ay jikko",
-      "showPassword": "Wone sàmm",
-      "hidePassword": "Nàcc sàmm",
-      "registeredSuccess": "Jëkk bi dafa dëkk! Dugg ci këram."
+      "showPassword": "Wone sÃ mm",
+      "hidePassword": "NÃ cc sÃ mm",
+      "registeredSuccess": "JÃ«kk bi dafa dÃ«kk! Dugg ci kÃ«ram."
     },
     "register": {
       "title": "Sos sa jikko",
       "done": "Sos jikko mukk na.",
-      "phone": "Numéro portable",
-      "password": "Sàmm",
-      "confirmPassword": "Tabiti sàmm",
+      "phone": "NumÃ©ro portable",
+      "password": "SÃ mm",
+      "confirmPassword": "Tabiti sÃ mm",
       "submit": "Sos jikko",
       "submitting": "Mungi sos jikko...",
       "hasAccount": "Am na jikko?",
       "login": "Dugg",
-      "showPassword": "Wone sàmm",
-      "hidePassword": "Nàcc sàmm",
+      "showPassword": "Wone sÃ mm",
+      "hidePassword": "NÃ cc sÃ mm",
       "fullName": "Tur bu fulla",
       "fullNamePlaceholder": "Sa tur bu fulla"
     },
     "forgotPassword": {
-      "title": "Sagal sàmm",
+      "title": "Sagal sÃ mm",
       "email": "Adres imel",
       "submit": "Yonne lien sagal",
       "submitting": "Mungi yonne...",
-      "sent": "Xame sa imel ngir lien sagal sàmm.",
+      "sent": "Xame sa imel ngir lien sagal sÃ mm.",
       "backToLogin": "Dindi ci dugg",
-      "description": "Dugg sa imel, nunu yonne la lien bu mën a sagal sa sàmm."
+      "description": "Dugg sa imel, nunu yonne la lien bu mÃ«n a sagal sa sÃ mm."
     },
     "errors": {
-      "auth_invalid_credentials": "Numéro portable walla baatu-jëll bi jubul",
+      "auth_invalid_credentials": "NumÃ©ro portable walla baatu-jÃ«ll bi jubul",
       "auth_email_not_confirmed": "Veuillez confirmer votre e-mail avant de vous connecter",
-      "auth_email_provider_disabled": "Connexion synthétique par téléphone exige que le fournisseur e-mail soit activé dans les paramètres Supabase Auth.",
-      "auth_phone_provider_disabled": "Connexion par téléphone exige que le fournisseur téléphone soit activé dans les paramètres Supabase Auth.",
+      "auth_email_provider_disabled": "Connexion synthÃ©tique par tÃ©lÃ©phone exige que le fournisseur e-mail soit activÃ© dans les paramÃ¨tres Supabase Auth.",
+      "auth_phone_provider_disabled": "Connexion par tÃ©lÃ©phone exige que le fournisseur tÃ©lÃ©phone soit activÃ© dans les paramÃ¨tres Supabase Auth.",
       "auth_user_exists": "Am na kont bu jokkook ci namba li.",
-      "auth_weak_password": "Le mot de passe doit contenir au moins 8 caractères",
+      "auth_weak_password": "Le mot de passe doit contenir au moins 8 caractÃ¨res",
       "auth_invalid_email": "Veuillez entrer une adresse e-mail valide",
-      "auth_link_expired": "Ce lien a expiré ou est invalide",
-      "auth_rate_limited": "Trop de tentatives. Veuillez réessayer plus tard",
-      "auth_generic_error": "Une erreur est survenue. Veuillez réessayer",
-      "auth_session_expired": "Votre session a expiré. Veuillez vous reconnecter",
-      "auth_network_error": "Erreur réseau. Veuillez vérifier votre connexion",
-      "password_length": "Le mot de passe doit contenir au moins 8 caractères",
-      "password_requirements": "Le mot de passe doit contenir au moins 8 caractères",
+      "auth_link_expired": "Ce lien a expirÃ© ou est invalide",
+      "auth_rate_limited": "Trop de tentatives. Veuillez rÃ©essayer plus tard",
+      "auth_generic_error": "Une erreur est survenue. Veuillez rÃ©essayer",
+      "auth_session_expired": "Votre session a expirÃ©. Veuillez vous reconnecter",
+      "auth_network_error": "Erreur rÃ©seau. Veuillez vÃ©rifier votre connexion",
+      "password_length": "Le mot de passe doit contenir au moins 8 caractÃ¨res",
+      "password_requirements": "Le mot de passe doit contenir au moins 8 caractÃ¨res",
       "password_mismatch": "Les mots de passe ne correspondent pas",
-      "username_length": "Le nom d'utilisateur doit contenir entre 3 et 24 caractères",
-      "full_name_length": "Le nom complet doit contenir entre 2 et 100 caractères",
+      "username_length": "Le nom d'utilisateur doit contenir entre 3 et 24 caractÃ¨res",
+      "full_name_length": "Le nom complet doit contenir entre 2 et 100 caractÃ¨res",
       "username_taken": "Tur j?fandikukat bii am na ku ko j?l",
       "incorrect_password": "Baatu-j?ll bi jubul",
       "account_not_found": "Kenn amul kont ak bii email",
       "email_required": "Email bi war na am",
-      "phone_required": "Numéro portable bi war na am",
-      "auth_invalid_phone": "Duggal numéro portable bu mat",
-      "auth_phone_exists": "Am na kont bu jokkook bii numéro portable",
+      "phone_required": "NumÃ©ro portable bi war na am",
+      "auth_invalid_phone": "Duggal numÃ©ro portable bu mat",
+      "auth_phone_exists": "Am na kont bu jokkook bii numÃ©ro portable",
       "phone_exists_title": "Kont bu jokkook ci namba li",
       "phone_exists_login": "Jot ci namba li",
       "password_required": "Baatu-j?ll bi war na am",
@@ -1512,35 +1512,35 @@
       "confirm_password_required": "D?ggalal sa baatu-j?ll"
     },
     "success": {
-      "auth_registered": "Inscription terminée ! Vérifiez votre e-mail pour confirmer votre compte.",
-      "auth_password_reset_sent": "Si un compte existe, vous recevrez un e-mail de réinitialisation.",
-      "auth_password_updated": "Mot de passe mis à jour avec succès.",
-      "auth_email_confirmed": "E-mail confirmé ! Vous pouvez maintenant vous connecter.",
-      "auth_logged_out": "Vous avez été déconnecté.",
-      "auth_email_confirmation_sent": "E-mail de confirmation envoyé. Veuillez vérifier votre boîte de réception."
+      "auth_registered": "Inscription terminÃ©e ! VÃ©rifiez votre e-mail pour confirmer votre compte.",
+      "auth_password_reset_sent": "Si un compte existe, vous recevrez un e-mail de rÃ©initialisation.",
+      "auth_password_updated": "Mot de passe mis Ã  jour avec succÃ¨s.",
+      "auth_email_confirmed": "E-mail confirmÃ© ! Vous pouvez maintenant vous connecter.",
+      "auth_logged_out": "Vous avez Ã©tÃ© dÃ©connectÃ©.",
+      "auth_email_confirmation_sent": "E-mail de confirmation envoyÃ©. Veuillez vÃ©rifier votre boÃ®te de rÃ©ception."
     },
     "validation": {
-      "password_requirements": "Au moins 8 caractères",
-      "password_length": "Au moins 8 caractères",
+      "password_requirements": "Au moins 8 caractÃ¨res",
+      "password_length": "Au moins 8 caractÃ¨res",
       "password_mismatch": "Les mots de passe ne correspondent pas",
-      "username_length": "Entre 3 et 24 caractères",
-      "full_name_length": "Entre 2 et 100 caractères"
+      "username_length": "Entre 3 et 24 caractÃ¨res",
+      "full_name_length": "Entre 2 et 100 caractÃ¨res"
     }
   },
   "Toasts": {
     "postCreated": "Mbaal sos na",
     "postUpdated": "Mbaal sagal na",
-    "commentAdded": "Nangu nangul nañu ko",
+    "commentAdded": "Nangu nangul naÃ±u ko",
     "commentDeleted": "Nangu far na",
     "postDeleted": "Mbaal far na",
-    "postSaved": "Mbaal tank nañu ko",
-    "memorySubmitted": "Jikku ngalif nañu kon",
-    "ideaSubmitted": "Xalaat ngalif nañu kon",
-    "voteAdded": "Tontu nangul nañu ko",
+    "postSaved": "Mbaal tank naÃ±u ko",
+    "memorySubmitted": "Jikku ngalif naÃ±u kon",
+    "ideaSubmitted": "Xalaat ngalif naÃ±u kon",
+    "voteAdded": "Tontu nangul naÃ±u ko",
     "updated": "Profil sagal na",
-    "linkCopied": "Lien mbaal jaabi nañu",
-    "emailSent": "Xame sa imel ngir lien sagal sàmm",
-    "emailConfirmation": "Inscription terminée. Veuillez vérifier votre e-mail pour confirmer votre compte.",
+    "linkCopied": "Lien mbaal jaabi naÃ±u",
+    "emailSent": "Xame sa imel ngir lien sagal sÃ mm",
+    "emailConfirmation": "Inscription terminÃ©e. Veuillez vÃ©rifier votre e-mail pour confirmer votre compte.",
     "comingSoon": "Mungi Kawe"
   },
   "Errors": {
@@ -1549,30 +1549,30 @@
     "invalidProfile": "Profil bu baaxul",
     "invalidMemory": "Jikku bu baaxul",
     "invalidIdea": "Xalaat bu baaxul",
-    "saveFailed": "Tank mënul",
-    "reactionFailed": "Jaabi sagal mënul",
+    "saveFailed": "Tank mÃ«nul",
+    "reactionFailed": "Jaabi sagal mÃ«nul",
     "titleRequired": "Tit soxla na",
     "descriptionRequired": "Nangul soxla na",
     "titleTooShort": "Tit war na am 4 i mbind biri",
     "descriptionTooShort": "Nangul war na am 10 i mbind biri",
-    "submitFailed": "Lu mënul tàmbali ci ngalifte"
+    "submitFailed": "Lu mÃ«nul tÃ mbali ci ngalifte"
   },
   "ImageUpload": {
-    "tooLarge": "Faylo bi mag na. Tànnal faylo bu tuuti.",
-    "videoTooLarge": "Vidiyo bi mag na. Ñu gën mën 50MB.",
-    "videoTooLong": "Vidiyo bi guddi na. Ñu gën mën 60 second.",
-    "imagesOrVideo": "Mën nga yeb nataal walla vidiyo benn, du ñaari.",
-    "invalidType": "Tànnal faylo bu baax (JPG, PNG, WebP, MP4, WebM, MOV).",
+    "tooLarge": "Faylo bi mag na. TÃ nnal faylo bu tuuti.",
+    "videoTooLarge": "Vidiyo bi mag na. Ã‘u gÃ«n mÃ«n 50MB.",
+    "videoTooLong": "Vidiyo bi guddi na. Ã‘u gÃ«n mÃ«n 60 second.",
+    "imagesOrVideo": "MÃ«n nga yeb nataal walla vidiyo benn, du Ã±aari.",
+    "invalidType": "TÃ nnal faylo bu baax (JPG, PNG, WebP, MP4, WebM, MOV).",
     "uploading": "Mungi yeb...",
-    "success": "Yeb nañu kon.",
+    "success": "Yeb naÃ±u kon.",
     "chooseImage": "Nangul nataal",
     "chooseVideo": "Nangul vidiyo",
     "replace": "Lanc nataal",
-    "remove": "Génn nataal",
-    "failed": "Mënul yeb.",
-    "compressionFailed": "Mënul tapir nataal ngir yeb.",
-    "notAuthenticated": "Dugg jëk yeb.",
-    "noFile": "Tànnal faylo ngir yeb.",
+    "remove": "GÃ©nn nataal",
+    "failed": "MÃ«nul yeb.",
+    "compressionFailed": "MÃ«nul tapir nataal ngir yeb.",
+    "notAuthenticated": "Dugg jÃ«k yeb.",
+    "noFile": "TÃ nnal faylo ngir yeb.",
     "uploadingImagesProgress": "Uploading images {current} of {total}..."
   },
   "Brand": {
@@ -1610,65 +1610,65 @@
       "cta": "Share something"
     },
     "events": {
-      "title": "Amul jël ba leegi",
-      "description": "Sos jël bu jëk ngir mbootaay nit ak liggéey ñook.",
-      "cta": "Wëral kesɗi"
+      "title": "Amul jÃ«l ba leegi",
+      "description": "Sos jÃ«l bu jÃ«k ngir mbootaay nit ak liggÃ©ey Ã±ook.",
+      "cta": "WÃ«ral kesÉ—i"
     },
     "profile": {
       "title": "Amul mbaal ba leegi",
-      "description": "Ngalif sagal bu jëk.",
+      "description": "Ngalif sagal bu jÃ«k.",
       "cta": "Sos mbaal"
     },
     "polls": {
       "title": "Amul noot ba leegi",
-      "description": "Sos noot bu jëk ngir gis li mbootaay bi xalaat.",
-      "cta": "Wëral kesɗi"
+      "description": "Sos noot bu jÃ«k ngir gis li mbootaay bi xalaat.",
+      "cta": "WÃ«ral kesÉ—i"
     },
     "projects": {
       "title": "Amul proje ba leegi",
-      "description": "Tàmbali proje siwil ngir mbootaay nit ak liggéey ñook.",
-      "cta": "Wëral kesɗi"
+      "description": "TÃ mbali proje siwil ngir mbootaay nit ak liggÃ©ey Ã±ook.",
+      "cta": "WÃ«ral kesÉ—i"
     }
   },
   "Fadla": {
     "title": "Graatek",
     "eyebrow": "Ngalifte mbootaay",
-    "description": "Ngalif lu am solo nga bàyyi ngir ñu koy soxla. Ménu taari, yoo dimbali, Nuwadibu bu mag.",
-    "notMarketplace": "Amul ñaata. Amul fecc. Ngalifte ak dimbali rekk.",
+    "description": "Ngalif lu am solo nga bÃ yyi ngir Ã±u koy soxla. MÃ©nu taari, yoo dimbali, Nuwadibu bu mag.",
+    "notMarketplace": "Amul Ã±aata. Amul fecc. Ngalifte ak dimbali rekk.",
     "shareButton": "Ngalif Luy",
     "searchPlaceholder": "Seet ngalifte",
-    "allCategories": "Kategory lépp",
-    "allUrgency": "Mbegte lépp",
-    "allStatus": "Daraja lépp",
+    "allCategories": "Kategory lÃ©pp",
+    "allUrgency": "Mbegte lÃ©pp",
+    "allStatus": "Daraja lÃ©pp",
     "unknownOwner": "Mbind mbootaay",
     "sharedForHelp": "Ngalif ngir dimbali",
     "imagePlaceholder": "Mbariy bu am solo",
     "needThis": "Mangi Soxla",
-    "requested": "Laaj nañu ko",
-    "qty": "Ñaata",
+    "requested": "Laaj naÃ±u ko",
+    "qty": "Ã‘aata",
     "confirmCollection": "Tabiti sara",
     "markCompleted": "Wone mukk na",
     "archive": "Tank ci profil",
     "requests": "Laaj",
     "archiveTitle": "Graatek Archive",
-    "archiveDescription": "Gis mbariy yu mukk ak yu tank, topp sa njariñ ci mbootaay bi.",
+    "archiveDescription": "Gis mbariy yu mukk ak yu tank, topp sa njariÃ± ci mbootaay bi.",
     "completedOn": "Mukk na ci",
-    "archivedOn": "Tank nañu ko ci",
+    "archivedOn": "Tank naÃ±u ko ci",
     "backToActive": "Dindi ci ngalifte yu wuuru",
     "archiveEmpty": {
       "title": "Amul mbariy tank ba leegi",
-      "description": "Mbariy yu mukk ak yu tank ñooñ maale fi."
+      "description": "Mbariy yu mukk ak yu tank Ã±ooÃ± maale fi."
     },
     "categories": {
       "food": "Lekk",
-      "clothes": "Yére",
-      "books": "Téere",
-      "school_supplies": "Jàng mbariy",
+      "clothes": "YÃ©re",
+      "books": "TÃ©ere",
+      "school_supplies": "JÃ ng mbariy",
       "furniture": "Penc",
-      "tools": "Jëf mbariy",
+      "tools": "JÃ«f mbariy",
       "electronics": "Electronik",
       "medical": "Faj",
-      "household": "Kër",
+      "household": "KÃ«r",
       "other": "Ayeneen"
     },
     "urgency": {
@@ -1677,12 +1677,12 @@
       "no_urgency": "Amul mbegte"
     },
     "status": {
-      "published": "Sàkk nañu ko",
-      "requested": "Laaj nañu ko",
-      "reserved": "Tank nañu ko",
-      "collected": "Sara nañu ko",
+      "published": "SÃ kk naÃ±u ko",
+      "requested": "Laaj naÃ±u ko",
+      "reserved": "Tank naÃ±u ko",
+      "collected": "Sara naÃ±u ko",
       "completed": "Mukk na",
-      "archived": "Tank nañu ko"
+      "archived": "Tank naÃ±u ko"
     },
     "actions": {
       "edit": "Soppi mbariy",
@@ -1693,40 +1693,40 @@
     "form": {
       "createTitle": "Ngalif lu am solo",
       "editTitle": "Soppi ngalifte",
-      "helper": "Tank yërmande ak wér. Amul ñaata ak fecc.",
+      "helper": "Tank yÃ«rmande ak wÃ©r. Amul Ã±aata ak fecc.",
       "title": "Tit",
       "description": "Nangul",
-      "quantity": "Ñaata",
+      "quantity": "Ã‘aata",
       "condition": "Melo",
       "location": "Fexe",
-      "cancel": "Tër",
+      "cancel": "TÃ«r",
       "submit": "Ngalif",
       "update": "Sagal"
     },
     "toasts": {
-      "created": "Mbariy ngalif nañu kon",
-      "updated": "Ngalifte sagal nañu",
+      "created": "Mbariy ngalif naÃ±u kon",
+      "updated": "Ngalifte sagal naÃ±u",
       "deleted": "Ngalifte far na",
-      "requested": "Laaj yonne nañu jom mbariy",
-      "accepted": "Laaj nangu nañu",
-      "declined": "Laaj bondi nañu",
-      "collected": "Jot nañu kon",
+      "requested": "Laaj yonne naÃ±u jom mbariy",
+      "accepted": "Laaj nangu naÃ±u",
+      "declined": "Laaj bondi naÃ±u",
+      "collected": "Jot naÃ±u kon",
       "completed": "Item completed and archived",
-      "archived": "Ngalifte denc nañu",
+      "archived": "Ngalifte denc naÃ±u",
       "handedOver": "Handover confirmed"
     },
     "errors": {
-      "saveFailed": "Mënul tank ngalifte",
-      "actionFailed": "Mënul mukk liggeey bi",
-      "alreadyRequested": "Mënul tank ngalifte",
-      "notFound": "Mënul tank ngalifte",
-      "ownItem": "Mënul tank ngalifte",
-      "notAvailable": "Mënul tank ngalifte",
+      "saveFailed": "MÃ«nul tank ngalifte",
+      "actionFailed": "MÃ«nul mukk liggeey bi",
+      "alreadyRequested": "MÃ«nul tank ngalifte",
+      "notFound": "MÃ«nul tank ngalifte",
+      "ownItem": "MÃ«nul tank ngalifte",
+      "notAvailable": "MÃ«nul tank ngalifte",
       "collectionNotConfirmed": "The recipient must confirm collection first."
     },
     "empty": {
       "title": "Amul ngalifte ba leegi",
-      "description": "Ngay jëk ngalif lu am solo ci mbootaay bi."
+      "description": "Ngay jÃ«k ngalif lu am solo ci mbootaay bi."
     },
     "markHandedOver": "Mark as Handed Over",
     "completeAndArchive": "Complete and Archive",
@@ -1755,37 +1755,37 @@
   },
   "ProfileAbout": {
     "overview": "Xoolit",
-    "basicInfo": "Xibaaruy Njëkk",
-    "workAndEducation": "Liggey & Jaŋ",
-    "contact": "Jëflante",
+    "basicInfo": "Xibaaruy NjÃ«kk",
+    "workAndEducation": "Liggey & JaÅ‹",
+    "contact": "JÃ«flante",
     "places": "Barab",
     "interests": "Meny & Aw'",
     "links": "Liyee",
-    "currentCity": "Dëkk bi",
+    "currentCity": "DÃ«kk bi",
     "hometown": "Judduwaay",
-    "languages": "Làkk",
+    "languages": "LÃ kk",
     "memberSince": "Membre ginaaw",
-    "livesIn": "Ñeek ci {city}",
+    "livesIn": "Ã‘eek ci {city}",
     "from": "Judduwaay {city}",
-    "speaks": "Mën na {languages}",
+    "speaks": "MÃ«n na {languages}",
     "worksAt": "Liggey ci {company}",
-    "studiedAt": "Jaŋ ci {school}",
+    "studiedAt": "JaÅ‹ ci {school}",
     "position": "Mbind",
     "company": "Firma",
-    "school": "Jaŋgubë",
+    "school": "JaÅ‹gubÃ«",
     "degree": "Diplom",
     "fieldOfStudy": "Fajar",
-    "startYear": "At bu tàmbali",
+    "startYear": "At bu tÃ mbali",
     "endYear": "At bu jeexal",
-    "currentJob": "Liggey ci bii jëmm",
+    "currentJob": "Liggey ci bii jÃ«mm",
     "addWork": "Yokku liggey",
     "editWork": "Soppi",
     "deleteWork": "Far",
     "workConfirmDelete": "Far liggey bii?",
-    "addEducation": "Yokku jaŋ",
+    "addEducation": "Yokku jaÅ‹",
     "editEducation": "Soppi",
     "deleteEducation": "Far",
-    "educationConfirmDelete": "Far jaŋ bii?",
+    "educationConfirmDelete": "Far jaÅ‹ bii?",
     "phone": "Telifoon",
     "email": "Imayil",
     "whatsapp": "WhatsApp",
@@ -1807,7 +1807,7 @@
     "linkConfirmDelete": "Far liye bii?",
     "linkPlaceholder": "https://...",
     "noWork": "Amul liggey yokkute.",
-    "noEducation": "Amul jaŋ yokkute.",
+    "noEducation": "Amul jaÅ‹ yokkute.",
     "noInterests": "Amul men yokkute.",
     "noHobbies": "Amul aw' yokkute.",
     "noLinks": "Amul liye yokkute.",
@@ -1816,29 +1816,38 @@
     "hobbies_title": "Aw'",
     "addInterest": "Yokku men",
     "addHobby": "Yokku aw'",
-    "interestPlaceholder": "Bind men, n de tuŋ Enter",
-    "hobbyPlaceholder": "Bind aw', n de tuŋ Enter",
-    "travelHistory": "Xewal xereñ",
+    "interestPlaceholder": "Bind men, n de tuÅ‹ Enter",
+    "hobbyPlaceholder": "Bind aw', n de tuÅ‹ Enter",
+    "travelHistory": "Xewal xereÃ±",
     "visited": "Demoon",
-    "addTravel": "Yokku rééw",
-    "countryPlaceholder": "Bind turu rééw mi",
+    "addTravel": "Yokku rÃ©Ã©w",
+    "countryPlaceholder": "Bind turu rÃ©Ã©w mi",
     "save": "Sifara",
     "cancel": "Tambali",
     "delete": "Far",
-    "confirmDelete": "Mën nga ànd?",
-    "confirmDeleteMessage": "Li fi mëna amul.",
+    "confirmDelete": "MÃ«n nga Ã nd?",
+    "confirmDeleteMessage": "Li fi mÃ«na amul.",
     "profileCompleteness": "Kofile taxawus",
-    "completeYourProfile": "Def sa kofile ba noppi ngir ñiy la xam.",
+    "completeYourProfile": "Def sa kofile ba noppi ngir Ã±iy la xam.",
     "percent": "{percent}% Taxawus",
     "completenessItems": {
       "avatar": "Kofile foto",
       "cover": "Cover foto",
-      "bio": "Àdduna",
-      "city": "Dëkk",
+      "bio": "Ã€dduna",
+      "city": "DÃ«kk",
       "work": "Liggey",
-      "education": "Jaŋ",
+      "education": "JaÅ‹",
       "interests": "Meny",
-      "links": "Liyee"
+      "links": "Liyee",
+      "phoneVerified": "TÃ©lÃ©foneeg xool",
+      "emailVerified": "E-mailug xool"
+    },
+    "communityLevel": {
+      "community_supporter": "Dimbali kat",
+      "active_contributor": "JÃ«fandikatu",
+      "community_builder": "Kumpindiye wu-xÃ«t",
+      "community_champion": "Mbootaayu xel",
+      "guardian_of_nouadhibou": "Nouadhibu dàqaté"
     }
   },
   "Messages": {
@@ -1846,15 +1855,15 @@
     "idea": "Mbokk",
     "search": "Seet ndotooje...",
     "empty": "Amul ndotooje bu bees",
-    "noTitle": "Amul tëriŋ",
-    "unknown": "Xamuñu",
+    "noTitle": "Amul tÃ«riÅ‹",
+    "unknown": "XamuÃ±u",
     "placeholder": "Bindal ndotooje...",
     "archived": "Mofna",
     "archivedPlaceholder": "Ndotooje bi mofna",
-    "submitFailed": "Ndotooje binduñu",
-    "rate_limited": "Bind caaw na, ñaawal",
-    "unauthorized": "Amul sañ-sañ",
-    "not_found": "Ndotooje gisuñu",
+    "submitFailed": "Ndotooje binduÃ±u",
+    "rate_limited": "Bind caaw na, Ã±aawal",
+    "unauthorized": "Amul saÃ±-saÃ±",
+    "not_found": "Ndotooje gisuÃ±u",
     "invalid": "Bind bu baaxul",
     "showActive": "Wone yu ngi dox",
     "showArchived": "Wone yu mofn",
@@ -1870,29 +1879,29 @@
     "groupChat": {
       "memberFallback": "Membre",
       "active": "Dafa dox",
-      "now": "léegi",
+      "now": "lÃ©egi",
       "admin": "Admin",
-      "readOnly": "Jàng rekk",
-      "readOnlyNotice": "Groupe bii jàng rekk la.",
+      "readOnly": "JÃ ng rekk",
+      "readOnlyNotice": "Groupe bii jÃ ng rekk la.",
       "members": "membres",
       "memberCount": "{count} membres",
       "openProfile": "Ubbi profil bu {name}",
       "changeImage": "Soppi nataal",
       "save": "Aar",
       "imageReady": "Nataal bi pare na",
-      "addCaptionOrSend": "Yokk leeral walla yónnee ko léegi.",
+      "addCaptionOrSend": "Yokk leeral walla yÃ³nnee ko lÃ©egi.",
       "addCaption": "Yokk leeral",
       "removeImage": "Dindi nataal",
-      "sendImage": "Yónnee nataal",
-      "sendMessage": "Yónnee bataaxal",
+      "sendImage": "YÃ³nnee nataal",
+      "sendMessage": "YÃ³nnee bataaxal",
       "ideaStatus": "Nekkinu xalaat",
-      "leaveGroup": "Génn ci groupe",
+      "leaveGroup": "GÃ©nn ci groupe",
       "gar3tak": "Graatek",
       "image": "Nataal",
       "imageWithCaption": "Nataal: {caption}",
       "statuses": {
         "published": "Siiw na",
-        "interested": "Dañuy dajale bëgg-bëgg",
+        "interested": "DaÃ±uy dajale bÃ«gg-bÃ«gg",
         "discussion": "Waxtaan",
         "in_progress": "Dox na",
         "completed": "Jeex na",
@@ -1903,33 +1912,33 @@
         "member": "Membre"
       },
       "errors": {
-        "archived": "Groupe bii jàng rekk la.",
-        "unauthorized": "Amuloo sañ-sañ ci groupe bii.",
-        "rate_limited": "Ndaxal tuuti bala ngay yónneeaat.",
-        "invalid": "Seetal bataaxal bi te jéemaat.",
-        "insert_failed": "Bataaxal bi manuñu ko yónnee.",
-        "update_failed": "Profil groupe bi manuñu ko yeesal.",
-        "remove_failed": "Membre bi manuñu ko dindi.",
-        "leave_failed": "Manuloo génn ci groupe bi.",
-        "admin_cannot_leave": "Boroom xalaat bi manu génn ci groupe bi.",
-        "image_upload_failed": "Nataal bi manuñu ko yeb.",
-        "group_image_upload_failed": "Nataalu groupe bi manuñu ko yeb.",
-        "name_too_short": "Jëfandikoo lu néew-néew ñaari araf."
+        "archived": "Groupe bii jÃ ng rekk la.",
+        "unauthorized": "Amuloo saÃ±-saÃ± ci groupe bii.",
+        "rate_limited": "Ndaxal tuuti bala ngay yÃ³nneeaat.",
+        "invalid": "Seetal bataaxal bi te jÃ©emaat.",
+        "insert_failed": "Bataaxal bi manuÃ±u ko yÃ³nnee.",
+        "update_failed": "Profil groupe bi manuÃ±u ko yeesal.",
+        "remove_failed": "Membre bi manuÃ±u ko dindi.",
+        "leave_failed": "Manuloo gÃ©nn ci groupe bi.",
+        "admin_cannot_leave": "Boroom xalaat bi manu gÃ©nn ci groupe bi.",
+        "image_upload_failed": "Nataal bi manuÃ±u ko yeb.",
+        "group_image_upload_failed": "Nataalu groupe bi manuÃ±u ko yeb.",
+        "name_too_short": "JÃ«fandikoo lu nÃ©ew-nÃ©ew Ã±aari araf."
       },
       "you": "Yaw",
       "backToMessages": "Delluwaat ci bataaxal yi",
       "editGroup": "Soppi gurup bi",
       "removeMember": "Dindi {name}",
       "groupInfo": "Xibaaru gurup",
-      "close": "Tëj",
-      "options": "Tànneef yi",
+      "close": "TÃ«j",
+      "options": "TÃ nneef yi",
       "ideaTitleLabel": "Xalaat",
       "groupName": "Turug gurup",
-      "closedAfterCompletion": "Waxtaan wi dañu ko tëj bi xalaat bi paree.",
+      "closedAfterCompletion": "Waxtaan wi daÃ±u ko tÃ«j bi xalaat bi paree.",
       "viewImage": "Xool nataal bi",
       "cancel": "Neenal",
       "editName": "Soppi tur wi",
-      "nameTooShort": "Jëfandikoo lu néew-néew ñaari araf.",
+      "nameTooShort": "JÃ«fandikoo lu nÃ©ew-nÃ©ew Ã±aari araf.",
       "uploadingPhoto": "Yebum nataal bi"
     }
   },
@@ -1947,7 +1956,7 @@
     "contributorsCount": "{count} contributors",
     "daysRemaining": "{count} days left",
     "verified": "Verified",
-    "verifiedWithCheck": "Verified ✅",
+    "verifiedWithCheck": "Verified âœ…",
     "backToSupport": "Retour aux campagnes",
     "updates": "Updates",
     "updatesTitle": "Latest updates",
@@ -1982,9 +1991,9 @@
       "neighborhoodsServed": "Quartiers servis"
     },
     "ways": {
-      "money": "💰 Financial contribution",
-      "volunteer": "🙋 Volunteer",
-      "materials": "🎁 Donate materials"
+      "money": "ðŸ’° Financial contribution",
+      "volunteer": "ðŸ™‹ Volunteer",
+      "materials": "ðŸŽ Donate materials"
     },
     "transparency": {
       "title": "Transparency",
@@ -2290,3 +2299,4 @@
     }
   }
 }
+

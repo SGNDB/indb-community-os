@@ -33,14 +33,6 @@ import {ProfileCompleteness} from "./profile-completeness";
 import {EditProfileModal} from "./edit-profile-modal";
 import {FollowSummary} from "./follow-summary";
 
-const LEVEL_LABELS: Record<string, string> = {
-  community_supporter: "داعم المجتمع",
-  active_contributor: "مساهم نشط",
-  community_builder: "باني المجتمع",
-  community_champion: "بطل المجتمع",
-  guardian_of_nouadhibou: "ولد الخير",
-};
-
 function getInitials(name: string | null | undefined): string {
   if (!name) return "?";
   const parts = name.trim().split(/\s+/);
@@ -106,6 +98,7 @@ export function ProfileClient({
   impact,
 }: ProfileClientProps) {
   const t = useTranslations("Profile");
+  const tProfileAbout = useTranslations("ProfileAbout");
   const navbarT = useTranslations("Navbar");
   const emptyProfilePosts = useTranslations("EmptyStates.profile");
   const emptyMemories = useTranslations("EmptyStates.memories");
@@ -129,7 +122,7 @@ export function ProfileClient({
   const initials = getInitials(displayName);
   const joinDate = formatJoinDate(profileData.created_at, locale);
   const communityLevel = impact?.community_level ?? "community_supporter";
-  const levelLabel = LEVEL_LABELS[communityLevel] ?? communityLevel;
+  const levelLabel = tProfileAbout(`communityLevel.${communityLevel}`);
 
   const tabs = [
     {key: "about" as const, label: t("tabs.about"), count: null},

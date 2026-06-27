@@ -53,14 +53,6 @@ function formatJoinDate(dateStr: string, locale: string): string {
   });
 }
 
-const LEVEL_LABELS: Record<string, string> = {
-  community_supporter: "داعم المجتمع",
-  active_contributor: "مساهم نشط",
-  community_builder: "باني المجتمع",
-  community_champion: "بطل المجتمع",
-  guardian_of_nouadhibou: "ولد الخير",
-};
-
 async function ProfileTabsFetcher({
   profileId,
   locale,
@@ -202,7 +194,8 @@ export default async function PublicProfilePage({
   const initials = getInitials(displayName);
   const joinDate = formatJoinDate(profile.created_at, locale);
   const communityLevel = impact?.community_level ?? "community_supporter";
-  const levelLabel = LEVEL_LABELS[communityLevel] ?? communityLevel;
+  const tProfileAbout = await getTranslations({locale, namespace: "ProfileAbout"});
+  const levelLabel = tProfileAbout(`communityLevel.${communityLevel}`);
   const requestedTab = activeTab === "posts" ? "posts" : activeTab === "memories" ? "memories" : activeTab === "ideas" ? "ideas" : activeTab === "shares" ? "shares" : "about";
   const currentTab = (!showMemories && requestedTab === "memories") || (!showGraatek && requestedTab === "shares")
     ? "about"

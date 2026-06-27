@@ -3007,7 +3007,16 @@
       "work": "Work",
       "education": "Education",
       "interests": "Interests",
-      "links": "Links"
+      "links": "Links",
+      "phoneVerified": "Phone verified",
+      "emailVerified": "Email verified"
+    },
+    "communityLevel": {
+      "community_supporter": "Community Supporter",
+      "active_contributor": "Active Contributor",
+      "community_builder": "Community Builder",
+      "community_champion": "Community Champion",
+      "guardian_of_nouadhibou": "Guardian of Nouadhibou"
     }
   },
   "Messages": {

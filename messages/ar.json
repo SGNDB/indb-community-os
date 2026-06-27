@@ -2923,7 +2923,16 @@
       "work": "العمل",
       "education": "التعليم",
       "interests": "الاهتمامات",
-      "links": "الروابط"
+      "links": "الروابط",
+      "phoneVerified": "الهاتف موثق",
+      "emailVerified": "البريد الإلكتروني موثق"
+    },
+    "communityLevel": {
+      "community_supporter": "داعم المجتمع",
+      "active_contributor": "مساهم نشط",
+      "community_builder": "باني المجتمع",
+      "community_champion": "بطل المجتمع",
+      "guardian_of_nouadhibou": "ولد الخير"
     }
   },
   "Messages": {

@@ -1841,7 +1841,16 @@
       "work": "Golle",
       "education": "Jannde",
       "interests": "Gimɗi",
-      "links": "Jokkorɗe"
+      "links": "Jokkorɗe",
+      "phoneVerified": "Telefoon jaɓaama",
+      "emailVerified": "E-mail jaɓaama"
+    },
+    "communityLevel": {
+      "community_supporter": "Ballitoowo renndo",
+      "active_contributor": "Ñawtoowo tiiɗɗo",
+      "community_builder": "Mahɗo renndo",
+      "community_champion": "Bamtoowo renndo",
+      "guardian_of_nouadhibou": "Hiwtoowo Nouadhibou"
     }
   },
   "Messages": {

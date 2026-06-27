@@ -1838,7 +1838,16 @@
       "work": "Ntumo",
       "education": "Karan",
       "interests": "Yunfanne",
-      "links": "Leenke"
+      "links": "Leenke",
+      "phoneVerified": "Telefɔn ka bɛɛdi",
+      "emailVerified": "E-mail ka bɛɛdi"
+    },
+    "communityLevel": {
+      "community_supporter": "Demεnkun diya",
+      "active_contributor": "Dendenkuntɔɔ",
+      "community_builder": "Diya looma",
+      "community_champion": "Diya kɛndɛ",
+      "guardian_of_nouadhibou": "Nouadhibou kanintɔɔ"
     }
   },
   "Messages": {

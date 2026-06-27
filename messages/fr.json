@@ -2923,7 +2923,16 @@
       "work": "Emploi",
       "education": "Formation",
       "interests": "Centres d'intérêt",
-      "links": "Liens"
+      "links": "Liens",
+      "phoneVerified": "Téléphone vérifié",
+      "emailVerified": "Email vérifié"
+    },
+    "communityLevel": {
+      "community_supporter": "Soutien de la communauté",
+      "active_contributor": "Contributeur actif",
+      "community_builder": "Bâtisseur de communauté",
+      "community_champion": "Champion de la communauté",
+      "guardian_of_nouadhibou": "Gardien de Nouadhibou"
     }
   },
   "Messages": {
