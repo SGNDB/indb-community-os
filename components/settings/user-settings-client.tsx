@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   Bell,
+  BookOpen,
   Camera,
   CheckCircle2,
   ChevronRight,
@@ -22,15 +23,18 @@ import {
   ImageIcon,
   Info,
   Languages,
+  Loader2,
   Lock,
   LogOut,
   Mail,
+  MapPin,
   Monitor,
   Moon,
   Palette,
   Phone,
   Save,
   Shield,
+  ShieldCheck,
   Sparkles,
   Sun,
   TextIcon,
@@ -1101,47 +1105,68 @@ export function UserSettingsClient({
           ) : null}
 
           <SectionCard id="account" title={labels.sections.account} icon={UserRound} visible={selectedSection === "account"}>
-            <div className="overflow-hidden rounded-3xl border border-border/70 bg-muted/25">
-              <div className="relative h-36 bg-muted sm:h-44">
+            {/* Cover + Avatar area */}
+            <div className="overflow-hidden rounded-2xl border border-border/70 bg-muted/25">
+              <div className="relative h-36 sm:h-44">
                 {coverPreview ? (
                   <Image src={coverPreview} alt="" fill sizes="(max-width: 768px) 100vw, 760px" className="object-cover" />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-muted-foreground">
-                    <ImageIcon size={34} />
+                  <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/5 via-muted to-primary/5">
+                    <ImageIcon size={36} className="text-muted-foreground/40" />
+                  </div>
+                )}
+                {imageUploading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                    <Loader2 size={28} className="animate-spin text-white" />
                   </div>
                 )}
                 <button
                   type="button"
                   onClick={() => coverInputRef.current?.click()}
-                  className="absolute bottom-3 end-3 inline-flex min-h-10 items-center gap-2 rounded-full bg-card/95 px-4 text-sm font-black shadow-lg"
                   disabled={imageUploading}
+                  className="absolute bottom-3 end-3 inline-flex min-h-10 items-center gap-2 rounded-full border border-border/50 bg-card/90 px-4 text-sm font-semibold shadow-lg backdrop-blur transition hover:bg-card disabled:opacity-50"
                 >
                   <Camera size={16} />
                   {labels.chooseCover}
                 </button>
               </div>
-              <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-end">
+              <div className="flex flex-col items-center gap-3 px-4 pb-4 sm:flex-row sm:items-end sm:gap-4">
                 <div className="-mt-14 flex flex-col items-center gap-2 sm:items-start">
                   <button
                     type="button"
                     onClick={() => avatarInputRef.current?.click()}
-                    className="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-4 border-card bg-muted shadow-lg"
                     disabled={imageUploading}
+                    className="group relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-4 border-card bg-muted shadow-lg"
                   >
                     {avatarPreview ? (
                       <Image src={avatarPreview} alt="" fill sizes="112px" className="object-cover" />
                     ) : (
-                      <UserRound size={38} className="text-muted-foreground" />
+                      <UserRound size={40} className="text-muted-foreground/40" />
                     )}
-                    <span className="absolute inset-x-0 bottom-0 flex h-9 items-center justify-center bg-black/45 text-white">
-                      <Camera size={16} />
+                    <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/0 transition group-hover:bg-black/35">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-background/80 opacity-0 transition group-hover:opacity-100">
+                        <Camera size={16} className="text-foreground" />
+                      </div>
                     </span>
+                    {imageUploading && (
+                      <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
+                        <Loader2 size={22} className="animate-spin text-white" />
+                      </span>
+                    )}
                   </button>
-                  <button type="button" onClick={() => avatarInputRef.current?.click()} className="text-xs font-black text-primary">
-                    {labels.choosePhoto}
+                  <button
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={imageUploading}
+                    className="text-xs font-semibold text-primary transition hover:text-primary/80 disabled:opacity-50"
+                  >
+                    {imageUploading ? labels.saving : labels.choosePhoto}
                   </button>
                 </div>
-                <p className="max-w-xl text-sm leading-6 text-muted-foreground">{labels.privateByDefault}</p>
+                <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-border/50 bg-muted/30 px-3.5 py-2 text-xs leading-5 text-muted-foreground sm:self-center">
+                  <ShieldCheck size={14} className="shrink-0 text-emerald-500" />
+                  <span>{labels.privateByDefault}</span>
+                </div>
               </div>
             </div>
             <input
@@ -1165,35 +1190,85 @@ export function UserSettingsClient({
               }}
             />
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <Field label={labels.account.fullName}>
-                <Input value={account.fullName} onChange={(event) => setAccountField("fullName", event.target.value)} />
-              </Field>
-              <Field label={labels.account.username} hint={labels.account.usernameHint}>
-                <Input value={account.username} onChange={(event) => setAccountField("username", event.target.value)} />
-              </Field>
-              <Field label={labels.account.phone}>
-                <Input value={account.phone} onChange={(event) => setAccountField("phone", event.target.value)} inputMode="tel" />
-              </Field>
-              <Field label={labels.account.email}>
-                <Input value={account.contactEmail} onChange={(event) => setAccountField("contactEmail", event.target.value)} inputMode="email" />
-              </Field>
-              <Field label={labels.account.city}>
-                <Input value={account.city} onChange={(event) => setAccountField("city", event.target.value)} />
-              </Field>
-              <Field label={labels.account.neighborhood}>
-                <Input value={account.neighborhood} onChange={(event) => setAccountField("neighborhood", event.target.value)} />
-              </Field>
-              <div className="sm:col-span-2">
-                <Field label={labels.account.bio}>
-                  <Textarea value={account.bio} onChange={(event) => setAccountField("bio", event.target.value)} />
-                </Field>
+            {/* Personal info fields – grouped */}
+            <div className="mt-4">
+              <div className="mb-3 flex items-center gap-2 border-b border-border/50 pb-2">
+                <UserRound size={15} className="text-primary" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{labels.account.fullName}</span>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">{labels.account.fullName}</label>
+                  <Input value={account.fullName} onChange={(event) => setAccountField("fullName", event.target.value)} placeholder={labels.account.fullName} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">{labels.account.username}</label>
+                  <Input value={account.username} onChange={(event) => setAccountField("username", event.target.value)} placeholder={labels.account.username} />
+                  <p className="text-[11px] text-muted-foreground/70">{labels.account.usernameHint}</p>
+                </div>
               </div>
             </div>
-            <div className="sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] z-10 mt-4 flex flex-col gap-2 rounded-2xl border border-border/70 bg-card/95 p-2 backdrop-blur sm:static sm:flex-row sm:border-0 sm:bg-transparent sm:p-0">
-              <Button onClick={saveAccount} disabled={isPending || imageUploading || !accountDirty} className="w-full gap-2 sm:w-auto">
-                <Save size={17} />
-                {isPending ? labels.saving : labels.editProfile}
+
+            <div className="mt-4">
+              <div className="mb-3 flex items-center gap-2 border-b border-border/50 pb-2">
+                <Mail size={15} className="text-primary" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{labels.account.email}</span>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">{labels.account.phone}</label>
+                  <Input value={account.phone} onChange={(event) => setAccountField("phone", event.target.value)} inputMode="tel" placeholder={labels.account.phone} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">{labels.account.email}</label>
+                  <Input value={account.contactEmail} onChange={(event) => setAccountField("contactEmail", event.target.value)} inputMode="email" placeholder={labels.account.email} />
+                  <p className="text-[11px] text-muted-foreground/70">{labels.privateByDefault}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <div className="mb-3 flex items-center gap-2 border-b border-border/50 pb-2">
+                <MapPin size={15} className="text-primary" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{labels.account.city}</span>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">{labels.account.city}</label>
+                  <Input value={account.city} onChange={(event) => setAccountField("city", event.target.value)} placeholder={labels.account.city} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">{labels.account.neighborhood}</label>
+                  <Input value={account.neighborhood} onChange={(event) => setAccountField("neighborhood", event.target.value)} placeholder={labels.account.neighborhood} />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <div className="mb-3 flex items-center gap-2 border-b border-border/50 pb-2">
+                <BookOpen size={15} className="text-primary" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{labels.account.bio}</span>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">{labels.account.bio}</label>
+                <Textarea value={account.bio} onChange={(event) => setAccountField("bio", event.target.value)} placeholder={labels.account.bio} />
+              </div>
+            </div>
+
+            {/* Save bar – sticky bottom on mobile, inline on desktop */}
+            <div className="sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] z-10 mt-6 flex flex-col gap-2 rounded-2xl border border-border/60 bg-card/95 p-3 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] backdrop-blur sm:relative sm:bottom-auto sm:mt-6 sm:flex-row sm:items-center sm:justify-end sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+              <Button onClick={saveAccount} disabled={!accountDirty || isPending || imageUploading} className="w-full gap-2 sm:w-auto sm:min-w-[140px]">
+                {isPending ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 size={16} className="animate-spin" />
+                    {labels.saving}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-2">
+                    <Save size={16} />
+                    {labels.editProfile}
+                  </span>
+                )}
               </Button>
               <Button type="button" variant="outline" onClick={cancelAccountChanges} disabled={!accountDirty || isPending || imageUploading} className="w-full sm:w-auto">
                 {labels.cancel}
