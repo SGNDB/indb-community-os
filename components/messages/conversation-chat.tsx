@@ -9,6 +9,8 @@ import {
   Camera,
   Check,
   CheckCheck,
+  ChevronLeft,
+  ChevronRight,
   Copy,
   Flag,
   ImagePlus,
@@ -24,7 +26,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { OnlineAvatar, OnlineDot } from "@/components/presence";
+import { OnlineAvatar, useOnlineUsers } from "@/components/presence";
 import { uploadMediaItem } from "@/lib/images/client-upload";
 import { Link, useRouter } from "@/lib/i18n/routing";
 import { createClient } from "@/lib/supabase/client";
@@ -229,6 +231,8 @@ export function ConversationChat({
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState("");
   const [messageActionSaving, setMessageActionSaving] = useState(false);
+  const [viewerLoaded, setViewerLoaded] = useState(false);
+  const [viewerError, setViewerError] = useState(false);
 
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingBroadcastRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -239,8 +243,11 @@ export function ConversationChat({
   const imageInputRef = useRef<HTMLInputElement>(null);
   const groupImageInputRef = useRef<HTMLInputElement>(null);
   const nearBottomRef = useRef(true);
+  const viewerTouchStartXRef = useRef<number | null>(null);
+  const viewerTouchStartYRef = useRef<number | null>(null);
 
   const isIdeaGroup = conversationType === "idea";
+  const onlineUsers = useOnlineUsers();
   const otherParticipant = participants.find((p) => p.user_id !== currentUserId)?.user;
   const otherUserId = otherParticipant?.id;
   const currentParticipant = participants.find((p) => p.user_id === currentUserId);
@@ -253,6 +260,16 @@ export function ConversationChat({
     return new Map(participants.map((participant) => [participant.user_id, participant]));
   }, [participants]);
   const participantByIdRef = useRef(participantById);
+  const activeOtherParticipants = useMemo(() => {
+    return participants.filter((participant) =>
+      participant.user_id !== currentUserId &&
+      !participant.left_at &&
+      !participant.removed_at
+    );
+  }, [participants, currentUserId]);
+  const hasOnlineRecipient = useMemo(() => {
+    return activeOtherParticipants.some((participant) => onlineUsers.has(participant.user_id));
+  }, [activeOtherParticipants, onlineUsers]);
 
   useEffect(() => {
     participantByIdRef.current = participantById;
@@ -341,6 +358,43 @@ export function ConversationChat({
     });
   }, []);
 
+  const closeViewer = useCallback(() => {
+    setViewerImages([]);
+    setViewerIndex(0);
+    setViewerLoaded(false);
+    setViewerError(false);
+  }, []);
+
+  const openViewer = useCallback((images: string[], index: number) => {
+    if (images.length === 0) return;
+    setViewerImages(images);
+    setViewerIndex(Math.max(0, Math.min(index, images.length - 1)));
+    setViewerLoaded(false);
+    setViewerError(false);
+  }, []);
+
+  const showPrevViewerImage = useCallback(() => {
+    setViewerIndex((index) => {
+      const next = Math.max(index - 1, 0);
+      if (next !== index) {
+        setViewerLoaded(false);
+        setViewerError(false);
+      }
+      return next;
+    });
+  }, []);
+
+  const showNextViewerImage = useCallback(() => {
+    setViewerIndex((index) => {
+      const next = Math.min(index + 1, viewerImages.length - 1);
+      if (next !== index) {
+        setViewerLoaded(false);
+        setViewerError(false);
+      }
+      return next;
+    });
+  }, [viewerImages.length]);
+
   useEffect(() => {
     scrollToLatest("auto");
   }, [conversationId, scrollToLatest]);
@@ -352,6 +406,23 @@ export function ConversationChat({
       scrollToLatest("smooth");
     }
   }, [messages.length, pendingImages.length, currentUserId, scrollToLatest]);
+
+  useEffect(() => {
+    if (viewerImages.length === 0) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        closeViewer();
+      } else if (event.key === "ArrowLeft") {
+        showPrevViewerImage();
+      } else if (event.key === "ArrowRight") {
+        showNextViewerImage();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [viewerImages.length, closeViewer, showPrevViewerImage, showNextViewerImage]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -455,7 +526,7 @@ export function ConversationChat({
       }
     }
     markRead();
-  }, [conversationId]);
+  }, [conversationId, messages.length]);
 
   const broadcastTyping = useCallback(() => {
     if (typingBroadcastRef.current) return;
@@ -968,11 +1039,12 @@ export function ConversationChat({
             const isEditing = editingMessageId === msg.id;
             const canMutate = isMine && !isDeleted && !isReadOnly && !msg.id.startsWith("optimistic-");
             const hasText = Boolean(msg.message?.trim());
-            const hasBeenRead = isMine && participants.some((participant) => {
+            const hasBeenRead = isMine && activeOtherParticipants.some((participant) => {
               if (participant.user_id === currentUserId || !participant.last_read_at) return false;
               return new Date(participant.last_read_at).getTime() >= new Date(msg.created_at).getTime();
             });
-            const StatusIcon = hasBeenRead ? CheckCheck : Check;
+            const hasDeliveryConfirmation = hasBeenRead || hasOnlineRecipient;
+            const StatusIcon = hasDeliveryConfirmation ? CheckCheck : Check;
 
             return (
               <div
@@ -1107,8 +1179,8 @@ export function ConversationChat({
                               type="button"
                               onPointerDown={(event) => event.stopPropagation()}
                               onTouchStart={(event) => event.stopPropagation()}
-                              onClick={() => { setViewerImages(msgImages); setViewerIndex(i); }}
-                              className={cn("max-w-full overflow-hidden rounded-xl text-start", i === 3 && msgImages.length > 4 ? "relative" : "")}
+                              onClick={() => openViewer(msgImages, Math.min(i, msgImages.length - 1))}
+                              className={cn("max-w-full overflow-hidden rounded-xl text-start", i === 3 && msgImages.length > 3 ? "relative" : "")}
                               aria-label={t("groupChat.viewImage")}
                             >
                               <img
@@ -1119,9 +1191,9 @@ export function ConversationChat({
                                   msgImages.length === 1 ? "max-h-80 min-w-40 sm:min-w-52" : "aspect-square",
                                 )}
                               />
-                              {i === 3 && msgImages.length > 4 && (
+                              {i === 3 && msgImages.length > 3 && (
                                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-black/50 text-lg font-bold text-white">
-                                  +{msgImages.length - 4}
+                                  +{msgImages.length - 3}
                                 </div>
                               )}
                             </button>
@@ -1167,7 +1239,7 @@ export function ConversationChat({
                           <span>{t("groupChat.edited")}</span>
                         ) : null}
                         {isMine && (
-                          <StatusIcon size={13} aria-label={hasBeenRead ? t("groupChat.read") : t("groupChat.sent")} />
+                          <StatusIcon size={13} aria-label={hasDeliveryConfirmation ? t("groupChat.read") : t("groupChat.sent")} />
                         )}
                       </div>
                     </div>
@@ -1525,49 +1597,104 @@ export function ConversationChat({
       ) : null}
 
       {viewerImages.length > 0 && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-4">
-          <button
-            type="button"
-            onClick={() => setViewerImages([])}
-            className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
-            aria-label={t("groupChat.close")}
-          >
-            <X size={20} />
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewerImages([])}
-            className="absolute inset-0"
-            aria-label={t("groupChat.close")}
-          />
-          {viewerImages.length > 1 && viewerIndex > 0 && (
+        <div
+          className="fixed inset-0 z-[100] flex h-[100dvh] w-screen touch-pan-y flex-col overflow-hidden bg-black text-white"
+          onClick={closeViewer}
+          onTouchStart={(event) => {
+            viewerTouchStartXRef.current = event.touches[0]?.clientX ?? null;
+            viewerTouchStartYRef.current = event.touches[0]?.clientY ?? null;
+          }}
+          onTouchEnd={(event) => {
+            if (viewerTouchStartXRef.current === null || viewerTouchStartYRef.current === null) return;
+            const touch = event.changedTouches[0];
+            const diffX = viewerTouchStartXRef.current - touch.clientX;
+            const diffY = viewerTouchStartYRef.current - touch.clientY;
+            viewerTouchStartXRef.current = null;
+            viewerTouchStartYRef.current = null;
+            if (Math.abs(diffX) < 45 || Math.abs(diffX) < Math.abs(diffY)) return;
+            if (diffX > 0) {
+              showNextViewerImage();
+            } else {
+              showPrevViewerImage();
+            }
+          }}
+        >
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between bg-gradient-to-b from-black/75 to-transparent px-[max(0.75rem,var(--safe-left))] pb-10 pt-[calc(0.75rem+var(--safe-top))]">
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); setViewerIndex((i) => i - 1); }}
-              className="absolute left-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
-              aria-label={t("groupChat.prevImage")}
+              onClick={(event) => {
+                event.stopPropagation();
+                closeViewer();
+              }}
+              className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur transition active:scale-95 hover:bg-white/20"
+              aria-label={t("groupChat.close")}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6"/></svg>
+              <X size={22} />
             </button>
-          )}
-          {viewerImages.length > 1 && viewerIndex < viewerImages.length - 1 && (
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); setViewerIndex((i) => i + 1); }}
-              className="absolute right-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
-              aria-label={t("groupChat.nextImage")}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>
-            </button>
-          )}
-          <div className="relative z-10 flex max-h-full max-w-full flex-col items-center">
-            <img
-              src={viewerImages[viewerIndex]}
-              alt=""
-              className="max-h-full max-w-full rounded-lg object-contain shadow-2xl"
-            />
-            {viewerImages.length > 1 && (
-              <span className="mt-3 text-sm text-white/70">{viewerIndex + 1} / {viewerImages.length}</span>
+            <div className="pointer-events-auto rounded-full bg-white/12 px-3 py-1.5 text-sm font-semibold text-white backdrop-blur">
+              {viewerIndex + 1} / {viewerImages.length}
+            </div>
+          </div>
+
+          <div className="relative flex min-h-0 flex-1 items-center justify-center px-2 py-[calc(4rem+var(--safe-top))] pb-[calc(4rem+var(--safe-bottom))]">
+            {viewerImages.length > 1 && viewerIndex > 0 && (
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  showPrevViewerImage();
+                }}
+                className="absolute left-3 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur transition hover:bg-white/20 md:flex"
+                aria-label={t("groupChat.prevImage")}
+              >
+                <ChevronLeft size={26} />
+              </button>
+            )}
+            {viewerImages.length > 1 && viewerIndex < viewerImages.length - 1 && (
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  showNextViewerImage();
+                }}
+                className="absolute right-3 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur transition hover:bg-white/20 md:flex"
+                aria-label={t("groupChat.nextImage")}
+              >
+                <ChevronRight size={26} />
+              </button>
+            )}
+
+            {!viewerLoaded && !viewerError && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Loader2 size={28} className="animate-spin text-white/70" />
+              </div>
+            )}
+
+            {viewerError ? (
+              <div className="mx-5 rounded-2xl bg-white/10 px-5 py-4 text-center text-sm text-white/80 backdrop-blur">
+                {t("groupChat.imageLoadFailed")}
+              </div>
+            ) : (
+              <img
+                key={viewerImages[viewerIndex]}
+                src={viewerImages[viewerIndex]}
+                alt=""
+                loading="eager"
+                draggable={false}
+                onClick={(event) => event.stopPropagation()}
+                onLoad={() => {
+                  setViewerLoaded(true);
+                  setViewerError(false);
+                }}
+                onError={() => {
+                  setViewerLoaded(false);
+                  setViewerError(true);
+                }}
+                className={cn(
+                  "max-h-full max-w-full select-none object-contain transition duration-200 [-webkit-user-drag:none]",
+                  viewerLoaded ? "opacity-100" : "opacity-0",
+                )}
+              />
             )}
           </div>
         </div>

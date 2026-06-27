@@ -17,6 +17,11 @@ export function useIsOnline(userId: string | null | undefined): boolean {
   return onlineUsers.has(userId);
 }
 
+export function useOnlineUsers(): Set<string> {
+  const {onlineUsers} = useContext(PresenceContext);
+  return onlineUsers;
+}
+
 export function PresenceProvider({children}: {children: React.ReactNode}) {
   const {userId} = useCurrentUser();
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());

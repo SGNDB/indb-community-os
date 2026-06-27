@@ -3030,6 +3030,7 @@
       "viewImage": "عرض الصورة",
       "prevImage": "الصورة السابقة",
       "nextImage": "الصورة التالية",
+      "imageLoadFailed": "تعذر تحميل الصورة.",
       "messageActions": "إجراءات الرسالة",
       "edit": "تعديل",
       "delete": "حذف",

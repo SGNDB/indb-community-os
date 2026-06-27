@@ -1945,6 +1945,7 @@
       "viewImage": "Foto wari",
       "prevImage": "Foto kan ma",
       "nextImage": "Foto nata",
+      "imageLoadFailed": "Foto ya man yitte.",
       "cancel": "Faayi",
       "editName": "Toxo yaŋqinde",
       "nameTooShort": "Harafi filli walla me be.",
