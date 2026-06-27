@@ -233,6 +233,7 @@ export function ConversationChat({
   const [messageActionSaving, setMessageActionSaving] = useState(false);
   const [viewerLoaded, setViewerLoaded] = useState(false);
   const [viewerError, setViewerError] = useState(false);
+  const [conversationOnlineUsers, setConversationOnlineUsers] = useState<Set<string>>(new Set());
 
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingBroadcastRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -268,8 +269,10 @@ export function ConversationChat({
     );
   }, [participants, currentUserId]);
   const hasOnlineRecipient = useMemo(() => {
-    return activeOtherParticipants.some((participant) => onlineUsers.has(participant.user_id));
-  }, [activeOtherParticipants, onlineUsers]);
+    return activeOtherParticipants.some((participant) =>
+      onlineUsers.has(participant.user_id) || conversationOnlineUsers.has(participant.user_id)
+    );
+  }, [activeOtherParticipants, onlineUsers, conversationOnlineUsers]);
 
   useEffect(() => {
     participantByIdRef.current = participantById;
@@ -446,7 +449,23 @@ export function ConversationChat({
     }
 
     const channel = supabase
-      .channel(`conv-messages-${conversationId}`)
+      .channel(`conv-messages-${conversationId}`, {
+        config: {
+          presence: {
+            key: currentUserId,
+          },
+        },
+      })
+      .on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState();
+        const online = new Set<string>();
+        for (const presences of Object.values(state)) {
+          for (const presence of presences as { user_id?: string }[]) {
+            if (presence.user_id) online.add(presence.user_id);
+          }
+        }
+        setConversationOnlineUsers(online);
+      })
       .on(
         "postgres_changes",
         {
@@ -508,10 +527,19 @@ export function ConversationChat({
           typingTimeoutRef.current = setTimeout(() => setTypingName(null), 2500);
         }
       })
-      .subscribe();
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await channel.track({
+            user_id: currentUserId,
+            online_at: new Date().toISOString(),
+            conversation_id: conversationId,
+          });
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);
+      setConversationOnlineUsers(new Set());
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, [conversationId, currentUserId, memberFallback]);

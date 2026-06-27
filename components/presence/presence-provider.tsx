@@ -31,6 +31,7 @@ export function PresenceProvider({children}: {children: React.ReactNode}) {
 
   useEffect(() => {
     if (!userId) return;
+    const activeUserId = userId;
 
     const supabase = createClient();
     let cancelled = false;
@@ -52,7 +53,13 @@ export function PresenceProvider({children}: {children: React.ReactNode}) {
       if (cancelled) return;
       showOnlineRef.current = showOnline;
 
-      const pChannel = supabase.channel("presence-online");
+      const pChannel = supabase.channel("presence-online", {
+        config: {
+          presence: {
+            key: activeUserId,
+          },
+        },
+      });
       presenceChannelRef.current = pChannel;
 
       pChannel
@@ -70,7 +77,7 @@ export function PresenceProvider({children}: {children: React.ReactNode}) {
         .subscribe(async (status) => {
           if (status === "SUBSCRIBED" && showOnline && !cancelled) {
             await pChannel.track({
-              user_id: userId,
+              user_id: activeUserId,
               online_at: new Date().toISOString(),
             });
           }
@@ -85,7 +92,7 @@ export function PresenceProvider({children}: {children: React.ReactNode}) {
               event: "*",
               schema: "public",
               table: "user_settings",
-              filter: `user_id=eq.${userId}`,
+              filter: `user_id=eq.${activeUserId}`,
             },
             (payload) => {
               if (cancelled) return;
@@ -93,7 +100,7 @@ export function PresenceProvider({children}: {children: React.ReactNode}) {
               const oldVal = showOnlineRef.current;
               showOnlineRef.current = newVal;
               if (newVal && !oldVal) {
-                pChannel.track({user_id: userId, online_at: new Date().toISOString()});
+                pChannel.track({user_id: activeUserId, online_at: new Date().toISOString()});
               } else if (!newVal && oldVal) {
                 pChannel.untrack();
               }
