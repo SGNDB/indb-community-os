@@ -31,7 +31,7 @@ export default async function ConversationPage({
   const messages = await getConversationMessages(id);
 
   return (
-    <section className="fixed inset-0 z-[60] flex h-[100dvh] min-h-0 w-full overflow-hidden bg-background md:relative md:z-auto md:h-full">
+    <section className="fixed inset-0 z-[60] flex h-[var(--chat-viewport-height,100dvh)] min-h-0 w-full overflow-hidden bg-background md:relative md:z-auto md:h-full">
       <div className="hidden min-h-0 w-full flex-col md:flex md:w-[30%] md:min-w-[17rem] md:shrink-0 md:border-e md:border-border/70">
         <ConversationList initialConversations={conversations} currentUserId={user.id} />
       </div>

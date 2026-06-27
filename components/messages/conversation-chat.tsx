@@ -233,9 +233,12 @@ export function ConversationChat({
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingBroadcastRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const chatRootRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const groupImageInputRef = useRef<HTMLInputElement>(null);
+  const nearBottomRef = useRef(true);
 
   const isIdeaGroup = conversationType === "idea";
   const otherParticipant = participants.find((p) => p.user_id !== currentUserId)?.user;
@@ -258,7 +261,18 @@ export function ConversationChat({
   useEffect(() => {
     const root = document.documentElement;
     const previousValue = root.dataset.chatOpen;
+    const previousViewportHeight = root.style.getPropertyValue("--chat-viewport-height");
     root.dataset.chatOpen = "true";
+
+    const syncViewportHeight = () => {
+      const height = window.visualViewport?.height ?? window.innerHeight;
+      root.style.setProperty("--chat-viewport-height", `${Math.max(height, 320)}px`);
+    };
+
+    syncViewportHeight();
+    window.addEventListener("resize", syncViewportHeight);
+    window.visualViewport?.addEventListener("resize", syncViewportHeight);
+    window.visualViewport?.addEventListener("scroll", syncViewportHeight);
 
     return () => {
       if (previousValue === undefined) {
@@ -266,6 +280,14 @@ export function ConversationChat({
       } else {
         root.dataset.chatOpen = previousValue;
       }
+      if (previousViewportHeight) {
+        root.style.setProperty("--chat-viewport-height", previousViewportHeight);
+      } else {
+        root.style.removeProperty("--chat-viewport-height");
+      }
+      window.removeEventListener("resize", syncViewportHeight);
+      window.visualViewport?.removeEventListener("resize", syncViewportHeight);
+      window.visualViewport?.removeEventListener("scroll", syncViewportHeight);
       cancelLongPress();
     };
   }, []);
@@ -297,9 +319,30 @@ export function ConversationChat({
     setLocalIdeaStatus(ideaStatus);
   }, [ideaStatus]);
 
+  const isNearBottom = useCallback(() => {
+    const scrollArea = scrollAreaRef.current;
+    if (!scrollArea) return true;
+    return scrollArea.scrollHeight - scrollArea.scrollTop - scrollArea.clientHeight < 120;
+  }, []);
+
+  const scrollToLatest = useCallback((behavior: ScrollBehavior = "auto") => {
+    requestAnimationFrame(() => {
+      bottomRef.current?.scrollIntoView({ block: "end", behavior });
+      nearBottomRef.current = true;
+    });
+  }, []);
+
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, pendingImages]);
+    scrollToLatest("auto");
+  }, [conversationId, scrollToLatest]);
+
+  useEffect(() => {
+    const latestMessage = messages[messages.length - 1];
+    const shouldKeepPinned = nearBottomRef.current || latestMessage?.sender_id === currentUserId || pendingImages.length > 0;
+    if (shouldKeepPinned) {
+      scrollToLatest("smooth");
+    }
+  }, [messages.length, pendingImages.length, currentUserId, scrollToLatest]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -841,8 +884,8 @@ export function ConversationChat({
   const canSaveName = draftTitle.trim().length >= 2 && draftTitle.trim() !== groupTitle;
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-background overscroll-contain">
-      <div className="shrink-0 border-b border-border/70 bg-card/95 px-2 py-1.5 shadow-sm backdrop-blur md:px-2.5 md:py-2">
+    <div ref={chatRootRef} className="relative flex h-[var(--chat-viewport-height,100dvh)] min-h-0 w-full flex-col overflow-hidden bg-background overscroll-contain md:h-full">
+      <div className="shrink-0 border-b border-border/70 bg-card/95 px-2 py-1.5 pt-[max(0.375rem,var(--safe-top))] shadow-sm backdrop-blur md:px-2.5 md:py-2">
         <div className="flex min-h-[52px] items-center gap-2">
           <Link
             href="/messages"
@@ -882,7 +925,13 @@ export function ConversationChat({
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto scroll-smooth bg-muted/20 px-2.5 py-3 overscroll-contain [overflow-anchor:none] md:px-5 md:py-4">
+      <div
+        ref={scrollAreaRef}
+        onScroll={() => {
+          nearBottomRef.current = isNearBottom();
+        }}
+        className="min-h-0 flex-1 overflow-y-auto scroll-smooth bg-muted/20 px-2.5 py-3 overscroll-contain [overflow-anchor:none] md:px-5 md:py-4"
+      >
         <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col justify-end">
           {isReadOnly && (
             <div className="mx-auto mb-4 flex max-w-md items-center justify-center gap-2 rounded-full bg-background/90 px-3 py-2 text-center text-xs text-muted-foreground shadow-sm">
@@ -1119,25 +1168,22 @@ export function ConversationChat({
             );
           })
         )}
-          <div ref={bottomRef} />
+          {typingName && (
+            <div className="mx-auto mt-2 flex w-fit items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
+              <span className="flex gap-0.5">
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/40" style={{ animationDelay: "0ms" }} />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/40" style={{ animationDelay: "150ms" }} />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/40" style={{ animationDelay: "300ms" }} />
+              </span>
+              <span>{typingName} {t("typing")}</span>
+            </div>
+          )}
+          <div ref={bottomRef} className="h-px" />
         </div>
       </div>
 
-      {typingName && (
-        <div className="shrink-0 border-t border-border/70 bg-background/95 px-4 py-1.5 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-          <span className="flex gap-0.5">
-            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/40" style={{ animationDelay: "0ms" }} />
-            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/40" style={{ animationDelay: "150ms" }} />
-            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/40" style={{ animationDelay: "300ms" }} />
-          </span>
-          <span>{typingName} {t("typing")}</span>
-          </div>
-        </div>
-      )}
-
       {(error || !isReadOnly) && (
-        <div className="sticky bottom-0 z-10 shrink-0 border-t border-border/70 bg-background/95 px-[max(0.625rem,var(--safe-left))] pb-[calc(0.8rem+var(--safe-bottom))] pt-2 backdrop-blur supports-[backdrop-filter]:bg-background/90 md:px-4 md:pb-3 md:pt-2.5">
+        <div className="z-10 shrink-0 border-t border-border/70 bg-background/95 px-[max(0.625rem,var(--safe-left))] pb-[calc(0.8rem+var(--safe-bottom))] pt-2 backdrop-blur supports-[backdrop-filter]:bg-background/90 md:px-4 md:pb-3 md:pt-2.5">
           {pendingImages.length > 0 && !isReadOnly && (
             <div className="mb-2 rounded-lg border border-border/70 bg-card p-2 shadow-sm">
               <div className="flex flex-wrap gap-2">
