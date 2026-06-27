@@ -262,11 +262,15 @@ export function ConversationChat({
     const root = document.documentElement;
     const previousValue = root.dataset.chatOpen;
     const previousViewportHeight = root.style.getPropertyValue("--chat-viewport-height");
+    const previousViewportTop = root.style.getPropertyValue("--chat-viewport-top");
     root.dataset.chatOpen = "true";
 
     const syncViewportHeight = () => {
-      const height = window.visualViewport?.height ?? window.innerHeight;
+      const viewport = window.visualViewport;
+      const height = viewport?.height ?? window.innerHeight;
+      const top = viewport?.offsetTop ?? 0;
       root.style.setProperty("--chat-viewport-height", `${Math.max(height, 320)}px`);
+      root.style.setProperty("--chat-viewport-top", `${Math.max(top, 0)}px`);
     };
 
     syncViewportHeight();
@@ -284,6 +288,11 @@ export function ConversationChat({
         root.style.setProperty("--chat-viewport-height", previousViewportHeight);
       } else {
         root.style.removeProperty("--chat-viewport-height");
+      }
+      if (previousViewportTop) {
+        root.style.setProperty("--chat-viewport-top", previousViewportTop);
+      } else {
+        root.style.removeProperty("--chat-viewport-top");
       }
       window.removeEventListener("resize", syncViewportHeight);
       window.visualViewport?.removeEventListener("resize", syncViewportHeight);
@@ -884,7 +893,7 @@ export function ConversationChat({
   const canSaveName = draftTitle.trim().length >= 2 && draftTitle.trim() !== groupTitle;
 
   return (
-    <div ref={chatRootRef} className="relative flex h-[var(--chat-viewport-height,100dvh)] min-h-0 w-full flex-col overflow-hidden bg-background overscroll-contain md:h-full">
+    <div ref={chatRootRef} className="relative flex h-full min-h-0 w-full flex-col overflow-hidden bg-background overscroll-contain">
       <div className="shrink-0 border-b border-border/70 bg-card/95 px-2 py-1.5 pt-[max(0.375rem,var(--safe-top))] shadow-sm backdrop-blur md:px-2.5 md:py-2">
         <div className="flex min-h-[52px] items-center gap-2">
           <Link
