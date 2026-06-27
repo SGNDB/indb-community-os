@@ -268,11 +268,29 @@ export function ConversationChat({
       !participant.removed_at
     );
   }, [participants, currentUserId]);
+  const visibleOtherUserIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const participant of activeOtherParticipants) {
+      ids.add(participant.user_id);
+    }
+    if (otherUserId && otherUserId !== currentUserId) {
+      ids.add(otherUserId);
+    }
+    for (const message of messages) {
+      if (message.sender_id && message.sender_id !== currentUserId) {
+        ids.add(message.sender_id);
+      }
+      if (message.sender?.id && message.sender.id !== currentUserId) {
+        ids.add(message.sender.id);
+      }
+    }
+    return ids;
+  }, [activeOtherParticipants, otherUserId, currentUserId, messages]);
   const hasOnlineRecipient = useMemo(() => {
-    return activeOtherParticipants.some((participant) =>
-      onlineUsers.has(participant.user_id) || conversationOnlineUsers.has(participant.user_id)
+    return Array.from(visibleOtherUserIds).some((userId) =>
+      onlineUsers.has(userId) || conversationOnlineUsers.has(userId)
     );
-  }, [activeOtherParticipants, onlineUsers, conversationOnlineUsers]);
+  }, [visibleOtherUserIds, onlineUsers, conversationOnlineUsers]);
 
   useEffect(() => {
     participantByIdRef.current = participantById;
