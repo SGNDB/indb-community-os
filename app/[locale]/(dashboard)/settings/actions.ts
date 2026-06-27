@@ -370,16 +370,61 @@ export async function deleteAccountAction(input: {
   const {supabase, user} = await getCurrentUser();
   if (!user) return {success: false, error: "not_authenticated"};
 
-  // verify password before deletion
   const pwCheck = await verifyPasswordAction(input.password);
   if (!pwCheck.success) return {success: false, error: "wrong_password"};
 
+  const userId = user.id;
   const admin = createAdminClient();
   if (!admin) return {success: false, error: "admin_not_configured"};
 
-  const {error} = await admin.auth.admin.deleteUser(user.id);
-  if (error) return {success: false, error: "delete_failed"};
+  try {
+    // Step 1: Anonymize CASCADE-linked community content before profile deletion
+    // (These tables have ON DELETE CASCADE but we want to preserve the content)
+    await Promise.all([
+      supabase.from("conversation_messages").update({sender_id: null}).eq("sender_id", userId),
+      supabase.from("idea_messages").update({sender_id: null}).eq("sender_id", userId),
+      supabase.from("notifications").update({actor_id: null}).eq("actor_id", userId),
+      supabase.from("community_shares").update({owner_id: null}).eq("owner_id", userId),
+      supabase.from("fadla_request_messages").update({sender_id: null}).eq("sender_id", userId),
+    ]);
 
-  await supabase.auth.signOut();
+    // Step 2: Delete image files from storage
+    const storagePaths: string[] = [
+      `${userId}/settings/avatar`,
+      `${userId}/settings/cover`,
+    ];
+    await Promise.allSettled([
+      admin.storage.from("avatars").remove(storagePaths).catch(() => {}),
+      admin.storage.from("profile-covers").remove(storagePaths).catch(() => {}),
+    ]);
+
+    // Step 3: Delete the auth user
+    //   → profiles row cascade-deletes (removes phone, email, images, full_name)
+    //   → user_settings, profile_* cascade-delete (private data)
+    //   → post_likes, saved_posts, memory_reactions, etc. cascade-delete (private interactions)
+    //   → conversation_participants cascade-deletes (removes from chats)
+    //   → notification user_id rows cascade-delete (notifications sent to this user)
+    //   → volunteer_applications, impact_events, etc. cascade-delete
+    //   → tables with ON DELETE SET NULL have their FK auto-nulled (posts, comments, etc.)
+    //   → user cannot log in again
+    const {error: deleteUserError} = await admin.auth.admin.deleteUser(userId);
+    if (deleteUserError) return {success: false, error: "delete_failed"};
+
+    // Step 4: Audit trail (non-critical)
+    try {
+      await admin.from("settings_audit_log").insert({
+        admin_name: userId,
+        setting_key: "account_deletion",
+        old_value: null,
+        new_value: "deleted",
+      });
+    } catch { /* audit failure is non-critical */ }
+
+    revalidatePath("/", "layout");
+  } catch (err) {
+    console.error("deleteAccountAction error:", err);
+    return {success: false, error: "delete_failed"};
+  }
+
   redirect(withLocale("/", safeLocale));
 }
