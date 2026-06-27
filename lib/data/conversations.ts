@@ -422,13 +422,16 @@ export async function sendConversationMessage(
     .single();
 
   if (error) {
-    if (messageType === 'text' && isLegacyConversationMessageSchemaError(error)) {
+    if (isLegacyConversationMessageSchemaError(error)) {
+      const fallbackText = messageType === 'image'
+        ? (message ? `${message}\n${imageUrl}` : imageUrl)
+        : message;
       const fallback = await supabase
         .from('conversation_messages')
         .insert({
           conversation_id: conversationId,
           sender_id: senderId,
-          message,
+          message: fallbackText,
         })
         .select('id, created_at')
         .single();
