@@ -1,5 +1,5 @@
 import {createClient} from "@/lib/supabase/server";
-import type {NotificationWithActor} from "@/types/database";
+import type {NotificationWithActor, UserNotificationKey} from "@/types/database";
 
 export async function getUnreadNotificationsCount(userId: string): Promise<number> {
   const supabase = await createClient();
@@ -59,12 +59,44 @@ type CreateNotificationParams = {
   metadata?: Record<string, unknown>;
 };
 
+function notificationPreferenceKey(type: string): UserNotificationKey | null {
+  if (type.includes("message")) return "messages";
+  if (type.includes("comment")) return "comments";
+  if (type.includes("reaction")) return "reactions";
+  if (type === "follow") return "followers";
+  if (type.includes("graatek") || type.includes("fadla")) return "graatek";
+  if (type.includes("campaign") || type.includes("donation")) return "campaigns";
+  if (type.includes("volunteer")) return "volunteer";
+  if (type.includes("announcement") || type.includes("system")) return "announcements";
+  return null;
+}
+
+async function shouldCreateInAppNotification(
+  userId: string,
+  type: string,
+  supabase = createClient(),
+): Promise<boolean> {
+  const key = notificationPreferenceKey(type);
+  if (!key) return true;
+
+  const client = await supabase;
+  const {data} = await client
+    .from("user_settings")
+    .select("in_app_notifications")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  const settings = data?.in_app_notifications as Partial<Record<UserNotificationKey, boolean>> | null | undefined;
+  return settings?.[key] !== false;
+}
+
 export async function createNotification(
   params: CreateNotificationParams,
 ): Promise<void> {
   if (params.userId === params.actorId) return;
 
   const supabase = await createClient();
+  if (!(await shouldCreateInAppNotification(params.userId, params.type, Promise.resolve(supabase)))) return;
 
   // Dedup: skip if an unread notification for the same event already exists
   const {data: existing} = await supabase
@@ -139,6 +171,7 @@ export async function upsertReactionNotification(
   if (postAuthorId === actorId) return;
 
   const supabase = await createClient();
+  if (!(await shouldCreateInAppNotification(postAuthorId, "reaction", Promise.resolve(supabase)))) return;
 
   const {data: existing} = await supabase
     .from("notifications")
@@ -178,6 +211,7 @@ export async function createShareNotification(
   if (ideaAuthorId === actorId) return;
 
   const supabase = await createClient();
+  if (!(await shouldCreateInAppNotification(ideaAuthorId, "share", Promise.resolve(supabase)))) return;
 
   const {error} = await supabase.from("notifications").insert({
     user_id: ideaAuthorId,
@@ -219,6 +253,7 @@ export async function upsertMemoryReactionNotification(
   if (memoryContributorId === actorId) return;
 
   const supabase = await createClient();
+  if (!(await shouldCreateInAppNotification(memoryContributorId, "reaction", Promise.resolve(supabase)))) return;
 
   const {data: existing} = await supabase
     .from("notifications")

@@ -215,6 +215,8 @@ export async function saveUserPreferencesAction(input: {
           level: Boolean(input.recognitionVisibility?.level),
           badges: Boolean(input.recognitionVisibility?.badges),
           summary: Boolean(input.recognitionVisibility?.summary),
+          donations: Boolean(input.recognitionVisibility?.donations),
+          volunteer: Boolean(input.recognitionVisibility?.volunteer),
         },
         in_app_notifications: cleanBooleanMap(input.inAppNotifications, inAppDefaults),
         email_notifications: cleanBooleanMap(input.emailNotifications, emailDefaults),

@@ -9,6 +9,7 @@ import {toast} from "sonner";
 import {
   Accessibility,
   AlertTriangle,
+  ArrowLeft,
   Bell,
   Camera,
   CheckCircle2,
@@ -93,6 +94,8 @@ const sectionKeys = [
   "actions",
 ] as const;
 
+type SectionKey = (typeof sectionKeys)[number];
+
 const notificationKeys: UserNotificationKey[] = [
   "messages",
   "comments",
@@ -123,6 +126,9 @@ function labelsFor(locale: string) {
     save: "حفظ",
     saving: "جار الحفظ...",
     saved: "تم حفظ الإعدادات",
+    back: "رجوع",
+    cancel: "إلغاء",
+    unsavedWarning: "لديك تغييرات غير محفوظة. هل تريد مغادرة هذا القسم؟",
     uploadFailed: "تعذر رفع الصورة",
     saveFailed: "تعذر الحفظ. حاول مرة أخرى.",
     choosePhoto: "تغيير الصورة",
@@ -190,6 +196,8 @@ function labelsFor(locale: string) {
       level: "المستوى المجتمعي",
       badges: "الشارات",
       summary: "ملخص المساهمات",
+      donations: "إظهار تقدير التبرعات",
+      volunteerRecognition: "إظهار تقدير التطوع",
       score: "النقاط",
       hours: "ساعات التطوع",
       graatek: "تبادلات گرعتك",
@@ -243,6 +251,9 @@ function labelsFor(locale: string) {
     save: "Enregistrer",
     saving: "Enregistrement...",
     saved: "Paramètres enregistrés",
+    back: "Retour",
+    cancel: "Annuler",
+    unsavedWarning: "Vous avez des modifications non enregistrées. Quitter cette section ?",
     uploadFailed: "Impossible de téléverser l'image",
     saveFailed: "Impossible d'enregistrer. Réessayez.",
     choosePhoto: "Changer la photo",
@@ -310,6 +321,8 @@ function labelsFor(locale: string) {
       level: "Niveau communautaire",
       badges: "Badges",
       summary: "Résumé des contributions",
+      donations: "Afficher la reconnaissance des dons",
+      volunteerRecognition: "Afficher la reconnaissance bénévole",
       score: "Points",
       hours: "Heures bénévoles",
       graatek: "Échanges Graatek",
@@ -363,6 +376,9 @@ function labelsFor(locale: string) {
     save: "Save",
     saving: "Saving...",
     saved: "Settings saved",
+    back: "Back",
+    cancel: "Cancel",
+    unsavedWarning: "You have unsaved changes. Leave this section?",
     uploadFailed: "Could not upload image",
     saveFailed: "Could not save. Try again.",
     choosePhoto: "Change photo",
@@ -430,6 +446,8 @@ function labelsFor(locale: string) {
       level: "Community level",
       badges: "Badges",
       summary: "Contribution summary",
+      donations: "Show donation recognition",
+      volunteerRecognition: "Show volunteer recognition",
       score: "Points",
       hours: "Volunteer hours",
       graatek: "Graatek exchanges",
@@ -527,22 +545,30 @@ function SectionCard({
   id,
   title,
   icon: Icon,
+  visible = true,
   children,
 }: {
   id: string;
   title: string;
   icon: ComponentType<{size?: number; className?: string}>;
+  visible?: boolean;
   children: ReactNode;
 }) {
   return (
-    <section id={id} className="rounded-3xl border border-border/70 bg-card p-4 shadow-[0_14px_34px_rgba(7,31,54,0.06)] sm:p-5">
+    <section
+      id={id}
+      className={cn(
+        "rounded-3xl border border-border/70 bg-card p-4 shadow-[0_14px_34px_rgba(7,31,54,0.06)] sm:p-5",
+        !visible && "hidden",
+      )}
+    >
       <div className="mb-4 flex items-center gap-3">
         <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <Icon size={21} />
         </span>
         <h2 className="text-xl font-black">{title}</h2>
       </div>
-      {children}
+      {visible ? children : null}
     </section>
   );
 }
@@ -571,10 +597,10 @@ export function UserSettingsClient({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const {theme, setTheme} = useTheme();
-  const [activeSection, setActiveSection] = useState<(typeof sectionKeys)[number]>("account");
+  const [activeSection, setActiveSection] = useState<SectionKey | null>(null);
   const [isPending, startTransition] = useTransition();
   const [imageUploading, setImageUploading] = useState(false);
-  const [account, setAccount] = useState({
+  const initialAccount = useMemo(() => ({
     fullName: profile.full_name ?? "",
     username: profile.username ?? "",
     phone: profile.phone ?? "",
@@ -584,11 +610,14 @@ export function UserSettingsClient({
     neighborhood: profile.hometown ?? "",
     avatarUrl: profile.avatar_url,
     coverImageUrl: profile.cover_image_url,
-  });
+  }), [authEmail, profile]);
+  const [account, setAccount] = useState(initialAccount);
   const [avatarPreview, setAvatarPreview] = useState(profile.avatar_url);
   const [coverPreview, setCoverPreview] = useState(profile.cover_image_url);
   const [password, setPassword] = useState({password: "", confirmPassword: ""});
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [accountDirty, setAccountDirty] = useState(false);
+  const [preferencesSaving, setPreferencesSaving] = useState(false);
   const [preferences, setPreferences] = useState({
     language: profile.language_preference && routing.locales.includes(profile.language_preference as never)
       ? profile.language_preference
@@ -609,6 +638,7 @@ export function UserSettingsClient({
   });
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
+  const selectedSection = activeSection ?? "account";
 
   useEffect(() => {
     const root = document.documentElement;
@@ -617,16 +647,54 @@ export function UserSettingsClient({
     root.dataset.reduceAnimations = preferences.reduceAnimations ? "true" : "false";
   }, [preferences.fontSize, preferences.highContrast, preferences.reduceAnimations]);
 
+  useEffect(() => {
+    if (!accountDirty) return;
+
+    function handleBeforeUnload(event: BeforeUnloadEvent) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [accountDirty]);
+
+  function openSection(section: SectionKey | null) {
+    if (accountDirty && section !== "account" && !window.confirm(labels.unsavedWarning)) {
+      return;
+    }
+    setActiveSection(section);
+    if (typeof window !== "undefined") {
+      window.scrollTo({top: 0, behavior: preferences.reduceAnimations ? "auto" : "smooth"});
+    }
+  }
+
+  async function persistPreferences(nextPreferences: typeof preferences, showToast = false) {
+    setPreferencesSaving(true);
+    const result = await saveUserPreferencesAction({locale, ...nextPreferences});
+    setPreferencesSaving(false);
+    if (result.success) {
+      if (showToast) toast.success(labels.saved);
+      router.refresh();
+    } else {
+      toast.error(labels.saveFailed);
+    }
+  }
+
   function setPreference<K extends keyof typeof preferences>(key: K, value: (typeof preferences)[K]) {
-    setPreferences((current) => ({...current, [key]: value}));
+    const nextPreferences = {...preferences, [key]: value};
+    setPreferences(nextPreferences);
+    void persistPreferences(nextPreferences);
   }
 
   function setAccountField<K extends keyof typeof account>(key: K, value: (typeof account)[K]) {
     setAccount((current) => ({...current, [key]: value}));
+    setAccountDirty(true);
   }
 
   function changeLanguage(nextLocale: string) {
-    setPreference("language", nextLocale);
+    const nextPreferences = {...preferences, language: nextLocale};
+    setPreferences(nextPreferences);
     document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000; samesite=lax`;
     try {
       localStorage.setItem("preferred-locale", nextLocale);
@@ -639,13 +707,16 @@ export function UserSettingsClient({
     });
 
     const query = searchParams.toString();
+    void persistPreferences(nextPreferences);
     router.replace(`${pathname}${query ? `?${query}` : ""}`, {locale: nextLocale as never});
   }
 
   function changeTheme(nextTheme: UserThemePreference) {
-    setPreference("theme", nextTheme);
+    const nextPreferences = {...preferences, theme: nextTheme};
+    setPreferences(nextPreferences);
     setTheme(nextTheme);
     document.cookie = `theme=${nextTheme};path=/;max-age=31536000;samesite=lax`;
+    void persistPreferences(nextPreferences);
   }
 
   async function uploadProfileImage(file: File, kind: "avatar" | "cover") {
@@ -674,6 +745,7 @@ export function UserSettingsClient({
       }
 
       toast.success(labels.saved);
+      setAccountDirty(false);
       router.refresh();
     } catch {
       toast.error(labels.uploadFailed);
@@ -687,6 +759,7 @@ export function UserSettingsClient({
       const result = await saveAccountSettingsAction({locale, ...account});
       if (result.success) {
         toast.success(labels.saved);
+        setAccountDirty(false);
         router.refresh();
       } else {
         toast.error(labels.saveFailed);
@@ -696,14 +769,15 @@ export function UserSettingsClient({
 
   async function savePreferences() {
     startTransition(async () => {
-      const result = await saveUserPreferencesAction({locale, ...preferences});
-      if (result.success) {
-        toast.success(labels.saved);
-        router.refresh();
-      } else {
-        toast.error(labels.saveFailed);
-      }
+      await persistPreferences(preferences, true);
     });
+  }
+
+  function cancelAccountChanges() {
+    setAccount(initialAccount);
+    setAvatarPreview(initialAccount.avatarUrl);
+    setCoverPreview(initialAccount.coverImageUrl);
+    setAccountDirty(false);
   }
 
   async function updatePassword() {
@@ -776,18 +850,18 @@ export function UserSettingsClient({
       </header>
 
       <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
-        <aside className="lg:sticky lg:top-24 lg:self-start">
-          <nav className="flex gap-2 overflow-x-auto rounded-3xl border border-border/70 bg-card p-2 lg:flex-col lg:overflow-visible">
+        <aside className={cn("lg:sticky lg:top-24 lg:self-start", activeSection && "hidden lg:block")}>
+          <nav className="grid gap-2 rounded-3xl border border-border/70 bg-card p-2">
             {sectionKeys.map((key) => {
               const Icon = sectionIcons[key];
-              const active = activeSection === key;
+              const active = selectedSection === key;
               return (
-                <a
+                <button
+                  type="button"
                   key={key}
-                  href={`#${key}`}
-                  onClick={() => setActiveSection(key)}
+                  onClick={() => openSection(key)}
                   className={cn(
-                    "flex min-h-12 min-w-max items-center justify-between gap-3 rounded-2xl px-3 text-sm font-black transition active:scale-[0.98] lg:w-full",
+                    "flex min-h-14 w-full items-center justify-between gap-3 rounded-2xl px-3 text-start text-sm font-black transition active:scale-[0.98]",
                     active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
@@ -795,15 +869,26 @@ export function UserSettingsClient({
                     <Icon size={18} />
                     {labels.sections[key]}
                   </span>
-                  <ChevronRight size={16} className={cn("hidden lg:block", isRtl && "rotate-180")} />
-                </a>
+                  <ChevronRight size={16} className={cn(isRtl && "rotate-180")} />
+                </button>
               );
             })}
           </nav>
         </aside>
 
-        <main className="space-y-4">
-          <SectionCard id="account" title={labels.sections.account} icon={UserRound}>
+        <main className={cn("space-y-4", !activeSection && "hidden lg:block")}>
+          {activeSection ? (
+            <button
+              type="button"
+              onClick={() => openSection(null)}
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-black text-muted-foreground shadow-sm lg:hidden"
+            >
+              <ArrowLeft size={18} className={cn(isRtl && "rotate-180")} />
+              {labels.back}
+            </button>
+          ) : null}
+
+          <SectionCard id="account" title={labels.sections.account} icon={UserRound} visible={selectedSection === "account"}>
             <div className="overflow-hidden rounded-3xl border border-border/70 bg-muted/25">
               <div className="relative h-36 bg-muted sm:h-44">
                 {coverPreview ? (
@@ -893,13 +978,18 @@ export function UserSettingsClient({
                 </Field>
               </div>
             </div>
-            <Button onClick={saveAccount} disabled={isPending || imageUploading} className="mt-4 w-full gap-2 sm:w-auto">
-              <Save size={17} />
-              {isPending ? labels.saving : labels.editProfile}
-            </Button>
+            <div className="sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] z-10 mt-4 flex flex-col gap-2 rounded-2xl border border-border/70 bg-card/95 p-2 backdrop-blur sm:static sm:flex-row sm:border-0 sm:bg-transparent sm:p-0">
+              <Button onClick={saveAccount} disabled={isPending || imageUploading || !accountDirty} className="w-full gap-2 sm:w-auto">
+                <Save size={17} />
+                {isPending ? labels.saving : labels.editProfile}
+              </Button>
+              <Button type="button" variant="outline" onClick={cancelAccountChanges} disabled={!accountDirty || isPending || imageUploading} className="w-full sm:w-auto">
+                {labels.cancel}
+              </Button>
+            </div>
           </SectionCard>
 
-          <SectionCard id="appearance" title={labels.sections.appearance} icon={Palette}>
+          <SectionCard id="appearance" title={labels.sections.appearance} icon={Palette} visible={selectedSection === "appearance"}>
             <div className="grid gap-4 lg:grid-cols-2">
               <div className="rounded-2xl border border-border/70 bg-muted/25 p-3">
                 <label className="mb-2 flex items-center gap-2 text-sm font-black" htmlFor="settings-language">
@@ -946,13 +1036,13 @@ export function UserSettingsClient({
                 </div>
               </div>
             </div>
-            <Button onClick={savePreferences} disabled={isPending} className="mt-4 w-full gap-2 sm:w-auto">
+            <Button onClick={savePreferences} disabled={isPending || preferencesSaving} className="mt-4 w-full gap-2 sm:w-auto">
               <Save size={17} />
-              {isPending ? labels.saving : labels.save}
+              {isPending || preferencesSaving ? labels.saving : labels.save}
             </Button>
           </SectionCard>
 
-          <SectionCard id="notifications" title={labels.sections.notifications} icon={Bell}>
+          <SectionCard id="notifications" title={labels.sections.notifications} icon={Bell} visible={selectedSection === "notifications"}>
             <div className="overflow-hidden rounded-2xl border border-border/70">
               <div className="grid grid-cols-[minmax(0,1fr)_86px_86px] gap-2 bg-muted/40 px-3 py-2 text-xs font-black uppercase tracking-wide text-muted-foreground">
                 <span>{labels.sections.notifications}</span>
@@ -981,13 +1071,13 @@ export function UserSettingsClient({
                 </div>
               ))}
             </div>
-            <Button onClick={savePreferences} disabled={isPending} className="mt-4 w-full gap-2 sm:w-auto">
+            <Button onClick={savePreferences} disabled={isPending || preferencesSaving} className="mt-4 w-full gap-2 sm:w-auto">
               <Save size={17} />
-              {isPending ? labels.saving : labels.save}
+              {isPending || preferencesSaving ? labels.saving : labels.save}
             </Button>
           </SectionCard>
 
-          <SectionCard id="privacy" title={labels.sections.privacy} icon={Shield}>
+          <SectionCard id="privacy" title={labels.sections.privacy} icon={Shield} visible={selectedSection === "privacy"}>
             <div className="grid gap-3 md:grid-cols-2">
               <Field label={labels.privacy.whoProfile}>
                 <select
@@ -1014,13 +1104,13 @@ export function UserSettingsClient({
               <Toggle checked={preferences.showCompletedGraatek} onChange={(value) => setPreference("showCompletedGraatek", value)} label={labels.privacy.showGraatek} />
               <Toggle checked={preferences.showMemories} onChange={(value) => setPreference("showMemories", value)} label={labels.privacy.showMemories} />
             </div>
-            <Button onClick={savePreferences} disabled={isPending} className="mt-4 w-full gap-2 sm:w-auto">
+            <Button onClick={savePreferences} disabled={isPending || preferencesSaving} className="mt-4 w-full gap-2 sm:w-auto">
               <Save size={17} />
-              {isPending ? labels.saving : labels.save}
+              {isPending || preferencesSaving ? labels.saving : labels.save}
             </Button>
           </SectionCard>
 
-          <SectionCard id="recognition" title={labels.sections.recognition} icon={Heart}>
+          <SectionCard id="recognition" title={labels.sections.recognition} icon={Heart} visible={selectedSection === "recognition"}>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 [labels.recognition.level, impact.level, Sparkles],
@@ -1035,18 +1125,20 @@ export function UserSettingsClient({
                 </div>
               ))}
             </div>
-            <div className="mt-3 grid gap-2 rounded-2xl border border-border/70 p-2 md:grid-cols-3">
+            <div className="mt-3 grid gap-2 rounded-2xl border border-border/70 p-2 md:grid-cols-2">
               <Toggle checked={preferences.recognitionVisibility.level} onChange={(value) => setPreference("recognitionVisibility", {...preferences.recognitionVisibility, level: value})} label={labels.recognition.level} />
               <Toggle checked={preferences.recognitionVisibility.badges} onChange={(value) => setPreference("recognitionVisibility", {...preferences.recognitionVisibility, badges: value})} label={labels.recognition.badges} />
               <Toggle checked={preferences.recognitionVisibility.summary} onChange={(value) => setPreference("recognitionVisibility", {...preferences.recognitionVisibility, summary: value})} label={labels.recognition.summary} />
+              <Toggle checked={preferences.recognitionVisibility.donations} onChange={(value) => setPreference("recognitionVisibility", {...preferences.recognitionVisibility, donations: value})} label={labels.recognition.donations} />
+              <Toggle checked={preferences.recognitionVisibility.volunteer} onChange={(value) => setPreference("recognitionVisibility", {...preferences.recognitionVisibility, volunteer: value})} label={labels.recognition.volunteerRecognition} />
             </div>
-            <Button onClick={savePreferences} disabled={isPending} className="mt-4 w-full gap-2 sm:w-auto">
+            <Button onClick={savePreferences} disabled={isPending || preferencesSaving} className="mt-4 w-full gap-2 sm:w-auto">
               <Save size={17} />
-              {isPending ? labels.saving : labels.save}
+              {isPending || preferencesSaving ? labels.saving : labels.save}
             </Button>
           </SectionCard>
 
-          <SectionCard id="security" title={labels.sections.security} icon={Lock}>
+          <SectionCard id="security" title={labels.sections.security} icon={Lock} visible={selectedSection === "security"}>
             <div className="grid gap-3 md:grid-cols-2">
               <StatusRow icon={emailVerified ? CheckCircle2 : AlertTriangle} label={labels.security.emailStatus} value={emailVerified ? labels.verified : labels.notVerified} />
               <StatusRow icon={profile.phone_verified ? CheckCircle2 : AlertTriangle} label={labels.security.phoneStatus} value={profile.phone_verified ? labels.verified : labels.notVerified} />
@@ -1079,7 +1171,7 @@ export function UserSettingsClient({
             </div>
           </SectionCard>
 
-          <SectionCard id="accessibility" title={labels.sections.accessibility} icon={Accessibility}>
+          <SectionCard id="accessibility" title={labels.sections.accessibility} icon={Accessibility} visible={selectedSection === "accessibility"}>
             <div className="grid gap-3 lg:grid-cols-3">
               {(["small", "medium", "large"] as UserFontSizePreference[]).map((size) => (
                 <button
@@ -1099,13 +1191,13 @@ export function UserSettingsClient({
               <Toggle checked={preferences.highContrast} onChange={(value) => setPreference("highContrast", value)} label={labels.accessibility.highContrast} />
               <Toggle checked={preferences.reduceAnimations} onChange={(value) => setPreference("reduceAnimations", value)} label={labels.accessibility.reduceAnimations} />
             </div>
-            <Button onClick={savePreferences} disabled={isPending} className="mt-4 w-full gap-2 sm:w-auto">
+            <Button onClick={savePreferences} disabled={isPending || preferencesSaving} className="mt-4 w-full gap-2 sm:w-auto">
               <Save size={17} />
-              {isPending ? labels.saving : labels.save}
+              {isPending || preferencesSaving ? labels.saving : labels.save}
             </Button>
           </SectionCard>
 
-          <SectionCard id="about" title={labels.sections.about} icon={Info}>
+          <SectionCard id="about" title={labels.sections.about} icon={Info} visible={selectedSection === "about"}>
             <div className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70">
               <AboutRow icon={Info} label={labels.about.version} value="1.0.0" />
               <AboutLink icon={Shield} label={labels.about.privacy} href="/privacy" />
@@ -1120,7 +1212,7 @@ export function UserSettingsClient({
             </div>
           </SectionCard>
 
-          <SectionCard id="actions" title={labels.sections.actions} icon={AlertTriangle}>
+          <SectionCard id="actions" title={labels.sections.actions} icon={AlertTriangle} visible={selectedSection === "actions"}>
             <div className="space-y-3">
               <form action={signOutAction}>
                 <input type="hidden" name="locale" value={locale} />

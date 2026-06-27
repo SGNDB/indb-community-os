@@ -25,6 +25,8 @@ export const defaultUserSettings: UserSettingsRow = {
     level: true,
     badges: true,
     summary: true,
+    donations: false,
+    volunteer: true,
   },
   in_app_notifications: {
     messages: true,

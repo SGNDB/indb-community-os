@@ -77,6 +77,8 @@ export interface UserSettingsRow {
     level: boolean;
     badges: boolean;
     summary: boolean;
+    donations: boolean;
+    volunteer: boolean;
   };
   in_app_notifications: Record<UserNotificationKey, boolean>;
   email_notifications: Record<UserNotificationKey, boolean>;
