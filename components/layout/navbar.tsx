@@ -23,7 +23,7 @@ export async function Navbar({locale}: {locale: string}) {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border/70 bg-background/90 pt-[max(0px,env(safe-area-inset-top))] backdrop-blur-xl">
+    <header data-app-navbar className="sticky top-0 z-30 border-b border-border/70 bg-background/90 pt-[max(0px,env(safe-area-inset-top))] backdrop-blur-xl">
       <div className="mx-auto w-full max-w-7xl px-3 sm:px-4">
         <div className="flex h-12 items-center justify-between gap-1 md:hidden">
           {isLoggedIn ? (

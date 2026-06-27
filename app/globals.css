@@ -147,6 +147,12 @@ html[data-chat-open="true"] [data-mobile-nav] {
   display: none !important;
 }
 
+@media (max-width: 767px) {
+  html[data-chat-open="true"] [data-app-navbar] {
+    display: none !important;
+  }
+}
+
 html[data-chat-open="true"] [data-app-shell] {
   padding-bottom: 0 !important;
 }
