@@ -1,3 +1,16 @@
+alter table public.conversation_participants
+  add column if not exists role text not null default 'member',
+  add column if not exists left_at timestamptz,
+  add column if not exists removed_at timestamptz,
+  add column if not exists removed_by uuid references public.profiles(id) on delete set null;
+
+alter table public.conversation_participants
+  drop constraint if exists conversation_participants_role_check;
+
+alter table public.conversation_participants
+  add constraint conversation_participants_role_check
+    check (role in ('admin', 'member'));
+
 create or replace function public.can_access_conversation(p_conv_id uuid, p_user_id uuid default auth.uid())
 returns boolean
 language sql
