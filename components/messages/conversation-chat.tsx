@@ -1468,12 +1468,10 @@ export function ConversationChat({
                         ) : null}
                       </div>
                       {receiptForMessage ? (
-                        <div className="mt-2 flex justify-end">
-                          <span className="inline-flex items-center rounded-full bg-white/95 px-2 py-0.5 text-[11px] font-bold text-emerald-700 shadow-sm ring-1 ring-emerald-200/80 dark:bg-emerald-400/15 dark:text-emerald-100 dark:ring-emerald-300/30">
-                            {isGroupReceiptMode
-                              ? t("groupChat.seenBy", { count: receiptForMessage.seenByCount })
-                              : t("groupChat.seen")}
-                          </span>
+                        <div className="mt-1 flex justify-end text-[11px] font-semibold text-emerald-600 dark:text-emerald-300">
+                          {isGroupReceiptMode
+                            ? t("groupChat.seenBy", { count: receiptForMessage.seenByCount })
+                            : t("groupChat.seen")}
                         </div>
                       ) : null}
                     </div>
@@ -1483,16 +1481,6 @@ export function ConversationChat({
             );
           })
         )}
-          {typingName && (
-            <div className="mx-auto mt-2 flex w-fit items-center gap-2 rounded-full border border-primary/10 bg-background/95 px-3 py-1.5 text-xs font-medium text-primary shadow-sm">
-              <span className="flex gap-0.5">
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/70" style={{ animationDelay: "0ms" }} />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/70" style={{ animationDelay: "150ms" }} />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/70" style={{ animationDelay: "300ms" }} />
-              </span>
-              <span>{typingName} {t("typing")}</span>
-            </div>
-          )}
           <div ref={bottomRef} className="h-px" />
         </div>
       </div>
@@ -1522,6 +1510,17 @@ export function ConversationChat({
 
           {error && (
             <p className="mb-1.5 text-xs text-destructive">{friendlyError(error, t)}</p>
+          )}
+
+          {typingName && !isReadOnly && (
+            <div className="mx-auto mb-1.5 flex w-full max-w-3xl items-center gap-2 px-1 text-xs font-medium text-primary">
+              <span className="flex gap-0.5">
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/70" style={{ animationDelay: "0ms" }} />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/70" style={{ animationDelay: "150ms" }} />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/70" style={{ animationDelay: "300ms" }} />
+              </span>
+              <span className="truncate">{typingName} {t("typing")}</span>
+            </div>
           )}
 
           {!isReadOnly && (
