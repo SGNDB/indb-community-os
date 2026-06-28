@@ -286,6 +286,7 @@ export function ConversationChat({
   const realtimeChannelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null);
   const realtimeReadyRef = useRef(false);
   const pendingReadReceiptRef = useRef<{ reader_id: string; read_at: string } | null>(null);
+  const initialOpenReadRef = useRef(false);
   const nearBottomRef = useRef(true);
   const viewerTouchStartXRef = useRef<number | null>(null);
   const viewerTouchStartYRef = useRef<number | null>(null);
@@ -337,11 +338,8 @@ export function ConversationChat({
 
     return latest;
   }, [activeOtherParticipants, currentUserId, messages]);
-  const latestIncomingMessageKey = useMemo(() => {
-    const latestIncoming = [...messages]
-      .reverse()
-      .find((message) => message.sender_id !== currentUserId && !message.is_deleted);
-    return latestIncoming?.id ?? null;
+  const hasIncomingMessages = useMemo(() => {
+    return messages.some((message) => message.sender_id !== currentUserId && !message.is_deleted);
   }, [currentUserId, messages]);
 
   useEffect(() => {
@@ -698,23 +696,56 @@ export function ConversationChat({
     };
   }, [applyParticipantReadAt, conversationId, currentUserId, memberFallback, mergeServerMessages]);
 
-  useEffect(() => {
-    if (!latestIncomingMessageKey) return;
+  const markVisibleMessagesRead = useCallback(async () => {
+    if (!hasIncomingMessages) return;
+    if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
 
-    async function markRead() {
-      try {
-        const { markConversationReadAction } = await import("@/app/[locale]/server-actions");
-        const res = await markConversationReadAction(conversationId);
-        if (!res.success || !res.readAt) return;
-        const readAt = res.readAt;
-        applyParticipantReadAt(currentUserId, readAt);
-        sendReadReceipt(readAt);
-      } catch (e) {
-        console.error("markRead error:", e);
-      }
+    try {
+      const { markConversationReadAction } = await import("@/app/[locale]/server-actions");
+      const res = await markConversationReadAction(conversationId);
+      if (!res.success || !res.readAt) return;
+      const readAt = res.readAt;
+      applyParticipantReadAt(currentUserId, readAt);
+      sendReadReceipt(readAt);
+    } catch (e) {
+      console.error("markRead error:", e);
     }
-    markRead();
-  }, [applyParticipantReadAt, conversationId, currentUserId, latestIncomingMessageKey, sendReadReceipt]);
+  }, [applyParticipantReadAt, conversationId, currentUserId, hasIncomingMessages, sendReadReceipt]);
+
+  useEffect(() => {
+    initialOpenReadRef.current = false;
+  }, [conversationId]);
+
+  useEffect(() => {
+    if (initialOpenReadRef.current) return;
+    initialOpenReadRef.current = true;
+    markVisibleMessagesRead();
+  }, [conversationId]);
+
+  useEffect(() => {
+    function handleVisibilityOrFocus() {
+      markVisibleMessagesRead();
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityOrFocus);
+    window.addEventListener("focus", handleVisibilityOrFocus);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
+      window.removeEventListener("focus", handleVisibilityOrFocus);
+    };
+  }, [markVisibleMessagesRead]);
+
+  useEffect(() => {
+    const root = chatRootRef.current;
+    if (!root) return;
+
+    function handleChatInteraction() {
+      markVisibleMessagesRead();
+    }
+
+    root.addEventListener("pointerdown", handleChatInteraction);
+    return () => root.removeEventListener("pointerdown", handleChatInteraction);
+  }, [markVisibleMessagesRead]);
 
   const broadcastTyping = useCallback(() => {
     if (typingBroadcastRef.current) return;
