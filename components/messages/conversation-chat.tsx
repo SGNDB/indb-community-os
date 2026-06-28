@@ -302,13 +302,6 @@ export function ConversationChat({
           readerIds.add(participant.user_id);
         }
       });
-      messages.forEach((reply) => {
-        if (reply.sender_id === currentUserId) return;
-        if (reply.is_deleted) return;
-        if (new Date(reply.created_at).getTime() >= createdAt) {
-          readerIds.add(reply.sender_id);
-        }
-      });
       const readCount = Math.max(readerIds.size, message.read_at ? 1 : 0);
       if (readCount === 0) continue;
       if (!latest || createdAt >= latest.createdAt) {
@@ -318,6 +311,12 @@ export function ConversationChat({
 
     return latest;
   }, [activeOtherParticipants, currentUserId, messages]);
+  const latestIncomingMessageKey = useMemo(() => {
+    const latestIncoming = [...messages]
+      .reverse()
+      .find((message) => message.sender_id !== currentUserId && !message.is_deleted);
+    return latestIncoming?.id ?? null;
+  }, [currentUserId, messages]);
 
   useEffect(() => {
     participantByIdRef.current = participantById;
@@ -659,6 +658,8 @@ export function ConversationChat({
   }, [applyParticipantReadAt, conversationId, currentUserId, memberFallback, mergeServerMessages]);
 
   useEffect(() => {
+    if (!latestIncomingMessageKey) return;
+
     async function markRead() {
       try {
         const { markConversationReadAction } = await import("@/app/[locale]/server-actions");
@@ -671,7 +672,7 @@ export function ConversationChat({
       }
     }
     markRead();
-  }, [applyParticipantReadAt, conversationId, currentUserId, messages.length, sendReadReceipt]);
+  }, [applyParticipantReadAt, conversationId, currentUserId, latestIncomingMessageKey, sendReadReceipt]);
 
   const broadcastTyping = useCallback(() => {
     if (typingBroadcastRef.current) return;
