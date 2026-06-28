@@ -28,7 +28,7 @@ export default async function ConversationPage({
   const isParticipant = conversation.participants.some((p) => p.user_id === user.id);
   if (!isParticipant) notFound();
 
-  const messages = await getConversationMessages(id);
+  const messages = await getConversationMessages(id, 80, user.id);
 
   return (
     <section className="fixed inset-x-0 top-[var(--chat-viewport-top,0px)] bottom-auto z-[60] flex h-[var(--chat-viewport-height,100dvh)] min-h-0 w-full max-w-[100vw] overflow-hidden bg-background [touch-action:pan-y] md:relative md:inset-auto md:z-auto md:h-full md:max-w-none">

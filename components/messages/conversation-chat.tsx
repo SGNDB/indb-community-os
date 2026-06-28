@@ -6,17 +6,22 @@ import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } fro
 import {
   Archive,
   ArrowLeft,
+  Ban,
+  BellOff,
   Camera,
   Check,
   ChevronLeft,
   ChevronRight,
   Copy,
+  FileText,
   Flag,
   ImagePlus,
+  Link2,
   Loader2,
   LogOut,
   MoreVertical,
   Pencil,
+  Search,
   Send,
   Shield,
   Trash2,
@@ -142,6 +147,18 @@ function imageTileClass(count: number, index: number) {
 function imageBubbleWidthClass(count: number) {
   if (count <= 1) return "w-[min(18rem,calc(100vw-5.5rem))] sm:w-80";
   return "w-[min(18rem,calc(100vw-5.5rem))] sm:w-80";
+}
+
+function extractUrls(text: string | null | undefined) {
+  return Array.from(text?.matchAll(/https?:\/\/[^\s<>"')]+/gi) ?? []).map((match) => match[0]);
+}
+
+function isVideoUrl(url: string) {
+  return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(url);
+}
+
+function isImageUrl(url: string) {
+  return /\.(png|jpe?g|webp|gif|avif)(\?.*)?$/i.test(url);
 }
 
 function friendlyError(error: string | null, t: TranslationFn) {
@@ -274,6 +291,8 @@ export function ConversationChat({
   const [messageActionSaving, setMessageActionSaving] = useState(false);
   const [viewerLoaded, setViewerLoaded] = useState(false);
   const [viewerError, setViewerError] = useState(false);
+  const [detailsSearch, setDetailsSearch] = useState("");
+  const [detailsSaving, setDetailsSaving] = useState(false);
 
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingBroadcastRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -292,8 +311,13 @@ export function ConversationChat({
   const viewerTouchStartYRef = useRef<number | null>(null);
 
   const isIdeaGroup = conversationType === "idea";
+  const isDirectConversation = conversationType === "direct";
   const otherParticipant = participants.find((p) => p.user_id !== currentUserId)?.user;
   const otherUserId = otherParticipant?.id;
+  const detailsTitle = isDirectConversation ? displayName(otherParticipant, groupTitle) : groupTitle;
+  const detailsUsername = isDirectConversation
+    ? (otherParticipant?.username ? `@${otherParticipant.username}` : t("groupChat.usernameMissing"))
+    : (ideaTitle ?? groupTitle);
   const currentParticipant = participants.find((p) => p.user_id === currentUserId);
   const isAdmin = currentParticipant?.role === "admin";
   const effectiveMemberCount = participants.length || memberCount || 0;
@@ -341,6 +365,79 @@ export function ConversationChat({
   const hasIncomingMessages = useMemo(() => {
     return messages.some((message) => message.sender_id !== currentUserId && !message.is_deleted);
   }, [currentUserId, messages]);
+  const detailQuery = detailsSearch.trim().toLowerCase();
+  const sharedMedia = useMemo(() => {
+    return messages.flatMap((message) => {
+      if (message.is_deleted) return [];
+      const senderName = displayName(message.sender ?? participantById.get(message.sender_id)?.user, memberFallback);
+      const imageItems = (message.image_urls?.length ? message.image_urls : (message.image_url ? [message.image_url] : []))
+        .map((url, index) => ({
+          type: "image" as const,
+          url,
+          messageId: message.id,
+          senderId: message.sender_id,
+          senderName,
+          createdAt: message.created_at,
+          index,
+        }));
+      const videoItems = extractUrls(message.message)
+        .filter(isVideoUrl)
+        .map((url, index) => ({
+          type: "video" as const,
+          url,
+          messageId: message.id,
+          senderId: message.sender_id,
+          senderName,
+          createdAt: message.created_at,
+          index,
+        }));
+      return [...imageItems, ...videoItems];
+    });
+  }, [memberFallback, messages, participantById]);
+  const visibleMedia = useMemo(() => {
+    if (!detailQuery) return sharedMedia;
+    return sharedMedia.filter((item) =>
+      item.senderName.toLowerCase().includes(detailQuery) ||
+      item.url.toLowerCase().includes(detailQuery)
+    );
+  }, [detailQuery, sharedMedia]);
+  const sharedLinks = useMemo(() => {
+    return messages.flatMap((message) => {
+      if (message.is_deleted) return [];
+      const senderName = displayName(message.sender ?? participantById.get(message.sender_id)?.user, memberFallback);
+      return extractUrls(message.message)
+        .filter((url) => !isImageUrl(url) && !isVideoUrl(url))
+        .map((url) => ({
+          url,
+          messageId: message.id,
+          senderName,
+          createdAt: message.created_at,
+          host: (() => {
+            try { return new URL(url).host; } catch { return url; }
+          })(),
+        }));
+    });
+  }, [memberFallback, messages, participantById]);
+  const visibleLinks = useMemo(() => {
+    if (!detailQuery) return sharedLinks;
+    return sharedLinks.filter((item) =>
+      item.url.toLowerCase().includes(detailQuery) ||
+      item.host.toLowerCase().includes(detailQuery) ||
+      item.senderName.toLowerCase().includes(detailQuery)
+    );
+  }, [detailQuery, sharedLinks]);
+  const searchResults = useMemo(() => {
+    if (!detailQuery) return [];
+    return messages.filter((message) => {
+      if (message.is_deleted) return false;
+      const senderName = displayName(message.sender ?? participantById.get(message.sender_id)?.user, memberFallback);
+      return (message.message ?? "").toLowerCase().includes(detailQuery) ||
+        senderName.toLowerCase().includes(detailQuery) ||
+        extractUrls(message.message).some((url) => url.toLowerCase().includes(detailQuery));
+    }).slice(-20).reverse();
+  }, [detailQuery, memberFallback, messages, participantById]);
+  const mediaImages = useMemo(() => sharedMedia.filter((item) => item.type === "image").map((item) => item.url), [sharedMedia]);
+  const videoCount = sharedMedia.filter((item) => item.type === "video").length;
 
   useEffect(() => {
     participantByIdRef.current = participantById;
@@ -1171,11 +1268,102 @@ export function ConversationChat({
     }
   }
 
+  async function handleMuteConversation(option: "1h" | "8h" | "1w" | "forever") {
+    setDetailsSaving(true);
+    setError(null);
+    try {
+      const { muteConversationAction } = await import("@/app/[locale]/server-actions");
+      const res = await muteConversationAction(conversationId, option);
+      if (!res.success) setError(res.error ?? "update_failed");
+    } catch (e) {
+      console.error("mute conversation error:", e);
+      setError("update_failed");
+    } finally {
+      setDetailsSaving(false);
+    }
+  }
+
+  async function handleBlockUser() {
+    if (!isDirectConversation || !window.confirm(t("groupChat.confirmBlock"))) return;
+    setDetailsSaving(true);
+    setError(null);
+    try {
+      const { blockConversationUserAction } = await import("@/app/[locale]/server-actions");
+      const res = await blockConversationUserAction(conversationId);
+      if (!res.success) setError(res.error ?? "update_failed");
+    } catch (e) {
+      console.error("block user error:", e);
+      setError("update_failed");
+    } finally {
+      setDetailsSaving(false);
+    }
+  }
+
+  async function handleReportUser() {
+    const reason = window.prompt(t("groupChat.reportReasonPrompt"), "other");
+    if (!reason) return;
+    setDetailsSaving(true);
+    setError(null);
+    try {
+      const { reportConversationUserAction } = await import("@/app/[locale]/server-actions");
+      const res = await reportConversationUserAction(conversationId, reason);
+      if (!res.success) setError(res.error ?? "report_failed");
+    } catch (e) {
+      console.error("report user error:", e);
+      setError("report_failed");
+    } finally {
+      setDetailsSaving(false);
+    }
+  }
+
+  async function handleClearConversation() {
+    if (!window.confirm(t("groupChat.confirmClear"))) return;
+    setDetailsSaving(true);
+    setError(null);
+    try {
+      const { clearConversationAction } = await import("@/app/[locale]/server-actions");
+      const res = await clearConversationAction(conversationId);
+      if (!res.success) {
+        setError(res.error ?? "update_failed");
+        return;
+      }
+      setMessages([]);
+      setDetailsSearch("");
+    } catch (e) {
+      console.error("clear conversation error:", e);
+      setError("update_failed");
+    } finally {
+      setDetailsSaving(false);
+    }
+  }
+
+  async function handleDeleteConversation() {
+    if (!window.confirm(t("groupChat.confirmDeleteConversation"))) return;
+    setDetailsSaving(true);
+    setError(null);
+    try {
+      const { deleteConversationForMeAction } = await import("@/app/[locale]/server-actions");
+      const res = await deleteConversationForMeAction(conversationId);
+      if (!res.success) {
+        setError(res.error ?? "delete_failed");
+        return;
+      }
+      router.push("/messages");
+    } catch (e) {
+      console.error("delete conversation error:", e);
+      setError("delete_failed");
+    } finally {
+      setDetailsSaving(false);
+    }
+  }
+
   const headerSubtitle = isIdeaGroup
     ? `${t("groupChat.memberCount", { count: effectiveMemberCount })} - ${statusLabel(localIdeaStatus, t)}`
-    : t("groupChat.memberCount", { count: effectiveMemberCount });
+    : isDirectConversation
+      ? t("groupChat.onlineNow")
+      : t("groupChat.memberCount", { count: effectiveMemberCount });
   const readOnlyMessage = isCompleted ? t("groupChat.closedAfterCompletion") : t("groupChat.readOnlyNotice");
-  const groupTypeLabel = isIdeaGroup ? t("idea") : t("groupChat.gar3tak");
+  const groupTypeLabel = isIdeaGroup ? t("idea") : isDirectConversation ? t("groupChat.directChat") : t("groupChat.gar3tak");
   const groupStatusLabel = isIdeaGroup
     ? statusLabel(localIdeaStatus, t)
     : isReadOnly
@@ -1201,8 +1389,8 @@ export function ConversationChat({
             aria-label={t("groupChat.groupInfo")}
           >
             <ConversationAvatar
-              title={groupTitle}
-              imageUrl={groupImageUrl}
+              title={detailsTitle}
+              imageUrl={isDirectConversation ? otherParticipant?.avatar_url ?? null : groupImageUrl}
               participants={participants}
               isGroup={isIdeaGroup}
               memberFallback={memberFallback}
@@ -1210,7 +1398,7 @@ export function ConversationChat({
               className="h-9 w-9 md:h-10 md:w-10"
             />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[15px] font-semibold leading-tight text-foreground">{groupTitle}</p>
+              <p className="truncate text-[15px] font-semibold leading-tight text-foreground">{detailsTitle}</p>
               <p className="mt-0.5 truncate text-xs text-muted-foreground">{headerSubtitle}</p>
             </div>
           </button>
@@ -1576,11 +1764,12 @@ export function ConversationChat({
               >
                 <ArrowLeft size={20} />
               </button>
-              <p className="min-w-0 flex-1 truncate text-base font-semibold">{t("groupChat.groupInfo")}</p>
+              <p className="min-w-0 flex-1 truncate text-base font-semibold">{t("groupChat.detailsTitle")}</p>
             </div>
 
             <div className="flex-1 overflow-y-auto px-3 py-4 md:px-5 md:py-6">
-              <div className="mx-auto w-full max-w-[520px] space-y-4">
+              <div className="mx-auto grid w-full max-w-6xl gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+                <div className="space-y-4">
                 <section className="rounded-lg border border-border/70 bg-card px-4 py-5 text-center shadow-sm">
                   <div className="relative mx-auto h-28 w-28">
                     {isIdeaGroup && isAdmin ? (
@@ -1605,8 +1794,8 @@ export function ConversationChat({
                       </button>
                     ) : (
                       <ConversationAvatar
-                        title={groupTitle}
-                        imageUrl={groupImageUrl}
+                        title={detailsTitle}
+                        imageUrl={isDirectConversation ? otherParticipant?.avatar_url ?? null : groupImageUrl}
                         participants={participants}
                         isGroup={isIdeaGroup}
                         memberFallback={memberFallback}
@@ -1658,7 +1847,7 @@ export function ConversationChat({
                       </div>
                     ) : (
                       <div className="flex items-center justify-center gap-2">
-                        <h2 className="min-w-0 truncate text-xl font-semibold tracking-tight text-foreground">{groupTitle}</h2>
+                        <h2 className="min-w-0 truncate text-xl font-semibold tracking-tight text-foreground">{detailsTitle}</h2>
                         {isIdeaGroup && isAdmin && (
                           <button
                             type="button"
@@ -1686,6 +1875,11 @@ export function ConversationChat({
                     <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
                       {t("groupChat.memberCount", { count: effectiveMemberCount })}
                     </span>
+                  </div>
+                  <div className="mt-3 space-y-1 text-sm text-muted-foreground">
+                    <p>{detailsUsername}</p>
+                    <p>{isDirectConversation ? t("groupChat.onlineNow") : `${t("groupChat.createdDate")}: ${new Date(conversationId ? participants[0]?.created_at ?? Date.now() : Date.now()).toLocaleDateString()}`}</p>
+                    <p>{t("groupChat.communityLevel")}: 1</p>
                   </div>
                 </section>
 
@@ -1786,6 +1980,134 @@ export function ConversationChat({
                     {t("groupChat.leaveGroup")}
                   </button>
                 )}
+                <section className="rounded-lg border border-border/70 bg-card p-3 shadow-sm">
+                  <p className="mb-2 text-sm font-semibold text-foreground">{t("groupChat.muteConversation")}</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {([
+                      ["1h", t("groupChat.mute1h")],
+                      ["8h", t("groupChat.mute8h")],
+                      ["1w", t("groupChat.mute1w")],
+                      ["forever", t("groupChat.muteForever")],
+                    ] as const).map(([option, label]) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => handleMuteConversation(option)}
+                        disabled={detailsSaving}
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-border/70 px-3 text-xs font-semibold text-muted-foreground transition hover:bg-muted disabled:opacity-50"
+                      >
+                        <BellOff size={14} />
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="space-y-2">
+                  {isDirectConversation && (
+                    <>
+                      <button type="button" onClick={handleBlockUser} disabled={detailsSaving} className="flex w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 bg-card px-3 py-2.5 text-sm font-semibold text-destructive transition hover:bg-destructive/10 disabled:opacity-50">
+                        <Ban size={16} />
+                        {t("groupChat.blockUser")}
+                      </button>
+                      <button type="button" onClick={handleReportUser} disabled={detailsSaving} className="flex w-full items-center justify-center gap-2 rounded-lg border border-amber-300/50 bg-card px-3 py-2.5 text-sm font-semibold text-amber-700 transition hover:bg-amber-50 disabled:opacity-50 dark:text-amber-300 dark:hover:bg-amber-950/30">
+                        <Flag size={16} />
+                        {t("groupChat.reportUser")}
+                      </button>
+                    </>
+                  )}
+                  <button type="button" onClick={handleClearConversation} disabled={detailsSaving} className="flex w-full items-center justify-center gap-2 rounded-lg border border-border/70 bg-card px-3 py-2.5 text-sm font-semibold text-muted-foreground transition hover:bg-muted disabled:opacity-50">
+                    <Trash2 size={16} />
+                    {t("groupChat.clearChat")}
+                  </button>
+                  <button type="button" onClick={handleDeleteConversation} disabled={detailsSaving} className="flex w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 bg-card px-3 py-2.5 text-sm font-semibold text-destructive transition hover:bg-destructive/10 disabled:opacity-50">
+                    <Trash2 size={16} />
+                    {t("groupChat.deleteConversation")}
+                  </button>
+                </section>
+                </div>
+
+                <div className="space-y-4">
+                  <section className="rounded-lg border border-border/70 bg-card p-3 shadow-sm">
+                    <div className="relative">
+                      <Search className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+                      <input
+                        value={detailsSearch}
+                        onChange={(event) => setDetailsSearch(event.target.value)}
+                        placeholder={t("groupChat.searchConversation")}
+                        className="min-h-11 w-full rounded-full border border-border/70 bg-background px-9 text-sm outline-none transition focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+                      />
+                    </div>
+                    {detailQuery && (
+                      <div className="mt-3 space-y-2">
+                        <p className="text-xs font-semibold uppercase text-muted-foreground">{t("groupChat.searchResults")}</p>
+                        {searchResults.length === 0 ? (
+                          <p className="text-sm text-muted-foreground">{t("groupChat.noSearchResults")}</p>
+                        ) : (
+                          searchResults.map((message) => (
+                            <div key={message.id} className="rounded-lg bg-muted/50 px-3 py-2 text-sm">
+                              <p className="font-medium text-foreground">{displayName(message.sender, memberFallback)}</p>
+                              <p className="mt-0.5 line-clamp-2 text-muted-foreground">{message.message || t("groupChat.image")}</p>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </section>
+
+                  <section className="rounded-lg border border-border/70 bg-card p-3 shadow-sm">
+                    <div className="mb-3 flex items-center justify-between gap-2">
+                      <h3 className="text-sm font-semibold text-foreground">{t("groupChat.mediaTitle")}</h3>
+                      <div className="flex gap-2 text-xs text-muted-foreground">
+                        <span>{t("groupChat.photosCount", { count: sharedMedia.length - videoCount })}</span>
+                        <span>{t("groupChat.videosCount", { count: videoCount })}</span>
+                      </div>
+                    </div>
+                    {visibleMedia.length === 0 ? (
+                      <p className="rounded-lg bg-muted/40 px-3 py-6 text-center text-sm text-muted-foreground">{t("groupChat.noMedia")}</p>
+                    ) : (
+                      <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4">
+                        {visibleMedia.slice(0, 24).map((item, index) => (
+                          <button
+                            key={`${item.messageId}-${item.index}-${item.url}`}
+                            type="button"
+                            onClick={() => item.type === "image" ? openViewer(mediaImages, Math.max(0, mediaImages.indexOf(item.url))) : window.open(item.url, "_blank", "noopener,noreferrer")}
+                            className="group relative aspect-square overflow-hidden rounded-lg bg-muted"
+                          >
+                            {item.type === "image" ? (
+                              <img src={item.url} alt="" loading="lazy" className="h-full w-full object-cover transition group-hover:scale-105" />
+                            ) : (
+                              <video src={item.url} className="h-full w-full object-cover" muted />
+                            )}
+                            <span className="absolute inset-x-0 bottom-0 bg-black/45 px-1 py-0.5 text-[10px] text-white">{formatTime(item.createdAt)}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+
+                  <section className="rounded-lg border border-border/70 bg-card p-3 shadow-sm">
+                    <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground"><FileText size={16} />{t("groupChat.filesTitle")}</h3>
+                    <p className="rounded-lg bg-muted/40 px-3 py-4 text-sm text-muted-foreground">{t("groupChat.documentsFuture")}</p>
+                  </section>
+
+                  <section className="rounded-lg border border-border/70 bg-card p-3 shadow-sm">
+                    <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground"><Link2 size={16} />{t("groupChat.linksTitle")}</h3>
+                    {visibleLinks.length === 0 ? (
+                      <p className="rounded-lg bg-muted/40 px-3 py-4 text-sm text-muted-foreground">{t("groupChat.noLinks")}</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {visibleLinks.slice(0, 12).map((link) => (
+                          <a key={`${link.messageId}-${link.url}`} href={link.url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border/60 px-3 py-2 transition hover:bg-muted">
+                            <p className="truncate text-sm font-semibold text-foreground">{link.host}</p>
+                            <p className="truncate text-xs text-muted-foreground">{link.url}</p>
+                            <p className="mt-1 text-[11px] text-muted-foreground">{link.senderName} - {formatTime(link.createdAt)}</p>
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+                </div>
               </div>
             </div>
           </div>

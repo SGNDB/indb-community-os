@@ -183,7 +183,18 @@ export async function getUserConversations(userId: string): Promise<Conversation
     return [];
   }
 
-  const conversations = ((data ?? []) as Record<string, unknown>[]).map(mapInboxRow);
+  let conversations = ((data ?? []) as Record<string, unknown>[]).map(mapInboxRow);
+  const { data: hiddenStates, error: hiddenError } = await supabase
+    .from('conversation_user_states')
+    .select('conversation_id')
+    .eq('user_id', userId)
+    .not('deleted_at', 'is', null);
+
+  if (!hiddenError && hiddenStates?.length) {
+    const hiddenIds = new Set(hiddenStates.map((state) => state.conversation_id));
+    conversations = conversations.filter((conversation) => !hiddenIds.has(conversation.id));
+  }
+
   const ideaIdsNeedingImages = conversations
     .filter((conversation) => conversation.type === 'idea' && !conversation.image_url && conversation.idea_id)
     .map((conversation) => conversation.idea_id as string);
@@ -383,15 +394,37 @@ export async function getConversationById(
 export async function getConversationMessages(
   conversationId: string,
   limit = 80,
+  userId?: string,
 ): Promise<ConversationMessageWithSender[]> {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  let clearedAt: string | null = null;
+  if (userId) {
+    const { data: userState, error: stateError } = await supabase
+      .from('conversation_user_states')
+      .select('cleared_at, deleted_at')
+      .eq('conversation_id', conversationId)
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (!stateError) {
+      if (userState?.deleted_at) return [];
+      clearedAt = userState?.cleared_at ?? null;
+    }
+  }
+
+  let query = supabase
     .from('conversation_messages')
     .select('*, sender:sender_id(id, username, full_name, avatar_url)')
     .eq('conversation_id', conversationId)
     .order('created_at', { ascending: false })
     .limit(limit);
+
+  if (clearedAt) {
+    query = query.gt('created_at', clearedAt);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error('getConversationMessages error:', error);
@@ -429,6 +462,10 @@ export async function sendConversationMessage(
   },
 ): Promise<{ id: string; created_at: string } | null> {
   const supabase = await createClient();
+  if (await isConversationBlockedForSender(conversationId, senderId)) {
+    console.error('sendConversationMessage blocked');
+    return null;
+  }
   const isTextInput = typeof input === 'string';
   const messageType = isTextInput ? 'text' : input.messageType ?? (input.imageUrl ? 'image' : 'text');
   const message = (isTextInput ? input : input.message ?? '').trim();
@@ -578,6 +615,149 @@ export async function markConversationRead(
     .is('read_at', null);
 
   return readAt;
+}
+
+async function isConversationBlockedForSender(conversationId: string, senderId: string): Promise<boolean> {
+  const userClient = await createClient();
+  const client = createAdminClient() ?? userClient;
+
+  const { data: conversation, error: conversationError } = await client
+    .from('conversations')
+    .select('id, type')
+    .eq('id', conversationId)
+    .maybeSingle();
+
+  if (conversationError || conversation?.type !== 'direct') return false;
+
+  const { data: participants, error: participantsError } = await client
+    .from('conversation_participants')
+    .select('user_id, left_at, removed_at')
+    .eq('conversation_id', conversationId);
+
+  if (participantsError) return false;
+  const other = (participants ?? []).find((participant) =>
+    participant.user_id !== senderId && !participant.left_at && !participant.removed_at
+  );
+  if (!other?.user_id) return false;
+
+  const { data: blocks, error: blockError } = await client
+    .from('blocked_users')
+    .select('blocker_id')
+    .or(`and(blocker_id.eq.${senderId},blocked_id.eq.${other.user_id}),and(blocker_id.eq.${other.user_id},blocked_id.eq.${senderId})`)
+    .limit(1);
+
+  if (blockError) return false;
+  return (blocks ?? []).length > 0;
+}
+
+async function upsertConversationUserState(
+  conversationId: string,
+  userId: string,
+  state: {
+    cleared_at?: string | null;
+    deleted_at?: string | null;
+    muted_until?: string | null;
+    mute_forever?: boolean;
+  },
+): Promise<boolean> {
+  const supabase = await createClient();
+  const conversation = await getConversationById(conversationId, userId);
+  if (!conversation) return false;
+
+  const now = new Date().toISOString();
+  const { error } = await supabase
+    .from('conversation_user_states')
+    .upsert({
+      conversation_id: conversationId,
+      user_id: userId,
+      ...state,
+      updated_at: now,
+    }, { onConflict: 'conversation_id,user_id' });
+
+  if (error) {
+    console.error('upsertConversationUserState error:', error);
+    return false;
+  }
+
+  return true;
+}
+
+export async function clearConversationForUser(conversationId: string, userId: string): Promise<boolean> {
+  return upsertConversationUserState(conversationId, userId, {
+    cleared_at: new Date().toISOString(),
+    deleted_at: null,
+  });
+}
+
+export async function deleteConversationForUser(conversationId: string, userId: string): Promise<boolean> {
+  return upsertConversationUserState(conversationId, userId, {
+    deleted_at: new Date().toISOString(),
+  });
+}
+
+export async function muteConversationForUser(
+  conversationId: string,
+  userId: string,
+  option: '1h' | '8h' | '1w' | 'forever',
+): Promise<boolean> {
+  const now = Date.now();
+  const mutedUntil =
+    option === '1h' ? new Date(now + 60 * 60 * 1000).toISOString() :
+    option === '8h' ? new Date(now + 8 * 60 * 60 * 1000).toISOString() :
+    option === '1w' ? new Date(now + 7 * 24 * 60 * 60 * 1000).toISOString() :
+    null;
+
+  return upsertConversationUserState(conversationId, userId, {
+    muted_until: mutedUntil,
+    mute_forever: option === 'forever',
+  });
+}
+
+export async function blockDirectConversationUser(conversationId: string, userId: string): Promise<boolean> {
+  const conversation = await getConversationById(conversationId, userId);
+  if (!conversation || conversation.type !== 'direct') return false;
+  const other = conversation.participants.find((participant) => participant.user_id !== userId);
+  if (!other?.user_id) return false;
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('blocked_users')
+    .upsert({ blocker_id: userId, blocked_id: other.user_id }, { onConflict: 'blocker_id,blocked_id' });
+
+  if (error) {
+    console.error('blockDirectConversationUser error:', error);
+    return false;
+  }
+
+  return true;
+}
+
+export async function reportConversationUser(
+  conversationId: string,
+  reporterId: string,
+  reason: string,
+): Promise<boolean> {
+  const conversation = await getConversationById(conversationId, reporterId);
+  if (!conversation) return false;
+  const reported = conversation.participants.find((participant) => participant.user_id !== reporterId);
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('conversation_user_reports')
+    .upsert({
+      conversation_id: conversationId,
+      reporter_id: reporterId,
+      reported_user_id: reported?.user_id ?? null,
+      reason: reason.trim() || 'other',
+      status: 'pending',
+    }, { onConflict: 'conversation_id,reporter_id,reported_user_id' });
+
+  if (error) {
+    console.error('reportConversationUser error:', error);
+    return false;
+  }
+
+  return true;
 }
 
 export async function searchUserConversations(

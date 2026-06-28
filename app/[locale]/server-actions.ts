@@ -4278,7 +4278,7 @@ export async function getConversationMessagesAction(
   if (!conversation) return { success: false, error: 'not_found' };
   const isParticipant = conversation.participants.some(p => p.user_id === user.id);
   if (!isParticipant) return { success: false, error: 'unauthorized' };
-  const messages = await getConversationMessages(conversationId);
+  const messages = await getConversationMessages(conversationId, 80, user.id);
   return { success: true, conversation, messages };
 }
 
@@ -4533,6 +4533,70 @@ export async function markConversationReadAction(
   const { markConversationRead } = await import('@/lib/data/conversations');
   const readAt = await markConversationRead(conversationId, user.id);
   return { success: true, readAt };
+}
+
+export async function clearConversationAction(
+  conversationId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  const { clearConversationForUser } = await import('@/lib/data/conversations');
+  const ok = await clearConversationForUser(conversationId, user.id);
+  if (!ok) return { success: false, error: 'update_failed' };
+  revalidatePath('/messages');
+  return { success: true };
+}
+
+export async function deleteConversationForMeAction(
+  conversationId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  const { deleteConversationForUser } = await import('@/lib/data/conversations');
+  const ok = await deleteConversationForUser(conversationId, user.id);
+  if (!ok) return { success: false, error: 'delete_failed' };
+  revalidatePath('/messages');
+  return { success: true };
+}
+
+export async function muteConversationAction(
+  conversationId: string,
+  option: '1h' | '8h' | '1w' | 'forever',
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  const { muteConversationForUser } = await import('@/lib/data/conversations');
+  const ok = await muteConversationForUser(conversationId, user.id, option);
+  if (!ok) return { success: false, error: 'update_failed' };
+  return { success: true };
+}
+
+export async function blockConversationUserAction(
+  conversationId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  const { blockDirectConversationUser } = await import('@/lib/data/conversations');
+  const ok = await blockDirectConversationUser(conversationId, user.id);
+  if (!ok) return { success: false, error: 'update_failed' };
+  return { success: true };
+}
+
+export async function reportConversationUserAction(
+  conversationId: string,
+  reason: string,
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  const { reportConversationUser } = await import('@/lib/data/conversations');
+  const ok = await reportConversationUser(conversationId, user.id, reason);
+  if (!ok) return { success: false, error: 'report_failed' };
+  return { success: true };
 }
 
 export async function editConversationMessageAction(
