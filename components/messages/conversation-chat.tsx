@@ -101,7 +101,7 @@ function isMatchingOptimisticMessage(
   optimistic: ConversationMessageWithSender,
   confirmed: ConversationMessageWithSender,
 ) {
-  if (!optimistic.id.startsWith("optimistic-")) return false;
+  if (!isLocalMessage(optimistic.id) || isFailedMessage(optimistic.id)) return false;
   if (optimistic.conversation_id !== confirmed.conversation_id) return false;
   if (optimistic.sender_id !== confirmed.sender_id) return false;
   if ((optimistic.message ?? "") !== (confirmed.message ?? "")) return false;
@@ -113,6 +113,18 @@ function isMatchingOptimisticMessage(
   return Number.isFinite(optimisticTime) && Number.isFinite(confirmedTime)
     ? Math.abs(optimisticTime - confirmedTime) < 60000
     : true;
+}
+
+function isSendingMessage(id: string) {
+  return id.startsWith("optimistic-");
+}
+
+function isFailedMessage(id: string) {
+  return id.startsWith("failed-");
+}
+
+function isLocalMessage(id: string) {
+  return isSendingMessage(id) || isFailedMessage(id);
 }
 
 type TranslationFn = (key: string, values?: Record<string, string | number>) => string;
@@ -271,7 +283,6 @@ export function ConversationChat({
   const [messages, setMessages] = useState(initialMessages);
   const [participants, setParticipants] = useState(initialParticipants);
   const [input, setInput] = useState("");
-  const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [typingName, setTypingName] = useState<string | null>(null);
   const [showGroupInfo, setShowGroupInfo] = useState(false);
@@ -366,7 +377,7 @@ export function ConversationChat({
     let latest: { messageId: string; seenByCount: number; createdAt: number } | null = null;
 
     for (const message of messages) {
-      if (message.sender_id !== currentUserId || message.is_deleted || message.id.startsWith("optimistic-")) continue;
+      if (message.sender_id !== currentUserId || message.is_deleted || isLocalMessage(message.id)) continue;
       const createdAt = new Date(message.created_at).getTime();
       const readerIds = new Set<string>();
       activeOtherParticipants.forEach((participant) => {
@@ -483,15 +494,15 @@ export function ConversationChat({
   const mergeServerMessages = useCallback((serverMessages: ConversationMessageWithSender[]) => {
     const visibleServerMessages = serverMessages.filter((message) => !shouldHideBlockedMessage(message));
     setMessages((prev) => {
-      const unmatchedOptimistic = prev.filter((message) =>
-        message.id.startsWith("optimistic-") &&
+      const unmatchedLocalMessages = prev.filter((message) =>
+        isLocalMessage(message.id) &&
         !visibleServerMessages.some((serverMessage) => isMatchingOptimisticMessage(message, serverMessage))
       );
       const serverById = new Map(visibleServerMessages.map((message) => [message.id, message]));
       const localOnlyMessages = prev.filter((message) =>
-        !message.id.startsWith("optimistic-") && !serverById.has(message.id) && !shouldHideBlockedMessage(message)
+        !isLocalMessage(message.id) && !serverById.has(message.id) && !shouldHideBlockedMessage(message)
       );
-      return [...visibleServerMessages, ...localOnlyMessages, ...unmatchedOptimistic].sort(
+      return [...visibleServerMessages, ...localOnlyMessages, ...unmatchedLocalMessages].sort(
         (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
       );
     });
@@ -925,40 +936,66 @@ export function ConversationChat({
   async function handleSend(e: FormEvent) {
     e.preventDefault();
     const trimmed = input.trim();
-    if ((!trimmed && pendingImages.length === 0) || sending || isReadOnly) return;
+    if ((!trimmed && pendingImages.length === 0) || isReadOnly) return;
     if (isDirectConversation && localBlockedByMe) {
       setError("blocked_send");
       return;
     }
-    const optimisticImages = pendingImages;
+    void sendLocalMessage(trimmed, pendingImages);
+  }
+
+  async function sendLocalMessage(
+    trimmed: string,
+    optimisticImages: { url: string; storagePath: string }[],
+    existingLocalId?: string,
+  ) {
+    if (!trimmed && optimisticImages.length === 0) return;
     const optimisticId = `optimistic-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const optimisticCreatedAt = new Date().toISOString();
-    setSending(true);
+    const localId = existingLocalId ?? optimisticId;
     setError(null);
-    setInput("");
-    setPendingImages([]);
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: optimisticId,
-        conversation_id: conversationId,
-        sender_id: currentUserId,
-        message: trimmed || null,
-        message_type: optimisticImages.length > 0 ? "image" : "text",
-        image_url: optimisticImages[0]?.url ?? null,
-        image_storage_path: optimisticImages[0]?.storagePath ?? null,
-        image_urls: optimisticImages.map((img) => img.url),
-        image_storage_paths: optimisticImages.map((img) => img.storagePath),
-        is_edited: false,
-        edited_at: null,
-        is_deleted: false,
-        deleted_at: null,
-        deleted_by: null,
-        created_at: optimisticCreatedAt,
-        read_at: null,
-        sender: currentParticipant?.user ?? null,
-      },
-    ]);
+    if (!existingLocalId) {
+      setInput("");
+      setPendingImages([]);
+    }
+
+    const optimisticMessage: ConversationMessageWithSender = {
+      id: optimisticId,
+      conversation_id: conversationId,
+      sender_id: currentUserId,
+      message: trimmed || null,
+      message_type: optimisticImages.length > 0 ? "image" : "text",
+      image_url: optimisticImages[0]?.url ?? null,
+      image_storage_path: optimisticImages[0]?.storagePath ?? null,
+      image_urls: optimisticImages.map((img) => img.url),
+      image_storage_paths: optimisticImages.map((img) => img.storagePath),
+      is_edited: false,
+      edited_at: null,
+      is_deleted: false,
+      deleted_at: null,
+      deleted_by: null,
+      created_at: optimisticCreatedAt,
+      read_at: null,
+      sender: currentParticipant?.user ?? null,
+    };
+
+    setMessages((prev) => {
+      if (existingLocalId) {
+        return prev.map((message) =>
+          message.id === existingLocalId
+            ? {
+                ...message,
+                id: optimisticId,
+                created_at: optimisticCreatedAt,
+              }
+            : message,
+        );
+      }
+
+      return [...prev, optimisticMessage];
+    });
+
+    requestAnimationFrame(() => scrollToLatest("smooth"));
 
     const formData = new FormData();
     formData.set("conversationId", conversationId);
@@ -979,7 +1016,7 @@ export function ConversationChat({
 
       if (res.success && res.message) {
         setMessages((prev) => {
-          const withoutOptimistic = prev.filter((m) => m.id !== optimisticId);
+          const withoutOptimistic = prev.filter((m) => m.id !== optimisticId && m.id !== localId);
           if (withoutOptimistic.some((m) => m.id === res.message!.id)) {
             return withoutOptimistic;
           }
@@ -1007,20 +1044,41 @@ export function ConversationChat({
           ];
         });
       } else {
-        setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
-        setInput(trimmed);
-        setPendingImages(optimisticImages);
+        setMessages((prev) => prev.map((m) =>
+          m.id === optimisticId
+            ? {
+                ...m,
+                id: `failed-${optimisticId.slice("optimistic-".length)}`,
+              }
+            : m,
+        ));
         setError(res.error ?? "insert_failed");
       }
     } catch (e) {
       console.error("send error:", e);
-      setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
-      setInput(trimmed);
-      setPendingImages(optimisticImages);
+      setMessages((prev) => prev.map((m) =>
+        m.id === optimisticId
+          ? {
+              ...m,
+              id: `failed-${optimisticId.slice("optimistic-".length)}`,
+            }
+          : m,
+      ));
       setError("insert_failed");
-    } finally {
-      setSending(false);
     }
+  }
+
+  async function retryMessage(message: ConversationMessageWithSender) {
+    if (!isFailedMessage(message.id) || isReadOnly) return;
+    const retryImages = message.image_urls.length
+      ? message.image_urls.map((url, index) => ({
+          url,
+          storagePath: message.image_storage_paths[index] ?? "",
+        }))
+      : message.image_url
+        ? [{ url: message.image_url, storagePath: message.image_storage_path ?? "" }]
+        : [];
+    await sendLocalMessage(message.message ?? "", retryImages, message.id);
   }
 
   function openMessageActions(message: ConversationMessageWithSender) {
@@ -1285,12 +1343,26 @@ export function ConversationChat({
 
   async function handleBlockUser() {
     if (!isDirectConversation || !window.confirm(t("groupChat.confirmBlock"))) return;
-    setDetailsSaving(true);
     setError(null);
+    const previousBlockedByMe = localBlockedByMe;
+    const previousBlockedAt = localBlockedByMeAt;
+    const previousMessages = messages;
+    const optimisticBlockedAt = new Date().toISOString();
+    setLocalBlockedByMe(true);
+    setLocalBlockedByMeAt(optimisticBlockedAt);
+    if (otherUserId) {
+      setMessages((prev) => prev.filter((message) =>
+        !(message.sender_id === otherUserId && new Date(message.created_at).getTime() >= new Date(optimisticBlockedAt).getTime())
+      ));
+    }
+
     try {
       const { blockConversationUserAction } = await import("@/app/[locale]/server-actions");
       const res = await blockConversationUserAction(conversationId);
       if (!res.success) {
+        setLocalBlockedByMe(previousBlockedByMe);
+        setLocalBlockedByMeAt(previousBlockedAt);
+        setMessages(previousMessages);
         setError(res.error ?? "block_failed");
         return;
       }
@@ -1304,31 +1376,36 @@ export function ConversationChat({
       }
     } catch (e) {
       console.error("block user error:", e);
+      setLocalBlockedByMe(previousBlockedByMe);
+      setLocalBlockedByMeAt(previousBlockedAt);
+      setMessages(previousMessages);
       setError("block_failed");
-    } finally {
-      setDetailsSaving(false);
     }
   }
 
   async function handleUnblockUser() {
     if (!isDirectConversation) return;
-    setDetailsSaving(true);
     setError(null);
+    const previousBlockedByMe = localBlockedByMe;
+    const previousBlockedAt = localBlockedByMeAt;
+    setLocalBlockedByMe(false);
+    setLocalBlockedByMeAt(null);
+
     try {
       const { unblockConversationUserAction } = await import("@/app/[locale]/server-actions");
       const res = await unblockConversationUserAction(conversationId);
       if (!res.success) {
+        setLocalBlockedByMe(previousBlockedByMe);
+        setLocalBlockedByMeAt(previousBlockedAt);
         setError(res.error ?? "unblock_failed");
         return;
       }
-      setLocalBlockedByMe(false);
-      setLocalBlockedByMeAt(null);
       setError(null);
     } catch (e) {
       console.error("unblock user error:", e);
+      setLocalBlockedByMe(previousBlockedByMe);
+      setLocalBlockedByMeAt(previousBlockedAt);
       setError("unblock_failed");
-    } finally {
-      setDetailsSaving(false);
     }
   }
 
@@ -1453,9 +1530,11 @@ export function ConversationChat({
             const msgImages = msg.image_urls?.length ? msg.image_urls : (msg.image_url ? [msg.image_url] : []);
             const visibleImages = msgImages.slice(0, visibleImageLimit(msgImages.length));
             const isDeleted = Boolean(msg.is_deleted);
+            const isSendingLocal = isSendingMessage(msg.id);
+            const isFailedLocal = isFailedMessage(msg.id);
             const hasImage = !isDeleted && msgImages.length > 0;
             const isEditing = editingMessageId === msg.id;
-            const canMutate = isMine && !isDeleted && !isReadOnly && !msg.id.startsWith("optimistic-");
+            const canMutate = isMine && !isDeleted && !isReadOnly && !isLocalMessage(msg.id);
             const hasText = Boolean(msg.message?.trim());
             const receiptForMessage = isMine && latestReadReceipt?.messageId === msg.id ? latestReadReceipt : null;
 
@@ -1581,6 +1660,8 @@ export function ConversationChat({
                         isMine
                           ? "rounded-ee-[5px] bg-primary text-primary-foreground"
                           : "rounded-es-[5px] border border-border/50 bg-card text-foreground",
+                        isSendingLocal && "opacity-80",
+                        isFailedLocal && "ring-1 ring-destructive/40",
                       )}
                       dir="auto"
                     >
@@ -1664,7 +1745,24 @@ export function ConversationChat({
                           <span>{t("groupChat.edited")}</span>
                         ) : null}
                       </div>
-                      {receiptForMessage ? (
+                      {isMine && isSendingLocal ? (
+                        <div className="mt-1 flex justify-end text-[10px] font-medium text-muted-foreground">
+                          {t("groupChat.sendingStatus")}
+                        </div>
+                      ) : null}
+                      {isMine && isFailedLocal ? (
+                        <div className="mt-1 flex items-center justify-end gap-2 text-[11px] font-semibold text-destructive">
+                          <span>{t("groupChat.failedStatus")}</span>
+                          <button
+                            type="button"
+                            onClick={() => retryMessage(msg)}
+                            className="rounded-full bg-destructive/10 px-2 py-0.5 transition hover:bg-destructive/15"
+                          >
+                            {t("groupChat.retry")}
+                          </button>
+                        </div>
+                      ) : null}
+                      {receiptForMessage && !isLocalMessage(msg.id) ? (
                         <div className="mt-1 flex justify-end text-[11px] font-semibold text-emerald-600 dark:text-emerald-300">
                           {isGroupReceiptMode
                             ? t("groupChat.seenBy", { count: receiptForMessage.seenByCount })
@@ -1739,7 +1837,7 @@ export function ConversationChat({
               <button
                 type="button"
                 onClick={() => imageInputRef.current?.click()}
-                disabled={imageUploading || sending || composerBlocked}
+                disabled={imageUploading || composerBlocked}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition active:bg-muted disabled:opacity-40 md:h-11 md:w-11 md:hover:bg-muted"
                 aria-label={t("groupChat.sendImage")}
               >
@@ -1757,11 +1855,11 @@ export function ConversationChat({
               />
               <button
                 type="submit"
-                disabled={composerBlocked || (!input.trim() && pendingImages.length === 0) || sending}
+                disabled={composerBlocked || (!input.trim() && pendingImages.length === 0)}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition active:bg-primary/90 disabled:opacity-40 md:h-11 md:w-11 md:hover:bg-primary/90"
                 aria-label={t("groupChat.sendMessage")}
               >
-                {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                <Send size={18} />
               </button>
             </form>
           )}
