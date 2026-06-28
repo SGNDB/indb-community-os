@@ -118,6 +118,11 @@ function imageTileClass(count: number, index: number) {
   return index === 2 ? "col-span-2 aspect-[2/1]" : "aspect-square";
 }
 
+function imageBubbleWidthClass(count: number) {
+  if (count <= 1) return "w-[min(18rem,calc(100vw-5.5rem))] sm:w-80";
+  return "w-[min(18rem,calc(100vw-5.5rem))] sm:w-80";
+}
+
 function friendlyError(error: string | null, t: TranslationFn) {
   if (!error) return null;
   const errorKeys = [
@@ -1055,7 +1060,11 @@ export function ConversationChat({
               if (participant.user_id === currentUserId || !participant.last_read_at) return false;
               return new Date(participant.last_read_at).getTime() >= new Date(msg.created_at).getTime();
             });
-            const hasBeenRead = isMine && (Boolean(msg.read_at) || hasParticipantRead);
+            const hasLaterReply = messages.some((message) => {
+              if (message.sender_id === currentUserId) return false;
+              return new Date(message.created_at).getTime() >= new Date(msg.created_at).getTime();
+            });
+            const hasBeenRead = isMine && (Boolean(msg.read_at) || hasParticipantRead || hasLaterReply);
             const StatusIcon = hasBeenRead ? CheckCheck : Check;
 
             return (
@@ -1175,7 +1184,7 @@ export function ConversationChat({
                       onPointerCancel={cancelLongPress}
                       className={cn(
                         "min-w-[4rem] max-w-full touch-manipulation select-none overflow-hidden break-words rounded-2xl text-[14px] leading-relaxed shadow-sm [overflow-wrap:anywhere] [-webkit-touch-callout:none] [-webkit-user-select:none]",
-                        hasImage && !isEditing ? "p-1.5" : "px-3 py-2 md:px-3.5 md:py-2.5",
+                        hasImage && !isEditing ? cn("p-1.5", imageBubbleWidthClass(msgImages.length)) : "px-3 py-2 md:px-3.5 md:py-2.5",
                         isDeleted && "italic",
                         isMine
                           ? "rounded-ee-[5px] bg-primary text-primary-foreground"
@@ -1186,7 +1195,7 @@ export function ConversationChat({
                       {hasImage && (
                         <div
                           className={cn(
-                            "grid max-w-full gap-1 overflow-hidden rounded-xl",
+                            "grid w-full max-w-full gap-1 overflow-hidden rounded-xl",
                             imageGridClass(msgImages.length),
                           )}
                         >
