@@ -288,18 +288,28 @@ export function ConversationChat({
       !participant.removed_at
     );
   }, [participants, currentUserId]);
-  const isGroupReceiptMode = activeOtherParticipants.length > 1;
+  const isGroupReceiptMode = isIdeaGroup || activeOtherParticipants.length > 1;
   const latestReadReceipt = useMemo(() => {
     let latest: { messageId: string; seenByCount: number; createdAt: number } | null = null;
 
     for (const message of messages) {
       if (message.sender_id !== currentUserId || message.is_deleted || message.id.startsWith("optimistic-")) continue;
       const createdAt = new Date(message.created_at).getTime();
-      const seenByCount = activeOtherParticipants.filter((participant) => {
+      const readerIds = new Set<string>();
+      activeOtherParticipants.forEach((participant) => {
         if (!participant.last_read_at) return false;
-        return new Date(participant.last_read_at).getTime() >= createdAt;
-      }).length;
-      const readCount = Math.max(seenByCount, message.read_at ? 1 : 0);
+        if (new Date(participant.last_read_at).getTime() >= createdAt) {
+          readerIds.add(participant.user_id);
+        }
+      });
+      messages.forEach((reply) => {
+        if (reply.sender_id === currentUserId) return;
+        if (reply.is_deleted) return;
+        if (new Date(reply.created_at).getTime() >= createdAt) {
+          readerIds.add(reply.sender_id);
+        }
+      });
+      const readCount = Math.max(readerIds.size, message.read_at ? 1 : 0);
       if (readCount === 0) continue;
       if (!latest || createdAt >= latest.createdAt) {
         latest = { messageId: message.id, seenByCount: readCount, createdAt };
@@ -345,6 +355,16 @@ export function ConversationChat({
       payload,
     });
   }, [currentUserId]);
+
+  const mergeServerMessages = useCallback((serverMessages: ConversationMessageWithSender[]) => {
+    setMessages((prev) => {
+      const serverById = new Map(serverMessages.map((message) => [message.id, message]));
+      const optimisticMessages = prev.filter((message) => message.id.startsWith("optimistic-") && !serverById.has(message.id));
+      return [...serverMessages, ...optimisticMessages].sort(
+        (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+      );
+    });
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -497,10 +517,12 @@ export function ConversationChat({
 
   useEffect(() => {
     const supabase = createClient();
-    async function refreshConversation() {
+    async function refreshConversation(includeMessages = false) {
       try {
-        const { getConversationDetailsAction } = await import("@/app/[locale]/server-actions");
-        const res = await getConversationDetailsAction(conversationId);
+        const actions = await import("@/app/[locale]/server-actions");
+        const res = includeMessages
+          ? await actions.getConversationMessagesAction(conversationId)
+          : await actions.getConversationDetailsAction(conversationId);
         if (res.success && res.conversation) {
           setParticipants(res.conversation.participants);
           setGroupTitle(res.conversation.title);
@@ -510,6 +532,9 @@ export function ConversationChat({
           setDraftImageStoragePath(res.conversation.image_storage_path);
           setLocalArchived(!!res.conversation.archived_at);
           setLocalIdeaStatus(res.conversation.idea_status);
+          if ("messages" in res && Array.isArray(res.messages)) {
+            mergeServerMessages(res.messages as ConversationMessageWithSender[]);
+          }
         }
       } catch (e) {
         console.error("conversation refresh error:", e);
@@ -526,7 +551,7 @@ export function ConversationChat({
           table: "conversations",
           filter: `id=eq.${conversationId}`,
         },
-        refreshConversation,
+        () => refreshConversation(),
       )
       .on(
         "postgres_changes",
@@ -619,7 +644,7 @@ export function ConversationChat({
       });
 
     realtimeChannelRef.current = channel;
-    const refreshTimer = window.setInterval(refreshConversation, 5000);
+    const refreshTimer = window.setInterval(() => refreshConversation(true), 5000);
 
     return () => {
       window.clearInterval(refreshTimer);
@@ -631,7 +656,7 @@ export function ConversationChat({
       supabase.removeChannel(channel);
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
-  }, [applyParticipantReadAt, conversationId, currentUserId, memberFallback]);
+  }, [applyParticipantReadAt, conversationId, currentUserId, memberFallback, mergeServerMessages]);
 
   useEffect(() => {
     async function markRead() {
