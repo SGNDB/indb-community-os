@@ -7,25 +7,19 @@ import {
   Archive,
   ArrowLeft,
   Ban,
-  BellOff,
-  Camera,
   Check,
   ChevronLeft,
   ChevronRight,
   Copy,
-  FileText,
   Flag,
   ImagePlus,
-  Link2,
   Loader2,
   LogOut,
   MoreVertical,
   Pencil,
-  Search,
   Send,
   Shield,
   Trash2,
-  UserMinus,
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -155,10 +149,6 @@ function extractUrls(text: string | null | undefined) {
 
 function isVideoUrl(url: string) {
   return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(url);
-}
-
-function isImageUrl(url: string) {
-  return /\.(png|jpe?g|webp|gif|avif)(\?.*)?$/i.test(url);
 }
 
 function friendlyError(error: string | null, t: TranslationFn) {
@@ -291,8 +281,9 @@ export function ConversationChat({
   const [messageActionSaving, setMessageActionSaving] = useState(false);
   const [viewerLoaded, setViewerLoaded] = useState(false);
   const [viewerError, setViewerError] = useState(false);
-  const [detailsSearch, setDetailsSearch] = useState("");
   const [detailsSaving, setDetailsSaving] = useState(false);
+  const [showReportSheet, setShowReportSheet] = useState(false);
+  const [reportReason, setReportReason] = useState("spam");
 
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingBroadcastRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -335,6 +326,16 @@ export function ConversationChat({
       !participant.removed_at
     );
   }, [participants, currentUserId]);
+  const detailsParticipants = useMemo(() => {
+    const visible = isDirectConversation
+      ? participants.filter((participant) => participant.user_id !== currentUserId)
+      : participants.filter((participant) => !participant.left_at && !participant.removed_at);
+
+    return [...visible].sort((a, b) => {
+      if (a.role === b.role) return 0;
+      return a.role === "admin" ? -1 : 1;
+    });
+  }, [currentUserId, isDirectConversation, participants]);
   const isGroupReceiptMode = isIdeaGroup || activeOtherParticipants.length > 1;
   const latestReadReceipt = useMemo(() => {
     let latest: { messageId: string; seenByCount: number; createdAt: number } | null = null;
@@ -365,7 +366,6 @@ export function ConversationChat({
   const hasIncomingMessages = useMemo(() => {
     return messages.some((message) => message.sender_id !== currentUserId && !message.is_deleted);
   }, [currentUserId, messages]);
-  const detailQuery = detailsSearch.trim().toLowerCase();
   const sharedMedia = useMemo(() => {
     return messages.flatMap((message) => {
       if (message.is_deleted) return [];
@@ -394,48 +394,6 @@ export function ConversationChat({
       return [...imageItems, ...videoItems];
     });
   }, [memberFallback, messages, participantById]);
-  const visibleMedia = useMemo(() => {
-    if (!detailQuery) return sharedMedia;
-    return sharedMedia.filter((item) =>
-      item.senderName.toLowerCase().includes(detailQuery) ||
-      item.url.toLowerCase().includes(detailQuery)
-    );
-  }, [detailQuery, sharedMedia]);
-  const sharedLinks = useMemo(() => {
-    return messages.flatMap((message) => {
-      if (message.is_deleted) return [];
-      const senderName = displayName(message.sender ?? participantById.get(message.sender_id)?.user, memberFallback);
-      return extractUrls(message.message)
-        .filter((url) => !isImageUrl(url) && !isVideoUrl(url))
-        .map((url) => ({
-          url,
-          messageId: message.id,
-          senderName,
-          createdAt: message.created_at,
-          host: (() => {
-            try { return new URL(url).host; } catch { return url; }
-          })(),
-        }));
-    });
-  }, [memberFallback, messages, participantById]);
-  const visibleLinks = useMemo(() => {
-    if (!detailQuery) return sharedLinks;
-    return sharedLinks.filter((item) =>
-      item.url.toLowerCase().includes(detailQuery) ||
-      item.host.toLowerCase().includes(detailQuery) ||
-      item.senderName.toLowerCase().includes(detailQuery)
-    );
-  }, [detailQuery, sharedLinks]);
-  const searchResults = useMemo(() => {
-    if (!detailQuery) return [];
-    return messages.filter((message) => {
-      if (message.is_deleted) return false;
-      const senderName = displayName(message.sender ?? participantById.get(message.sender_id)?.user, memberFallback);
-      return (message.message ?? "").toLowerCase().includes(detailQuery) ||
-        senderName.toLowerCase().includes(detailQuery) ||
-        extractUrls(message.message).some((url) => url.toLowerCase().includes(detailQuery));
-    }).slice(-20).reverse();
-  }, [detailQuery, memberFallback, messages, participantById]);
   const mediaImages = useMemo(() => sharedMedia.filter((item) => item.type === "image").map((item) => item.url), [sharedMedia]);
   const videoCount = sharedMedia.filter((item) => item.type === "video").length;
 
@@ -1268,21 +1226,6 @@ export function ConversationChat({
     }
   }
 
-  async function handleMuteConversation(option: "1h" | "8h" | "1w" | "forever") {
-    setDetailsSaving(true);
-    setError(null);
-    try {
-      const { muteConversationAction } = await import("@/app/[locale]/server-actions");
-      const res = await muteConversationAction(conversationId, option);
-      if (!res.success) setError(res.error ?? "update_failed");
-    } catch (e) {
-      console.error("mute conversation error:", e);
-      setError("update_failed");
-    } finally {
-      setDetailsSaving(false);
-    }
-  }
-
   async function handleBlockUser() {
     if (!isDirectConversation || !window.confirm(t("groupChat.confirmBlock"))) return;
     setDetailsSaving(true);
@@ -1299,39 +1242,20 @@ export function ConversationChat({
     }
   }
 
-  async function handleReportUser() {
-    const reason = window.prompt(t("groupChat.reportReasonPrompt"), "other");
-    if (!reason) return;
+  async function submitConversationReport() {
     setDetailsSaving(true);
     setError(null);
     try {
       const { reportConversationUserAction } = await import("@/app/[locale]/server-actions");
-      const res = await reportConversationUserAction(conversationId, reason);
-      if (!res.success) setError(res.error ?? "report_failed");
+      const res = await reportConversationUserAction(conversationId, reportReason);
+      if (!res.success) {
+        setError(res.error ?? "report_failed");
+        return;
+      }
+      setShowReportSheet(false);
     } catch (e) {
       console.error("report user error:", e);
       setError("report_failed");
-    } finally {
-      setDetailsSaving(false);
-    }
-  }
-
-  async function handleClearConversation() {
-    if (!window.confirm(t("groupChat.confirmClear"))) return;
-    setDetailsSaving(true);
-    setError(null);
-    try {
-      const { clearConversationAction } = await import("@/app/[locale]/server-actions");
-      const res = await clearConversationAction(conversationId);
-      if (!res.success) {
-        setError(res.error ?? "update_failed");
-        return;
-      }
-      setMessages([]);
-      setDetailsSearch("");
-    } catch (e) {
-      console.error("clear conversation error:", e);
-      setError("update_failed");
     } finally {
       setDetailsSaving(false);
     }
@@ -1363,13 +1287,6 @@ export function ConversationChat({
       ? t("groupChat.onlineNow")
       : t("groupChat.memberCount", { count: effectiveMemberCount });
   const readOnlyMessage = isCompleted ? t("groupChat.closedAfterCompletion") : t("groupChat.readOnlyNotice");
-  const groupTypeLabel = isIdeaGroup ? t("idea") : isDirectConversation ? t("groupChat.directChat") : t("groupChat.gar3tak");
-  const groupStatusLabel = isIdeaGroup
-    ? statusLabel(localIdeaStatus, t)
-    : isReadOnly
-      ? t("groupChat.readOnly")
-      : t("groupChat.active");
-  const canSaveName = draftTitle.trim().length >= 2 && draftTitle.trim() !== groupTitle;
 
   return (
     <div ref={chatRootRef} className="relative flex h-full min-h-0 w-full max-w-full flex-col overflow-hidden bg-background overscroll-contain [touch-action:pan-y]">
@@ -1753,13 +1670,13 @@ export function ConversationChat({
       )}
 
       {showGroupInfo && (
-        <div className="absolute inset-0 z-30 flex bg-background md:bg-muted/25">
-          <div className="flex h-full w-full flex-col">
-            <div className="flex min-h-[56px] items-center gap-2 border-b border-border/70 bg-card/95 px-3 shadow-sm backdrop-blur">
+        <div className="absolute inset-0 z-30 flex bg-background">
+          <div className="flex h-full w-full flex-col overflow-hidden">
+            <div className="flex min-h-[56px] shrink-0 items-center gap-2 border-b border-border/70 bg-card/95 px-3 pt-[max(0px,var(--safe-top))] shadow-sm backdrop-blur">
               <button
                 type="button"
                 onClick={() => setShowGroupInfo(false)}
-                className="flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted"
                 aria-label={t("groupChat.close")}
               >
                 <ArrowLeft size={20} />
@@ -1767,32 +1684,11 @@ export function ConversationChat({
               <p className="min-w-0 flex-1 truncate text-base font-semibold">{t("groupChat.detailsTitle")}</p>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-3 py-4 md:px-5 md:py-6">
-              <div className="mx-auto grid w-full max-w-6xl gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+            <div className="flex-1 overflow-y-auto px-3 py-4 pb-[calc(1rem+var(--safe-bottom))] md:px-6 md:py-6">
+              <div className="mx-auto grid w-full max-w-5xl gap-5 lg:grid-cols-[minmax(260px,0.85fr)_minmax(0,1.15fr)]">
                 <div className="space-y-4">
-                <section className="rounded-lg border border-border/70 bg-card px-4 py-5 text-center shadow-sm">
-                  <div className="relative mx-auto h-28 w-28">
-                    {isIdeaGroup && isAdmin ? (
-                      <button
-                        type="button"
-                        onClick={() => groupImageInputRef.current?.click()}
-                        disabled={groupImageUploading || profileSaving}
-                        className="group relative block h-28 w-28 rounded-full outline-none ring-primary/30 transition focus-visible:ring-2 disabled:opacity-70"
-                        aria-label={t("groupChat.changeImage")}
-                      >
-                        <ConversationAvatar
-                          title={draftTitle}
-                          imageUrl={draftImageUrl}
-                          participants={participants}
-                          isGroup={isIdeaGroup}
-                          memberFallback={memberFallback}
-                          className="h-28 w-28"
-                        />
-                        <span className="absolute inset-x-0 bottom-0 flex h-10 items-center justify-center rounded-b-full bg-black/55 text-white opacity-100 transition group-hover:bg-black/65">
-                          {groupImageUploading ? <Loader2 size={18} className="animate-spin" /> : <Camera size={18} />}
-                        </span>
-                      </button>
-                    ) : (
+                  <section className="rounded-2xl border border-border/70 bg-card px-4 py-6 text-center shadow-sm">
+                    <div className="mx-auto h-28 w-28">
                       <ConversationAvatar
                         title={detailsTitle}
                         imageUrl={isDirectConversation ? otherParticipant?.avatar_url ?? null : groupImageUrl}
@@ -1801,314 +1697,186 @@ export function ConversationChat({
                         memberFallback={memberFallback}
                         className="h-28 w-28"
                       />
-                    )}
-                  </div>
-                  <input
-                    ref={groupImageInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    className="hidden"
-                    onChange={(event) => handleGroupImagePick(event.target.files?.[0])}
-                  />
-
-                  <div className="mt-4">
-                    {isRenaming && isIdeaGroup && isAdmin ? (
-                      <div className="mx-auto max-w-sm">
-                        <input
-                          value={draftTitle}
-                          onChange={(event) => setDraftTitle(event.target.value)}
-                          maxLength={120}
-                          autoFocus
-                          className="min-h-11 w-full rounded-lg border border-border/70 bg-background px-3 text-center text-base font-semibold outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
-                        />
-                        <div className="mt-2 flex items-center justify-center gap-2">
-                          <button
-                            type="button"
-                            onClick={handleCancelRename}
-                            disabled={profileSaving}
-                            className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-border px-3 text-xs font-medium text-muted-foreground transition hover:bg-muted disabled:opacity-50"
-                          >
-                            <X size={14} />
-                            {t("groupChat.cancel")}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleSaveProfile}
-                            disabled={!canSaveName || profileSaving}
-                            className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-primary px-3 text-xs font-medium text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
-                          >
-                            {profileSaving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                            {t("groupChat.save")}
-                          </button>
-                        </div>
-                        {draftTitle.trim().length < 2 && (
-                          <p className="mt-2 text-xs text-destructive">{t("groupChat.errors.name_too_short")}</p>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center gap-2">
-                        <h2 className="min-w-0 truncate text-xl font-semibold tracking-tight text-foreground">{detailsTitle}</h2>
-                        {isIdeaGroup && isAdmin && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setDraftTitle(groupTitle);
-                              setIsRenaming(true);
-                            }}
-                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                            aria-label={t("groupChat.editName")}
-                          >
-                            <Pencil size={15} />
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-                      {groupTypeLabel}
-                    </span>
-                    <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                      {groupStatusLabel}
-                    </span>
-                    <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                      {t("groupChat.memberCount", { count: effectiveMemberCount })}
-                    </span>
-                  </div>
-                  <div className="mt-3 space-y-1 text-sm text-muted-foreground">
-                    <p>{detailsUsername}</p>
-                    <p>{isDirectConversation ? t("groupChat.onlineNow") : `${t("groupChat.createdDate")}: ${new Date(conversationId ? participants[0]?.created_at ?? Date.now() : Date.now()).toLocaleDateString()}`}</p>
-                    <p>{t("groupChat.communityLevel")}: 1</p>
-                  </div>
-                </section>
-
-                {error && (
-                  <p className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                    {friendlyError(error, t)}
-                  </p>
-                )}
-
-                {isIdeaGroup && (
-                  <section className="rounded-lg border border-border/70 bg-card p-3 shadow-sm">
-                    <p className="text-xs font-medium text-muted-foreground">{t("groupChat.ideaTitleLabel")}</p>
-                    <p className="mt-1 text-sm font-medium text-foreground">{ideaTitle ?? groupTitle}</p>
-                  </section>
-                )}
-
-                {isIdeaGroup && (
-                  <section className="rounded-lg border border-border/70 bg-card p-3 shadow-sm">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-xs font-medium text-muted-foreground">{t("groupChat.ideaStatus")}</p>
-                        <p className="mt-1 text-sm font-medium text-foreground">{groupStatusLabel}</p>
-                      </div>
-                      {isAdmin && ideaId && (
-                        <select
-                          value={localIdeaStatus ?? "published"}
-                          onChange={(event) => handleStatusChange(event.target.value)}
-                          className="min-h-10 max-w-[12rem] rounded-full border border-border bg-background px-3 text-xs font-medium outline-none focus:border-primary/50"
-                        >
-                          <option value="published">{t("groupChat.statuses.published")}</option>
-                          <option value="interested">{t("groupChat.statuses.interested")}</option>
-                          <option value="discussion">{t("groupChat.statuses.discussion")}</option>
-                          <option value="in_progress">{t("groupChat.statuses.in_progress")}</option>
-                          <option value="completed">{t("groupChat.statuses.completed")}</option>
-                          <option value="archived">{t("groupChat.statuses.archived")}</option>
-                        </select>
+                    </div>
+                    <h2 className="mx-auto mt-4 max-w-sm truncate text-xl font-semibold tracking-tight text-foreground">{detailsTitle}</h2>
+                    <div className="mt-2 space-y-1 text-sm text-muted-foreground">
+                      {isDirectConversation ? (
+                        <>
+                          <p>{detailsUsername}</p>
+                          <p className="font-medium text-emerald-600 dark:text-emerald-300">{t("groupChat.onlineNow")}</p>
+                        </>
+                      ) : (
+                        <>
+                          {ideaTitle && <p className="mx-auto max-w-sm truncate">{ideaTitle}</p>}
+                          <p>{t("groupChat.memberCount", { count: effectiveMemberCount })}</p>
+                        </>
                       )}
                     </div>
                   </section>
-                )}
 
-                <section className="rounded-lg border border-border/70 bg-card shadow-sm">
-                  <div className="flex items-center justify-between border-b border-border/60 px-3 py-2.5">
-                    <p className="text-sm font-semibold text-foreground">{t("groupChat.members")}</p>
-                    <span className="text-xs text-muted-foreground">{t("groupChat.memberCount", { count: effectiveMemberCount })}</span>
-                  </div>
-                  <div className="divide-y divide-border/60">
-                    {participants.map((participant) => {
-                      const name = displayName(participant.user, memberFallback);
-                      const isSelf = participant.user_id === currentUserId;
-                      const memberProfileHref = profileHref(participant.user, participant.user_id);
-                      return (
-                        <div key={participant.user_id} className="flex min-h-[64px] items-center gap-3 px-3 py-2.5">
-                          {memberProfileHref ? (
-                            <Link
-                              href={memberProfileHref}
-                              className="shrink-0 rounded-full outline-none ring-primary/40 focus-visible:ring-2"
-                              aria-label={t("groupChat.openProfile", { name })}
-                            >
-                              <OnlineAvatar userId={participant.user?.id} label={name} avatarUrl={participant.user?.avatar_url ?? null} className="h-11 w-11" />
-                            </Link>
-                          ) : (
-                            <OnlineAvatar userId={participant.user?.id} label={name} avatarUrl={participant.user?.avatar_url ?? null} className="h-11 w-11" />
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-medium text-foreground">
-                              {name}
-                              {isSelf ? ` (${t("groupChat.you")})` : ""}
-                            </p>
-                            <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-muted-foreground">
-                              {participant.role === "admin" && <Shield size={12} />}
-                              {participant.role === "admin" ? t("groupChat.roles.admin") : t("groupChat.roles.member")}
-                            </p>
-                          </div>
-                          {isIdeaGroup && isAdmin && participant.role !== "admin" && !isSelf && (
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveMember(participant.user_id)}
-                              className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
-                              aria-label={t("groupChat.removeMember", { name })}
-                            >
-                              <UserMinus size={16} />
-                            </button>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </section>
-
-                {isIdeaGroup && !isAdmin && (
-                  <button
-                    type="button"
-                    onClick={handleLeaveGroup}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 bg-card px-3 py-2.5 text-sm font-medium text-destructive transition hover:bg-destructive/10"
-                  >
-                    <LogOut size={16} />
-                    {t("groupChat.leaveGroup")}
-                  </button>
-                )}
-                <section className="rounded-lg border border-border/70 bg-card p-3 shadow-sm">
-                  <p className="mb-2 text-sm font-semibold text-foreground">{t("groupChat.muteConversation")}</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {([
-                      ["1h", t("groupChat.mute1h")],
-                      ["8h", t("groupChat.mute8h")],
-                      ["1w", t("groupChat.mute1w")],
-                      ["forever", t("groupChat.muteForever")],
-                    ] as const).map(([option, label]) => (
-                      <button
-                        key={option}
-                        type="button"
-                        onClick={() => handleMuteConversation(option)}
-                        disabled={detailsSaving}
-                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-border/70 px-3 text-xs font-semibold text-muted-foreground transition hover:bg-muted disabled:opacity-50"
-                      >
-                        <BellOff size={14} />
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </section>
-
-                <section className="space-y-2">
-                  {isDirectConversation && (
-                    <>
-                      <button type="button" onClick={handleBlockUser} disabled={detailsSaving} className="flex w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 bg-card px-3 py-2.5 text-sm font-semibold text-destructive transition hover:bg-destructive/10 disabled:opacity-50">
-                        <Ban size={16} />
-                        {t("groupChat.blockUser")}
-                      </button>
-                      <button type="button" onClick={handleReportUser} disabled={detailsSaving} className="flex w-full items-center justify-center gap-2 rounded-lg border border-amber-300/50 bg-card px-3 py-2.5 text-sm font-semibold text-amber-700 transition hover:bg-amber-50 disabled:opacity-50 dark:text-amber-300 dark:hover:bg-amber-950/30">
-                        <Flag size={16} />
-                        {t("groupChat.reportUser")}
-                      </button>
-                    </>
+                  {error && (
+                    <p className="rounded-xl border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                      {friendlyError(error, t)}
+                    </p>
                   )}
-                  <button type="button" onClick={handleClearConversation} disabled={detailsSaving} className="flex w-full items-center justify-center gap-2 rounded-lg border border-border/70 bg-card px-3 py-2.5 text-sm font-semibold text-muted-foreground transition hover:bg-muted disabled:opacity-50">
-                    <Trash2 size={16} />
-                    {t("groupChat.clearChat")}
-                  </button>
-                  <button type="button" onClick={handleDeleteConversation} disabled={detailsSaving} className="flex w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 bg-card px-3 py-2.5 text-sm font-semibold text-destructive transition hover:bg-destructive/10 disabled:opacity-50">
-                    <Trash2 size={16} />
-                    {t("groupChat.deleteConversation")}
-                  </button>
-                </section>
-                </div>
 
-                <div className="space-y-4">
-                  <section className="rounded-lg border border-border/70 bg-card p-3 shadow-sm">
-                    <div className="relative">
-                      <Search className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-                      <input
-                        value={detailsSearch}
-                        onChange={(event) => setDetailsSearch(event.target.value)}
-                        placeholder={t("groupChat.searchConversation")}
-                        className="min-h-11 w-full rounded-full border border-border/70 bg-background px-9 text-sm outline-none transition focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
-                      />
+                  <section className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+                    <div className="flex items-center justify-between border-b border-border/60 px-4 py-3">
+                      <p className="text-sm font-semibold text-foreground">{t("groupChat.members")}</p>
+                      {!isDirectConversation && (
+                        <span className="text-xs text-muted-foreground">{t("groupChat.memberCount", { count: effectiveMemberCount })}</span>
+                      )}
                     </div>
-                    {detailQuery && (
-                      <div className="mt-3 space-y-2">
-                        <p className="text-xs font-semibold uppercase text-muted-foreground">{t("groupChat.searchResults")}</p>
-                        {searchResults.length === 0 ? (
-                          <p className="text-sm text-muted-foreground">{t("groupChat.noSearchResults")}</p>
-                        ) : (
-                          searchResults.map((message) => (
-                            <div key={message.id} className="rounded-lg bg-muted/50 px-3 py-2 text-sm">
-                              <p className="font-medium text-foreground">{displayName(message.sender, memberFallback)}</p>
-                              <p className="mt-0.5 line-clamp-2 text-muted-foreground">{message.message || t("groupChat.image")}</p>
+                    <div className="divide-y divide-border/60">
+                      {detailsParticipants.map((participant) => {
+                        const name = displayName(participant.user, memberFallback);
+                        const isSelf = participant.user_id === currentUserId;
+                        const memberProfileHref = profileHref(participant.user, participant.user_id);
+                        return (
+                          <div key={participant.user_id} className="flex min-h-[66px] items-center gap-3 px-4 py-2.5">
+                            {memberProfileHref ? (
+                              <Link
+                                href={memberProfileHref}
+                                className="shrink-0 rounded-full outline-none ring-primary/40 focus-visible:ring-2"
+                                aria-label={t("groupChat.openProfile", { name })}
+                              >
+                                <OnlineAvatar userId={participant.user?.id} label={name} avatarUrl={participant.user?.avatar_url ?? null} className="h-11 w-11" />
+                              </Link>
+                            ) : (
+                              <OnlineAvatar userId={participant.user?.id} label={name} avatarUrl={participant.user?.avatar_url ?? null} className="h-11 w-11" />
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-medium text-foreground">
+                                {name}
+                                {isSelf ? ` (${t("groupChat.you")})` : ""}
+                              </p>
+                              {participant.role === "admin" && (
+                                <p className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                                  <Shield size={12} />
+                                  {t("groupChat.roles.admin")}
+                                </p>
+                              )}
                             </div>
-                          ))
-                        )}
-                      </div>
-                    )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </section>
 
-                  <section className="rounded-lg border border-border/70 bg-card p-3 shadow-sm">
-                    <div className="mb-3 flex items-center justify-between gap-2">
-                      <h3 className="text-sm font-semibold text-foreground">{t("groupChat.mediaTitle")}</h3>
+                  <section className="space-y-2 rounded-2xl border border-border/70 bg-card p-2 shadow-sm">
+                    {isDirectConversation ? (
+                      <>
+                        <button type="button" onClick={handleBlockUser} disabled={detailsSaving} className="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-start text-sm font-semibold text-destructive transition hover:bg-destructive/10 disabled:opacity-50">
+                          <Ban size={17} />
+                          {t("groupChat.blockUser")}
+                        </button>
+                        <button type="button" onClick={() => setShowReportSheet(true)} disabled={detailsSaving} className="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-start text-sm font-semibold text-destructive transition hover:bg-destructive/10 disabled:opacity-50">
+                          <Flag size={17} />
+                          {t("groupChat.reportUser")}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        {!isAdmin && (
+                          <button type="button" onClick={handleLeaveGroup} disabled={detailsSaving} className="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-start text-sm font-semibold text-destructive transition hover:bg-destructive/10 disabled:opacity-50">
+                            <LogOut size={17} />
+                            {t("groupChat.leaveGroup")}
+                          </button>
+                        )}
+                        <button type="button" onClick={() => setShowReportSheet(true)} disabled={detailsSaving} className="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-start text-sm font-semibold text-destructive transition hover:bg-destructive/10 disabled:opacity-50">
+                          <Flag size={17} />
+                          {t("groupChat.report")}
+                        </button>
+                      </>
+                    )}
+                    <button type="button" onClick={handleDeleteConversation} disabled={detailsSaving} className="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-start text-sm font-semibold text-destructive transition hover:bg-destructive/10 disabled:opacity-50">
+                      <Trash2 size={17} />
+                      {t("groupChat.deleteConversation")}
+                    </button>
+                  </section>
+                </div>
+
+                <section className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm">
+                  <div className="mb-3 flex items-center justify-between gap-2">
+                    <h3 className="text-sm font-semibold text-foreground">{t("groupChat.mediaTitle")}</h3>
+                    {sharedMedia.length > 0 && (
                       <div className="flex gap-2 text-xs text-muted-foreground">
                         <span>{t("groupChat.photosCount", { count: sharedMedia.length - videoCount })}</span>
                         <span>{t("groupChat.videosCount", { count: videoCount })}</span>
                       </div>
+                    )}
+                  </div>
+                  {sharedMedia.length === 0 ? (
+                    <p className="py-3 text-sm text-muted-foreground">{t("groupChat.noMedia")}</p>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4">
+                      {sharedMedia.slice(0, 24).map((item) => (
+                        <button
+                          key={`${item.messageId}-${item.index}-${item.url}`}
+                          type="button"
+                          onClick={() => item.type === "image" ? openViewer(mediaImages, Math.max(0, mediaImages.indexOf(item.url))) : window.open(item.url, "_blank", "noopener,noreferrer")}
+                          className="group relative aspect-square overflow-hidden rounded-xl bg-muted"
+                        >
+                          {item.type === "image" ? (
+                            <img src={item.url} alt="" loading="lazy" className="h-full w-full object-cover transition group-hover:scale-105" />
+                          ) : (
+                            <video src={item.url} className="h-full w-full object-cover" muted />
+                          )}
+                          <span className="absolute inset-x-0 bottom-0 bg-black/45 px-1 py-0.5 text-[10px] text-white">{formatTime(item.createdAt)}</span>
+                        </button>
+                      ))}
                     </div>
-                    {visibleMedia.length === 0 ? (
-                      <p className="rounded-lg bg-muted/40 px-3 py-6 text-center text-sm text-muted-foreground">{t("groupChat.noMedia")}</p>
-                    ) : (
-                      <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4">
-                        {visibleMedia.slice(0, 24).map((item, index) => (
-                          <button
-                            key={`${item.messageId}-${item.index}-${item.url}`}
-                            type="button"
-                            onClick={() => item.type === "image" ? openViewer(mediaImages, Math.max(0, mediaImages.indexOf(item.url))) : window.open(item.url, "_blank", "noopener,noreferrer")}
-                            className="group relative aspect-square overflow-hidden rounded-lg bg-muted"
-                          >
-                            {item.type === "image" ? (
-                              <img src={item.url} alt="" loading="lazy" className="h-full w-full object-cover transition group-hover:scale-105" />
-                            ) : (
-                              <video src={item.url} className="h-full w-full object-cover" muted />
-                            )}
-                            <span className="absolute inset-x-0 bottom-0 bg-black/45 px-1 py-0.5 text-[10px] text-white">{formatTime(item.createdAt)}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </section>
-
-                  <section className="rounded-lg border border-border/70 bg-card p-3 shadow-sm">
-                    <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground"><FileText size={16} />{t("groupChat.filesTitle")}</h3>
-                    <p className="rounded-lg bg-muted/40 px-3 py-4 text-sm text-muted-foreground">{t("groupChat.documentsFuture")}</p>
-                  </section>
-
-                  <section className="rounded-lg border border-border/70 bg-card p-3 shadow-sm">
-                    <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground"><Link2 size={16} />{t("groupChat.linksTitle")}</h3>
-                    {visibleLinks.length === 0 ? (
-                      <p className="rounded-lg bg-muted/40 px-3 py-4 text-sm text-muted-foreground">{t("groupChat.noLinks")}</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {visibleLinks.slice(0, 12).map((link) => (
-                          <a key={`${link.messageId}-${link.url}`} href={link.url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border/60 px-3 py-2 transition hover:bg-muted">
-                            <p className="truncate text-sm font-semibold text-foreground">{link.host}</p>
-                            <p className="truncate text-xs text-muted-foreground">{link.url}</p>
-                            <p className="mt-1 text-[11px] text-muted-foreground">{link.senderName} - {formatTime(link.createdAt)}</p>
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                  </section>
-                </div>
+                  )}
+                </section>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showReportSheet && (
+        <div className="fixed inset-0 z-[80] flex items-end bg-black/40 px-3 pb-[calc(0.75rem+var(--safe-bottom))] md:items-center md:justify-center md:p-4" onClick={() => setShowReportSheet(false)}>
+          <div className="w-full max-w-sm rounded-3xl bg-card p-4 shadow-2xl md:rounded-2xl" onClick={(event) => event.stopPropagation()}>
+            <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-muted-foreground/30 md:hidden" />
+            <h3 className="text-base font-semibold text-foreground">{t("groupChat.reportReasonTitle")}</h3>
+            <div className="mt-3 space-y-1">
+              {([
+                ["spam", t("groupChat.reportSpam")],
+                ["harassment", t("groupChat.reportHarassment")],
+                ["fake", t("groupChat.reportFake")],
+                ["other", t("groupChat.reportOther")],
+              ] as const).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setReportReason(value)}
+                  className={cn(
+                    "flex min-h-11 w-full items-center justify-between rounded-2xl px-3 text-start text-sm font-medium transition",
+                    reportReason === value ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted",
+                  )}
+                >
+                  <span>{label}</span>
+                  {reportReason === value && <Check size={16} />}
+                </button>
+              ))}
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setShowReportSheet(false)}
+                disabled={detailsSaving}
+                className="min-h-11 rounded-full border border-border px-4 text-sm font-semibold text-muted-foreground transition hover:bg-muted disabled:opacity-50"
+              >
+                {t("groupChat.cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={submitConversationReport}
+                disabled={detailsSaving}
+                className="min-h-11 rounded-full bg-destructive px-4 text-sm font-semibold text-destructive-foreground transition hover:bg-destructive/90 disabled:opacity-50"
+              >
+                {detailsSaving ? t("groupChat.saving") : t("groupChat.report")}
+              </button>
             </div>
           </div>
         </div>

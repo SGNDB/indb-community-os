@@ -3068,6 +3068,7 @@
       "ideaStatus": "Idea status",
       "leaveGroup": "Leave group",
       "gar3tak": "Graatek",
+      "directChat": "Direct message",
       "image": "Image",
       "imageWithCaption": "Image: {caption}",
       "statuses": {
@@ -3136,7 +3137,7 @@
       "filesTitle": "Files",
       "linksTitle": "Links",
       "searchConversation": "Search in conversation...",
-      "noMedia": "No media yet",
+      "noMedia": "No shared media yet.",
       "noFiles": "No files yet",
       "noLinks": "No links yet",
       "searchResults": "Search results",
@@ -3162,7 +3163,12 @@
       "confirmBlock": "Do you want to block this user?",
       "confirmClear": "Clear this conversation only for you?",
       "confirmDeleteConversation": "Delete this conversation from your list?",
-      "reportReasonPrompt": "Report reason: spam, harassment, fake, other",
+      "reportReasonPrompt": "Choose a report reason",
+      "reportReasonTitle": "Why are you reporting this?",
+      "reportSpam": "Spam",
+      "reportHarassment": "Harassment",
+      "reportFake": "Fake account",
+      "reportOther": "Other",
       "actionDone": "Done",
       "documentsFuture": "Documents, PDF, Word, Excel, and ZIP files will appear here."
     }

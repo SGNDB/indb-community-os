@@ -2984,6 +2984,7 @@
       "ideaStatus": "حالة الفكرة",
       "leaveGroup": "مغادرة المجموعة",
       "gar3tak": "گرعتك",
+      "directChat": "رسالة خاصة",
       "image": "صورة",
       "imageWithCaption": "صورة: {caption}",
       "statuses": {
@@ -3052,7 +3053,7 @@
       "filesTitle": "الملفات",
       "linksTitle": "الروابط",
       "searchConversation": "ابحث داخل المحادثة...",
-      "noMedia": "لا توجد وسائط بعد",
+      "noMedia": "لا توجد وسائط مشتركة بعد.",
       "noFiles": "لا توجد ملفات بعد",
       "noLinks": "لا توجد روابط بعد",
       "searchResults": "نتائج البحث",
@@ -3078,7 +3079,12 @@
       "confirmBlock": "هل تريد حظر هذا المستخدم؟",
       "confirmClear": "هل تريد مسح المحادثة من جهازك فقط؟",
       "confirmDeleteConversation": "هل تريد حذف المحادثة من قائمتك؟",
-      "reportReasonPrompt": "سبب البلاغ: spam, harassment, fake, other",
+      "reportReasonPrompt": "اختر سبب البلاغ",
+      "reportReasonTitle": "لماذا تريد الإبلاغ؟",
+      "reportSpam": "رسائل مزعجة",
+      "reportHarassment": "إساءة أو مضايقة",
+      "reportFake": "حساب مزيف",
+      "reportOther": "سبب آخر",
       "actionDone": "تم التنفيذ",
       "documentsFuture": "ستظهر هنا المستندات وPDF وWord وExcel وZIP."
     }

@@ -2984,6 +2984,7 @@
       "ideaStatus": "Statut de l’idée",
       "leaveGroup": "Quitter le groupe",
       "gar3tak": "Graatek",
+      "directChat": "Message privé",
       "image": "Image",
       "imageWithCaption": "Image : {caption}",
       "statuses": {
@@ -3052,7 +3053,7 @@
       "filesTitle": "Fichiers",
       "linksTitle": "Liens",
       "searchConversation": "Rechercher dans la conversation...",
-      "noMedia": "Aucun média",
+      "noMedia": "Aucun média partagé pour le moment.",
       "noFiles": "Aucun fichier",
       "noLinks": "Aucun lien",
       "searchResults": "Résultats",
@@ -3078,7 +3079,12 @@
       "confirmBlock": "Voulez-vous bloquer cet utilisateur ?",
       "confirmClear": "Effacer cette conversation pour vous seulement ?",
       "confirmDeleteConversation": "Supprimer cette conversation de votre liste ?",
-      "reportReasonPrompt": "Raison : spam, harassment, fake, other",
+      "reportReasonPrompt": "Choisissez une raison",
+      "reportReasonTitle": "Pourquoi signalez-vous cela ?",
+      "reportSpam": "Spam",
+      "reportHarassment": "Harcèlement",
+      "reportFake": "Faux compte",
+      "reportOther": "Autre",
       "actionDone": "Terminé",
       "documentsFuture": "Les documents, PDF, Word, Excel et ZIP apparaîtront ici."
     }
