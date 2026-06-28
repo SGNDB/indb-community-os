@@ -567,6 +567,12 @@ export async function sendConversationMessage(
   },
 ): Promise<{ id: string; created_at: string } | null> {
   const supabase = await createClient();
+  const blockState = await getDirectConversationBlockState(conversationId, senderId);
+  if (blockState.blockedByMe) {
+    console.error('sendConversationMessage sender has blocked recipient');
+    return null;
+  }
+
   const isTextInput = typeof input === 'string';
   const messageType = isTextInput ? 'text' : input.messageType ?? (input.imageUrl ? 'image' : 'text');
   const message = (isTextInput ? input : input.message ?? '').trim();
@@ -731,12 +737,13 @@ export async function getDirectConversationBlockState(
     otherUserId: null,
   };
   const supabase = await createClient();
+  const readClient = createAdminClient() ?? supabase;
 
   let type = conversationDetails?.type ?? null;
   let participantIds = conversationDetails?.participants.map((participant) => participant.user_id) ?? null;
 
   if (!type) {
-    const { data: conversation, error: conversationError } = await supabase
+    const { data: conversation, error: conversationError } = await readClient
       .from('conversations')
       .select('id, type')
       .eq('id', conversationId)
@@ -749,7 +756,7 @@ export async function getDirectConversationBlockState(
   if (type !== 'direct') return empty;
 
   if (!participantIds) {
-    const { data: participants, error: participantsError } = await supabase
+    const { data: participants, error: participantsError } = await readClient
       .from('conversation_participants')
       .select('user_id')
       .eq('conversation_id', conversationId);
@@ -761,7 +768,7 @@ export async function getDirectConversationBlockState(
   const otherUserId = participantIds.find((participantId) => participantId !== userId) ?? null;
   if (!otherUserId) return empty;
 
-  const { data: blocks, error: blockError } = await supabase
+  const { data: blocks, error: blockError } = await readClient
     .from('blocked_users')
     .select('blocker_id, blocked_id, created_at')
     .or(`and(blocker_id.eq.${userId},blocked_id.eq.${otherUserId}),and(blocker_id.eq.${otherUserId},blocked_id.eq.${userId})`);
@@ -847,7 +854,8 @@ export async function blockDirectConversationUser(conversationId: string, userId
   if (!blockState.otherUserId) return false;
 
   const supabase = await createClient();
-  const { error } = await supabase
+  const writeClient = createAdminClient() ?? supabase;
+  const { error } = await writeClient
     .from('blocked_users')
     .upsert({ blocker_id: userId, blocked_id: blockState.otherUserId }, { onConflict: 'blocker_id,blocked_id' });
 
@@ -864,7 +872,8 @@ export async function unblockDirectConversationUser(conversationId: string, user
   if (!blockState.otherUserId) return false;
 
   const supabase = await createClient();
-  const { error } = await supabase
+  const writeClient = createAdminClient() ?? supabase;
+  const { error } = await writeClient
     .from('blocked_users')
     .delete()
     .eq('blocker_id', userId)

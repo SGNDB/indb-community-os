@@ -1931,7 +1931,10 @@
         "edit_failed": "Mënul soppi bataaxal bi.",
         "delete_failed": "Mënul far bataaxal bi.",
         "report_received": "Jërëjëf. Bataaxal bi yónneeku na ngir ñu xool ko.",
-        "report_failed": "Mënul yëgle bataaxal bi."
+        "report_failed": "Mënul yëgle bataaxal bi.",
+        "block_failed": "User could not be blocked.",
+        "unblock_failed": "User could not be unblocked.",
+        "blocked_send": "Unblock this user before sending a message."
       },
       "you": "Yaw",
       "backToMessages": "Delluwaat ci bataaxal yi",
@@ -2004,7 +2007,9 @@
       "reportFake": "Fake account",
       "reportOther": "Other",
       "actionDone": "Done",
-      "documentsFuture": "Documents, PDF, Word, Excel, and ZIP files will appear here."
+      "documentsFuture": "Documents, PDF, Word, Excel, and ZIP files will appear here.",
+      "blockedSendNotice": "Unblock this user to send a message.",
+      "blockedSendPlaceholder": "Unblock to send..."
     }
   },
   "Support": {

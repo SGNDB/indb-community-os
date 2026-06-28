@@ -3098,6 +3098,9 @@
         "name_too_short": "Use at least 2 characters.",
         "edit_failed": "Message could not be edited.",
         "delete_failed": "Message could not be deleted.",
+        "block_failed": "User could not be blocked.",
+        "unblock_failed": "User could not be unblocked.",
+        "blocked_send": "Unblock this user before sending a message.",
         "report_received": "Thanks. The message was flagged for review.",
         "report_failed": "Message could not be reported."
       },
@@ -3152,6 +3155,8 @@
       "blockUser": "Block user",
       "unblockUser": "Unblock user",
       "blockedProfile": "Blocked",
+      "blockedSendNotice": "Unblock this user to send a message.",
+      "blockedSendPlaceholder": "Unblock to send...",
       "reportUser": "Report user",
       "onlineNow": "Online now",
       "lastActiveSoon": "Last seen coming soon",

@@ -1931,7 +1931,10 @@
         "edit_failed": "Xibaare ya mana wa yiitene.",
         "delete_failed": "Xibaare ya mana wa dingana.",
         "report_received": "An ni ce. Xibaare ya kini xoolon do.",
-        "report_failed": "Xibaare ya mana wa naxaamunu."
+        "report_failed": "Xibaare ya mana wa naxaamunu.",
+        "block_failed": "User could not be blocked.",
+        "unblock_failed": "User could not be unblocked.",
+        "blocked_send": "Unblock this user before sending a message."
       },
       "you": "Anke",
       "backToMessages": "Karu xibaarun ŋa",
@@ -2004,7 +2007,9 @@
       "reportFake": "Fake account",
       "reportOther": "Other",
       "actionDone": "Done",
-      "documentsFuture": "Documents, PDF, Word, Excel, and ZIP files will appear here."
+      "documentsFuture": "Documents, PDF, Word, Excel, and ZIP files will appear here.",
+      "blockedSendNotice": "Unblock this user to send a message.",
+      "blockedSendPlaceholder": "Unblock to send..."
     }
   },
   "Support": {

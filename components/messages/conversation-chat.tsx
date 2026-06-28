@@ -169,6 +169,9 @@ function friendlyError(error: string | null, t: TranslationFn) {
     "name_too_short",
     "edit_failed",
     "delete_failed",
+    "block_failed",
+    "unblock_failed",
+    "blocked_send",
   ];
   return errorKeys.includes(error) ? t(`groupChat.errors.${error}`) : error;
 }
@@ -922,6 +925,10 @@ export function ConversationChat({
     e.preventDefault();
     const trimmed = input.trim();
     if ((!trimmed && pendingImages.length === 0) || sending || isReadOnly) return;
+    if (isDirectConversation && localBlockedByMe) {
+      setError("blocked_send");
+      return;
+    }
     const optimisticImages = pendingImages;
     const optimisticId = `optimistic-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const optimisticCreatedAt = new Date().toISOString();
@@ -1283,7 +1290,7 @@ export function ConversationChat({
       const { blockConversationUserAction } = await import("@/app/[locale]/server-actions");
       const res = await blockConversationUserAction(conversationId);
       if (!res.success) {
-        setError(res.error ?? "update_failed");
+        setError(res.error ?? "block_failed");
         return;
       }
       const blockedAt = res.blockedAt ?? new Date().toISOString();
@@ -1296,7 +1303,7 @@ export function ConversationChat({
       }
     } catch (e) {
       console.error("block user error:", e);
-      setError("update_failed");
+      setError("block_failed");
     } finally {
       setDetailsSaving(false);
     }
@@ -1310,14 +1317,15 @@ export function ConversationChat({
       const { unblockConversationUserAction } = await import("@/app/[locale]/server-actions");
       const res = await unblockConversationUserAction(conversationId);
       if (!res.success) {
-        setError(res.error ?? "update_failed");
+        setError(res.error ?? "unblock_failed");
         return;
       }
       setLocalBlockedByMe(false);
       setLocalBlockedByMeAt(null);
+      setError(null);
     } catch (e) {
       console.error("unblock user error:", e);
-      setError("update_failed");
+      setError("unblock_failed");
     } finally {
       setDetailsSaving(false);
     }
@@ -1368,6 +1376,7 @@ export function ConversationChat({
       ? t("groupChat.onlineNow")
       : t("groupChat.memberCount", { count: effectiveMemberCount });
   const readOnlyMessage = isCompleted ? t("groupChat.closedAfterCompletion") : t("groupChat.readOnlyNotice");
+  const composerBlocked = isDirectConversation && localBlockedByMe;
 
   return (
     <div ref={chatRootRef} className="relative flex h-full min-h-0 w-full max-w-full flex-col overflow-hidden bg-background overscroll-contain [touch-action:pan-y]">
@@ -1710,6 +1719,12 @@ export function ConversationChat({
             </div>
           )}
 
+          {composerBlocked && (
+            <div className="mx-auto mb-2 flex w-full max-w-3xl items-center justify-center rounded-full bg-muted px-3 py-2 text-center text-xs font-medium text-muted-foreground">
+              {t("groupChat.blockedSendNotice")}
+            </div>
+          )}
+
           {!isReadOnly && (
             <form onSubmit={handleSend} className="mx-auto flex w-full max-w-3xl min-w-0 items-end gap-2 overflow-x-hidden">
               <input
@@ -1723,7 +1738,7 @@ export function ConversationChat({
               <button
                 type="button"
                 onClick={() => imageInputRef.current?.click()}
-                disabled={imageUploading || sending}
+                disabled={imageUploading || sending || composerBlocked}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition active:bg-muted disabled:opacity-40 md:h-11 md:w-11 md:hover:bg-muted"
                 aria-label={t("groupChat.sendImage")}
               >
@@ -1734,13 +1749,14 @@ export function ConversationChat({
                 enterKeyHint="send"
                 value={input}
                 onChange={(e) => handleInputChange(e.target.value)}
+                disabled={composerBlocked}
                 maxLength={pendingImages.length > 0 ? 500 : 1000}
-                placeholder={pendingImages.length > 0 ? t("groupChat.addCaption") : t("placeholder")}
-                className="min-h-10 min-w-0 flex-1 rounded-full border border-border/60 bg-card px-3.5 py-2 text-sm shadow-sm outline-none transition focus:border-primary/50 focus:ring-1 focus:ring-primary/30 md:min-h-11 md:px-4 md:py-2.5"
+                placeholder={composerBlocked ? t("groupChat.blockedSendPlaceholder") : pendingImages.length > 0 ? t("groupChat.addCaption") : t("placeholder")}
+                className="min-h-10 min-w-0 flex-1 rounded-full border border-border/60 bg-card px-3.5 py-2 text-sm shadow-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-60 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 md:min-h-11 md:px-4 md:py-2.5"
               />
               <button
                 type="submit"
-                disabled={(!input.trim() && pendingImages.length === 0) || sending}
+                disabled={composerBlocked || (!input.trim() && pendingImages.length === 0) || sending}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition active:bg-primary/90 disabled:opacity-40 md:h-11 md:w-11 md:hover:bg-primary/90"
                 aria-label={t("groupChat.sendMessage")}
               >

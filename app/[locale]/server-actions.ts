@@ -4582,7 +4582,7 @@ export async function blockConversationUserAction(
   if (!user) return { success: false, error: 'unauthorized' };
   const { blockDirectConversationUser, getDirectConversationBlockState } = await import('@/lib/data/conversations');
   const ok = await blockDirectConversationUser(conversationId, user.id);
-  if (!ok) return { success: false, error: 'update_failed' };
+  if (!ok) return { success: false, error: 'block_failed' };
   const blockState = await getDirectConversationBlockState(conversationId, user.id);
   return { success: true, blockedAt: blockState.blockedByMeAt ?? new Date().toISOString() };
 }
@@ -4595,7 +4595,7 @@ export async function unblockConversationUserAction(
   if (!user) return { success: false, error: 'unauthorized' };
   const { unblockDirectConversationUser } = await import('@/lib/data/conversations');
   const ok = await unblockDirectConversationUser(conversationId, user.id);
-  if (!ok) return { success: false, error: 'update_failed' };
+  if (!ok) return { success: false, error: 'unblock_failed' };
   return { success: true };
 }
 

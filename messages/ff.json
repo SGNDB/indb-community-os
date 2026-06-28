@@ -1934,7 +1934,10 @@
         "edit_failed": "Ɓatakuru waawaa taƴteede.",
         "delete_failed": "Ɓatakuru waawaa momteede.",
         "report_received": "A jaaraama. Ɓatakuru ndu neldaama ngam ƴeewteede.",
-        "report_failed": "Ɓatakuru ndu waawaa jaŋteede."
+        "report_failed": "Ɓatakuru ndu waawaa jaŋteede.",
+        "block_failed": "User could not be blocked.",
+        "unblock_failed": "User could not be unblocked.",
+        "blocked_send": "Unblock this user before sending a message."
       },
       "you": "Aan",
       "backToMessages": "Rutto e ɓatakuuje",
@@ -2007,7 +2010,9 @@
       "reportFake": "Fake account",
       "reportOther": "Other",
       "actionDone": "Done",
-      "documentsFuture": "Documents, PDF, Word, Excel, and ZIP files will appear here."
+      "documentsFuture": "Documents, PDF, Word, Excel, and ZIP files will appear here.",
+      "blockedSendNotice": "Unblock this user to send a message.",
+      "blockedSendPlaceholder": "Unblock to send..."
     }
   },
   "Support": {

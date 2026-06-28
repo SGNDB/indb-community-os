@@ -3014,6 +3014,9 @@
         "name_too_short": "استخدم حرفين على الأقل.",
         "edit_failed": "تعذر تعديل الرسالة.",
         "delete_failed": "تعذر حذف الرسالة.",
+        "block_failed": "تعذر حظر المستخدم.",
+        "unblock_failed": "تعذر إلغاء حظر المستخدم.",
+        "blocked_send": "قم بإلغاء الحظر قبل إرسال رسالة.",
         "report_received": "شكراً لك. تم إرسال الرسالة للمراجعة.",
         "report_failed": "تعذر الإبلاغ عن الرسالة."
       },
@@ -3068,6 +3071,8 @@
       "blockUser": "حظر المستخدم",
       "unblockUser": "إلغاء الحظر",
       "blockedProfile": "محظور",
+      "blockedSendNotice": "قم بإلغاء الحظر لإرسال رسالة.",
+      "blockedSendPlaceholder": "ألغِ الحظر للإرسال...",
       "reportUser": "الإبلاغ عن المستخدم",
       "onlineNow": "متصل الآن",
       "lastActiveSoon": "آخر ظهور قريبا",

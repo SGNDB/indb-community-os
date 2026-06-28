@@ -3014,6 +3014,9 @@
         "name_too_short": "Utilisez au moins 2 caractères.",
         "edit_failed": "Impossible de modifier le message.",
         "delete_failed": "Impossible de supprimer le message.",
+        "block_failed": "Impossible de bloquer l'utilisateur.",
+        "unblock_failed": "Impossible de débloquer l'utilisateur.",
+        "blocked_send": "Débloquez cet utilisateur avant d'envoyer un message.",
         "report_received": "Merci. Le message a été signalé pour examen.",
         "report_failed": "Impossible de signaler le message."
       },
@@ -3068,6 +3071,8 @@
       "blockUser": "Bloquer l'utilisateur",
       "unblockUser": "Débloquer l'utilisateur",
       "blockedProfile": "Bloqué",
+      "blockedSendNotice": "Débloquez cet utilisateur pour envoyer un message.",
+      "blockedSendPlaceholder": "Débloquez pour envoyer...",
       "reportUser": "Signaler l'utilisateur",
       "onlineNow": "En ligne",
       "lastActiveSoon": "Dernière activité bientôt",
