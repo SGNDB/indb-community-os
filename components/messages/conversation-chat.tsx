@@ -749,8 +749,9 @@ export function ConversationChat({
 
   const broadcastTyping = useCallback(() => {
     if (typingBroadcastRef.current) return;
-    const supabase = createClient();
-    supabase.channel(`conv-messages-${conversationId}`).send({
+    if (!realtimeReadyRef.current || !realtimeChannelRef.current) return;
+
+    realtimeChannelRef.current.send({
       type: "broadcast",
       event: "typing",
       payload: {
@@ -761,7 +762,7 @@ export function ConversationChat({
     typingBroadcastRef.current = setTimeout(() => {
       typingBroadcastRef.current = null;
     }, 2000);
-  }, [conversationId, currentParticipant?.user, currentUserId, memberFallback]);
+  }, [currentParticipant?.user, currentUserId, memberFallback]);
 
   function handleInputChange(value: string) {
     setInput(value);
@@ -1467,10 +1468,12 @@ export function ConversationChat({
                         ) : null}
                       </div>
                       {receiptForMessage ? (
-                        <div className="mt-1.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-300">
-                          {isGroupReceiptMode
-                            ? t("groupChat.seenBy", { count: receiptForMessage.seenByCount })
-                            : t("groupChat.seen")}
+                        <div className="mt-2 flex justify-end">
+                          <span className="inline-flex items-center rounded-full bg-white/95 px-2 py-0.5 text-[11px] font-bold text-emerald-700 shadow-sm ring-1 ring-emerald-200/80 dark:bg-emerald-400/15 dark:text-emerald-100 dark:ring-emerald-300/30">
+                            {isGroupReceiptMode
+                              ? t("groupChat.seenBy", { count: receiptForMessage.seenByCount })
+                              : t("groupChat.seen")}
+                          </span>
                         </div>
                       ) : null}
                     </div>
@@ -1481,11 +1484,11 @@ export function ConversationChat({
           })
         )}
           {typingName && (
-            <div className="mx-auto mt-2 flex w-fit items-center gap-2 rounded-full bg-background/90 px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
+            <div className="mx-auto mt-2 flex w-fit items-center gap-2 rounded-full border border-primary/10 bg-background/95 px-3 py-1.5 text-xs font-medium text-primary shadow-sm">
               <span className="flex gap-0.5">
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/40" style={{ animationDelay: "0ms" }} />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/40" style={{ animationDelay: "150ms" }} />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/40" style={{ animationDelay: "300ms" }} />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/70" style={{ animationDelay: "0ms" }} />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/70" style={{ animationDelay: "150ms" }} />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/70" style={{ animationDelay: "300ms" }} />
               </span>
               <span>{typingName} {t("typing")}</span>
             </div>
