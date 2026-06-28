@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { OnlineAvatar } from "@/components/presence";
+import { OnlineAvatar, useIsOnline } from "@/components/presence";
 import { uploadMediaItem } from "@/lib/images/client-upload";
 import { Link, useRouter } from "@/lib/i18n/routing";
 import { createClient } from "@/lib/supabase/client";
@@ -323,6 +323,7 @@ export function ConversationChat({
   const isDirectConversation = conversationType === "direct";
   const otherParticipant = participants.find((p) => p.user_id !== currentUserId)?.user;
   const otherUserId = otherParticipant?.id;
+  const isOtherUserOnline = useIsOnline(otherUserId);
   const isDirectBlocked = isDirectConversation && (localBlockedByMe || localBlockedByOther);
   const detailsTitle = isDirectConversation ? displayName(otherParticipant, groupTitle) : groupTitle;
   const detailsUsername = isDirectConversation
@@ -1373,7 +1374,7 @@ export function ConversationChat({
   const headerSubtitle = isIdeaGroup
     ? `${t("groupChat.memberCount", { count: effectiveMemberCount })} - ${statusLabel(localIdeaStatus, t)}`
     : isDirectConversation
-      ? t("groupChat.onlineNow")
+      ? (!isDirectBlocked && isOtherUserOnline ? t("groupChat.onlineNow") : detailsUsername)
       : t("groupChat.memberCount", { count: effectiveMemberCount });
   const readOnlyMessage = isCompleted ? t("groupChat.closedAfterCompletion") : t("groupChat.readOnlyNotice");
   const composerBlocked = isDirectConversation && localBlockedByMe;
@@ -1802,9 +1803,11 @@ export function ConversationChat({
                       {isDirectConversation ? (
                         <>
                           <p>{detailsUsername}</p>
-                          <p className={cn("font-medium", isDirectBlocked ? "text-muted-foreground" : "text-emerald-600 dark:text-emerald-300")}>
-                            {isDirectBlocked ? t("groupChat.blockedProfile") : t("groupChat.onlineNow")}
-                          </p>
+                          {isDirectBlocked ? (
+                            <p className="font-medium text-muted-foreground">{t("groupChat.blockedProfile")}</p>
+                          ) : isOtherUserOnline ? (
+                            <p className="font-medium text-emerald-600 dark:text-emerald-300">{t("groupChat.onlineNow")}</p>
+                          ) : null}
                         </>
                       ) : (
                         <>
