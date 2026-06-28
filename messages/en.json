@@ -3126,6 +3126,8 @@
       "saving": "Saving...",
       "sent": "Sent",
       "read": "Read",
+      "seen": "Seen",
+      "seenBy": "Seen by {count}",
       "cancel": "Cancel",
       "editName": "Edit name",
       "nameTooShort": "Use at least 2 characters.",

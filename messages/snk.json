@@ -1960,7 +1960,9 @@
       "confirmDelete": "A na xibaare ke dinga?",
       "saving": "Kitaabini...",
       "sent": "Mulla",
-      "read": "Karan"
+      "read": "Karan",
+      "seen": "Yaxana",
+      "seenBy": "{count} da a yaga"
     }
   },
   "Support": {

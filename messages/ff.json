@@ -1963,7 +1963,9 @@
       "confirmDelete": "Aɗa yiɗi momtude ɓatakuru ndu?",
       "saving": "Nana dannda...",
       "sent": "Neldaama",
-      "read": "Tarama"
+      "read": "Tarama",
+      "seen": "Yi'aama",
+      "seenBy": "{count} yi'i"
     }
   },
   "Support": {

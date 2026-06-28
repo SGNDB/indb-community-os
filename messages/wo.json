@@ -1960,7 +1960,9 @@
       "confirmDelete": "Ndax bëgg nga far bataaxal bii?",
       "saving": "Mi ngi aar...",
       "sent": "Yónnee na",
-      "read": "Jàng na"
+      "read": "Jàng na",
+      "seen": "Gis na",
+      "seenBy": "{count} gis nañu ko"
     }
   },
   "Support": {

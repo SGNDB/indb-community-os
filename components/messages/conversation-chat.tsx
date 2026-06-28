@@ -8,7 +8,6 @@ import {
   ArrowLeft,
   Camera,
   Check,
-  CheckCheck,
   ChevronLeft,
   ChevronRight,
   Copy,
@@ -287,6 +286,26 @@ export function ConversationChat({
       !participant.removed_at
     );
   }, [participants, currentUserId]);
+  const isGroupReceiptMode = activeOtherParticipants.length > 1;
+  const latestReadReceipt = useMemo(() => {
+    let latest: { messageId: string; seenByCount: number; createdAt: number } | null = null;
+
+    for (const message of messages) {
+      if (message.sender_id !== currentUserId || message.is_deleted || message.id.startsWith("optimistic-")) continue;
+      const createdAt = new Date(message.created_at).getTime();
+      const seenByCount = activeOtherParticipants.filter((participant) => {
+        if (!participant.last_read_at) return false;
+        return new Date(participant.last_read_at).getTime() >= createdAt;
+      }).length;
+      const readCount = Math.max(seenByCount, message.read_at ? 1 : 0);
+      if (readCount === 0) continue;
+      if (!latest || createdAt >= latest.createdAt) {
+        latest = { messageId: message.id, seenByCount: readCount, createdAt };
+      }
+    }
+
+    return latest;
+  }, [activeOtherParticipants, currentUserId, messages]);
 
   useEffect(() => {
     participantByIdRef.current = participantById;
@@ -1084,9 +1103,9 @@ export function ConversationChat({
         onScroll={() => {
           nearBottomRef.current = isNearBottom();
         }}
-        className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden scroll-smooth bg-muted/20 px-2.5 py-3 overscroll-contain [overflow-anchor:none] [touch-action:pan-y] md:px-5 md:py-4"
+        className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden scroll-smooth bg-muted/20 px-2.5 py-3 overscroll-contain [overflow-anchor:none] [touch-action:pan-y] md:px-4 md:py-4"
       >
-        <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col justify-end overflow-x-hidden">
+        <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-end overflow-x-hidden">
           {isReadOnly && (
             <div className="mx-auto mb-4 flex max-w-md items-center justify-center gap-2 rounded-full bg-background/90 px-3 py-2 text-center text-xs text-muted-foreground shadow-sm">
               <Archive size={14} />
@@ -1114,16 +1133,7 @@ export function ConversationChat({
             const isEditing = editingMessageId === msg.id;
             const canMutate = isMine && !isDeleted && !isReadOnly && !msg.id.startsWith("optimistic-");
             const hasText = Boolean(msg.message?.trim());
-            const hasParticipantRead = activeOtherParticipants.some((participant) => {
-              if (participant.user_id === currentUserId || !participant.last_read_at) return false;
-              return new Date(participant.last_read_at).getTime() >= new Date(msg.created_at).getTime();
-            });
-            const hasLaterReply = messages.some((message) => {
-              if (message.sender_id === currentUserId) return false;
-              return new Date(message.created_at).getTime() >= new Date(msg.created_at).getTime();
-            });
-            const hasBeenRead = isMine && (Boolean(msg.read_at) || hasParticipantRead || hasLaterReply);
-            const StatusIcon = hasBeenRead ? CheckCheck : Check;
+            const receiptForMessage = isMine && latestReadReceipt?.messageId === msg.id ? latestReadReceipt : null;
 
             return (
               <div
@@ -1134,7 +1144,7 @@ export function ConversationChat({
                   index === 0 ? "mt-0" : isFirstInGroup ? "mt-3.5" : "mt-1",
                 )}
               >
-                <div className={cn("flex min-w-0 max-w-[86%] items-end gap-1.5 overflow-x-hidden sm:max-w-[78%] md:max-w-[70%] md:gap-2", isMine && "flex-row-reverse")}>
+                <div className={cn("flex min-w-0 max-w-[86%] items-end gap-1.5 overflow-x-hidden sm:max-w-[76%] md:max-w-[68%] lg:max-w-[64%] md:gap-2", isMine && "flex-row-reverse")}>
                   {!isMine && (
                     <div className="w-7 shrink-0 md:w-9">
                       {isFirstInGroup && senderProfileHref && (
@@ -1329,14 +1339,14 @@ export function ConversationChat({
                         {msg.is_edited && !isDeleted ? (
                           <span>{t("groupChat.edited")}</span>
                         ) : null}
-                        {isMine && (
-                          <StatusIcon
-                            size={13}
-                            className={cn(hasBeenRead && "text-emerald-300")}
-                            aria-label={hasBeenRead ? t("groupChat.read") : t("groupChat.sent")}
-                          />
-                        )}
                       </div>
+                      {receiptForMessage ? (
+                        <div className="mt-1.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-300">
+                          {isGroupReceiptMode
+                            ? t("groupChat.seenBy", { count: receiptForMessage.seenByCount })
+                            : t("groupChat.seen")}
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 </div>

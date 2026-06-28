@@ -3042,6 +3042,8 @@
       "saving": "Enregistrement...",
       "sent": "Envoyé",
       "read": "Lu",
+      "seen": "Vu",
+      "seenBy": "Vu par {count}",
       "cancel": "Annuler",
       "editName": "Modifier le nom",
       "nameTooShort": "Utilisez au moins 2 caractères.",
