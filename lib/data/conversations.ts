@@ -295,6 +295,20 @@ export async function getConversationById(
       return (a.created_at ?? '').localeCompare(b.created_at ?? '');
     });
 
+  if (
+    resolvedInboxConversation?.other_participant?.id &&
+    !activeParticipants.some((participant) => participant.user_id === resolvedInboxConversation.other_participant?.id)
+  ) {
+    activeParticipants.push(normalizeParticipant({
+      id: '',
+      conversation_id: conversationId,
+      user_id: resolvedInboxConversation.other_participant.id,
+      role: 'member',
+      unread_count: 0,
+      user: resolvedInboxConversation.other_participant,
+    }, ideaAuthorId));
+  }
+
   if (activeParticipants.length === 0 && userId) {
     const { data: currentProfile } = await supabase
       .from('profiles')
@@ -539,17 +553,29 @@ export async function markConversationRead(
   userId: string,
 ): Promise<void> {
   const supabase = await createClient();
+  const readAt = new Date().toISOString();
   const { error } = await supabase.rpc('mark_conversation_read', {
     p_conv_id: conversationId,
     p_user_id: userId,
   });
-  if (!error) return;
+  if (error) {
+    console.error('markConversationRead rpc error:', error);
+  }
 
-  await supabase
+  const writeClient = createAdminClient() ?? supabase;
+
+  await writeClient
     .from('conversation_participants')
-    .update({ last_read_at: new Date().toISOString(), unread_count: 0 })
+    .update({ last_read_at: readAt, unread_count: 0 })
     .eq('conversation_id', conversationId)
     .eq('user_id', userId);
+
+  await writeClient
+    .from('conversation_messages')
+    .update({ read_at: readAt })
+    .eq('conversation_id', conversationId)
+    .neq('sender_id', userId)
+    .is('read_at', null);
 }
 
 export async function searchUserConversations(
