@@ -514,7 +514,7 @@
     "showLess": "Yeru dogo",
     "editIdea": "Taƴtu miijo",
     "deleteIdea": "Tun miijo",
-    "allIdeas": "Miiji Fuu",
+    "allIdeas": "Most Volunteers",
     "support": "Support",
     "participate": "Participate",
     "discussionButton": "Discussion",
@@ -646,7 +646,8 @@
     "stageFinal": "Final Result",
     "noImagesYet": "No images yet.",
     "imageUploaded": "Image uploaded",
-    "imageDeleted": "Image deleted"
+    "imageDeleted": "Image deleted",
+    "upload": "Upload"
   },
   "IdeaForm": {
     "title": "Ntene miijo siwil",

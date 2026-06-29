@@ -645,7 +645,7 @@
     "showLess": "عرض أقل",
     "editIdea": "تعديل الفكرة",
     "deleteIdea": "حذف الفكرة",
-    "allIdeas": "كل الأفكار",
+    "allIdeas": "الأكثر تطوعاً",
     "support": "دعم",
     "participate": "انضم",
     "discussionButton": "نقاش",
@@ -777,7 +777,8 @@
     "stageFinal": "النتيجة النهائية",
     "noImagesYet": "لا توجد صور بعد.",
     "imageUploaded": "تم رفع الصورة",
-    "imageDeleted": "تم حذف الصورة"
+    "imageDeleted": "تم حذف الصورة",
+    "upload": "رفع"
   },
   "IdeaForm": {
     "title": "إرسال فكرة مدنية",

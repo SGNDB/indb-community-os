@@ -645,7 +645,7 @@
     "showLess": "Voir moins",
     "editIdea": "Modifier l'idée",
     "deleteIdea": "Supprimer l'idée",
-    "allIdeas": "Toutes les idées",
+    "allIdeas": "Plus de volontaires",
     "support": "Soutenir",
     "participate": "Participer",
     "discussionButton": "Discussion",
@@ -777,7 +777,8 @@
     "stageFinal": "Résultat final",
     "noImagesYet": "Aucune image pour le moment.",
     "imageUploaded": "Image téléversée",
-    "imageDeleted": "Image supprimée"
+    "imageDeleted": "Image supprimée",
+    "upload": "Téléverser"
   },
   "IdeaForm": {
     "title": "Soumettre une idée citoyenne",

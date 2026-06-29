@@ -515,7 +515,7 @@
     "showLess": "Hollu ko ɓuri famɗi",
     "editIdea": "Taƴto miijo",
     "deleteIdea": "Momtu miijo",
-    "allIdeas": "Miijooji Fuu",
+    "allIdeas": "Most Volunteers",
     "support": "Ballal",
     "participate": "Tawtu",
     "discussionButton": "Yeewtu",
@@ -647,7 +647,8 @@
     "stageFinal": "Final Result",
     "noImagesYet": "No images yet.",
     "imageUploaded": "Image uploaded",
-    "imageDeleted": "Image deleted"
+    "imageDeleted": "Image deleted",
+    "upload": "Upload"
   },
   "IdeaForm": {
     "title": "Yeɗ miijo siwil",

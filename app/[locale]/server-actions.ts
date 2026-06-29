@@ -4133,7 +4133,14 @@ export async function updateIdeaOwnerProgressAction(
     })
     .eq('id', ideaId);
 
-  if (updateError && updateError.code === 'PGRST204') {
+  const optionalProgressColumnsMissing =
+    updateError &&
+    (updateError.code === 'PGRST204' ||
+      updateError.code === '42703' ||
+      updateError.message?.includes('progress_percentage') ||
+      updateError.message?.includes('project_notes'));
+
+  if (optionalProgressColumnsMissing) {
     const retry = await supabase
       .from('ideas')
       .update({status, updated_at: new Date().toISOString()})
@@ -4152,7 +4159,9 @@ export async function updateIdeaOwnerProgressAction(
         content: trimmedUpdate,
       });
 
-    if (insertError) return { success: false, error: insertError.message };
+    if (insertError) {
+      console.error('updateIdeaOwnerProgressAction latest update insert error:', insertError.message);
+    }
   }
 
   revalidatePath(toPath(locale, `/ideas/${ideaId}`));
