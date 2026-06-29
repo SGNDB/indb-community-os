@@ -127,6 +127,17 @@ function isLocalMessage(id: string) {
   return isSendingMessage(id) || isFailedMessage(id);
 }
 
+function runAfterPaint(callback: () => void) {
+  if (typeof window === "undefined") {
+    callback();
+    return;
+  }
+
+  window.requestAnimationFrame(() => {
+    window.setTimeout(callback, 0);
+  });
+}
+
 type TranslationFn = (key: string, values?: Record<string, string | number>) => string;
 
 function statusLabel(status: string | null | undefined, t: TranslationFn) {
@@ -933,7 +944,7 @@ export function ConversationChat({
     }
   }
 
-  async function handleSend(e: FormEvent) {
+  function handleSend(e: FormEvent) {
     e.preventDefault();
     const trimmed = input.trim();
     if ((!trimmed && pendingImages.length === 0) || isReadOnly) return;
@@ -941,10 +952,10 @@ export function ConversationChat({
       setError("blocked_send");
       return;
     }
-    void sendLocalMessage(trimmed, pendingImages);
+    sendLocalMessage(trimmed, pendingImages);
   }
 
-  async function sendLocalMessage(
+  function sendLocalMessage(
     trimmed: string,
     optimisticImages: { url: string; storagePath: string }[],
     existingLocalId?: string,
@@ -997,6 +1008,27 @@ export function ConversationChat({
 
     requestAnimationFrame(() => scrollToLatest("smooth"));
 
+    runAfterPaint(() => {
+      void persistLocalMessage({
+        optimisticId,
+        localId,
+        trimmed,
+        optimisticImages,
+      });
+    });
+  }
+
+  async function persistLocalMessage({
+    optimisticId,
+    localId,
+    trimmed,
+    optimisticImages,
+  }: {
+    optimisticId: string;
+    localId: string;
+    trimmed: string;
+    optimisticImages: { url: string; storagePath: string }[];
+  }) {
     const formData = new FormData();
     formData.set("conversationId", conversationId);
     formData.set("message", trimmed);
@@ -1078,7 +1110,7 @@ export function ConversationChat({
       : message.image_url
         ? [{ url: message.image_url, storagePath: message.image_storage_path ?? "" }]
         : [];
-    await sendLocalMessage(message.message ?? "", retryImages, message.id);
+    sendLocalMessage(message.message ?? "", retryImages, message.id);
   }
 
   function openMessageActions(message: ConversationMessageWithSender) {
