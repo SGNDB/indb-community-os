@@ -1,12 +1,12 @@
 "use client";
 
 import {
-  Heart,
   Rocket,
   Sparkles,
   Trophy,
   Users,
   CheckCircle2,
+  UserCircle2,
 } from "lucide-react";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useTranslations} from "next-intl";
@@ -19,7 +19,6 @@ import {withLocale} from "@/lib/i18n/paths";
 
 const TABS = [
   {id: "newest", icon: Sparkles, labelKey: "tabNewest"},
-  {id: "supported", icon: Heart, labelKey: "tabSupported"},
   {id: "needs_participants", icon: Users, labelKey: "tabNeedsParticipants"},
   {id: "in_progress", icon: Rocket, labelKey: "tabInProgress"},
   {id: "completed", icon: CheckCircle2, labelKey: "tabCompleted"},
@@ -41,6 +40,7 @@ export function IdeasClientPage({
   initialStatus,
   initialSort,
   initialCategory,
+  isMyIdeas,
   previousLabel,
   nextLabel,
 }: {
@@ -58,6 +58,7 @@ export function IdeasClientPage({
   initialStatus: string | null;
   initialSort: string;
   initialCategory: string | null;
+  isMyIdeas: boolean;
   previousLabel: string;
   nextLabel: string;
 }) {
@@ -104,7 +105,7 @@ export function IdeasClientPage({
   return (
     <>
       {/* Top 10 Section */}
-      {top10.length > 0 && initialTab !== "top10" ? (
+      {top10.length > 0 && initialTab !== "top10" && initialTab !== "my_ideas" ? (
         <Top10Section ideas={top10} />
       ) : null}
 
@@ -123,7 +124,7 @@ export function IdeasClientPage({
       {/* Tabs */}
       <div className="overflow-x-auto pb-1 scrollbar-none">
         <div className="inline-flex h-auto min-w-full gap-1 rounded-2xl bg-muted/50 p-1 sm:min-w-0">
-          {TABS.map(({id, icon: Icon, labelKey}) => (
+          {[...(currentUserId ? [{id: "my_ideas", icon: UserCircle2, labelKey: "tabMyIdeas"}] as const : []), ...TABS].map(({id, icon: Icon, labelKey}) => (
             <button
               key={id}
               type="button"
@@ -156,6 +157,8 @@ export function IdeasClientPage({
               key={idea.id}
               idea={idea}
               currentUserId={currentUserId}
+              showOwnerControls={isMyIdeas && idea.author_id === currentUserId}
+              showProgress={isMyIdeas && idea.author_id === currentUserId}
             />
           ))
         ) : (

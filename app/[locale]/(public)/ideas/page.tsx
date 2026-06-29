@@ -96,6 +96,14 @@ export default async function IdeasPage({
     .not("author_id", "is", null);
 
   // Apply status filter
+  if (tab === "my_ideas") {
+    if (currentUserId) {
+      query = query.eq("author_id", currentUserId);
+    } else {
+      query = query.eq("author_id", "00000000-0000-0000-0000-000000000000");
+    }
+  }
+
   if (statusFilter) {
     query = query.eq("status", statusFilter);
   } else if (tab === "needs_participants") {
@@ -198,6 +206,7 @@ export default async function IdeasPage({
         initialStatus={statusFilter}
         initialSort={sortBy}
         initialCategory={categoryFilter}
+        isMyIdeas={tab === "my_ideas"}
         previousLabel={common("previous")}
         nextLabel={common("next")}
       />

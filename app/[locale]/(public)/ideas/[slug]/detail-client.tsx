@@ -12,7 +12,8 @@ import {useLocale, useTranslations} from "next-intl";
 import {useMemo, useState} from "react";
 import {toast} from "sonner";
 
-import {openIdeaProjectRoomAction, voteIdeaAction} from "@/app/[locale]/server-actions";
+import {openIdeaProjectRoomAction, updateIdeaOwnerProgressAction, voteIdeaAction} from "@/app/[locale]/server-actions";
+import {IdeaMediaGallery} from "@/components/ideas/idea-media-gallery";
 import {OnlineAvatar} from "@/components/presence";
 import {Link, useRouter} from "@/lib/i18n/routing";
 
@@ -29,10 +30,15 @@ function getCategoryName(category: any, locale: string): string {
 function stageKey(status: string | null | undefined) {
   if (status === "completed") return "completed";
   if (status === "in_progress") return "inProgress";
+  if (status === "approved") return "approved";
+  if (status === "interested") return "review";
+  if (status === "discussion") return "discussion";
   if (status === "gathering_participants" || status === "approved") return "needsParticipants";
   if (status === "archived") return "archived";
-  return "gatheringSupport";
+  return "published";
 }
+
+const OWNER_STAGES = ["published", "discussion", "interested", "approved", "in_progress", "completed"] as const;
 
 export function IdeaDetailClient({
   idea,
@@ -58,7 +64,13 @@ export function IdeaDetailClient({
   const [userVoted, setUserVoted] = useState(initialUserVoted);
   const [votePending, setVotePending] = useState(false);
   const [roomPending, setRoomPending] = useState(false);
+  const [progressSaving, setProgressSaving] = useState(false);
   const [roomError, setRoomError] = useState<string | null>(null);
+  const [localStatus, setLocalStatus] = useState(idea.status ?? "published");
+  const [progressPercentage, setProgressPercentage] = useState<number>(idea.progress_percentage ?? 0);
+  const [projectNotes, setProjectNotes] = useState(idea.project_notes ?? "");
+  const [latestUpdateInput, setLatestUpdateInput] = useState("");
+  const [latestUpdateText, setLatestUpdateText] = useState(updates[0]?.content ?? "");
 
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
   const categoryName = getCategoryName(idea.category, locale);
@@ -67,7 +79,8 @@ export function IdeaDetailClient({
     ...((idea.media ?? []).map((item: any) => ({url: item.url, type: item.type, caption: null}))),
     ...progressImages.map((item: any) => ({url: item.url, type: "image", caption: item.caption ?? null})),
   ];
-  const stage = stageKey(idea.status);
+  const stage = stageKey(localStatus);
+  const isOwner = currentUserId === idea.author_id;
 
   const timelineEvents = useMemo(() => {
     const events = [
@@ -75,12 +88,12 @@ export function IdeaDetailClient({
       ...updates.map((update) => ({date: update.created_at, label: update.content})),
       ...milestones.map((milestone) => ({date: milestone.completed_at ?? milestone.created_at ?? idea.created_at, label: milestone.title ?? milestone.description ?? t("milestones")})),
     ];
-    if (idea.status === "in_progress") events.push({date: idea.updated_at ?? idea.created_at, label: t("projectTimeline.progress")});
-    if (idea.status === "completed") events.push({date: idea.updated_at ?? idea.created_at, label: t("projectTimeline.completed")});
+    if (localStatus === "in_progress") events.push({date: idea.updated_at ?? idea.created_at, label: t("projectTimeline.progress")});
+    if (localStatus === "completed") events.push({date: idea.updated_at ?? idea.created_at, label: t("projectTimeline.completed")});
     return events
       .filter((event) => event.date && event.label)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  }, [idea.created_at, idea.status, idea.updated_at, milestones, t, updates]);
+  }, [idea.created_at, idea.updated_at, localStatus, milestones, t, updates]);
 
   async function handleVote() {
     if (votePending) return;
@@ -162,6 +175,30 @@ export function IdeaDetailClient({
     router.push(`/messages?conversation=${result.conversationId}`);
   }
 
+  async function handleSaveProgress() {
+    if (progressSaving || !isOwner) return;
+    setProgressSaving(true);
+    const formData = new FormData();
+    formData.set("locale", locale);
+    formData.set("ideaId", idea.id);
+    formData.set("status", localStatus);
+    formData.set("progressPercentage", String(progressPercentage));
+    formData.set("projectNotes", projectNotes);
+    formData.set("latestUpdate", latestUpdateInput);
+
+    const result = await updateIdeaOwnerProgressAction(formData);
+    setProgressSaving(false);
+    if (!result.success) {
+      toast.error(t("progressSaveFailed"));
+      return;
+    }
+    if (latestUpdateInput.trim()) {
+      setLatestUpdateText(latestUpdateInput.trim());
+      setLatestUpdateInput("");
+    }
+    toast.success(t("progressSaved"));
+  }
+
   return (
     <div className="space-y-4">
       <section className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-6">
@@ -186,22 +223,97 @@ export function IdeaDetailClient({
 
         <p className="mt-5 whitespace-pre-line text-base leading-7 text-foreground/85">{idea.description}</p>
 
-        <div className="mt-5 rounded-2xl bg-muted/35 p-2">
-          <div className="rounded-xl bg-background/70 px-3 py-3 text-center">
-            <ThumbsUp size={17} className="mx-auto text-primary" />
-            <p className="mt-1 text-lg font-black text-foreground">{votesCount}</p>
-            <p className="truncate text-[11px] text-muted-foreground">{t("votes")}</p>
+        <div className="mt-5 rounded-2xl bg-muted/35 p-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground">{t("currentStage")}</p>
+              <p className="mt-1 text-sm font-black text-foreground">{t(`ownerStages.${stage}`)}</p>
+            </div>
+            <div className="text-end">
+              <p className="text-xs font-semibold text-muted-foreground">{t("votes")}</p>
+              <p className="mt-1 text-sm font-black text-foreground">{votesCount}</p>
+            </div>
+            <div className="text-end">
+              <p className="text-xs font-semibold text-muted-foreground">{t("comments")}</p>
+              <p className="mt-1 text-sm font-black text-foreground">{idea.comments_count ?? 0}</p>
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+              <span>{t("projectProgress")}</span>
+              <span>{progressPercentage}%</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-background/80">
+              <div className="h-full rounded-full bg-primary transition-all" style={{width: `${Math.max(0, Math.min(100, progressPercentage))}%`}} />
+            </div>
           </div>
         </div>
 
       </section>
 
-      {latestUpdate ? (
+      {isOwner ? (
+        <section className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
+          <h2 className="text-base font-black text-foreground">{t("ownerProgressTitle")}</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_9rem]">
+            <label className="grid gap-1 text-sm font-semibold text-foreground">
+              {t("currentStage")}
+              <select
+                value={localStatus}
+                onChange={(event) => setLocalStatus(event.target.value)}
+                className="h-11 rounded-xl border border-border bg-background px-3 text-sm font-medium outline-none focus:border-primary"
+              >
+                {OWNER_STAGES.map((status) => (
+                  <option key={status} value={status}>{t(`ownerStages.${stageKey(status)}`)}</option>
+                ))}
+              </select>
+            </label>
+            <label className="grid gap-1 text-sm font-semibold text-foreground">
+              {t("progressPercent")}
+              <input
+                type="number"
+                min={0}
+                max={100}
+                value={progressPercentage}
+                onChange={(event) => setProgressPercentage(Math.max(0, Math.min(100, Number(event.target.value) || 0)))}
+                className="h-11 rounded-xl border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+              />
+            </label>
+          </div>
+          <label className="mt-3 grid gap-1 text-sm font-semibold text-foreground">
+            {t("latestUpdate")}
+            <textarea
+              value={latestUpdateInput}
+              onChange={(event) => setLatestUpdateInput(event.target.value)}
+              placeholder={t("updatePlaceholder")}
+              className="min-h-20 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+            />
+          </label>
+          <label className="mt-3 grid gap-1 text-sm font-semibold text-foreground">
+            {t("projectNotes")}
+            <textarea
+              value={projectNotes}
+              onChange={(event) => setProjectNotes(event.target.value)}
+              className="min-h-20 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={handleSaveProgress}
+            disabled={progressSaving}
+            className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-bold text-primary-foreground transition active:scale-[0.98] disabled:opacity-70"
+          >
+            {progressSaving ? <Loader2 size={16} className="animate-spin" /> : null}
+            {t("saveProgress")}
+          </button>
+        </section>
+      ) : null}
+
+      {latestUpdateText ? (
         <section className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
           <h2 className="text-base font-black text-foreground">{t("latestUpdate")}</h2>
           <div className="mt-3 rounded-2xl bg-muted/35 p-4">
-            <p className="text-xs font-semibold text-primary">{new Date(latestUpdate.created_at).toLocaleDateString(uiLocale, {weekday: "long", day: "numeric", month: "short"})}</p>
-            <p className="mt-2 whitespace-pre-line text-sm leading-6 text-foreground">{latestUpdate.content}</p>
+            {latestUpdate ? <p className="text-xs font-semibold text-primary">{new Date(latestUpdate.created_at).toLocaleDateString(uiLocale, {weekday: "long", day: "numeric", month: "short"})}</p> : null}
+            <p className="mt-2 whitespace-pre-line text-sm leading-6 text-foreground">{latestUpdateText}</p>
           </div>
         </section>
       ) : null}
@@ -234,7 +346,11 @@ export function IdeaDetailClient({
         </div>
       </section>
 
-      {mediaItems.length > 0 ? (
+      {isOwner || progressImages.length > 0 ? (
+        <section className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
+          <IdeaMediaGallery ideaId={idea.id} images={progressImages} isOwner={isOwner} />
+        </section>
+      ) : mediaItems.length > 0 ? (
         <section className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
           <h2 className="text-base font-black text-foreground">{t("projectGallery")}</h2>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">

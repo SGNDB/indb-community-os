@@ -215,7 +215,6 @@ export function IdeaSubmitForm({
                   {category.name}
                 </option>
               ))}
-              <option value="other">{t("fields.others")}</option>
             </select>
 
             <MediaUpload

@@ -4092,6 +4092,74 @@ export async function updateIdeaStatusAction(
   return { success: true, status: newStatus as IdeaStatus };
 }
 
+export async function updateIdeaOwnerProgressAction(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
+  const locale = normalizeLocale(formData.get('locale'));
+  const ideaId = formData.get('ideaId');
+  const status = formData.get('status');
+  const progressRaw = formData.get('progressPercentage');
+  const latestUpdate = formData.get('latestUpdate');
+  const projectNotes = formData.get('projectNotes');
+  const validStatuses = ['published', 'discussion', 'interested', 'approved', 'in_progress', 'completed'];
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: 'unauthorized' };
+  if (typeof ideaId !== 'string' || typeof status !== 'string' || !validStatuses.includes(status)) {
+    return { success: false, error: 'invalid' };
+  }
+
+  const { data: idea } = await supabase
+    .from('ideas')
+    .select('author_id')
+    .eq('id', ideaId)
+    .maybeSingle();
+
+  if (!idea) return { success: false, error: 'not_found' };
+  if (idea.author_id !== user.id) return { success: false, error: 'forbidden' };
+
+  const progressPercentage = Math.max(0, Math.min(100, Number(progressRaw ?? 0) || 0));
+  const trimmedNotes = typeof projectNotes === 'string' ? projectNotes.trim().slice(0, 2000) : '';
+  const trimmedUpdate = typeof latestUpdate === 'string' ? latestUpdate.trim().slice(0, 2000) : '';
+
+  let { error: updateError } = await supabase
+    .from('ideas')
+    .update({
+      status,
+      progress_percentage: progressPercentage,
+      project_notes: trimmedNotes || null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', ideaId);
+
+  if (updateError && updateError.code === 'PGRST204') {
+    const retry = await supabase
+      .from('ideas')
+      .update({status, updated_at: new Date().toISOString()})
+      .eq('id', ideaId);
+    updateError = retry.error;
+  }
+
+  if (updateError) return { success: false, error: updateError.message };
+
+  if (trimmedUpdate) {
+    const { error: insertError } = await supabase
+      .from('idea_updates')
+      .insert({
+        idea_id: ideaId,
+        author_id: user.id,
+        content: trimmedUpdate,
+      });
+
+    if (insertError) return { success: false, error: insertError.message };
+  }
+
+  revalidatePath(toPath(locale, `/ideas/${ideaId}`));
+  revalidatePath(toPath(locale, '/ideas'));
+  return { success: true };
+}
+
 export async function getIdeaMessagesAction(
   ideaId: string,
 ): Promise<{ success: boolean; messages?: IdeaMessageWithSender[]; error?: string }> {
