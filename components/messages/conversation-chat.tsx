@@ -27,14 +27,12 @@ import { useTranslations } from "next-intl";
 import { flushSync } from "react-dom";
 
 import { OnlineAvatar, useIsOnline } from "@/components/presence";
-import { ConversationList } from "@/components/messages/conversation-list";
 import { uploadMediaItem } from "@/lib/images/client-upload";
 import { Link, useRouter } from "@/lib/i18n/routing";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils/cn";
 import type {
   ConversationBlockState,
-  ConversationListItem,
   ConversationMessageWithSender,
   ConversationParticipantInfo,
   ConversationUserProfile,
@@ -262,7 +260,6 @@ interface ConversationChatProps {
   memberCount?: number;
   participants: ConversationParticipantInfo[];
   initialBlockState?: ConversationBlockState;
-  initialConversations?: ConversationListItem[];
 }
 
 export function ConversationChat({
@@ -280,7 +277,6 @@ export function ConversationChat({
   memberCount,
   participants: initialParticipants,
   initialBlockState,
-  initialConversations = [],
 }: ConversationChatProps) {
   const t = useTranslations("Messages");
   const memberFallback = t("groupChat.memberFallback");
@@ -1518,10 +1514,6 @@ export function ConversationChat({
       : t("groupChat.memberCount", { count: effectiveMemberCount });
   const readOnlyMessage = isCompleted ? t("groupChat.closedAfterCompletion") : t("groupChat.readOnlyNotice");
   const composerBlocked = isDirectConversation && localBlockedByMe;
-  const conversationsAfterDelete = useMemo(
-    () => initialConversations.filter((conversation) => conversation.id !== conversationId),
-    [conversationId, initialConversations],
-  );
   const canDeleteViewerImage = Boolean(
     viewerMessage &&
     viewerMessage.sender_id === currentUserId &&
@@ -1532,13 +1524,8 @@ export function ConversationChat({
 
   if (conversationDeleted) {
     return (
-      <div className="flex h-full min-h-0 w-full flex-col bg-background">
-        <div className="flex min-h-0 flex-1 flex-col md:hidden">
-          <ConversationList initialConversations={conversationsAfterDelete} currentUserId={currentUserId} />
-        </div>
-        <div className="hidden min-h-0 flex-1 items-center justify-center px-6 text-center text-sm text-muted-foreground md:flex">
-          {t("selectConversationHint")}
-        </div>
+      <div className="flex h-full min-h-0 w-full items-center justify-center bg-background px-6 text-center text-sm text-muted-foreground">
+        {t("selectConversationHint")}
       </div>
     );
   }
