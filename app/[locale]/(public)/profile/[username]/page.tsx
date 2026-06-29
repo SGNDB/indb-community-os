@@ -294,8 +294,10 @@ export default async function PublicProfilePage({
                   locale={locale}
                   currentUserId={currentUserId}
                   initialIsFollowing={currentUserIsFollowing}
-                  initialFollowersCount={followStats.followersCount}
-                  followingCount={followStats.followingCount}
+                  initialFollowersCount={isOwnProfile || privacy.show_followers ? followStats.followersCount : 0}
+                  followingCount={isOwnProfile || privacy.show_following ? followStats.followingCount : 0}
+                  showFollowers={isOwnProfile || privacy.show_followers}
+                  showFollowing={isOwnProfile || privacy.show_following}
                   showButton={!isOwnProfile}
                 />
               </div>

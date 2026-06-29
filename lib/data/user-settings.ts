@@ -22,6 +22,8 @@ export const defaultUserSettings: UserSettingsRow = {
   show_completed_graatek: true,
   show_memories: true,
   show_online_status: true,
+  show_followers: true,
+  show_following: true,
   last_seen_visibility: "everyone",
   phone_visibility: "only_me",
   email_visibility: "no_one",
@@ -116,6 +118,8 @@ export type PublicProfilePrivacy = Pick<
   | "show_memories"
   | "recognition_visibility"
   | "show_online_status"
+  | "show_followers"
+  | "show_following"
   | "last_seen_visibility"
   | "phone_visibility"
   | "email_visibility"

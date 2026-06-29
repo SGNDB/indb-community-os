@@ -17,6 +17,8 @@ export function FollowSummary({
   initialIsFollowing,
   initialFollowersCount,
   followingCount,
+  showFollowers = true,
+  showFollowing = true,
   showButton = true,
 }: {
   profileId: string;
@@ -26,6 +28,8 @@ export function FollowSummary({
   initialIsFollowing: boolean;
   initialFollowersCount: number;
   followingCount: number;
+  showFollowers?: boolean;
+  showFollowing?: boolean;
   showButton?: boolean;
 }) {
   const t = useTranslations("Follow");
@@ -94,12 +98,16 @@ export function FollowSummary({
         </Button>
       ) : null}
       <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground sm:justify-start">
-        <button type="button" onClick={handleCountClick} className="hover:text-foreground">
-          <span className="font-semibold text-foreground">{followersCount}</span> {t("followers")}
-        </button>
-        <button type="button" onClick={handleCountClick} className="hover:text-foreground">
-          <span className="font-semibold text-foreground">{followingCount}</span> {t("followingCount")}
-        </button>
+        {showFollowers ? (
+          <button type="button" onClick={handleCountClick} className="hover:text-foreground">
+            <span className="font-semibold text-foreground">{followersCount}</span> {t("followers")}
+          </button>
+        ) : null}
+        {showFollowing ? (
+          <button type="button" onClick={handleCountClick} className="hover:text-foreground">
+            <span className="font-semibold text-foreground">{followingCount}</span> {t("followingCount")}
+          </button>
+        ) : null}
       </div>
     </div>
   );

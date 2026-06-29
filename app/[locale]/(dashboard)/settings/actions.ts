@@ -150,6 +150,8 @@ export async function saveUserPreferencesAction(input: {
   showCompletedGraatek: boolean;
   showMemories: boolean;
   showOnlineStatus: boolean;
+  showFollowers: boolean;
+  showFollowing: boolean;
   lastSeenVisibility: UserLastSeenVisibility;
   phoneVisibility: UserPhoneVisibility;
   emailVisibility: UserEmailVisibility;
@@ -223,6 +225,8 @@ export async function saveUserPreferencesAction(input: {
         show_completed_graatek: Boolean(input.showCompletedGraatek),
         show_memories: Boolean(input.showMemories),
         show_online_status: Boolean(input.showOnlineStatus),
+        show_followers: Boolean(input.showFollowers),
+        show_following: Boolean(input.showFollowing),
         last_seen_visibility: lastSeenVisibility,
         phone_visibility: phoneVisibility,
         email_visibility: emailVisibility,

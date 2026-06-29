@@ -77,6 +77,8 @@ export interface UserSettingsRow {
   show_completed_graatek: boolean;
   show_memories: boolean;
   show_online_status: boolean;
+  show_followers: boolean;
+  show_following: boolean;
   last_seen_visibility: UserLastSeenVisibility;
   phone_visibility: UserPhoneVisibility;
   email_visibility: UserEmailVisibility;

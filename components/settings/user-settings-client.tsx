@@ -205,6 +205,8 @@ function labelsFor(locale: string) {
       showGraatek: "إظهار گرعتك المكتملة",
       showMemories: "إظهار الذكريات",
       showOnline: "إظهار حالة الاتصال",
+      showFollowers: "إظهار عدد المتابعين",
+      showFollowing: "إظهار عدد من أتابع",
       lastSeen: "من يمكنه رؤية آخر ظهور؟",
       phoneVisibility: "من يمكنه رؤية رقم الهاتف؟",
       emailVisibility: "من يمكنه رؤية البريد الإلكتروني؟",
@@ -364,6 +366,8 @@ function labelsFor(locale: string) {
       showGraatek: "Afficher Graatek terminé",
       showMemories: "Afficher les souvenirs",
       showOnline: "Afficher le statut en ligne",
+      showFollowers: "Afficher le nombre d'abonnés",
+      showFollowing: "Afficher le nombre d'abonnements",
       lastSeen: "Qui peut voir ma dernière activité ?",
       phoneVisibility: "Qui peut voir mon téléphone ?",
       emailVisibility: "Qui peut voir mon e-mail ?",
@@ -523,6 +527,8 @@ function labelsFor(locale: string) {
       showGraatek: "Show completed Graatek",
       showMemories: "Show memories",
       showOnline: "Show online status",
+      showFollowers: "Show follower count",
+      showFollowing: "Show following count",
       lastSeen: "Who can see my last seen?",
       phoneVisibility: "Who can see my phone number?",
       emailVisibility: "Who can see my email?",
@@ -761,6 +767,8 @@ export function UserSettingsClient({
     showCompletedGraatek: settings.show_completed_graatek,
     showMemories: settings.show_memories,
     showOnlineStatus: settings.show_online_status,
+    showFollowers: settings.show_followers,
+    showFollowing: settings.show_following,
     lastSeenVisibility: settings.last_seen_visibility,
     phoneVisibility: settings.phone_visibility,
     emailVisibility: settings.email_visibility,
@@ -1393,6 +1401,12 @@ export function UserSettingsClient({
               <p className="px-3 pb-1 pt-2 text-xs font-black uppercase tracking-wider text-muted-foreground">💬 {labels.privacy.activity}</p>
               <SelectRow value={preferences.lastSeenVisibility} onChange={(v) => savePrivacyPreference("lastSeenVisibility", v)} label={labels.privacy.lastSeen} options={lastSeenOptions} />
               <Toggle checked={preferences.showOnlineStatus} onChange={(v) => savePrivacyPreference("showOnlineStatus", v)} label={labels.privacy.showOnline} />
+            </div>
+
+            <div className="mt-4 space-y-1">
+              <p className="px-3 pb-1 pt-2 text-xs font-black uppercase tracking-wider text-muted-foreground">👥 {labels.privacy.activity}</p>
+              <Toggle checked={preferences.showFollowers} onChange={(v) => savePrivacyPreference("showFollowers", v)} label={labels.privacy.showFollowers} />
+              <Toggle checked={preferences.showFollowing} onChange={(v) => savePrivacyPreference("showFollowing", v)} label={labels.privacy.showFollowing} />
             </div>
           </SectionCard>
 
