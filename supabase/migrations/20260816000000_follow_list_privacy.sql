@@ -123,6 +123,7 @@ end;
 $$;
 
 -- RPC: get followers list with privacy enforcement, pagination, search
+drop function if exists public.get_followers(uuid, uuid, int, int, text);
 create or replace function public.get_followers(
   target_user_id uuid,
   viewer_id uuid default auth.uid(),
@@ -136,7 +137,6 @@ returns table (
   username text,
   avatar_url text,
   is_online boolean,
-  community_level text,
   contribution_score int,
   is_following boolean,
   can_message boolean
@@ -175,12 +175,6 @@ begin
     p.username,
     p.avatar_url,
     false::boolean as is_online,
-    case
-      when p.contribution_score >= 1000 then 'community_leader'
-      when p.contribution_score >= 500 then 'impact_contributor'
-      when p.contribution_score >= 100 then 'active_member'
-      else 'community_supporter'
-    end as community_level,
     p.contribution_score,
     exists (select 1 from viewer_follows vf where vf.following_id = p.id) as is_following,
     exists (select 1 from viewer_messages vm where vm.user_id = p.id) as can_message
@@ -195,6 +189,7 @@ end;
 $$;
 
 -- RPC: get following list with privacy enforcement, pagination, search
+drop function if exists public.get_following(uuid, uuid, int, int, text);
 create or replace function public.get_following(
   target_user_id uuid,
   viewer_id uuid default auth.uid(),
@@ -208,7 +203,6 @@ returns table (
   username text,
   avatar_url text,
   is_online boolean,
-  community_level text,
   contribution_score int,
   is_following boolean,
   can_message boolean
@@ -247,12 +241,6 @@ begin
     p.username,
     p.avatar_url,
     false::boolean as is_online,
-    case
-      when p.contribution_score >= 1000 then 'community_leader'
-      when p.contribution_score >= 500 then 'impact_contributor'
-      when p.contribution_score >= 100 then 'active_member'
-      else 'community_supporter'
-    end as community_level,
     p.contribution_score,
     exists (select 1 from viewer_follows vf where vf.following_id = p.id) as is_following,
     exists (select 1 from viewer_messages vm where vm.user_id = p.id) as can_message

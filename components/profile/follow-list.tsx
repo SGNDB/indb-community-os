@@ -190,12 +190,6 @@ export function FollowList({
     }
   }
 
-  function getLevelLabel(level: string): string {
-    const key = `communityLevel.${level}`;
-    const label = tProfile(key);
-    return label || level;
-  }
-
   const title = type === "followers" ? t("followers") : t("followingCount");
   const searchPlaceholder = type === "followers" ? t("searchFollowers") : t("searchFollowing");
 
@@ -286,14 +280,7 @@ export function FollowList({
                   {/* Info */}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-bold">{user.full_name}</p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      @{user.username}
-                      {user.contribution_score > 0 ? (
-                        <span className="ms-1.5 inline-flex items-center gap-0.5 rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
-                          {getLevelLabel(user.community_level)}
-                        </span>
-                      ) : null}
-                    </p>
+                    <p className="truncate text-xs text-muted-foreground">@{user.username}</p>
                   </div>
 
                   {/* Actions */}
