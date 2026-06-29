@@ -4,8 +4,6 @@
 
 import {
   CalendarDays,
-  CheckCircle2,
-  Circle,
   Loader2,
   MessageCircle,
   ThumbsUp,
@@ -34,14 +32,6 @@ function stageKey(status: string | null | undefined) {
   if (status === "gathering_participants" || status === "approved") return "needsParticipants";
   if (status === "archived") return "archived";
   return "gatheringSupport";
-}
-
-function isStepDone(step: "published" | "supporters" | "participants" | "progress" | "completed", status: string | null | undefined, supporters: number) {
-  if (step === "published") return true;
-  if (step === "supporters") return supporters > 0 || ["gathering_participants", "approved", "in_progress", "completed"].includes(status ?? "");
-  if (step === "participants") return ["gathering_participants", "approved", "in_progress", "completed"].includes(status ?? "");
-  if (step === "progress") return ["in_progress", "completed"].includes(status ?? "");
-  return status === "completed";
 }
 
 export function IdeaDetailClient({
@@ -78,14 +68,6 @@ export function IdeaDetailClient({
     ...progressImages.map((item: any) => ({url: item.url, type: "image", caption: item.caption ?? null})),
   ];
   const stage = stageKey(idea.status);
-
-  const progressSteps = useMemo(
-    () => (["published", "supporters", "participants", "progress", "completed"] as const).map((step) => ({
-      step,
-      done: isStepDone(step, idea.status, votesCount),
-    })),
-    [idea.status, votesCount],
-  );
 
   const timelineEvents = useMemo(() => {
     const events = [
@@ -210,15 +192,6 @@ export function IdeaDetailClient({
             <p className="mt-1 text-lg font-black text-foreground">{votesCount}</p>
             <p className="truncate text-[11px] text-muted-foreground">{t("votes")}</p>
           </div>
-        </div>
-
-        <div className="mt-5 grid gap-2 sm:grid-cols-5">
-          {progressSteps.map(({step, done}) => (
-            <div key={step} className="flex items-center gap-2 rounded-xl bg-muted/30 px-3 py-2 text-sm text-muted-foreground sm:flex-col sm:items-start">
-              {done ? <CheckCircle2 size={17} className="text-emerald-500" /> : <Circle size={17} className="text-muted-foreground/40" />}
-              <span className={done ? "font-semibold text-foreground" : ""}>{t(`projectTimeline.${step}`)}</span>
-            </div>
-          ))}
         </div>
 
       </section>

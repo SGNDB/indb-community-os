@@ -1,14 +1,12 @@
 "use client";
 
 import {
-  CheckCircle2,
-  Circle,
   FolderOpen,
   Loader2,
   ThumbsUp,
 } from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useState} from "react";
 import {toast} from "sonner";
 
 import {getUserVoteAction, voteIdeaAction} from "@/app/[locale]/server-actions";
@@ -40,14 +38,6 @@ function stageKey(status: string | null | undefined) {
   return "gatheringSupport";
 }
 
-function completedStep(step: "published" | "supporters" | "participants" | "progress" | "completed", status: string | null | undefined, supporters: number) {
-  if (step === "published") return true;
-  if (step === "supporters") return supporters > 0 || ["gathering_participants", "approved", "in_progress", "completed"].includes(status ?? "");
-  if (step === "participants") return ["gathering_participants", "approved", "in_progress", "completed"].includes(status ?? "");
-  if (step === "progress") return ["in_progress", "completed"].includes(status ?? "");
-  return status === "completed";
-}
-
 export function IdeaListCard({
   idea,
   currentUserId,
@@ -67,14 +57,6 @@ export function IdeaListCard({
   const authorAvatar = idea.author?.avatar_url ?? idea.author_avatar_url ?? null;
   const authorId = idea.author?.id ?? idea.author_id;
   const stage = stageKey(idea.status);
-
-  const timeline = useMemo(
-    () => (["published", "supporters", "participants", "progress", "completed"] as const).map((step) => ({
-      step,
-      done: completedStep(step, idea.status, votesCount),
-    })),
-    [idea.status, votesCount],
-  );
 
   useEffect(() => {
     let alive = true;
@@ -155,15 +137,6 @@ export function IdeaListCard({
           <p className="mt-1 text-sm font-bold text-foreground">{votesCount}</p>
           <p className="truncate text-[10px] text-muted-foreground">{t("votes")}</p>
         </div>
-      </div>
-
-      <div className="mt-4 grid gap-2 sm:grid-cols-5">
-        {timeline.map(({step, done}) => (
-          <div key={step} className="flex items-center gap-1.5 text-xs text-muted-foreground sm:flex-col sm:items-start">
-            {done ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Circle size={16} className="text-muted-foreground/40" />}
-            <span className={done ? "font-medium text-foreground" : ""}>{t(`projectTimeline.${step}`)}</span>
-          </div>
-        ))}
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-2">
