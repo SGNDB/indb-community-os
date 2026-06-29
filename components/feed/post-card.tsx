@@ -498,10 +498,7 @@ export function PostCard({
 
           {localComments.length > 0 ? (
             <div id={`post-${post.id}-comments`} className="space-y-2 border-t border-border/60 pt-2 scroll-mt-24">
-              {(searchParams.get("focus") === "comments" && searchParams.get("comment") && localComments.some((c) => c.id === searchParams.get("comment"))
-                ? localComments
-                : localComments.slice(0, 3)
-              ).map((comment) => {
+              {localComments.map((comment) => {
                 const commentAuthor = comment.author?.full_name ?? comment.author?.username ?? t("unknownAuthor");
                 const isOwnComment = currentUserId != null && comment.author_id === currentUserId;
                 return (

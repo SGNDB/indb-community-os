@@ -62,7 +62,7 @@ export async function getCommentsByPostPage(
 
 export async function getCommentsForPosts(
   postIds: string[],
-  maxCommentsPerPost = 3,
+  maxCommentsPerPost = 100,
 ): Promise<Record<string, CommentWithAuthor[]>> {
   if (postIds.length === 0) return {};
 
