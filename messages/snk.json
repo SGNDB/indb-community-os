@@ -485,7 +485,6 @@
     "voteLabelVoted": "Suubinta",
     "supportPercent": "{percent}% detem",
     "showSupporters": "Yeru detemunke",
-    "top10PopularIdeas": "Miiji 10 maŋi ɓuri la",
     "showAll": "Yeru fuu ({count})",
     "badgeNewIdea": "Miijo Siiɓen",
     "badgeGrowingSupport": "Detem No Ɓeydin",
@@ -557,8 +556,6 @@
       "typingSingle": "{name} is typing...",
       "typingMultiple": "{names} are typing..."
     },
-    "top10Title": "🏆 Top 10 Ideas - Last 3 Months",
-    "top10Subtitle": "Ranking is updated automatically based on activity in the last 90 days only.",
     "howRankingCalculated": "How is this ranking calculated?",
     "rankingExplanationTitle": "This ranking is calculated based on:",
     "rankingVotes": "Number of votes",
@@ -571,10 +568,8 @@
     "tabPopular": "Popular",
     "tabNewest": "Newest",
     "tabSupported": "Most Supported",
-    "tabNeedsParticipants": "Needs Participants",
     "tabInProgress": "In Progress",
     "tabCompleted": "Completed",
-    "tabTop10": "Top 10",
     "searchPlaceholder": "Search ideas by title, description, or category...",
     "allCategories": "All categories",
     "filterStatus": "Status",
@@ -600,7 +595,6 @@
     "noProjectMedia": "No shared media yet.",
     "projectStage": {
       "gatheringSupport": "Gathering support",
-      "needsParticipants": "Needs participants",
       "inProgress": "In progress",
       "completed": "Completed",
       "archived": "Archived"
@@ -608,7 +602,6 @@
     "projectTimeline": {
       "published": "Idea published",
       "supporters": "Gathering supporters",
-      "participants": "Needs participants",
       "progress": "Implementation started",
       "completed": "Project completed"
     },
@@ -646,8 +639,7 @@
       "approved": "Approved",
       "inProgress": "Became a project",
       "completed": "Completed",
-      "archived": "Archived",
-      "needsParticipants": "Needs participants"
+      "archived": "Archived"
     },
     "stageBefore": "Before",
     "stageProgress": "In Progress",

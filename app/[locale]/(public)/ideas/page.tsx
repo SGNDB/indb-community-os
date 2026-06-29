@@ -58,10 +58,6 @@ export default async function IdeasPage({
   } = await supabase.auth.getUser();
   const currentUserId = currentUser?.id ?? null;
 
-  // Fetch Top 10 ideas (from RPC)
-  const {data: top10Raw} = await supabase.rpc("get_top_10_ideas");
-  const top10 = (top10Raw ?? []) as any[];
-
   // Fetch categories for filter dropdown
   const {data: categoriesRaw} = await supabase.from("categories").select("*").order("name_en");
   const categories = (categoriesRaw ?? []).map((c: any) => ({
@@ -80,7 +76,7 @@ export default async function IdeasPage({
   const searchQuery = sp.query ?? "";
   const statusFilter = sp.status ?? null;
   const categoryFilter = sp.category ?? null;
-  const sortBy = sp.sort ?? "newest";
+  const sortBy = sp.sort ?? "participants";
   const pageSize = 20;
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
@@ -106,8 +102,6 @@ export default async function IdeasPage({
 
   if (statusFilter) {
     query = query.eq("status", statusFilter);
-  } else if (tab === "needs_participants") {
-    query = query.in("status", ["gathering_participants", "approved", "interested", "discussion"]);
   } else if (tab === "in_progress") {
     query = query.eq("status", "in_progress");
   } else if (tab === "completed") {
@@ -126,21 +120,18 @@ export default async function IdeasPage({
   // Apply sorting
   if (tab === "supported" || sortBy === "supporters") {
     query = query.order("supporters_count", {ascending: false}).order("created_at", {ascending: false});
-  } else if (tab === "newest" || sortBy === "newest") {
-    query = query.order("created_at", {ascending: false});
   } else if (sortBy === "votes") {
     query = query.order("votes_count", {ascending: false}).order("created_at", {ascending: false});
+  } else if (sortBy === "newest") {
+    query = query.order("created_at", {ascending: false});
   } else if (sortBy === "participants") {
     query = query.order("participants_count", {ascending: false}).order("created_at", {ascending: false});
   } else {
-    // Default: most votes
-    query = query.order("votes_count", {ascending: false}).order("created_at", {ascending: false});
+    query = query.order("participants_count", {ascending: false}).order("created_at", {ascending: false});
   }
 
-  const {data: ideasRaw, count: queriedTotalCount} = tab === "top10"
-    ? {data: top10Raw ?? [], count: top10.length}
-    : await query.range(from, to);
-  const totalCount = tab === "top10" ? top10.length : queriedTotalCount;
+  const {data: ideasRaw, count: queriedTotalCount} = await query.range(from, to);
+  const totalCount = queriedTotalCount;
   const ideas = (ideasRaw ?? []) as any[];
 
   // Attach media
@@ -192,7 +183,6 @@ export default async function IdeasPage({
 
       {/* Client-side interactive section */}
       <IdeasClientPage
-        top10={top10}
         ideas={ideas}
         categories={categories}
         currentUserId={currentUserId}

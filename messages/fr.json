@@ -616,7 +616,6 @@
     "voteLabelVoted": "Voté",
     "supportPercent": "{percent}% de soutien",
     "showSupporters": "Voir les soutiens",
-    "top10PopularIdeas": "Top 10 des idées populaires",
     "showAll": "Voir tout ({count})",
     "badgeNewIdea": "Nouvelle idée",
     "badgeGrowingSupport": "Soutien croissant",
@@ -688,8 +687,6 @@
       "typingSingle": "{name} écrit...",
       "typingMultiple": "{names} écrivent..."
     },
-    "top10Title": "🏆 Top 10 Ideas - Last 3 Months",
-    "top10Subtitle": "Ranking is updated automatically based on activity in the last 90 days only.",
     "howRankingCalculated": "How is this ranking calculated?",
     "rankingExplanationTitle": "This ranking is calculated based on:",
     "rankingVotes": "Number of votes",
@@ -702,10 +699,8 @@
     "tabPopular": "Popular",
     "tabNewest": "Les plus récentes",
     "tabSupported": "Les plus soutenues",
-    "tabNeedsParticipants": "Besoin de participants",
     "tabInProgress": "En cours",
     "tabCompleted": "Terminées",
-    "tabTop10": "Top 10",
     "searchPlaceholder": "Rechercher par titre, description, catégorie, créateur ou quartier...",
     "allCategories": "Toutes les catégories",
     "filterStatus": "Status",
@@ -731,7 +726,6 @@
     "noProjectMedia": "Aucun média partagé pour le moment.",
     "projectStage": {
       "gatheringSupport": "Collecte de soutien",
-      "needsParticipants": "Besoin de participants",
       "inProgress": "En cours",
       "completed": "Terminé",
       "archived": "Archivé"
@@ -739,7 +733,6 @@
     "projectTimeline": {
       "published": "Idée publiée",
       "supporters": "Collecte de soutiens",
-      "participants": "Recherche de participants",
       "progress": "Mise en œuvre commencée",
       "completed": "Projet terminé"
     },
@@ -777,8 +770,7 @@
       "approved": "Approuvée",
       "inProgress": "Devenue un projet",
       "completed": "Terminée",
-      "archived": "Archivée",
-      "needsParticipants": "Recherche de participants"
+      "archived": "Archivée"
     },
     "stageBefore": "Avant",
     "stageProgress": "En cours",

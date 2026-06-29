@@ -3,8 +3,6 @@
 import {
   Rocket,
   Sparkles,
-  Trophy,
-  Users,
   CheckCircle2,
   UserCircle2,
 } from "lucide-react";
@@ -12,21 +10,17 @@ import {useRouter, useSearchParams} from "next/navigation";
 import {useTranslations} from "next-intl";
 import {useCallback} from "react";
 
-import {Top10Section} from "@/components/ideas/top10-section";
 import {IdeaSearchBar} from "@/components/ideas/idea-search-bar";
 import {IdeaListCard} from "@/components/ideas/idea-list-card";
 import {withLocale} from "@/lib/i18n/paths";
 
 const TABS = [
-  {id: "newest", icon: Sparkles, labelKey: "tabNewest"},
-  {id: "needs_participants", icon: Users, labelKey: "tabNeedsParticipants"},
+  {id: "all", icon: Sparkles, labelKey: "allIdeas"},
   {id: "in_progress", icon: Rocket, labelKey: "tabInProgress"},
   {id: "completed", icon: CheckCircle2, labelKey: "tabCompleted"},
-  {id: "top10", icon: Trophy, labelKey: "tabTop10"},
 ] as const;
 
 export function IdeasClientPage({
-  top10,
   ideas,
   categories,
   currentUserId,
@@ -44,7 +38,6 @@ export function IdeasClientPage({
   previousLabel,
   nextLabel,
 }: {
-  top10: any[];
   ideas: any[];
   categories: {id: number; name: string}[];
   currentUserId: string | null;
@@ -95,7 +88,7 @@ export function IdeasClientPage({
         query: filters.query || null,
         category: filters.categoryId ?? null,
         status: filters.status,
-        sort: filters.sort !== "newest" ? filters.sort : null,
+        sort: null,
         page: "1",
       });
     },
@@ -104,11 +97,6 @@ export function IdeasClientPage({
 
   return (
     <>
-      {/* Top 10 Section */}
-      {top10.length > 0 && initialTab !== "top10" && initialTab !== "my_ideas" ? (
-        <Top10Section ideas={top10} />
-      ) : null}
-
       {/* Search + Filters */}
       <IdeaSearchBar
         categories={categories}

@@ -616,7 +616,6 @@
     "voteLabelVoted": "تم التصويت",
     "supportPercent": "دعم {percent}%",
     "showSupporters": "عرض الداعمين",
-    "top10PopularIdeas": "أكثر 10 أفكار شعبية",
     "showAll": "عرض الكل ({count})",
     "badgeNewIdea": "فكرة جديدة",
     "badgeGrowingSupport": "دعم متزايد",
@@ -688,8 +687,6 @@
       "typingSingle": "{name} يكتب...",
       "typingMultiple": "{names} يكتبون..."
     },
-    "top10Title": "🏆 أفضل 10 أفكار خلال آخر 3 أشهر",
-    "top10Subtitle": "يتم تحديث الترتيب تلقائياً اعتماداً على نشاط آخر 90 يوماً فقط.",
     "howRankingCalculated": "كيف تم احتساب هذا الترتيب؟",
     "rankingExplanationTitle": "تم احتساب هذا الترتيب بناءً على:",
     "rankingVotes": "عدد الأصوات",
@@ -702,10 +699,8 @@
     "tabPopular": "الأكثر شعبية",
     "tabNewest": "الأحدث",
     "tabSupported": "الأكثر دعماً",
-    "tabNeedsParticipants": "يبحث عن مشاركين",
     "tabInProgress": "قيد التنفيذ",
     "tabCompleted": "المكتملة",
-    "tabTop10": "أفضل 10",
     "searchPlaceholder": "ابحث في الأفكار عن عنوان، وصف، أو تصنيف...",
     "allCategories": "كل الفئات",
     "filterStatus": "الحالة",
@@ -731,7 +726,6 @@
     "noProjectMedia": "لا توجد وسائط مشتركة بعد.",
     "projectStage": {
       "gatheringSupport": "يجمع الداعمين",
-      "needsParticipants": "يبحث عن مشاركين",
       "inProgress": "بدأ التنفيذ",
       "completed": "اكتمل المشروع",
       "archived": "مؤرشف"
@@ -739,7 +733,6 @@
     "projectTimeline": {
       "published": "تم نشر الفكرة",
       "supporters": "يجمع الداعمين",
-      "participants": "يبحث عن مشاركين",
       "progress": "بدأ التنفيذ",
       "completed": "اكتمل المشروع"
     },
@@ -777,8 +770,7 @@
       "approved": "تمت الموافقة",
       "inProgress": "تحولت إلى مشروع",
       "completed": "مكتملة",
-      "archived": "مؤرشفة",
-      "needsParticipants": "يبحث عن مشاركين"
+      "archived": "مؤرشفة"
     },
     "stageBefore": "قبل التنفيذ",
     "stageProgress": "أثناء التنفيذ",

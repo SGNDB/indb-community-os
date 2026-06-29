@@ -33,7 +33,7 @@ function stageKey(status: string | null | undefined) {
   if (status === "approved") return "approved";
   if (status === "interested") return "review";
   if (status === "discussion") return "discussion";
-  if (status === "gathering_participants" || status === "approved") return "needsParticipants";
+  if (status === "gathering_participants") return "review";
   if (status === "archived") return "archived";
   return "published";
 }
@@ -207,7 +207,7 @@ export function IdeaDetailClient({
             <div className="mb-3 flex flex-wrap items-center gap-2">
               {categoryName ? <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">{categoryName}</span> : null}
               <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300">
-                {t(`projectStage.${stage}`)}
+                {t(`ownerStages.${stage}`)}
               </span>
             </div>
             <h1 className="text-2xl font-black leading-tight text-foreground sm:text-3xl">{idea.title}</h1>
