@@ -42,6 +42,7 @@ export default async function IdeasPage({
     query?: string;
     status?: string;
     sort?: string;
+    category?: string;
   }>;
 }) {
   const {locale} = await params;
@@ -75,10 +76,11 @@ export default async function IdeasPage({
   }));
 
   // Fetch paginated ideas
-  const tab = sp.tab ?? "popular";
+  const tab = sp.tab ?? "newest";
   const searchQuery = sp.query ?? "";
   const statusFilter = sp.status ?? null;
-  const sortBy = sp.sort ?? "impact";
+  const categoryFilter = sp.category ?? null;
+  const sortBy = sp.sort ?? "newest";
   const pageSize = 20;
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
@@ -96,24 +98,28 @@ export default async function IdeasPage({
   // Apply status filter
   if (statusFilter) {
     query = query.eq("status", statusFilter);
+  } else if (tab === "needs_participants") {
+    query = query.in("status", ["gathering_participants", "approved", "interested", "discussion"]);
   } else if (tab === "in_progress") {
     query = query.eq("status", "in_progress");
   } else if (tab === "completed") {
-    query = query.in("status", ["completed", "archived"]);
+    query = query.eq("status", "completed");
+  }
+
+  if (categoryFilter && Number.isFinite(Number(categoryFilter))) {
+    query = query.eq("category_id", Number(categoryFilter));
   }
 
   // Apply search query
   if (searchQuery) {
-    query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+    query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,neighborhood.ilike.%${searchQuery}%`);
   }
 
   // Apply sorting
-  if (tab === "newest" || sortBy === "newest") {
+  if (tab === "supported" || sortBy === "supporters") {
+    query = query.order("supporters_count", {ascending: false}).order("created_at", {ascending: false});
+  } else if (tab === "newest" || sortBy === "newest") {
     query = query.order("created_at", {ascending: false});
-  } else if (tab === "active" || sortBy === "comments") {
-    query = query.order("comments_count", {ascending: false}).order("created_at", {ascending: false});
-  } else if (tab === "discussed" || sortBy === "comments") {
-    query = query.order("comments_count", {ascending: false}).order("created_at", {ascending: false});
   } else if (sortBy === "votes") {
     query = query.order("votes_count", {ascending: false}).order("created_at", {ascending: false});
   } else if (sortBy === "participants") {
@@ -123,7 +129,10 @@ export default async function IdeasPage({
     query = query.order("votes_count", {ascending: false}).order("created_at", {ascending: false});
   }
 
-  const {data: ideasRaw, count: totalCount} = await query.range(from, to);
+  const {data: ideasRaw, count: queriedTotalCount} = tab === "top10"
+    ? {data: top10Raw ?? [], count: top10.length}
+    : await query.range(from, to);
+  const totalCount = tab === "top10" ? top10.length : queriedTotalCount;
   const ideas = (ideasRaw ?? []) as any[];
 
   // Attach media
@@ -188,6 +197,7 @@ export default async function IdeasPage({
         initialQuery={searchQuery}
         initialStatus={statusFilter}
         initialSort={sortBy}
+        initialCategory={categoryFilter}
         previousLabel={common("previous")}
         nextLabel={common("next")}
       />

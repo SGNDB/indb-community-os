@@ -4109,6 +4109,24 @@ export async function getIdeaMessagesAction(
   return { success: true, messages: (messages ?? []) as unknown as IdeaMessageWithSender[] };
 }
 
+export async function openIdeaProjectRoomAction(
+  ideaId: string,
+): Promise<{ success: boolean; conversationId?: string; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'unauthorized' };
+  if (!ideaId) return { success: false, error: 'invalid' };
+
+  const { ensureConversationExists, getConversationById } = await import('@/lib/data/conversations');
+  const conversationId = await ensureConversationExists('idea', ideaId);
+  if (!conversationId) return { success: false, error: 'not_found' };
+
+  const conversation = await getConversationById(conversationId, user.id);
+  if (!conversation) return { success: false, error: 'forbidden' };
+
+  return { success: true, conversationId };
+}
+
 export async function getIdeaParticipationDataAction(
   ideaId: string,
 ): Promise<{

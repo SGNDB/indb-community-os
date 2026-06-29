@@ -700,12 +700,14 @@
     "rankingWeightsHint": "Weights: 40% Votes · 20% Participants · 15% Discussion · 15% Recency · 10% Progress",
     "communityImpact": "Community Impact",
     "tabPopular": "Popular",
-    "tabNewest": "Newest",
-    "tabActive": "Most Active",
-    "tabDiscussed": "Most Discussed",
-    "tabInProgress": "In Progress",
-    "tabCompleted": "Completed",
-    "searchPlaceholder": "Search ideas by title, description, or category...",
+    "tabNewest": "Les plus récentes",
+    "tabSupported": "Les plus soutenues",
+    "tabNeedsParticipants": "Besoin de participants",
+    "tabInProgress": "En cours",
+    "tabCompleted": "Terminées",
+    "tabTop10": "Top 10",
+    "searchPlaceholder": "Rechercher par titre, description, catégorie, créateur ou quartier...",
+    "allCategories": "Toutes les catégories",
     "filterStatus": "Status",
     "filterSort": "Sort by",
     "sortImpact": "Community Impact",
@@ -721,6 +723,26 @@
     "noIdeas": "No ideas yet. Be the first to share one!",
     "pageInfo": "Page {page} of {total}",
     "openIdea": "Open",
+    "openProject": "Ouvrir le projet",
+    "openProjectRoom": "Ouvrir la salle du projet",
+    "projectRoomUnavailable": "Seuls le créateur du projet et les participants acceptés peuvent ouvrir cette salle.",
+    "latestUpdate": "Dernière mise à jour",
+    "projectTimelineTitle": "Chronologie",
+    "noProjectMedia": "Aucun média partagé pour le moment.",
+    "projectStage": {
+      "gatheringSupport": "Collecte de soutien",
+      "needsParticipants": "Besoin de participants",
+      "inProgress": "En cours",
+      "completed": "Terminé",
+      "archived": "Archivé"
+    },
+    "projectTimeline": {
+      "published": "Idée publiée",
+      "supporters": "Collecte de soutiens",
+      "participants": "Recherche de participants",
+      "progress": "Mise en œuvre commencée",
+      "completed": "Projet terminé"
+    },
     "votes": "Votes",
     "comments": "Comments",
     "participants": "Participants",
@@ -3019,12 +3041,12 @@
     "categories": {
       "people": "Personnes",
       "graatek": "Graatek",
-      "ideas": "Groupes d'idées"
+      "ideas": "Salles de projets"
     },
     "categoryEmpty": {
       "people": "Aucun message avec des abonnés mutuels.",
       "graatek": "Aucune conversation Graatek pour le moment.",
-      "ideas": "Aucun groupe d'idées pour le moment."
+      "ideas": "Aucune salle de projet pour le moment."
     },
     "categoryEmptyHint": "Les conversations apparaîtront ici lorsqu'elles seront disponibles.",
     "groupChat": {

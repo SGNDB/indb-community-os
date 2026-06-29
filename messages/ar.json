@@ -701,11 +701,13 @@
     "communityImpact": "الأثر المجتمعي",
     "tabPopular": "الأكثر شعبية",
     "tabNewest": "الأحدث",
-    "tabActive": "الأكثر نشاطاً",
-    "tabDiscussed": "الأكثر نقاشاً",
+    "tabSupported": "الأكثر دعماً",
+    "tabNeedsParticipants": "يبحث عن مشاركين",
     "tabInProgress": "قيد التنفيذ",
     "tabCompleted": "المكتملة",
+    "tabTop10": "أفضل 10",
     "searchPlaceholder": "ابحث في الأفكار عن عنوان، وصف، أو تصنيف...",
+    "allCategories": "كل الفئات",
     "filterStatus": "الحالة",
     "filterSort": "ترتيب حسب",
     "sortImpact": "الأثر المجتمعي",
@@ -721,6 +723,26 @@
     "noIdeas": "لا توجد أفكار بعد. كن أول من يشارك فكرة!",
     "pageInfo": "الصفحة {page} من {total}",
     "openIdea": "فتح",
+    "openProject": "فتح المشروع",
+    "openProjectRoom": "فتح غرفة المشروع",
+    "projectRoomUnavailable": "يمكن لصاحب المشروع والمشاركين المقبولين فقط فتح غرفة المشروع.",
+    "latestUpdate": "آخر تحديث",
+    "projectTimelineTitle": "الجدول الزمني",
+    "noProjectMedia": "لا توجد وسائط مشتركة بعد.",
+    "projectStage": {
+      "gatheringSupport": "يجمع الداعمين",
+      "needsParticipants": "يبحث عن مشاركين",
+      "inProgress": "بدأ التنفيذ",
+      "completed": "اكتمل المشروع",
+      "archived": "مؤرشف"
+    },
+    "projectTimeline": {
+      "published": "تم نشر الفكرة",
+      "supporters": "يجمع الداعمين",
+      "participants": "يبحث عن مشاركين",
+      "progress": "بدأ التنفيذ",
+      "completed": "اكتمل المشروع"
+    },
     "votes": "أصوات",
     "comments": "تعليقات",
     "participants": "مشاركون",
@@ -3019,12 +3041,12 @@
     "categories": {
       "people": "الأشخاص",
       "graatek": "گرعتك",
-      "ideas": "مجموعات الأفكار"
+      "ideas": "غرف المشاريع"
     },
     "categoryEmpty": {
       "people": "لا توجد رسائل مع متابعين مشتركين.",
       "graatek": "لا توجد محادثات گرعتك بعد.",
-      "ideas": "لا توجد مجموعات أفكار بعد."
+      "ideas": "لا توجد غرف مشاريع بعد."
     },
     "categoryEmptyHint": "ستظهر المحادثات هنا عند توفرها.",
     "groupChat": {

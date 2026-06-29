@@ -109,6 +109,21 @@ export default async function IdeaDetailPage({
     .eq("idea_id", slug)
     .order("created_at", {ascending: false});
 
+  const {data: participantPreview} = await supabase
+    .from("idea_participants")
+    .select("id, user_id, status, created_at, user:profiles!idea_participants_user_id_fkey(id, username, full_name, avatar_url)")
+    .eq("idea_id", slug)
+    .eq("status", "accepted")
+    .order("created_at", {ascending: false})
+    .limit(24);
+
+  const {data: supporterPreview} = await supabase
+    .from("idea_supporters")
+    .select("user_id, created_at, profile:profiles!idea_supporters_user_id_fkey(id, username, full_name, avatar_url)")
+    .eq("idea_id", slug)
+    .order("created_at", {ascending: false})
+    .limit(24);
+
   // Fetch user-specific participation data
   let userParticipation: {status: string; message: string | null} | null = null;
   let userSupported = false;
@@ -118,19 +133,6 @@ export default async function IdeaDetailPage({
       getIdeaUserSupport(slug, currentUserId),
     ]);
   }
-
-  // Fetch related ideas (same category)
-  const {data: relatedIdeas} = await supabase
-    .from("ideas")
-    .select(`
-      id, title, description, status, votes_count, comments_count,
-      author:profiles!ideas_author_id_fkey(id, username, full_name, avatar_url)
-    `)
-    .eq("category_id", (idea as any).category_id)
-    .neq("id", slug)
-    .not("author_id", "is", null)
-    .order("votes_count", {ascending: false})
-    .limit(5);
 
   return (
     <div className="mx-auto max-w-4xl space-y-4">
@@ -148,9 +150,10 @@ export default async function IdeaDetailPage({
         updates={updates ?? []}
         milestones={milestones ?? []}
         progressImages={progressImages ?? []}
+        participantPreview={(participantPreview ?? []) as any[]}
+        supporterPreview={(supporterPreview ?? []) as any[]}
         participantsCount={participantsCount ?? 0}
         supportersCount={supportersCount ?? 0}
-        relatedIdeas={relatedIdeas ?? []}
         currentUserId={currentUserId}
         currentUserProfile={currentUserProfile}
         userParticipation={userParticipation}

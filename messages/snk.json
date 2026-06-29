@@ -570,11 +570,13 @@
     "communityImpact": "Community Impact",
     "tabPopular": "Popular",
     "tabNewest": "Newest",
-    "tabActive": "Most Active",
-    "tabDiscussed": "Most Discussed",
+    "tabSupported": "Most Supported",
+    "tabNeedsParticipants": "Needs Participants",
     "tabInProgress": "In Progress",
     "tabCompleted": "Completed",
+    "tabTop10": "Top 10",
     "searchPlaceholder": "Search ideas by title, description, or category...",
+    "allCategories": "All categories",
     "filterStatus": "Status",
     "filterSort": "Sort by",
     "sortImpact": "Community Impact",
@@ -590,6 +592,26 @@
     "noIdeas": "No ideas yet. Be the first to share one!",
     "pageInfo": "Page {page} of {total}",
     "openIdea": "Open",
+    "openProject": "Open project",
+    "openProjectRoom": "Open project room",
+    "projectRoomUnavailable": "Only the project owner and accepted participants can open this project room.",
+    "latestUpdate": "Latest update",
+    "projectTimelineTitle": "Timeline",
+    "noProjectMedia": "No shared media yet.",
+    "projectStage": {
+      "gatheringSupport": "Gathering support",
+      "needsParticipants": "Needs participants",
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "archived": "Archived"
+    },
+    "projectTimeline": {
+      "published": "Idea published",
+      "supporters": "Gathering supporters",
+      "participants": "Needs participants",
+      "progress": "Implementation started",
+      "completed": "Project completed"
+    },
     "votes": "Votes",
     "comments": "Comments",
     "participants": "Participants",
@@ -1935,12 +1957,12 @@
     "categories": {
       "people": "People",
       "graatek": "Graatek",
-      "ideas": "Idea groups"
+      "ideas": "Project rooms"
     },
     "categoryEmpty": {
       "people": "No messages with mutual followers yet.",
       "graatek": "No Graatek conversations yet.",
-      "ideas": "No idea groups yet."
+      "ideas": "No project rooms yet."
     },
     "categoryEmptyHint": "Conversations will appear here when they are available.",
     "groupChat": {

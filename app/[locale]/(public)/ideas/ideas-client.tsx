@@ -1,12 +1,12 @@
 "use client";
 
 import {
-  Flame,
-  MessageCircle,
+  Heart,
   Rocket,
   Sparkles,
   Trophy,
-  Zap,
+  Users,
+  CheckCircle2,
 } from "lucide-react";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useTranslations} from "next-intl";
@@ -18,12 +18,12 @@ import {IdeaListCard} from "@/components/ideas/idea-list-card";
 import {withLocale} from "@/lib/i18n/paths";
 
 const TABS = [
-  {id: "popular", icon: Trophy, labelKey: "tabPopular"},
   {id: "newest", icon: Sparkles, labelKey: "tabNewest"},
-  {id: "active", icon: Zap, labelKey: "tabActive"},
-  {id: "discussed", icon: MessageCircle, labelKey: "tabDiscussed"},
+  {id: "supported", icon: Heart, labelKey: "tabSupported"},
+  {id: "needs_participants", icon: Users, labelKey: "tabNeedsParticipants"},
   {id: "in_progress", icon: Rocket, labelKey: "tabInProgress"},
-  {id: "completed", icon: Flame, labelKey: "tabCompleted"},
+  {id: "completed", icon: CheckCircle2, labelKey: "tabCompleted"},
+  {id: "top10", icon: Trophy, labelKey: "tabTop10"},
 ] as const;
 
 export function IdeasClientPage({
@@ -40,6 +40,7 @@ export function IdeasClientPage({
   initialQuery,
   initialStatus,
   initialSort,
+  initialCategory,
   previousLabel,
   nextLabel,
 }: {
@@ -56,6 +57,7 @@ export function IdeasClientPage({
   initialQuery: string;
   initialStatus: string | null;
   initialSort: string;
+  initialCategory: string | null;
   previousLabel: string;
   nextLabel: string;
 }) {
@@ -81,18 +83,18 @@ export function IdeasClientPage({
 
   const handleTabChange = useCallback(
     (tab: string) => {
-      navigateWithParams({tab, page: "1", query: null, status: null, sort: null});
+      navigateWithParams({tab, page: "1", status: null, sort: null});
     },
     [navigateWithParams],
   );
 
   const handleSearch = useCallback(
-    (filters: {query: string; status: string | null; sort: string}) => {
+    (filters: {query: string; status: string | null; sort: string; categoryId?: string | null}) => {
       navigateWithParams({
         query: filters.query || null,
+        category: filters.categoryId ?? null,
         status: filters.status,
-        sort: filters.sort !== "impact" ? filters.sort : null,
-        tab: null,
+        sort: filters.sort !== "newest" ? filters.sort : null,
         page: "1",
       });
     },
@@ -102,7 +104,7 @@ export function IdeasClientPage({
   return (
     <>
       {/* Top 10 Section */}
-      {top10.length > 0 ? (
+      {top10.length > 0 && initialTab !== "top10" ? (
         <Top10Section ideas={top10} />
       ) : null}
 
@@ -114,12 +116,13 @@ export function IdeasClientPage({
           query: initialQuery,
           status: initialStatus,
           sort: initialSort,
+          categoryId: initialCategory,
         }}
       />
 
       {/* Tabs */}
       <div className="overflow-x-auto pb-1 scrollbar-none">
-        <div className="inline-flex h-auto gap-1 rounded-xl bg-muted/50 p-1">
+        <div className="inline-flex h-auto min-w-full gap-1 rounded-2xl bg-muted/50 p-1 sm:min-w-0">
           {TABS.map(({id, icon: Icon, labelKey}) => (
             <button
               key={id}
