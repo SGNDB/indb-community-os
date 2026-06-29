@@ -109,7 +109,7 @@ export function PostCard({
   const [translatedText, setTranslatedText] = useState<string | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
   const [translationError, setTranslationError] = useState(false);
-  const [showCommentInput, setShowCommentInput] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   const [localComments, setLocalComments] = useState<CommentWithAuthor[]>(postComments);
   const [commentsCount, setCommentsCount] = useState(post.comments_count);
   const [isSaved, setIsSaved] = useState(post.user_saved ?? false);
@@ -149,7 +149,7 @@ export function PostCard({
 
   useEffect(() => {
     if (autoOpenComments) {
-      setShowCommentInput(true);
+      setShowComments(true);
       window.setTimeout(() => commentInputRef.current?.focus(), 150);
     }
   }, [autoOpenComments]);
@@ -166,7 +166,7 @@ export function PostCard({
       window.setTimeout(() => setReactionHighlight(false), 1500);
     },
     onFocusComments: () => {
-      setShowCommentInput(true);
+      setShowComments(true);
     },
   });
 
@@ -256,8 +256,8 @@ export function PostCard({
       router.push(withLocale(`/login?next=${encodeURIComponent(returnPath)}`, locale));
       return;
     }
-    setShowCommentInput((p) => !p);
-    if (!showCommentInput) {
+    setShowComments((p) => !p);
+    if (!showComments) {
       setTimeout(() => commentInputRef.current?.focus(), 100);
     }
   }
@@ -478,7 +478,8 @@ export function PostCard({
             </button>
           </div>
 
-          {showCommentInput ? (
+          {showComments ? (
+            <>
             <form onSubmit={handleCommentSubmit} className="flex items-center gap-2">
               <input type="hidden" name="locale" value={locale} />
               <input type="hidden" name="returnTo" value={returnPath} />
@@ -494,7 +495,6 @@ export function PostCard({
                 {commentPending ? <span className="text-xs">{t("sending")}</span> : <Send size={20} />}
               </Button>
             </form>
-          ) : null}
 
           {localComments.length > 0 ? (
             <div id={`post-${post.id}-comments`} className="space-y-2 border-t border-border/60 pt-2 scroll-mt-24">
@@ -522,6 +522,8 @@ export function PostCard({
           ) : (
             <div id={`post-${post.id}-comments`} className="scroll-mt-24" />
           )}
+            </>
+          ) : null}
         </CardContent>
       </Card>
 
