@@ -1528,14 +1528,14 @@ export function ConversationChat({
       <div className="flex h-full min-h-0 w-full items-center justify-center bg-background px-6 text-center">
         <div className="flex max-w-sm flex-col items-center gap-4">
           <p className="text-sm text-muted-foreground">{t("selectConversationHint")}</p>
-          <button
-            type="button"
-            onClick={() => router.replace("/messages")}
+          <Link
+            href="/messages"
+            prefetch={true}
             className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-sm transition active:scale-95"
           >
             <ArrowLeft size={18} />
             {t("groupChat.backToMessages")}
-          </button>
+          </Link>
         </div>
       </div>
     );

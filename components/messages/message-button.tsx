@@ -26,7 +26,7 @@ export function MessageButton({targetUserId}: {targetUserId: string}) {
         }
         return;
       }
-      router.push(`/messages?conversation=${result.conversationId}`);
+      router.push(`/messages/${result.conversationId}`);
     });
   }
 
