@@ -23,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { flushSync } from "react-dom";
 
 import { OnlineAvatar, useIsOnline } from "@/components/presence";
 import { uploadMediaItem } from "@/lib/images/client-upload";
@@ -125,17 +126,6 @@ function isFailedMessage(id: string) {
 
 function isLocalMessage(id: string) {
   return isSendingMessage(id) || isFailedMessage(id);
-}
-
-function runAfterPaint(callback: () => void) {
-  if (typeof window === "undefined") {
-    callback();
-    return;
-  }
-
-  window.requestAnimationFrame(() => {
-    window.setTimeout(callback, 0);
-  });
 }
 
 type TranslationFn = (key: string, values?: Record<string, string | number>) => string;
@@ -964,12 +954,6 @@ export function ConversationChat({
     const optimisticId = `optimistic-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const optimisticCreatedAt = new Date().toISOString();
     const localId = existingLocalId ?? optimisticId;
-    setError(null);
-    if (!existingLocalId) {
-      setInput("");
-      setPendingImages([]);
-    }
-
     const optimisticMessage: ConversationMessageWithSender = {
       id: optimisticId,
       conversation_id: conversationId,
@@ -990,25 +974,33 @@ export function ConversationChat({
       sender: currentParticipant?.user ?? null,
     };
 
-    setMessages((prev) => {
-      if (existingLocalId) {
-        return prev.map((message) =>
-          message.id === existingLocalId
-            ? {
-                ...message,
-                id: optimisticId,
-                created_at: optimisticCreatedAt,
-              }
-            : message,
-        );
+    flushSync(() => {
+      setError(null);
+      if (!existingLocalId) {
+        setInput("");
+        setPendingImages([]);
       }
 
-      return [...prev, optimisticMessage];
+      setMessages((prev) => {
+        if (existingLocalId) {
+          return prev.map((message) =>
+            message.id === existingLocalId
+              ? {
+                  ...message,
+                  id: optimisticId,
+                  created_at: optimisticCreatedAt,
+                }
+              : message,
+          );
+        }
+
+        return [...prev, optimisticMessage];
+      });
     });
 
-    requestAnimationFrame(() => scrollToLatest("smooth"));
+    requestAnimationFrame(() => scrollToLatest("auto"));
 
-    runAfterPaint(() => {
+    queueMicrotask(() => {
       void persistLocalMessage({
         optimisticId,
         localId,
@@ -1777,11 +1769,6 @@ export function ConversationChat({
                           <span>{t("groupChat.edited")}</span>
                         ) : null}
                       </div>
-                      {isMine && isSendingLocal ? (
-                        <div className="mt-1 flex justify-end text-[10px] font-medium text-muted-foreground">
-                          {t("groupChat.sendingStatus")}
-                        </div>
-                      ) : null}
                       {isMine && isFailedLocal ? (
                         <div className="mt-1 flex items-center justify-end gap-2 text-[11px] font-semibold text-destructive">
                           <span>{t("groupChat.failedStatus")}</span>
