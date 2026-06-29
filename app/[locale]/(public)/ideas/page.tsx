@@ -76,7 +76,7 @@ export default async function IdeasPage({
   const searchQuery = sp.query ?? "";
   const statusFilter = sp.status ?? null;
   const categoryFilter = sp.category ?? null;
-  const sortBy = sp.sort ?? "participants";
+  const sortBy = sp.sort ?? "votes";
   const pageSize = 20;
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
@@ -127,7 +127,7 @@ export default async function IdeasPage({
   } else if (sortBy === "participants") {
     query = query.order("participants_count", {ascending: false}).order("created_at", {ascending: false});
   } else {
-    query = query.order("participants_count", {ascending: false}).order("created_at", {ascending: false});
+    query = query.order("votes_count", {ascending: false}).order("created_at", {ascending: false});
   }
 
   const {data: ideasRaw, count: queriedTotalCount} = await query.range(from, to);

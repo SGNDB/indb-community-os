@@ -29,7 +29,7 @@ export function IdeaSearchBar({
       query: nextQuery,
       categoryId: nextCategory || null,
       status: initialFilters.status,
-      sort: initialFilters.sort || "participants",
+      sort: initialFilters.sort || "votes",
     });
   }
 
