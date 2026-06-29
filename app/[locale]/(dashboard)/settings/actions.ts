@@ -12,6 +12,7 @@ import {normalizeMauritaniaPhone} from "@/lib/auth/phone";
 import type {
   UserAccountStatus,
   UserEmailVisibility,
+  UserFollowListVisibility,
   UserFontSizePreference,
   UserLastSeenVisibility,
   UserMessagePermission,
@@ -150,8 +151,10 @@ export async function saveUserPreferencesAction(input: {
   showCompletedGraatek: boolean;
   showMemories: boolean;
   showOnlineStatus: boolean;
-  showFollowers: boolean;
-  showFollowing: boolean;
+  showFollowersCount: boolean;
+  showFollowingCount: boolean;
+  followersVisibility: UserFollowListVisibility;
+  followingVisibility: UserFollowListVisibility;
   lastSeenVisibility: UserLastSeenVisibility;
   phoneVisibility: UserPhoneVisibility;
   emailVisibility: UserEmailVisibility;
@@ -182,6 +185,12 @@ export async function saveUserPreferencesAction(input: {
   const emailVisibility: UserEmailVisibility = ["only_me", "no_one"].includes(input.emailVisibility)
     ? input.emailVisibility
     : "no_one";
+  const followersVisibility: UserFollowListVisibility = ["everyone", "followers", "no_one"].includes(input.followersVisibility)
+    ? input.followersVisibility
+    : "everyone";
+  const followingVisibility: UserFollowListVisibility = ["everyone", "followers", "no_one"].includes(input.followingVisibility)
+    ? input.followingVisibility
+    : "everyone";
   const fontSize: UserFontSizePreference = ["small", "medium", "large"].includes(input.fontSize)
     ? input.fontSize
     : "medium";
@@ -225,8 +234,10 @@ export async function saveUserPreferencesAction(input: {
         show_completed_graatek: Boolean(input.showCompletedGraatek),
         show_memories: Boolean(input.showMemories),
         show_online_status: Boolean(input.showOnlineStatus),
-        show_followers: Boolean(input.showFollowers),
-        show_following: Boolean(input.showFollowing),
+        show_followers_count: Boolean(input.showFollowersCount),
+        show_following_count: Boolean(input.showFollowingCount),
+        followers_visibility: followersVisibility,
+        following_visibility: followingVisibility,
         last_seen_visibility: lastSeenVisibility,
         phone_visibility: phoneVisibility,
         email_visibility: emailVisibility,

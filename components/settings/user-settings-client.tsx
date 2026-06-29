@@ -64,6 +64,7 @@ import {cn} from "@/lib/utils/cn";
 import type {
   ProfileRow,
   UserEmailVisibility,
+  UserFollowListVisibility,
   UserFontSizePreference,
   UserLastSeenVisibility,
   UserMessagePermission,
@@ -205,8 +206,10 @@ function labelsFor(locale: string) {
       showGraatek: "إظهار گرعتك المكتملة",
       showMemories: "إظهار الذكريات",
       showOnline: "إظهار حالة الاتصال",
-      showFollowers: "إظهار عدد المتابعين",
-      showFollowing: "إظهار عدد من أتابع",
+      showFollowersCount: "إظهار عدد المتابعين",
+      showFollowingCount: "إظهار عدد من أتابع",
+      followersVisibility: "من يمكنه رؤية المتابعين؟",
+      followingVisibility: "من يمكنه رؤية من أتابع؟",
       lastSeen: "من يمكنه رؤية آخر ظهور؟",
       phoneVisibility: "من يمكنه رؤية رقم الهاتف؟",
       emailVisibility: "من يمكنه رؤية البريد الإلكتروني؟",
@@ -366,8 +369,10 @@ function labelsFor(locale: string) {
       showGraatek: "Afficher Graatek terminé",
       showMemories: "Afficher les souvenirs",
       showOnline: "Afficher le statut en ligne",
-      showFollowers: "Afficher le nombre d'abonnés",
-      showFollowing: "Afficher le nombre d'abonnements",
+      showFollowersCount: "Afficher le nombre d'abonnés",
+      showFollowingCount: "Afficher le nombre d'abonnements",
+      followersVisibility: "Qui peut voir mes abonnés ?",
+      followingVisibility: "Qui peut voir mes abonnements ?",
       lastSeen: "Qui peut voir ma dernière activité ?",
       phoneVisibility: "Qui peut voir mon téléphone ?",
       emailVisibility: "Qui peut voir mon e-mail ?",
@@ -527,8 +532,10 @@ function labelsFor(locale: string) {
       showGraatek: "Show completed Graatek",
       showMemories: "Show memories",
       showOnline: "Show online status",
-      showFollowers: "Show follower count",
-      showFollowing: "Show following count",
+      showFollowersCount: "Show follower count",
+      showFollowingCount: "Show following count",
+      followersVisibility: "Who can see my followers?",
+      followingVisibility: "Who can see who I follow?",
       lastSeen: "Who can see my last seen?",
       phoneVisibility: "Who can see my phone number?",
       emailVisibility: "Who can see my email?",
@@ -767,8 +774,10 @@ export function UserSettingsClient({
     showCompletedGraatek: settings.show_completed_graatek,
     showMemories: settings.show_memories,
     showOnlineStatus: settings.show_online_status,
-    showFollowers: settings.show_followers,
-    showFollowing: settings.show_following,
+    showFollowersCount: settings.show_followers_count,
+    showFollowingCount: settings.show_following_count,
+    followersVisibility: settings.followers_visibility,
+    followingVisibility: settings.following_visibility,
     lastSeenVisibility: settings.last_seen_visibility,
     phoneVisibility: settings.phone_visibility,
     emailVisibility: settings.email_visibility,
@@ -1058,6 +1067,12 @@ export function UserSettingsClient({
 
   const emailVisibilityOptions: Array<{value: UserEmailVisibility; label: string}> = [
     {value: "only_me", label: labels.privacy.onlyMe},
+    {value: "no_one", label: labels.privacy.noOne},
+  ];
+
+  const followListVisibilityOptions: Array<{value: UserFollowListVisibility; label: string}> = [
+    {value: "everyone", label: labels.privacy.everyone},
+    {value: "followers", label: labels.privacy.followers},
     {value: "no_one", label: labels.privacy.noOne},
   ];
 
@@ -1405,8 +1420,10 @@ export function UserSettingsClient({
 
             <div className="mt-4 space-y-1">
               <p className="px-3 pb-1 pt-2 text-xs font-black uppercase tracking-wider text-muted-foreground">👥 {labels.privacy.activity}</p>
-              <Toggle checked={preferences.showFollowers} onChange={(v) => savePrivacyPreference("showFollowers", v)} label={labels.privacy.showFollowers} />
-              <Toggle checked={preferences.showFollowing} onChange={(v) => savePrivacyPreference("showFollowing", v)} label={labels.privacy.showFollowing} />
+              <Toggle checked={preferences.showFollowersCount} onChange={(v) => savePrivacyPreference("showFollowersCount", v)} label={labels.privacy.showFollowersCount} />
+              <Toggle checked={preferences.showFollowingCount} onChange={(v) => savePrivacyPreference("showFollowingCount", v)} label={labels.privacy.showFollowingCount} />
+              <SelectRow value={preferences.followersVisibility} onChange={(v) => savePrivacyPreference("followersVisibility", v)} label={labels.privacy.followersVisibility} options={followListVisibilityOptions} />
+              <SelectRow value={preferences.followingVisibility} onChange={(v) => savePrivacyPreference("followingVisibility", v)} label={labels.privacy.followingVisibility} options={followListVisibilityOptions} />
             </div>
           </SectionCard>
 

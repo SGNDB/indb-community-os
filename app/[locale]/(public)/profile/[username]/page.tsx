@@ -294,10 +294,12 @@ export default async function PublicProfilePage({
                   locale={locale}
                   currentUserId={currentUserId}
                   initialIsFollowing={currentUserIsFollowing}
-                  initialFollowersCount={isOwnProfile || privacy.show_followers ? followStats.followersCount : 0}
-                  followingCount={isOwnProfile || privacy.show_following ? followStats.followingCount : 0}
-                  showFollowers={isOwnProfile || privacy.show_followers}
-                  showFollowing={isOwnProfile || privacy.show_following}
+                  initialFollowersCount={isOwnProfile || privacy.show_followers_count ? followStats.followersCount : 0}
+                  followingCount={isOwnProfile || privacy.show_following_count ? followStats.followingCount : 0}
+                  showFollowersCount={isOwnProfile || privacy.show_followers_count}
+                  showFollowingCount={isOwnProfile || privacy.show_following_count}
+                  followersVisibility={isOwnProfile ? "everyone" : privacy.followers_visibility}
+                  followingVisibility={isOwnProfile ? "everyone" : privacy.following_visibility}
                   showButton={!isOwnProfile}
                 />
               </div>

@@ -807,7 +807,15 @@
     "followedToast": "You are now following this profile",
     "unfollowedToast": "You unfollowed this profile",
     "loginToFollow": "Login to follow users",
-    "failed": "Unable to update follow status"
+    "failed": "Unable to update follow status",
+    "searchFollowers": "Search followers",
+    "searchFollowing": "Search following",
+    "listPrivate": "This list is private",
+    "listPrivateDesc": "The account owner chose not to show this list.",
+    "noFollowers": "No followers yet",
+    "noFollowing": "Not following anyone yet",
+    "endOfList": "You've reached the end",
+    "back": "Back"
   },
   "ProfileCard": {
     "bio": "Community storyteller documenting memories, ideas, and local projects.",

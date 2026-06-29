@@ -807,7 +807,15 @@
     "followedToast": "Vous suivez maintenant ce profil",
     "unfollowedToast": "Vous ne suivez plus ce profil",
     "loginToFollow": "Connectez-vous pour suivre des utilisateurs",
-    "failed": "Impossible de mettre à jour l’abonnement"
+    "failed": "Impossible de mettre à jour l'abonnement",
+    "searchFollowers": "Rechercher des abonnés",
+    "searchFollowing": "Rechercher des abonnements",
+    "listPrivate": "Cette liste est privée",
+    "listPrivateDesc": "Le propriétaire du compte a choisi de ne pas afficher cette liste.",
+    "noFollowers": "Aucun abonné pour l'instant",
+    "noFollowing": "Ne suit personne pour l'instant",
+    "endOfList": "Vous avez atteint la fin",
+    "back": "Retour"
   },
   "ProfileCard": {
     "bio": "Conteur communautaire qui documente souvenirs, idées et projets locaux.",

@@ -54,6 +54,7 @@ export type UserMessagePermission = "everyone" | "followers" | "no_one";
 export type UserLastSeenVisibility = "everyone" | "no_one";
 export type UserPhoneVisibility = "only_me" | "followers" | "no_one";
 export type UserEmailVisibility = "only_me" | "no_one";
+export type UserFollowListVisibility = "everyone" | "followers" | "no_one";
 export type UserFontSizePreference = "small" | "medium" | "large";
 export type UserAccountStatus = "active" | "deactivated" | "pending_deletion";
 
@@ -77,8 +78,10 @@ export interface UserSettingsRow {
   show_completed_graatek: boolean;
   show_memories: boolean;
   show_online_status: boolean;
-  show_followers: boolean;
-  show_following: boolean;
+  followers_visibility: UserFollowListVisibility;
+  following_visibility: UserFollowListVisibility;
+  show_followers_count: boolean;
+  show_following_count: boolean;
   last_seen_visibility: UserLastSeenVisibility;
   phone_visibility: UserPhoneVisibility;
   email_visibility: UserEmailVisibility;

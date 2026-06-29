@@ -1,5 +1,5 @@
 import {createClient} from "@/lib/supabase/server";
-import type {UserNotificationKey, UserSettingsRow} from "@/types/database";
+import type {UserFollowListVisibility, UserNotificationKey, UserSettingsRow} from "@/types/database";
 
 export const notificationKeys: UserNotificationKey[] = [
   "messages",
@@ -22,8 +22,10 @@ export const defaultUserSettings: UserSettingsRow = {
   show_completed_graatek: true,
   show_memories: true,
   show_online_status: true,
-  show_followers: true,
-  show_following: true,
+  followers_visibility: "everyone",
+  following_visibility: "everyone",
+  show_followers_count: true,
+  show_following_count: true,
   last_seen_visibility: "everyone",
   phone_visibility: "only_me",
   email_visibility: "no_one",
@@ -118,8 +120,10 @@ export type PublicProfilePrivacy = Pick<
   | "show_memories"
   | "recognition_visibility"
   | "show_online_status"
-  | "show_followers"
-  | "show_following"
+  | "followers_visibility"
+  | "following_visibility"
+  | "show_followers_count"
+  | "show_following_count"
   | "last_seen_visibility"
   | "phone_visibility"
   | "email_visibility"
