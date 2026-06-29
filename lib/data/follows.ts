@@ -39,6 +39,28 @@ export async function isFollowing(currentUserId: string | null | undefined, prof
   return Boolean(data);
 }
 
+export async function haveMutualFollow(userId1: string | null | undefined, userId2: string | null | undefined): Promise<boolean> {
+  if (!userId1 || !userId2 || userId1 === userId2) return false;
+
+  const supabase = await createClient();
+  const [first, second] = await Promise.all([
+    supabase
+      .from("user_follows")
+      .select("id")
+      .eq("follower_id", userId1)
+      .eq("following_id", userId2)
+      .maybeSingle(),
+    supabase
+      .from("user_follows")
+      .select("id")
+      .eq("follower_id", userId2)
+      .eq("following_id", userId1)
+      .maybeSingle(),
+  ]);
+
+  return Boolean(first.data && second.data);
+}
+
 export async function followUser(currentUserId: string, profileId: string): Promise<{success: boolean; error?: string}> {
   if (currentUserId === profileId) {
     return {success: false, error: "selfFollow"};

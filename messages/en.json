@@ -747,7 +747,7 @@
     },
     "editProfile": "Edit profile",
     "message": "Message",
-    "cannotMessage": "You cannot message this user",
+    "cannotMessage": "You can message this user only when you both follow each other",
     "changeAvatar": "Change Avatar",
     "changeCover": "Change Cover",
     "shareProfile": "Share profile",
@@ -3115,6 +3115,7 @@
         "block_failed": "User could not be blocked.",
         "unblock_failed": "User could not be unblocked.",
         "blocked_send": "Unblock this user before sending a message.",
+        "direct_mutual_required": "Direct messages are available only when you both follow each other.",
         "report_received": "Thanks. The message was flagged for review.",
         "report_failed": "Message could not be reported."
       },

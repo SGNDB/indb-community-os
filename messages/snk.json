@@ -616,7 +616,7 @@
     },
     "editProfile": "Taƴtu profil",
     "message": "Ndotooje",
-    "cannotMessage": "A waawaa ndotooje oo neɗɗo",
+    "cannotMessage": "Direct messages are available only when you both follow each other",
     "changeAvatar": "Taƴtu Nta",
     "changeCover": "Taƴtu Sutura",
     "shareProfile": "Nten profil",
@@ -1948,7 +1948,8 @@
         "report_failed": "Xibaare ya mana wa naxaamunu.",
         "block_failed": "User could not be blocked.",
         "unblock_failed": "User could not be unblocked.",
-        "blocked_send": "Unblock this user before sending a message."
+        "blocked_send": "Unblock this user before sending a message.",
+        "direct_mutual_required": "Direct messages are available only when you both follow each other."
       },
       "you": "Anke",
       "backToMessages": "Karu xibaarun ŋa",

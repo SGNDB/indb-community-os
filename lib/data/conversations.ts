@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { haveMutualFollow } from '@/lib/data/follows';
 
 export type ConversationMessageType = 'text' | 'image';
 export type ConversationParticipantRole = 'admin' | 'member';
@@ -573,6 +574,13 @@ export async function sendConversationMessage(
     console.error('sendConversationMessage sender has blocked recipient');
     return null;
   }
+  if (blockState.otherUserId) {
+    const mutuallyFollowing = await haveMutualFollow(senderId, blockState.otherUserId);
+    if (!mutuallyFollowing) {
+      console.error('sendConversationMessage direct conversation requires mutual follow');
+      return null;
+    }
+  }
 
   const isTextInput = typeof input === 'string';
   const messageType = isTextInput ? 'text' : input.messageType ?? (input.imageUrl ? 'image' : 'text');
@@ -949,6 +957,12 @@ export async function getUnreadConversationsCount(userId: string): Promise<numbe
 }
 
 export async function createOrGetDirectConversation(userId1: string, userId2: string): Promise<string | null> {
+  const mutuallyFollowing = await haveMutualFollow(userId1, userId2);
+  if (!mutuallyFollowing) {
+    console.error('createOrGetDirectConversation requires mutual follow');
+    return null;
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase.rpc('ensure_direct_conversation', {

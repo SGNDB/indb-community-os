@@ -19,7 +19,7 @@ export function MessageButton({targetUserId}: {targetUserId: string}) {
     startTransition(async () => {
       const result = await createOrGetDirectConversationAction(targetUserId);
       if (!result.success) {
-        if (result.error === "forbidden") {
+        if (result.error === "forbidden" || result.error === "direct_mutual_required") {
           toast.error(t("cannotMessage"));
         } else {
           toast.error(toasts("error"));

@@ -186,6 +186,7 @@ function friendlyError(error: string | null, t: TranslationFn) {
     "block_failed",
     "unblock_failed",
     "blocked_send",
+    "direct_mutual_required",
   ];
   return errorKeys.includes(error) ? t(`groupChat.errors.${error}`) : error;
 }
@@ -1524,8 +1525,18 @@ export function ConversationChat({
 
   if (conversationDeleted) {
     return (
-      <div className="flex h-full min-h-0 w-full items-center justify-center bg-background px-6 text-center text-sm text-muted-foreground">
-        {t("selectConversationHint")}
+      <div className="flex h-full min-h-0 w-full items-center justify-center bg-background px-6 text-center">
+        <div className="flex max-w-sm flex-col items-center gap-4">
+          <p className="text-sm text-muted-foreground">{t("selectConversationHint")}</p>
+          <button
+            type="button"
+            onClick={() => router.replace("/messages")}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-sm transition active:scale-95"
+          >
+            <ArrowLeft size={18} />
+            {t("groupChat.backToMessages")}
+          </button>
+        </div>
       </div>
     );
   }

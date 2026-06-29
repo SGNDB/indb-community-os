@@ -616,7 +616,7 @@
     },
     "editProfile": "Soppi profil",
     "message": "Ndotooje",
-    "cannotMessage": "DÃ©ggulÃ© naka soppi ndotooje",
+    "cannotMessage": "Direct messages are available only when you both follow each other",
     "changeAvatar": "Soppi Nataal",
     "changeCover": "Soppi Lendu",
     "shareProfile": "Ngalif profil",
@@ -1945,7 +1945,8 @@
         "report_failed": "Mënul yëgle bataaxal bi.",
         "block_failed": "User could not be blocked.",
         "unblock_failed": "User could not be unblocked.",
-        "blocked_send": "Unblock this user before sending a message."
+        "blocked_send": "Unblock this user before sending a message.",
+        "direct_mutual_required": "Direct messages are available only when you both follow each other."
       },
       "you": "Yaw",
       "backToMessages": "Delluwaat ci bataaxal yi",

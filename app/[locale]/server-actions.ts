@@ -4252,8 +4252,13 @@ export async function createOrGetDirectConversationAction(
   if (!targetUserId || targetUserId === user.id) return { success: false, error: 'invalid' };
 
   const { canMessageUser } = await import('@/lib/data/user-settings');
+  const { haveMutualFollow } = await import('@/lib/data/follows');
   const allowed = await canMessageUser(targetUserId, user.id);
   if (!allowed) return { success: false, error: 'forbidden' };
+  const mutuallyFollowing = await haveMutualFollow(user.id, targetUserId);
+  if (!mutuallyFollowing) {
+    return { success: false, error: 'direct_mutual_required' };
+  }
 
   const { createOrGetDirectConversation } = await import('@/lib/data/conversations');
   const conversationId = await createOrGetDirectConversation(user.id, targetUserId);
@@ -4360,6 +4365,14 @@ export async function sendConversationMessageAction(
   if (!isParticipant) return { success: false, error: 'unauthorized' };
   if (conv.type === 'idea' && (conv.idea_status === 'completed' || conv.idea_status === 'archived')) {
     return { success: false, error: 'archived' };
+  }
+  if (conv.type === 'direct') {
+    const otherUserId = conv.participants.find((p) => p.user_id !== user.id)?.user_id;
+    const { haveMutualFollow } = await import('@/lib/data/follows');
+    const mutuallyFollowing = otherUserId ? await haveMutualFollow(user.id, otherUserId) : false;
+    if (!mutuallyFollowing) {
+      return { success: false, error: 'direct_mutual_required' };
+    }
   }
 
   const result = await sendConversationMessage(conversationId, user.id, {

@@ -747,7 +747,7 @@
     },
     "editProfile": "Modifier le profil",
     "message": "Message",
-    "cannotMessage": "Vous ne pouvez pas envoyer de message à cet utilisateur",
+    "cannotMessage": "Vous pouvez envoyer un message seulement si vous vous suivez mutuellement",
     "changeAvatar": "Changer la photo",
     "changeCover": "Changer la couverture",
     "shareProfile": "Partager le profil",
@@ -3031,6 +3031,7 @@
         "block_failed": "Impossible de bloquer l'utilisateur.",
         "unblock_failed": "Impossible de débloquer l'utilisateur.",
         "blocked_send": "Débloquez cet utilisateur avant d'envoyer un message.",
+        "direct_mutual_required": "Les messages privés sont disponibles seulement si vous vous suivez mutuellement.",
         "report_received": "Merci. Le message a été signalé pour examen.",
         "report_failed": "Impossible de signaler le message."
       },
