@@ -753,7 +753,10 @@
     "updateFailed": "فشل نشر التحديث",
     "noUpdatesYet": "لا توجد تحديثات بعد.",
     "relatedIdeas": "أفكار ذات صلة",
-    "backToIdeas": "العودة إلى الأفكار"
+    "backToIdeas": "العودة إلى الأفكار",
+    "projectRoomVoteFirst": "صوّت على المشروع أولاً لفتح غرفة المشروع.",
+    "voteNow": "صوّت الآن",
+    "projectRoomDescription": "غرفة المشروع مخصصة للمتابعين الذين صوّتوا على الفكرة ويريدون متابعة العمل والتنسيق."
   },
   "IdeaForm": {
     "title": "إرسال فكرة مدنية",
@@ -3183,7 +3186,8 @@
       "reportFake": "حساب مزيف",
       "reportOther": "سبب آخر",
       "actionDone": "تم التنفيذ",
-      "documentsFuture": "ستظهر هنا المستندات وPDF وWord وExcel وZIP."
+      "documentsFuture": "ستظهر هنا المستندات وPDF وWord وExcel وZIP.",
+      "projectRoom": "غرفة مشروع"
     }
   },
   "Support": {

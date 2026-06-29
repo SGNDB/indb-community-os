@@ -4075,8 +4075,12 @@ export async function updateIdeaStatusAction(
       if (ideaConversationId) {
         await supabase.rpc('archive_conversation', { p_conv_id: ideaConversationId });
       } else {
-        const { data: conv } = await supabase.from('conversations').select('id').eq('idea_id', ideaId).maybeSingle();
-        if (conv) {
+        const { data: conversations } = await supabase
+          .from('conversations')
+          .select('id')
+          .eq('idea_id', ideaId)
+          .in('type', ['idea', 'idea_project_room']);
+        for (const conv of conversations ?? []) {
           await supabase.rpc('archive_conversation', { p_conv_id: conv.id });
         }
       }
@@ -4117,14 +4121,38 @@ export async function openIdeaProjectRoomAction(
   if (!user) return { success: false, error: 'unauthorized' };
   if (!ideaId) return { success: false, error: 'invalid' };
 
-  const { ensureConversationExists, getConversationById } = await import('@/lib/data/conversations');
-  const conversationId = await ensureConversationExists('idea', ideaId);
-  if (!conversationId) return { success: false, error: 'not_found' };
+  const { data: conversationId, error } = await supabase.rpc('join_idea_project_room', {
+    p_idea_id: ideaId,
+    p_user_id: user.id,
+  });
 
-  const conversation = await getConversationById(conversationId, user.id);
+  if (error || !conversationId) {
+    const message = error?.message?.toLowerCase() ?? '';
+    if (message.includes('vote_required')) return { success: false, error: 'vote_required' };
+    if (message.includes('unauthorized')) return { success: false, error: 'unauthorized' };
+    if (message.includes('not_found')) return { success: false, error: 'not_found' };
+    console.error('openIdeaProjectRoomAction error:', error);
+    return { success: false, error: 'failed' };
+  }
+
+  const { getConversationById } = await import('@/lib/data/conversations');
+  const conversation = await getConversationById(conversationId as string, user.id);
   if (!conversation) return { success: false, error: 'forbidden' };
 
-  return { success: true, conversationId };
+  const owner = conversation.participants.find((participant) => participant.role === 'admin')?.user_id;
+  if (owner && owner !== user.id) {
+    await createNotification({
+      userId: owner,
+      actorId: user.id,
+      type: 'idea_project_room_joined',
+      entityType: 'idea',
+      entityId: ideaId,
+      title: 'Joined your project room',
+      metadata: { conversationId },
+    });
+  }
+
+  return { success: true, conversationId: conversationId as string };
 }
 
 export async function getIdeaParticipationDataAction(
@@ -4381,7 +4409,8 @@ export async function sendConversationMessageAction(
   if (!conv || conv.archived_at) return { success: false, error: 'archived' };
   const isParticipant = conv.participants.some(p => p.user_id === user.id);
   if (!isParticipant) return { success: false, error: 'unauthorized' };
-  if (conv.type === 'idea' && (conv.idea_status === 'completed' || conv.idea_status === 'archived')) {
+  const isIdeaConversation = conv.type === 'idea' || conv.type === 'idea_project_room';
+  if (isIdeaConversation && (conv.idea_status === 'completed' || conv.idea_status === 'archived')) {
     return { success: false, error: 'archived' };
   }
   if (conv.type === 'direct') {
@@ -4415,10 +4444,10 @@ export async function sendConversationMessageAction(
         createNotification({
           userId: p.user_id,
           actorId: user.id,
-          type: conv.type === 'idea' ? 'idea_group_message' : 'conversation_message',
+          type: isIdeaConversation ? 'idea_group_message' : 'conversation_message',
           entityType,
           entityId,
-          title: conv.type === 'idea' ? 'New message in idea group' : 'sent you a message',
+          title: isIdeaConversation ? 'New message in project room' : 'sent you a message',
           metadata: {
             conversationId,
             message: trimmed.slice(0, 100),
@@ -4446,7 +4475,7 @@ export async function updateIdeaGroupProfileAction(
 
   const { getConversationById, updateIdeaGroupProfile } = await import('@/lib/data/conversations');
   const conversation = await getConversationById(conversationId, user.id);
-  if (!conversation || conversation.type !== 'idea') return { success: false, error: 'not_found' };
+  if (!conversation || (conversation.type !== 'idea' && conversation.type !== 'idea_project_room')) return { success: false, error: 'not_found' };
 
   const currentUser = conversation.participants.find((p) => p.user_id === user.id);
   if (currentUser?.role !== 'admin') return { success: false, error: 'unauthorized' };
@@ -4494,7 +4523,7 @@ export async function removeIdeaGroupMemberAction(
 
   const { getConversationById, removeIdeaGroupMember } = await import('@/lib/data/conversations');
   const conversation = await getConversationById(conversationId, user.id);
-  if (!conversation || conversation.type !== 'idea') return { success: false, error: 'not_found' };
+  if (!conversation || (conversation.type !== 'idea' && conversation.type !== 'idea_project_room')) return { success: false, error: 'not_found' };
 
   const currentUser = conversation.participants.find((p) => p.user_id === user.id);
   const target = conversation.participants.find((p) => p.user_id === memberId);
@@ -4530,7 +4559,7 @@ export async function leaveIdeaGroupAction(
 
   const { getConversationById, leaveIdeaGroup } = await import('@/lib/data/conversations');
   const conversation = await getConversationById(conversationId, user.id);
-  if (!conversation || conversation.type !== 'idea') return { success: false, error: 'not_found' };
+  if (!conversation || (conversation.type !== 'idea' && conversation.type !== 'idea_project_room')) return { success: false, error: 'not_found' };
 
   const currentUser = conversation.participants.find((p) => p.user_id === user.id);
   if (currentUser?.role === 'admin') return { success: false, error: 'admin_cannot_leave' };

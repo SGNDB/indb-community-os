@@ -756,12 +756,10 @@
     "noUpdatesYet": "No updates yet.",
     "relatedIdeas": "Related Ideas",
     "backToIdeas": "Back to Ideas",
-
     "supportersWithCount": "Supporters ({count})",
     "noSupportersYet": "No supporters yet.",
     "participantsWithCount": "Participants ({count})",
     "noParticipantsYet": "No participants yet.",
-
     "joinAsParticipant": "Join as Participant",
     "howWouldYouContribute": "How would you like to contribute?",
     "sendRequest": "Send Request",
@@ -774,14 +772,12 @@
     "contribution_transportation": "Transportation",
     "contribution_organization": "Organization",
     "contribution_other": "Other",
-
     "stageSubmitted": "Submitted",
     "stageUnderDiscussion": "Discussion",
     "stageGatheringSupport": "Gathering Support",
     "stageGatheringParticipants": "Gathering Participants",
     "stageApproved": "Approved",
     "stageArchived": "This idea has been archived.",
-
     "milestones": "Milestones",
     "noMilestonesYet": "No milestones yet.",
     "addMilestone": "Add a milestone...",
@@ -790,7 +786,6 @@
     "milestoneUpdateFailed": "Failed to update milestone",
     "milestoneDeleted": "Milestone deleted",
     "milestoneDeleteFailed": "Failed to delete milestone",
-
     "projectGallery": "Project Gallery",
     "stageBefore": "Before",
     "stageProgress": "In Progress",
@@ -800,7 +795,10 @@
     "imageUploaded": "Image uploaded",
     "uploadFailed": "Failed to upload image",
     "imageDeleted": "Image deleted",
-    "deleteFailed": "Failed to delete image"
+    "deleteFailed": "Failed to delete image",
+    "projectRoomVoteFirst": "Vote first to open the project room.",
+    "voteNow": "Vote now",
+    "projectRoomDescription": "The project room is for people who voted and want to follow the work and coordinate."
   },
   "IdeaForm": {
     "title": "Submit a civic idea",
@@ -3314,7 +3312,8 @@
       "reportFake": "Fake account",
       "reportOther": "Other",
       "actionDone": "Done",
-      "documentsFuture": "Documents, PDF, Word, Excel, and ZIP files will appear here."
+      "documentsFuture": "Documents, PDF, Word, Excel, and ZIP files will appear here.",
+      "projectRoom": "Project room"
     }
   },
   "Support": {

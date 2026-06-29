@@ -195,7 +195,7 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
         setUserParticipation({status: nextParticipant.status, message: nextParticipant.message});
         if (nextParticipant.status === "accepted" && !conversationId) {
           const supabase = createClient();
-          const {data: conv} = await supabase.from('conversations').select('id').eq('idea_id', idea.id).maybeSingle();
+          const {data: conv} = await supabase.from('conversations').select('id').eq('idea_id', idea.id).eq('type', 'idea').maybeSingle();
           if (conv) setConversationId(conv.id);
         }
       }
@@ -311,7 +311,7 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
 
     // Navigate to messages conversation instead of showing embedded chat
     const supabase = createClient();
-    supabase.from('conversations').select('id').eq('idea_id', idea.id).maybeSingle().then(({data}) => {
+    supabase.from('conversations').select('id').eq('idea_id', idea.id).eq('type', 'idea').maybeSingle().then(({data}) => {
       if (data) {
         router.push(`/messages?conversation=${data.id}`);
       }
@@ -327,7 +327,7 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
     if (conversationId) return;
     if (userParticipation?.status === "accepted" || isOwner) {
       const supabase = createClient();
-      supabase.from('conversations').select('id').eq('idea_id', idea.id).maybeSingle().then(({data}) => {
+      supabase.from('conversations').select('id').eq('idea_id', idea.id).eq('type', 'idea').maybeSingle().then(({data}) => {
         if (data) setConversationId(data.id);
       });
     }

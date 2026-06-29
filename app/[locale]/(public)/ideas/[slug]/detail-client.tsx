@@ -6,18 +6,15 @@ import {
   CalendarDays,
   CheckCircle2,
   Circle,
-  Heart,
   Loader2,
   MessageCircle,
   ThumbsUp,
-  Users,
 } from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
 import {useMemo, useState} from "react";
 import {toast} from "sonner";
 
-import {openIdeaProjectRoomAction, supportIdeaAction} from "@/app/[locale]/server-actions";
-import {ParticipantJoinModal} from "@/components/ideas/participant-join-modal";
+import {openIdeaProjectRoomAction, voteIdeaAction} from "@/app/[locale]/server-actions";
 import {OnlineAvatar} from "@/components/presence";
 import {Link, useRouter} from "@/lib/i18n/routing";
 
@@ -47,46 +44,31 @@ function isStepDone(step: "published" | "supporters" | "participants" | "progres
   return status === "completed";
 }
 
-function profileName(profile: any, fallback: string) {
-  return profile?.full_name ?? profile?.username ?? fallback;
-}
-
 export function IdeaDetailClient({
   idea,
   updates,
   milestones,
   progressImages,
-  participantPreview,
-  supporterPreview,
-  participantsCount,
-  supportersCount,
   currentUserId,
-  userParticipation,
-  userSupported: initialUserSupported,
+  userVoted: initialUserVoted,
   locale,
 }: {
   idea: any;
   updates: any[];
   milestones: any[];
   progressImages: any[];
-  participantPreview: any[];
-  supporterPreview: any[];
-  participantsCount: number;
-  supportersCount: number;
   currentUserId: string | null;
-  currentUserProfile: {full_name: string | null; username: string | null; avatar_url: string | null} | null;
-  userParticipation: {status: string; message: string | null} | null;
-  userSupported: boolean;
+  userVoted: boolean;
   locale: string;
 }) {
   const t = useTranslations("Ideas");
   const uiLocale = useLocale();
   const router = useRouter();
-  const [supportersCountState, setSupportersCount] = useState(supportersCount);
-  const [userSupported, setUserSupported] = useState(initialUserSupported);
-  const [supportPending, setSupportPending] = useState(false);
+  const [votesCount, setVotesCount] = useState<number>(idea.votes_count ?? 0);
+  const [userVoted, setUserVoted] = useState(initialUserVoted);
+  const [votePending, setVotePending] = useState(false);
   const [roomPending, setRoomPending] = useState(false);
-  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [roomError, setRoomError] = useState<string | null>(null);
 
   const authorName = idea.author?.full_name ?? idea.author?.username ?? t("unknownAuthor");
   const categoryName = getCategoryName(idea.category, locale);
@@ -96,15 +78,13 @@ export function IdeaDetailClient({
     ...progressImages.map((item: any) => ({url: item.url, type: "image", caption: item.caption ?? null})),
   ];
   const stage = stageKey(idea.status);
-  const canParticipate = !["completed", "archived"].includes(idea.status);
-  const userParticipationStatus = userParticipation?.status;
 
   const progressSteps = useMemo(
     () => (["published", "supporters", "participants", "progress", "completed"] as const).map((step) => ({
       step,
-      done: isStepDone(step, idea.status, supportersCountState),
+      done: isStepDone(step, idea.status, votesCount),
     })),
-    [idea.status, supportersCountState],
+    [idea.status, votesCount],
   );
 
   const timelineEvents = useMemo(() => {
@@ -120,36 +100,37 @@ export function IdeaDetailClient({
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [idea.created_at, idea.status, idea.updated_at, milestones, t, updates]);
 
-  async function handleSupport() {
-    if (supportPending) return;
+  async function handleVote() {
+    if (votePending) return;
     if (!currentUserId) {
       router.push(`/login?next=${encodeURIComponent(`/ideas/${idea.id}`)}`);
       return;
     }
-    const previousSupported = userSupported;
-    const previousCount = supportersCountState;
-    setUserSupported((value) => !value);
-    setSupportersCount((count) => previousSupported ? Math.max(0, count - 1) : count + 1);
-    setSupportPending(true);
+    const previousVoted = userVoted;
+    const previousCount = votesCount;
+    setUserVoted(!previousVoted);
+    setVotesCount((count) => previousVoted ? Math.max(0, count - 1) : count + 1);
+    setVotePending(true);
+    setRoomError(null);
 
     const formData = new FormData();
     formData.set("ideaId", idea.id);
-    const result = await supportIdeaAction(formData);
-    setSupportPending(false);
+    const result = await voteIdeaAction(formData);
+    setVotePending(false);
 
     if (!result.success) {
-      setUserSupported(previousSupported);
-      setSupportersCount(previousCount);
+      setUserVoted(previousVoted);
+      setVotesCount(previousCount);
       if (result.error === "unauthorized") {
         router.push(`/login?next=${encodeURIComponent(`/ideas/${idea.id}`)}`);
       } else {
-        toast.error(t("participationError"));
+        toast.error(t("voteFailed"));
       }
       return;
     }
 
-    setUserSupported(result.supported ?? !previousSupported);
-    setSupportersCount(result.supportersCount ?? previousCount);
+    setUserVoted(Boolean(result.voted));
+    setVotesCount(result.votes ?? previousCount);
   }
 
   async function openProjectRoom() {
@@ -158,16 +139,24 @@ export function IdeaDetailClient({
       router.push(`/login?next=${encodeURIComponent(`/ideas/${idea.id}`)}`);
       return;
     }
+    if (!userVoted) {
+      setRoomError(t("projectRoomVoteFirst"));
+      return;
+    }
     setRoomPending(true);
     const result = await openIdeaProjectRoomAction(idea.id);
     setRoomPending(false);
 
     if (!result.success || !result.conversationId) {
-      toast.error(t(result.error === "forbidden" ? "projectRoomUnavailable" : "participationError"));
+      if (result.error === "vote_required" || result.error === "forbidden") {
+        setRoomError(t("projectRoomVoteFirst"));
+      } else {
+        toast.error(t("participationError"));
+      }
       return;
     }
 
-    router.push(`/messages/${result.conversationId}`);
+    router.push(`/messages?conversation=${result.conversationId}`);
   }
 
   return (
@@ -194,12 +183,10 @@ export function IdeaDetailClient({
 
         <p className="mt-5 whitespace-pre-line text-base leading-7 text-foreground/85">{idea.description}</p>
 
-        <div className="mt-5 grid grid-cols-4 gap-2 rounded-2xl bg-muted/35 p-2">
+        <div className="mt-5 grid grid-cols-2 gap-2 rounded-2xl bg-muted/35 p-2">
           {[
-            {icon: Heart, value: supportersCountState, label: t("supporters")},
-            {icon: Users, value: participantsCount, label: t("participants")},
+            {icon: ThumbsUp, value: votesCount, label: t("votes")},
             {icon: MessageCircle, value: idea.comments_count ?? 0, label: t("comments")},
-            {icon: ThumbsUp, value: idea.votes_count ?? 0, label: t("votes")},
           ].map(({icon: Icon, value, label}) => (
             <div key={label} className="rounded-xl bg-background/70 px-2 py-3 text-center">
               <Icon size={17} className="mx-auto text-primary" />
@@ -218,36 +205,6 @@ export function IdeaDetailClient({
           ))}
         </div>
 
-        <div className="mt-5 grid gap-2 sm:grid-cols-3">
-          <button
-            type="button"
-            onClick={handleSupport}
-            disabled={supportPending}
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-bold text-primary-foreground transition active:scale-[0.98] disabled:opacity-70"
-          >
-            {supportPending ? <Loader2 size={16} className="animate-spin" /> : <ThumbsUp size={16} />}
-            {userSupported ? t("support") : t("support")}
-          </button>
-          {canParticipate && userParticipationStatus !== "accepted" ? (
-            <button
-              type="button"
-              onClick={() => currentUserId ? setShowJoinModal(true) : router.push(`/login?next=${encodeURIComponent(`/ideas/${idea.id}`)}`)}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-border/70 px-4 text-sm font-bold text-foreground transition hover:bg-muted active:scale-[0.98]"
-            >
-              <Users size={16} />
-              {userParticipationStatus === "pending" ? t("participationPendingShort") : t("participate")}
-            </button>
-          ) : null}
-          <button
-            type="button"
-            onClick={openProjectRoom}
-            disabled={roomPending}
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-border/70 px-4 text-sm font-bold text-foreground transition hover:bg-muted active:scale-[0.98] disabled:opacity-70"
-          >
-            {roomPending ? <Loader2 size={16} className="animate-spin" /> : <MessageCircle size={16} />}
-            {t("openProjectRoom")}
-          </button>
-        </div>
       </section>
 
       <section className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
@@ -263,41 +220,31 @@ export function IdeaDetailClient({
       </section>
 
       <section className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
-        <h2 className="text-base font-black text-foreground">{t("participants")}</h2>
-        {participantPreview.length > 0 ? (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {participantPreview.map((participant) => {
-              const user = participant.user;
-              return (
-                <Link key={participant.id} href={`/profile/${user?.username ?? participant.user_id}`} className="flex items-center gap-2 rounded-full bg-muted/45 py-1 ps-1 pe-3 text-sm font-semibold text-foreground transition hover:bg-muted">
-                  <OnlineAvatar userId={participant.user_id} label={profileName(user, t("unknownAuthor"))} avatarUrl={user?.avatar_url} className="h-8 w-8" />
-                  <span>{profileName(user, t("unknownAuthor"))}</span>
-                </Link>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="mt-2 text-sm text-muted-foreground">{t("noParticipantsYet")}</p>
-        )}
-      </section>
-
-      <section className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
-        <h2 className="text-base font-black text-foreground">{t("supporters")}</h2>
-        {supporterPreview.length > 0 ? (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {supporterPreview.map((supporter) => {
-              const user = supporter.profile;
-              return (
-                <Link key={supporter.user_id} href={`/profile/${user?.username ?? supporter.user_id}`} className="flex items-center gap-2 rounded-full bg-muted/45 py-1 ps-1 pe-3 text-sm font-semibold text-foreground transition hover:bg-muted">
-                  <OnlineAvatar userId={supporter.user_id} label={profileName(user, t("unknownAuthor"))} avatarUrl={user?.avatar_url} className="h-8 w-8" />
-                  <span>{profileName(user, t("unknownAuthor"))}</span>
-                </Link>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="mt-2 text-sm text-muted-foreground">{t("noSupportersYet")}</p>
-        )}
+        <h2 className="text-base font-black text-foreground">{t("discussionButton")}</h2>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("projectRoomDescription")}</p>
+        {roomError ? (
+          <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">{roomError}</p>
+        ) : null}
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={handleVote}
+            disabled={votePending}
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-bold text-primary-foreground transition active:scale-[0.98] disabled:opacity-70"
+          >
+            {votePending ? <Loader2 size={16} className="animate-spin" /> : <ThumbsUp size={16} />}
+            {userVoted ? t("voteLabelVoted") : t("voteNow")}
+          </button>
+          <button
+            type="button"
+            onClick={openProjectRoom}
+            disabled={roomPending}
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-border/70 px-4 text-sm font-bold text-foreground transition hover:bg-muted active:scale-[0.98] disabled:opacity-70"
+          >
+            {roomPending ? <Loader2 size={16} className="animate-spin" /> : <MessageCircle size={16} />}
+            {t("openProjectRoom")}
+          </button>
+        </div>
       </section>
 
       <section className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-5">
@@ -332,8 +279,6 @@ export function IdeaDetailClient({
           ))}
         </div>
       </section>
-
-      <ParticipantJoinModal ideaId={idea.id} open={showJoinModal} onClose={() => setShowJoinModal(false)} />
     </div>
   );
 }

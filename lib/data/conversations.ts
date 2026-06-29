@@ -286,7 +286,7 @@ export async function getUserConversations(userId: string): Promise<Conversation
   }
 
   const ideaIdsNeedingImages = conversations
-    .filter((conversation) => conversation.type === 'idea' && !conversation.image_url && conversation.idea_id)
+    .filter((conversation) => (conversation.type === 'idea' || conversation.type === 'idea_project_room') && !conversation.image_url && conversation.idea_id)
     .map((conversation) => conversation.idea_id as string);
 
   if (ideaIdsNeedingImages.length === 0) return conversations;
@@ -303,7 +303,7 @@ export async function getUserConversations(userId: string): Promise<Conversation
 
   const ideaImages = new Map((ideas ?? []).map((idea) => [idea.id, idea.image_url ?? null]));
   return conversations.map((conversation) =>
-    conversation.type === 'idea' && !conversation.image_url && conversation.idea_id
+    (conversation.type === 'idea' || conversation.type === 'idea_project_room') && !conversation.image_url && conversation.idea_id
       ? {...conversation, image_url: ideaImages.get(conversation.idea_id) ?? null}
       : conversation,
   );
@@ -1055,7 +1055,7 @@ async function updateIdeaGroupProfileDirect(
       .from('conversations')
       .update(payload)
       .eq('id', conversationId)
-      .eq('type', 'idea');
+      .in('type', ['idea', 'idea_project_room']);
 
     if (!error) {
       if (input.imageUrl && adminState.ideaId) {
@@ -1094,7 +1094,7 @@ async function getIdeaGroupAdminStateDirect(
     .eq('id', conversationId)
     .maybeSingle();
 
-  if (conversationError || !conversation || conversation.type !== 'idea') {
+  if (conversationError || !conversation || (conversation.type !== 'idea' && conversation.type !== 'idea_project_room')) {
     return {isAdmin: false, ideaId: null};
   }
 

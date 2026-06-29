@@ -622,7 +622,10 @@
     "updateFailed": "Failed to publish update",
     "noUpdatesYet": "No updates yet.",
     "relatedIdeas": "Related Ideas",
-    "backToIdeas": "Back to Ideas"
+    "backToIdeas": "Back to Ideas",
+    "projectRoomVoteFirst": "Vote first to open the project room.",
+    "voteNow": "Vote now",
+    "projectRoomDescription": "The project room is for people who voted and want to follow the work and coordinate."
   },
   "IdeaForm": {
     "title": "Ngalif xalaat siwil",
@@ -2099,7 +2102,8 @@
       "sendingStatus": "Sending...",
       "failedStatus": "Not sent",
       "retry": "Retry",
-      "downloadImage": "Download image"
+      "downloadImage": "Download image",
+      "projectRoom": "Project room"
     }
   },
   "Support": {

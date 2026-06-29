@@ -3,7 +3,6 @@ import type {Metadata} from "next";
 import {getTranslations} from "next-intl/server";
 import {notFound} from "next/navigation";
 
-import {getIdeaUserParticipation, getIdeaUserSupport} from "@/lib/data/ideas";
 import {Link} from "@/lib/i18n/routing";
 import {createClient} from "@/lib/supabase/server";
 import {IdeaDetailClient} from "./detail-client";
@@ -43,17 +42,6 @@ export default async function IdeaDetailPage({
   } = await supabase.auth.getUser();
   const currentUserId = currentUser?.id ?? null;
 
-  // Fetch current user profile (for discussion component)
-  let currentUserProfile: {full_name: string | null; username: string | null; avatar_url: string | null} | null = null;
-  if (currentUserId) {
-    const {data: profile} = await supabase
-      .from("profiles")
-      .select("full_name, username, avatar_url")
-      .eq("id", currentUserId)
-      .single();
-    currentUserProfile = profile;
-  }
-
   // Fetch idea with author + category
   const {data: idea} = await supabase
     .from("ideas")
@@ -82,19 +70,6 @@ export default async function IdeaDetailPage({
     p_idea_id: slug,
   });
 
-  // Fetch participants count
-  const {count: participantsCount} = await supabase
-    .from("idea_participants")
-    .select("*", {count: "exact", head: true})
-    .eq("idea_id", slug)
-    .eq("status", "accepted");
-
-  // Fetch supporters count
-  const {count: supportersCount} = await supabase
-    .from("idea_supporters")
-    .select("*", {count: "exact", head: true})
-    .eq("idea_id", slug);
-
   // Fetch milestones
   const {data: milestones} = await supabase
     .from("idea_milestones")
@@ -109,29 +84,15 @@ export default async function IdeaDetailPage({
     .eq("idea_id", slug)
     .order("created_at", {ascending: false});
 
-  const {data: participantPreview} = await supabase
-    .from("idea_participants")
-    .select("id, user_id, status, created_at, user:profiles!idea_participants_user_id_fkey(id, username, full_name, avatar_url)")
-    .eq("idea_id", slug)
-    .eq("status", "accepted")
-    .order("created_at", {ascending: false})
-    .limit(24);
-
-  const {data: supporterPreview} = await supabase
-    .from("idea_supporters")
-    .select("user_id, created_at, profile:profiles!idea_supporters_user_id_fkey(id, username, full_name, avatar_url)")
-    .eq("idea_id", slug)
-    .order("created_at", {ascending: false})
-    .limit(24);
-
-  // Fetch user-specific participation data
-  let userParticipation: {status: string; message: string | null} | null = null;
-  let userSupported = false;
+  let userVoted = false;
   if (currentUserId) {
-    [userParticipation, userSupported] = await Promise.all([
-      getIdeaUserParticipation(slug, currentUserId),
-      getIdeaUserSupport(slug, currentUserId),
-    ]);
+    const {data: vote} = await supabase
+      .from("idea_votes")
+      .select("id")
+      .eq("idea_id", slug)
+      .eq("user_id", currentUserId)
+      .maybeSingle();
+    userVoted = Boolean(vote);
   }
 
   return (
@@ -150,14 +111,8 @@ export default async function IdeaDetailPage({
         updates={updates ?? []}
         milestones={milestones ?? []}
         progressImages={progressImages ?? []}
-        participantPreview={(participantPreview ?? []) as any[]}
-        supporterPreview={(supporterPreview ?? []) as any[]}
-        participantsCount={participantsCount ?? 0}
-        supportersCount={supportersCount ?? 0}
         currentUserId={currentUserId}
-        currentUserProfile={currentUserProfile}
-        userParticipation={userParticipation}
-        userSupported={userSupported}
+        userVoted={userVoted}
         locale={locale}
       />
     </div>

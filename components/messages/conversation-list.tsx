@@ -34,7 +34,7 @@ function timeAgo(dateStr: string, locale: string, nowLabel: string): string {
 function typeBadge(type: string, t: TranslationFn): string {
   if (type === "graatek") return t("groupChat.gar3tak");
   if (type === "direct") return t("groupChat.directChat");
-  return t("idea");
+  return t("groupChat.projectRoom");
 }
 
 function statusLabel(status: string | null | undefined, t: TranslationFn): string {
@@ -46,7 +46,7 @@ function statusLabel(status: string | null | undefined, t: TranslationFn): strin
 
 function conversationCategory(conversation: ConversationListItem): InboxCategory | null {
   if (conversation.type === "graatek") return "graatek";
-  if (conversation.type === "idea") return "ideas";
+  if (conversation.type === "idea" || conversation.type === "idea_project_room") return "ideas";
   if (conversation.type === "direct") return "people";
   return null;
 }
@@ -282,7 +282,7 @@ export function ConversationList({ initialConversations, currentUserId }: Conver
           <ul>
             {filtered.map((conversation) => {
               const isActive = activeConvId === conversation.id;
-              const isIdeaGroup = conversation.type === "idea";
+              const isIdeaGroup = conversation.type === "idea" || conversation.type === "idea_project_room";
               const otherUserId = !isIdeaGroup ? conversation.other_participant?.id : undefined;
               const name = isIdeaGroup
                 ? conversation.title || conversation.idea_title || t("idea")

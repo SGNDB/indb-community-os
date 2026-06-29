@@ -4,18 +4,15 @@ import {
   CheckCircle2,
   Circle,
   FolderOpen,
-  Heart,
   Loader2,
   MessageCircle,
   ThumbsUp,
-  Users,
 } from "lucide-react";
 import {useLocale, useTranslations} from "next-intl";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {toast} from "sonner";
 
-import {openIdeaProjectRoomAction, supportIdeaAction} from "@/app/[locale]/server-actions";
-import {ParticipantJoinModal} from "@/components/ideas/participant-join-modal";
+import {getUserVoteAction, voteIdeaAction} from "@/app/[locale]/server-actions";
 import {OnlineAvatar} from "@/components/presence";
 import {Link, useRouter} from "@/lib/i18n/routing";
 
@@ -62,10 +59,9 @@ export function IdeaListCard({
   const t = useTranslations("Ideas");
   const locale = useLocale();
   const router = useRouter();
-  const [supportersCount, setSupportersCount] = useState(idea.supporters_count ?? 0);
-  const [supportPending, setSupportPending] = useState(false);
-  const [roomPending, setRoomPending] = useState(false);
-  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [votesCount, setVotesCount] = useState<number>(idea.votes_count ?? 0);
+  const [voted, setVoted] = useState(false);
+  const [votePending, setVotePending] = useState(false);
 
   const authorName = idea.author?.full_name ?? idea.author?.username ?? idea.author_name ?? idea.author_username ?? t("unknownAuthor");
   const authorUsername = idea.author?.username ?? idea.author_username ?? idea.author_id;
@@ -76,57 +72,53 @@ export function IdeaListCard({
   const timeline = useMemo(
     () => (["published", "supporters", "participants", "progress", "completed"] as const).map((step) => ({
       step,
-      done: completedStep(step, idea.status, supportersCount),
+      done: completedStep(step, idea.status, votesCount),
     })),
-    [idea.status, supportersCount],
+    [idea.status, votesCount],
   );
 
-  async function handleSupport() {
-    if (supportPending) return;
+  useEffect(() => {
+    let alive = true;
+    if (!currentUserId) return;
+    getUserVoteAction(idea.id).then((result) => {
+      if (alive && result.success) setVoted(Boolean(result.voted));
+    });
+    return () => {
+      alive = false;
+    };
+  }, [currentUserId, idea.id]);
+
+  async function handleVote() {
+    if (votePending) return;
     if (!currentUserId) {
       router.push(`/login?next=${encodeURIComponent(`/ideas/${idea.id}`)}`);
       return;
     }
 
-    const previous = supportersCount;
-    setSupportersCount((count) => count + 1);
-    setSupportPending(true);
+    const previousVoted = voted;
+    const previousCount = votesCount;
+    setVoted(!previousVoted);
+    setVotesCount((count) => previousVoted ? Math.max(0, count - 1) : count + 1);
+    setVotePending(true);
 
     const formData = new FormData();
     formData.set("ideaId", idea.id);
-    const result = await supportIdeaAction(formData);
+    const result = await voteIdeaAction(formData);
 
-    setSupportPending(false);
+    setVotePending(false);
     if (!result.success) {
-      setSupportersCount(previous);
+      setVoted(previousVoted);
+      setVotesCount(previousCount);
       if (result.error === "unauthorized") {
         router.push(`/login?next=${encodeURIComponent(`/ideas/${idea.id}`)}`);
       } else {
-        toast.error(t("participationError"));
+        toast.error(t("voteFailed"));
       }
       return;
     }
 
-    setSupportersCount(result.supportersCount ?? previous);
-  }
-
-  async function openProjectRoom() {
-    if (roomPending) return;
-    if (!currentUserId) {
-      router.push(`/login?next=${encodeURIComponent(`/ideas/${idea.id}`)}`);
-      return;
-    }
-
-    setRoomPending(true);
-    const result = await openIdeaProjectRoomAction(idea.id);
-    setRoomPending(false);
-
-    if (!result.success || !result.conversationId) {
-      toast.error(t(result.error === "forbidden" ? "projectRoomUnavailable" : "participationError"));
-      return;
-    }
-
-    router.push(`/messages/${result.conversationId}`);
+    setVoted(Boolean(result.voted));
+    setVotesCount(result.votes ?? previousCount);
   }
 
   return (
@@ -158,12 +150,10 @@ export function IdeaListCard({
         </Link>
       </div>
 
-      <div className="mt-4 grid grid-cols-4 gap-2 rounded-2xl bg-muted/35 p-2">
+      <div className="mt-4 grid grid-cols-2 gap-2 rounded-2xl bg-muted/35 p-2">
         {[
-          {icon: Heart, value: supportersCount, label: t("supporters")},
-          {icon: Users, value: idea.participants_count ?? 0, label: t("participants")},
+          {icon: ThumbsUp, value: votesCount, label: t("votes")},
           {icon: MessageCircle, value: idea.comments_count ?? 0, label: t("comments")},
-          {icon: ThumbsUp, value: idea.votes_count ?? 0, label: t("votes")},
         ].map(({icon: Icon, value, label}) => (
           <div key={label} className="min-w-0 rounded-xl bg-background/70 px-2 py-2 text-center">
             <Icon size={16} className="mx-auto text-primary" />
@@ -182,32 +172,15 @@ export function IdeaListCard({
         ))}
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="mt-4 grid grid-cols-2 gap-2">
         <button
           type="button"
-          onClick={handleSupport}
-          disabled={supportPending}
+          onClick={handleVote}
+          disabled={votePending}
           className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-primary px-3 text-sm font-semibold text-primary-foreground transition active:scale-[0.98] disabled:opacity-70"
         >
-          {supportPending ? <Loader2 size={15} className="animate-spin" /> : <ThumbsUp size={15} />}
-          {t("support")}
-        </button>
-        <button
-          type="button"
-          onClick={() => currentUserId ? setShowJoinModal(true) : router.push(`/login?next=${encodeURIComponent(`/ideas/${idea.id}`)}`)}
-          className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-border/70 px-3 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-[0.98]"
-        >
-          <Users size={15} />
-          {t("participate")}
-        </button>
-        <button
-          type="button"
-          onClick={openProjectRoom}
-          disabled={roomPending}
-          className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-border/70 px-3 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-[0.98] disabled:opacity-70"
-        >
-          {roomPending ? <Loader2 size={15} className="animate-spin" /> : <MessageCircle size={15} />}
-          {t("discussionButton")}
+          {votePending ? <Loader2 size={15} className="animate-spin" /> : <ThumbsUp size={15} />}
+          {voted ? t("voteLabelVoted") : t("voteLabel")}
         </button>
         <Link
           href={`/ideas/${idea.id}`}
@@ -217,8 +190,6 @@ export function IdeaListCard({
           {t("openProject")}
         </Link>
       </div>
-
-      <ParticipantJoinModal ideaId={idea.id} open={showJoinModal} onClose={() => setShowJoinModal(false)} />
     </article>
   );
 }

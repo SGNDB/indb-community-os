@@ -336,7 +336,7 @@ export function ConversationChat({
   const viewerTouchStartXRef = useRef<number | null>(null);
   const viewerTouchStartYRef = useRef<number | null>(null);
 
-  const isIdeaGroup = conversationType === "idea";
+  const isIdeaGroup = conversationType === "idea" || conversationType === "idea_project_room";
   const isDirectConversation = conversationType === "direct";
   const otherParticipant = participants.find((p) => p.user_id !== currentUserId)?.user;
   const otherUserId = otherParticipant?.id;
@@ -1513,7 +1513,7 @@ export function ConversationChat({
   }
 
   const headerSubtitle = isIdeaGroup
-    ? `${t("groupChat.memberCount", { count: effectiveMemberCount })} - ${statusLabel(localIdeaStatus, t)}`
+    ? `${t("groupChat.projectRoom")} - ${t("groupChat.memberCount", { count: effectiveMemberCount })}`
     : isDirectConversation
       ? (!isDirectBlocked && isOtherUserOnline ? t("groupChat.onlineNow") : detailsUsername)
       : t("groupChat.memberCount", { count: effectiveMemberCount });

@@ -753,7 +753,10 @@
     "updateFailed": "Failed to publish update",
     "noUpdatesYet": "No updates yet.",
     "relatedIdeas": "Related Ideas",
-    "backToIdeas": "Back to Ideas"
+    "backToIdeas": "Back to Ideas",
+    "projectRoomVoteFirst": "Votez d’abord pour ouvrir la salle du projet.",
+    "voteNow": "Voter maintenant",
+    "projectRoomDescription": "La salle du projet est réservée aux personnes qui ont voté et souhaitent suivre le travail."
   },
   "IdeaForm": {
     "title": "Soumettre une idée citoyenne",
@@ -3183,7 +3186,8 @@
       "reportFake": "Faux compte",
       "reportOther": "Autre",
       "actionDone": "Terminé",
-      "documentsFuture": "Les documents, PDF, Word, Excel et ZIP apparaîtront ici."
+      "documentsFuture": "Les documents, PDF, Word, Excel et ZIP apparaîtront ici.",
+      "projectRoom": "Salle de projet"
     }
   },
   "Support": {
