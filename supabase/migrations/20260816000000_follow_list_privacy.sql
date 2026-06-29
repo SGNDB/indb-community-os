@@ -137,6 +137,7 @@ returns table (
   username text,
   avatar_url text,
   is_online boolean,
+  community_level text,
   contribution_score int,
   is_following boolean,
   can_message boolean
@@ -175,6 +176,13 @@ begin
     p.username,
     p.avatar_url,
     false::boolean as is_online,
+    case
+      when p.contribution_score >= 2000 then 'guardian_of_nouadhibou'
+      when p.contribution_score >= 1000 then 'community_champion'
+      when p.contribution_score >= 500 then 'community_builder'
+      when p.contribution_score >= 100 then 'active_contributor'
+      else 'community_supporter'
+    end as community_level,
     p.contribution_score,
     exists (select 1 from viewer_follows vf where vf.following_id = p.id) as is_following,
     exists (select 1 from viewer_messages vm where vm.user_id = p.id) as can_message
@@ -203,6 +211,7 @@ returns table (
   username text,
   avatar_url text,
   is_online boolean,
+  community_level text,
   contribution_score int,
   is_following boolean,
   can_message boolean
@@ -241,6 +250,13 @@ begin
     p.username,
     p.avatar_url,
     false::boolean as is_online,
+    case
+      when p.contribution_score >= 2000 then 'guardian_of_nouadhibou'
+      when p.contribution_score >= 1000 then 'community_champion'
+      when p.contribution_score >= 500 then 'community_builder'
+      when p.contribution_score >= 100 then 'active_contributor'
+      else 'community_supporter'
+    end as community_level,
     p.contribution_score,
     exists (select 1 from viewer_follows vf where vf.following_id = p.id) as is_following,
     exists (select 1 from viewer_messages vm where vm.user_id = p.id) as can_message

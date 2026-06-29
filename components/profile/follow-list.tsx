@@ -182,6 +182,13 @@ export function FollowList({
     router.refresh();
   }
 
+  const VALID_LEVELS = new Set(["community_supporter", "active_contributor", "community_builder", "community_champion", "guardian_of_nouadhibou"]);
+
+  function getLevelLabel(level: string | null | undefined): string {
+    if (!level || !VALID_LEVELS.has(level)) return tProfile("communityLevel.unknown");
+    return tProfile(`communityLevel.${level}`);
+  }
+
   function handleMessage(userId: string) {
     const user = users.find((u) => u.id === userId);
     if (!user?.can_message) {
@@ -280,7 +287,12 @@ export function FollowList({
                   {/* Info */}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-bold">{user.full_name}</p>
-                    <p className="truncate text-xs text-muted-foreground">@{user.username}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      @{user.username}
+                      <span className="ms-1.5 inline-flex items-center gap-0.5 rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
+                        {getLevelLabel(user.community_level)}
+                      </span>
+                    </p>
                   </div>
 
                   {/* Actions */}

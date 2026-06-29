@@ -11,6 +11,7 @@ export type FollowUser = {
   username: string;
   avatar_url: string | null;
   is_online: boolean;
+  community_level: string;
   contribution_score: number;
   is_following: boolean;
   can_message: boolean;
