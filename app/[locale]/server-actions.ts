@@ -4072,17 +4072,19 @@ export async function updateIdeaStatusAction(
 
   if (newStatus === 'completed' || newStatus === 'archived') {
     try {
+      const archivedIds = new Set<string>();
       if (ideaConversationId) {
         await supabase.rpc('archive_conversation', { p_conv_id: ideaConversationId });
-      } else {
-        const { data: conversations } = await supabase
-          .from('conversations')
-          .select('id')
-          .eq('idea_id', ideaId)
-          .in('type', ['idea', 'idea_project_room']);
-        for (const conv of conversations ?? []) {
-          await supabase.rpc('archive_conversation', { p_conv_id: conv.id });
-        }
+        archivedIds.add(ideaConversationId);
+      }
+      const { data: conversations } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('idea_id', ideaId)
+        .in('type', ['idea', 'idea_project_room']);
+      for (const conv of conversations ?? []) {
+        if (archivedIds.has(conv.id)) continue;
+        await supabase.rpc('archive_conversation', { p_conv_id: conv.id });
       }
     } catch (e) {
       console.error('updateIdeaStatusAction archive error:', e);
@@ -4164,8 +4166,24 @@ export async function updateIdeaOwnerProgressAction(
     }
   }
 
+  if (status === 'completed') {
+    try {
+      const { data: conversations } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('idea_id', ideaId)
+        .in('type', ['idea', 'idea_project_room']);
+      for (const conv of conversations ?? []) {
+        await supabase.rpc('archive_conversation', { p_conv_id: conv.id });
+      }
+    } catch (e) {
+      console.error('updateIdeaOwnerProgressAction archive error:', e);
+    }
+  }
+
   revalidatePath(toPath(locale, `/ideas/${ideaId}`));
   revalidatePath(toPath(locale, '/ideas'));
+  revalidatePath(toPath(locale, '/messages'));
   return { success: true };
 }
 
