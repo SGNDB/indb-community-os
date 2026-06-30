@@ -718,7 +718,9 @@ export function VolunteerPageClient({
       {/* ================================================================ */}
       {opportunities.length === 0 ? (
         <section className="flex flex-col items-center justify-center rounded-3xl border border-border/70 bg-card p-12 text-center">
-          <span className="text-5xl">🙋</span>
+          <span className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <HandHeart size={32} strokeWidth={2.2} />
+          </span>
           <h2 className="mt-5 text-xl font-black">{labels.noOpportunities}</h2>
           <p className="mt-2 max-w-md text-sm text-muted-foreground leading-relaxed">{labels.noOpportunitiesHint}</p>
           <Button

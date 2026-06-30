@@ -4,7 +4,6 @@ import {
   Edit3,
   FolderOpen,
   Loader2,
-  MessageCircle,
   ThumbsUp,
   Trash2,
 } from "lucide-react";
@@ -158,16 +157,11 @@ export function IdeaListCard({
         </Link>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2 rounded-2xl bg-muted/35 p-2">
+      <div className="mt-4 rounded-2xl bg-muted/35 p-2">
         <div className="min-w-0 rounded-xl bg-background/70 px-3 py-2 text-center">
           <ThumbsUp size={16} className="mx-auto text-primary" />
           <p className="mt-1 text-sm font-bold text-foreground">{votesCount}</p>
           <p className="truncate text-[10px] text-muted-foreground">{t("votes")}</p>
-        </div>
-        <div className="min-w-0 rounded-xl bg-background/70 px-3 py-2 text-center">
-          <MessageCircle size={16} className="mx-auto text-primary" />
-          <p className="mt-1 text-sm font-bold text-foreground">{idea.comments_count ?? 0}</p>
-          <p className="truncate text-[10px] text-muted-foreground">{t("comments")}</p>
         </div>
       </div>
 

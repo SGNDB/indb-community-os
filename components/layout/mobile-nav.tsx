@@ -8,6 +8,7 @@ import {
   Gift,
   GraduationCap,
   Home,
+  HandHeart,
   Images,
   Info,
   Languages,
@@ -20,7 +21,6 @@ import {
   ShoppingBag,
   SunMedium,
   UserRound,
-  UsersRound,
   X,
 } from "lucide-react";
 import {AnimatePresence, motion} from "framer-motion";
@@ -47,7 +47,7 @@ const bottomItems = [
 const moreItems = [
   {href: "/memory", key: "memory", icon: Images, badge: null},
   {href: "/campaigns", key: "campaigns", icon: Megaphone, badge: "campaigns"},
-  {href: "/volunteer", key: "volunteer", icon: UsersRound, badge: "volunteer"},
+  {href: "/volunteer", key: "volunteer", icon: HandHeart, badge: "volunteer"},
   {href: "/feed", key: "feed", icon: Newspaper, badge: null},
   {href: "/profile", key: "profile", icon: UserRound, badge: null},
   {href: "/settings", key: "settings", icon: Settings, badge: null},

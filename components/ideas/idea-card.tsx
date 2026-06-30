@@ -9,7 +9,6 @@ import {useEffect, useRef, useState} from "react";
 import {toast} from "sonner";
 
 import {deleteIdeaAction, shareIdeaAction, getIdeaParticipationDataAction, supportIdeaAction, requestParticipateAction, respondToParticipantAction, updateIdeaStatusAction} from "@/app/[locale]/server-actions";
-import {IdeaComments} from "@/components/ideas/idea-comments";
 import {VotersModal} from "@/components/ideas/voters-modal";
 import {TranslateButton} from "@/components/shared/translate-button";
 import {VoteButton} from "@/components/ideas/vote-button";
@@ -44,7 +43,6 @@ interface IdeaCardProps {
   idea: IdeaWithAuthor;
   totalUsers?: number;
   currentUserId?: string | null;
-  autoOpenComments?: boolean;
 }
 
 function AuthorAvatar({author}: {author: IdeaWithAuthor["author"]}) {
@@ -78,7 +76,7 @@ function DeleteIdeaButton({deleting}: {deleting: boolean}) {
   );
 }
 
-export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = false}: IdeaCardProps) {
+export function IdeaCard({idea, totalUsers, currentUserId}: IdeaCardProps) {
   const t = useTranslations("Ideas");
   const locale = useLocale();
   const router = useRouter();
@@ -636,13 +634,6 @@ export function IdeaCard({idea, totalUsers, currentUserId, autoOpenComments = fa
                   )}
                 </button>
               )}
-              <IdeaComments
-                ideaId={idea.id}
-                contentOwnerId={idea.author_id}
-                defaultOpen={autoOpenComments}
-                rootClassName="contents"
-                panelClassName="order-last basis-full w-full"
-              />
               <button
                 type="button"
                 onClick={handleShare}

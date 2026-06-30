@@ -244,10 +244,6 @@ export function IdeaDetailClient({
               <p className="text-xs font-semibold text-muted-foreground">{t("votes")}</p>
               <p className="mt-1 text-sm font-black text-foreground">{votesCount}</p>
             </div>
-            <div className="text-end">
-              <p className="text-xs font-semibold text-muted-foreground">{t("comments")}</p>
-              <p className="mt-1 text-sm font-black text-foreground">{idea.comments_count ?? 0}</p>
-            </div>
           </div>
           <div className="mt-3">
             <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">

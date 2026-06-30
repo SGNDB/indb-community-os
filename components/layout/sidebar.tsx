@@ -9,7 +9,7 @@ import {
   Newspaper,
   UserRound,
   MessageCircleMore,
-  UsersRound,
+  HandHeart,
   Info,
   Settings,
 } from "lucide-react";
@@ -27,7 +27,7 @@ const navItems = [
   {href: "/ideas", key: "ideas", icon: Lightbulb},
   {href: "/fadla", key: "fadla", icon: Gift},
   {href: "/messages", key: "messages", icon: MessageCircleMore},
-  {href: "/volunteer", key: "volunteer", icon: UsersRound},
+  {href: "/volunteer", key: "volunteer", icon: HandHeart},
   {href: "/campaigns", key: "campaigns", icon: Megaphone},
   {href: "/settings", key: "settings", icon: Settings},
   {href: "/profile", key: "profile", icon: UserRound},
