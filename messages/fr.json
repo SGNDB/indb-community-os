@@ -2460,7 +2460,10 @@
         "memories": "Souvenirs",
         "campaigns": "Campagnes",
         "volunteering": "Bénévolat"
-      }
+      },
+      "feed": "Communauté",
+      "recognition": "Reconnaissance",
+      "settings": "Paramètres"
     },
     "noData": "Aucune donnée disponible.",
     "loading": "Chargement...",

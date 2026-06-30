@@ -2493,7 +2493,10 @@
         "memories": "Memories",
         "campaigns": "Campaigns",
         "volunteering": "Volunteering"
-      }
+      },
+      "feed": "Community feed",
+      "recognition": "Recognition",
+      "settings": "Settings"
     },
     "noData": "No data available.",
     "loading": "Loading...",

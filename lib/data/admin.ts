@@ -2716,8 +2716,12 @@ export interface AdminFeatureFlags {
   graatek: boolean;
   memories: boolean;
   messages: boolean;
+  campaigns: boolean;
   support: boolean;
   volunteering: boolean;
+  feed: boolean;
+  recognition: boolean;
+  settings: boolean;
   donations: boolean;
   publicRegistration: boolean;
   qrEntry: boolean;
@@ -2857,7 +2861,8 @@ export const DEFAULT_INTEGRATION_SETTINGS: AdminIntegrationSettings = {
 
 export const DEFAULT_FEATURE_FLAGS: AdminFeatureFlags = {
   ideas: true, graatek: true, memories: true, messages: true,
-  support: true, volunteering: true, donations: true,
+  campaigns: true, support: true, volunteering: true,
+  feed: true, recognition: true, settings: true, donations: true,
   publicRegistration: true, qrEntry: true, translation: true, realtime: true,
 };
 

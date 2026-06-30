@@ -33,7 +33,11 @@ const navItems = [
   {href: "/profile", key: "profile", icon: UserRound},
 ] as const;
 
-export function Sidebar() {
+export function Sidebar({
+  enabledNavigationKeys,
+}: {
+  enabledNavigationKeys?: readonly string[];
+}) {
   const t = useTranslations("Navigation");
   const locale = useLocale();
   const pathname = usePathname();
@@ -45,6 +49,8 @@ export function Sidebar() {
   const isRtl = ["ar", "ff", "snk"].includes(locale);
   const brandTitle = isRtl ? "مجتمع INDB" : "INDB Community";
   const brandTagline = isRtl ? "نحب نواذيبو" : locale === "fr" ? "Je t'aime NDB" : "I Love NDB";
+  const enabledKeys = enabledNavigationKeys ? new Set(enabledNavigationKeys) : null;
+  const visibleNavItems = enabledKeys ? navItems.filter((item) => enabledKeys.has(item.key)) : navItems;
 
   return (
     <div className="sticky top-22 space-y-4">
@@ -64,7 +70,7 @@ export function Sidebar() {
 
       <nav className="rounded-2xl border border-border/70 bg-card p-2 shadow-[0_12px_30px_rgba(7,31,54,0.08)]">
         <ul className="space-y-1.5">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const Icon = item.icon;
             const active =
               item.href === "/"

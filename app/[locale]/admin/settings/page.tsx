@@ -45,7 +45,7 @@ export default async function AdminSettingsPage({
     "inviteAdmin", "changeRole", "removeAccess", "lastActive", "permissions", "never",
     "selfRoleChangeWarning", "selfRemoveWarning", "removeAdminConfirm",
     "featureFlagsDesc", "ideas", "graatek", "memories", "messages", "campaigns",
-    "volunteering", "donations", "publicRegistration", "qrEntry", "translation", "realtime",
+    "volunteering", "feed", "recognition", "settings", "donations", "publicRegistration", "qrEntry", "translation", "realtime",
     "featureFlagDesc",
     "security", "securityDesc", "rlsStatus", "authSettings", "smsVerification",
     "auditLogs", "lastSecurityReview", "forceLogout", "rotateTokens", "viewAuditLog",

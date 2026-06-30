@@ -21,6 +21,8 @@ import {stripLocale} from "@/lib/i18n/paths";
 import {getSupportNavCounts} from "@/lib/data/support";
 import {PresenceProvider} from "@/components/presence";
 import {cn} from "@/lib/utils/cn";
+import {findFeatureByPath} from "@/core/features/registry";
+import {getFeatureRuntime} from "@/core/features/server";
 
 function getLanguageAlternates(pathname = "") {
   return Object.fromEntries(
@@ -84,7 +86,16 @@ export default async function LocaleLayout({
   const isMessagesRoute = normalizedPath === "/messages" || normalizedPath.startsWith("/messages/");
   const isConversationRoute = normalizedPath.startsWith("/messages/");
   const showAppChrome = !isAdminRoute && !isOnboardingRoute && !isAuthRoute;
-  const supportNavCounts = showAppChrome
+  const featureRuntime = await getFeatureRuntime();
+  const routeFeature = !isAdminRoute && !isOnboardingRoute && !isAuthRoute
+    ? findFeatureByPath(normalizedPath)
+    : null;
+
+  if (routeFeature && !featureRuntime.enabledFeatureIds.includes(routeFeature.id)) {
+    notFound();
+  }
+
+  const supportNavCounts = showAppChrome && featureRuntime.enabledNavigationKeys.includes("campaigns")
     ? await getSupportNavCounts()
     : {activeCampaigns: 0, openVolunteerOpportunities: 0};
 
@@ -129,7 +140,7 @@ export default async function LocaleLayout({
               >
                 {!isMessagesRoute ? (
                   <aside className="hidden lg:block">
-                    <Sidebar />
+                    <Sidebar enabledNavigationKeys={featureRuntime.enabledNavigationKeys} />
                   </aside>
                 ) : null}
                 <main className={cn("min-w-0", isMessagesRoute && "max-lg:min-h-0")}>
@@ -145,6 +156,7 @@ export default async function LocaleLayout({
                 <MobileNav
                   activeCampaignsCount={supportNavCounts.activeCampaigns}
                   openVolunteerOpportunitiesCount={supportNavCounts.openVolunteerOpportunities}
+                  enabledNavigationKeys={featureRuntime.enabledNavigationKeys}
                 />
               ) : null}
             </>

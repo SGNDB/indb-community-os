@@ -13,6 +13,8 @@ import { recordAdminAuditLog } from '@/lib/security/admin-audit';
 import { checkRateLimit, type RateLimitKind } from '@/lib/security/rate-limit';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
+import { assertFeatureEnabled } from '@/core/features/server';
+import { publishPlatformEvent } from '@/core/events/platform-events';
 import { adminCreditPointOptions, type AdminContentType } from '@/lib/data/admin';
 import { toggleFollow } from '@/lib/data/follows';
 import {
@@ -78,6 +80,15 @@ function normalizeLocale(value: FormDataEntryValue | null) {
 
 function toPath(locale: string, pathname: string) {
   return withLocale(pathname, locale);
+}
+
+async function guardFeatureAction(featureId: Parameters<typeof assertFeatureEnabled>[0]) {
+  try {
+    await assertFeatureEnabled(featureId);
+    return null;
+  } catch {
+    return 'module_disabled';
+  }
 }
 
 function getReturnPath(formData: FormData, fallback: string) {
@@ -1406,6 +1417,8 @@ export async function submitIdeaAction(
 ): Promise<{ success: true; id: string } | { success: false; error: string }> {
   const locale = normalizeLocale(formData.get('locale'));
   const errorsT = await getTranslations({ locale, namespace: 'Errors' });
+  const disabled = await guardFeatureAction('ideas');
+  if (disabled) return { success: false, error: disabled };
   const supabase = await createClient();
 
   const {
@@ -1481,6 +1494,13 @@ export async function submitIdeaAction(
     console.error('submitIdeaAction conversation create error:', e);
   }
 
+  await publishPlatformEvent({
+    name: 'idea.created',
+    actorId: user.id,
+    entityType: 'idea',
+    entityId: newIdea.id,
+  });
+
   revalidatePath(toPath(locale, '/ideas'));
 
   return { success: true, id: newIdea.id };
@@ -1491,6 +1511,8 @@ export async function updateIdeaAction(
 ): Promise<{ success: true } | { success: false; error: string }> {
   const locale = normalizeLocale(formData.get('locale'));
   const errorsT = await getTranslations({ locale, namespace: 'Errors' });
+  const disabled = await guardFeatureAction('ideas');
+  if (disabled) return { success: false, error: disabled };
   const supabase = await createClient();
 
   const {
@@ -1606,6 +1628,8 @@ export async function updateIdeaAction(
 export async function deleteIdeaAction(
   formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
+  const disabled = await guardFeatureAction('ideas');
+  if (disabled) return { success: false, error: disabled };
   const supabase = await createClient();
 
   const {
@@ -1805,6 +1829,8 @@ export async function shareIdeaAction(
   formData: FormData,
 ): Promise<{ success: boolean; error?: string; sharesCount?: number }> {
   const ideaId = formData.get('ideaId');
+  const disabled = await guardFeatureAction('ideas');
+  if (disabled) return { success: false, error: disabled };
   const supabase = await createClient();
 
   const {
@@ -2055,6 +2081,8 @@ export async function voteIdeaAction(
   formData: FormData,
 ): Promise<{ success: boolean; voted?: boolean; votes?: number; error?: string }> {
   const ideaId = formData.get('ideaId');
+  const disabled = await guardFeatureAction('ideas');
+  if (disabled) return { success: false, error: disabled };
   const supabase = await createClient();
 
   const {
@@ -2099,6 +2127,16 @@ export async function voteIdeaAction(
     .update({ votes_count: count ?? 0 })
     .eq('id', ideaId);
 
+  if (!existing) {
+    await publishPlatformEvent({
+      name: 'idea.voted',
+      actorId: user.id,
+      entityType: 'idea',
+      entityId: ideaId,
+      metadata: { votes: count ?? 0 },
+    });
+  }
+
   return {
     success: true,
     voted: !existing,
@@ -2109,6 +2147,8 @@ export async function voteIdeaAction(
 export async function getUserVoteAction(
   ideaId: string,
 ): Promise<{ success: boolean; voted?: boolean; error?: string }> {
+  const disabled = await guardFeatureAction('ideas');
+  if (disabled) return { success: false, error: disabled };
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'unauthorized' };
@@ -3818,6 +3858,8 @@ export async function supportIdeaAction(
   formData: FormData,
 ): Promise<{ success: boolean; supported?: boolean; supportersCount?: number; error?: string }> {
   const ideaId = formData.get('ideaId');
+  const disabled = await guardFeatureAction('ideas');
+  if (disabled) return { success: false, error: disabled };
   const supabase = await createClient();
 
   const {
@@ -3881,6 +3923,8 @@ export async function requestParticipateAction(
 ): Promise<{ success: boolean; participantId?: string; status?: string; error?: string }> {
   const ideaId = formData.get('ideaId');
   const message = formData.get('message');
+  const disabled = await guardFeatureAction('ideas');
+  if (disabled) return { success: false, error: disabled };
   const supabase = await createClient();
 
   const {
@@ -3937,6 +3981,8 @@ export async function respondToParticipantAction(
 ): Promise<{ success: boolean; status?: string; participantsCount?: number; conversationId?: string; error?: string }> {
   const participantId = formData.get('participantId');
   const action = formData.get('action'); // "accept" or "decline"
+  const disabled = await guardFeatureAction('ideas');
+  if (disabled) return { success: false, error: disabled };
   const supabase = await createClient();
 
   const {
@@ -4009,6 +4055,8 @@ export async function updateIdeaStatusAction(
 ): Promise<{ success: boolean; status?: IdeaStatus; error?: string }> {
   const ideaId = formData.get('ideaId');
   const newStatus = formData.get('status');
+  const disabled = await guardFeatureAction('ideas');
+  if (disabled) return { success: false, error: disabled };
   const supabase = await createClient();
 
   const validStatuses = ['published', 'interested', 'discussion', 'in_progress', 'completed', 'archived'];
@@ -4094,6 +4142,15 @@ export async function updateIdeaStatusAction(
     }
   }
 
+  if (newStatus === 'completed') {
+    await publishPlatformEvent({
+      name: 'idea.completed',
+      actorId: user.id,
+      entityType: 'idea',
+      entityId: ideaId,
+    });
+  }
+
   return { success: true, status: newStatus as IdeaStatus };
 }
 
@@ -4101,6 +4158,8 @@ export async function updateIdeaOwnerProgressAction(
   formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const locale = normalizeLocale(formData.get('locale'));
+  const disabled = await guardFeatureAction('ideas');
+  if (disabled) return { success: false, error: disabled };
   const ideaId = formData.get('ideaId');
   const status = formData.get('status');
   const progressRaw = formData.get('progressPercentage');
@@ -4215,6 +4274,12 @@ export async function updateIdeaOwnerProgressAction(
     } catch (e) {
       console.error('updateIdeaOwnerProgressAction archive error:', e);
     }
+    await publishPlatformEvent({
+      name: 'idea.completed',
+      actorId: user.id,
+      entityType: 'idea',
+      entityId: ideaId,
+    });
   }
 
   revalidatePath(toPath(locale, `/ideas/${ideaId}`));
@@ -4226,6 +4291,8 @@ export async function updateIdeaOwnerProgressAction(
 export async function getIdeaMessagesAction(
   ideaId: string,
 ): Promise<{ success: boolean; messages?: IdeaMessageWithSender[]; error?: string }> {
+  const disabled = await guardFeatureAction('ideas');
+  if (disabled) return { success: false, error: disabled };
   const supabase = await createClient();
   const {
     data: { user },
@@ -4247,6 +4314,8 @@ export async function getIdeaMessagesAction(
 export async function openIdeaProjectRoomAction(
   ideaId: string,
 ): Promise<{ success: boolean; conversationId?: string; error?: string }> {
+  const disabled = await guardFeatureAction('ideas');
+  if (disabled) return { success: false, error: disabled };
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'unauthorized' };

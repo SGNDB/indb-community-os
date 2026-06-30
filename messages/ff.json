@@ -1527,6 +1527,11 @@
       "topMemories": "Meilleurs contributeurs de memoires",
       "topIdeas": "Meilleurs contributeurs d idees",
       "emptyState": "Aucune donnee d impact pour le moment. Executez la migration et le backfill pour remplir les agregats."
+    },
+    "settingsPage": {
+      "feed": "Community feed",
+      "recognition": "Recognition",
+      "settings": "Settings"
     }
   },
   "Categories": {

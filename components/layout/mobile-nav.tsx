@@ -35,6 +35,7 @@ import {cn} from "@/lib/utils/cn";
 interface MobileNavProps {
   activeCampaignsCount?: number;
   openVolunteerOpportunitiesCount?: number;
+  enabledNavigationKeys?: readonly string[];
 }
 
 const bottomItems = [
@@ -156,6 +157,7 @@ function BadgeCount({count}: {count: number}) {
 export function MobileNav({
   activeCampaignsCount = 0,
   openVolunteerOpportunitiesCount = 0,
+  enabledNavigationKeys,
 }: MobileNavProps) {
   const t = useTranslations("Navigation");
   const locale = useLocale();
@@ -169,8 +171,11 @@ export function MobileNav({
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const locales = routing.locales;
+  const enabledKeys = enabledNavigationKeys ? new Set(enabledNavigationKeys) : null;
+  const visibleBottomItems = enabledKeys ? bottomItems.filter((item) => enabledKeys.has(item.key)) : bottomItems;
+  const visibleMoreItems = enabledKeys ? moreItems.filter((item) => enabledKeys.has(item.key)) : moreItems;
 
-  const moreActive = moreOpen || moreItems.some((item) => isActivePath(pathname, item.href));
+  const moreActive = moreOpen || visibleMoreItems.some((item) => isActivePath(pathname, item.href));
 
   function changeLanguage(nextLocale: (typeof locales)[number]) {
     if (nextLocale === locale) return;
@@ -208,7 +213,7 @@ export function MobileNav({
     <>
       <nav data-mobile-nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/70 bg-card/95 pb-[max(0.35rem,env(safe-area-inset-bottom))] ps-[max(0.5rem,env(safe-area-inset-left))] pe-[max(0.5rem,env(safe-area-inset-right))] pt-1 shadow-[0_-10px_28px_rgba(7,31,54,0.1)] backdrop-blur-xl lg:hidden">
         <ul className="mx-auto grid max-w-xl grid-cols-5 items-stretch gap-1">
-          {bottomItems.map((item) => {
+          {visibleBottomItems.map((item) => {
             const Icon = item.icon;
             const active = isActivePath(pathname, item.href);
             const badge = item.key === "messages" ? unreadCount : 0;
@@ -299,7 +304,7 @@ export function MobileNav({
 
               <div className="max-h-[calc(100dvh-12rem-env(safe-area-inset-top))] overflow-y-auto p-3">
                 <div className="grid grid-cols-2 gap-2">
-                  {moreItems.map((item) => {
+                  {visibleMoreItems.map((item) => {
                     const Icon = item.icon;
                     const active = isActivePath(pathname, item.href);
                     const badge = moreBadge(item.badge);
