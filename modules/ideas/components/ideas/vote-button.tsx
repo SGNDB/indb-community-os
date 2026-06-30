@@ -1,0 +1,197 @@
+"use client";
+
+import {motion, AnimatePresence} from "framer-motion";
+import {Check, ChevronUp, Flame, Loader2, Sparkles, Star, TrendingUp, Trophy} from "lucide-react";
+import {useTranslations} from "next-intl";
+import {useEffect, useState} from "react";
+import {toast} from "sonner";
+
+import {voteIdeaAction, getUserVoteAction} from "@/modules/ideas/actions";
+import {useRouter} from "@/lib/i18n/routing";
+import {calculateIdeaSupport} from "@/lib/ideas/support";
+import {cn} from "@/lib/utils/cn";
+import type {IdeaBadge} from "@/types/database";
+
+interface VoteButtonProps {
+  ideaId: string;
+  votes: number;
+  supportPercentage: number;
+  badge: IdeaBadge;
+  totalUsers: number;
+  hideDetails?: boolean;
+}
+
+const badgeConfig: Record<IdeaBadge, {icon: typeof Flame; bg: string; text: string; iconClass: string; translationKey: string}> = {
+  new_idea: {icon: Sparkles, bg: "bg-gray-50 dark:bg-gray-800/30", text: "text-gray-600 dark:text-gray-400", iconClass: "text-gray-400", translationKey: "badgeNewIdea"},
+  growing_support: {icon: TrendingUp, bg: "bg-gray-100 dark:bg-gray-800/40", text: "text-gray-700 dark:text-gray-300", iconClass: "text-gray-500", translationKey: "badgeGrowingSupport"},
+  popular: {icon: Flame, bg: "bg-orange-50 dark:bg-orange-900/20", text: "text-orange-700 dark:text-orange-400", iconClass: "text-orange-500", translationKey: "badgePopular"},
+  community_priority: {icon: Star, bg: "bg-amber-50 dark:bg-amber-900/20", text: "text-amber-700 dark:text-amber-400", iconClass: "text-amber-500", translationKey: "badgeCommunityPriority"},
+  top_priority: {icon: Trophy, bg: "bg-purple-50 dark:bg-purple-900/20", text: "text-purple-700 dark:text-purple-400", iconClass: "text-purple-500", translationKey: "badgeTopPriority"},
+};
+
+export function VoteButton({ideaId, votes: initialVotes, supportPercentage: initialSupport, badge: initialBadge, totalUsers, hideDetails}: VoteButtonProps) {
+  const t = useTranslations("Ideas");
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [votes, setVotes] = useState(initialVotes);
+  const [supportPercentage, setSupportPercentage] = useState(initialSupport);
+  const [currentBadge, setCurrentBadge] = useState(initialBadge);
+  const [voted, setVoted] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [pulse, setPulse] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const result = await getUserVoteAction(ideaId);
+      if (result.success) {
+        setVoted(result.voted ?? false);
+      }
+      setInitialLoading(false);
+    })();
+  }, [ideaId]);
+
+  function recomputeSupport(newVotes: number) {
+    const {supportPercentage: pct, badge} = calculateIdeaSupport(newVotes, totalUsers);
+    setSupportPercentage(pct);
+    setCurrentBadge(badge);
+  }
+
+  async function handleVote() {
+    if (pending) return;
+
+    const prevVoted = voted;
+    const prevVotes = votes;
+    const prevSupport = supportPercentage;
+    const prevBadge = currentBadge;
+
+    const newVotes = prevVoted ? prevVotes - 1 : prevVotes + 1;
+    setVoted(!prevVoted);
+    setVotes(newVotes);
+    setPulse(true);
+    recomputeSupport(newVotes);
+    setPending(true);
+
+    const formData = new FormData();
+    formData.set("ideaId", ideaId);
+
+    const result = await voteIdeaAction(formData);
+
+    setPending(false);
+
+    if (!result.success) {
+      setVoted(prevVoted);
+      setVotes(prevVotes);
+      setSupportPercentage(prevSupport);
+      setCurrentBadge(prevBadge);
+      if (result.error === "unauthorized") {
+        router.push(`/login?next=${encodeURIComponent("/ideas")}`);
+        return;
+      }
+      toast.error(t("voteFailed") ?? "Vote failed");
+      return;
+    }
+
+    setVotes(result.votes ?? votes);
+    recomputeSupport(result.votes ?? votes);
+    setVoted(result.voted ?? false);
+  }
+
+  const BadgeIcon = badgeConfig[currentBadge].icon;
+
+  if (initialLoading) {
+    return (
+      <div className="flex items-center gap-2">
+        <div className="inline-flex h-[48px] w-[120px] animate-pulse items-center justify-center rounded-2xl border-2 border-primary/10 bg-muted" />
+        {hideDetails ? null : (
+          <>
+            <div className="h-5 w-16 animate-pulse rounded bg-muted" />
+            <div className="h-6 w-20 animate-pulse rounded-full bg-muted" />
+          </>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <motion.button
+        type="button"
+        onClick={handleVote}
+        disabled={pending}
+        whileHover={{scale: 1.04}}
+        whileTap={{scale: 0.93}}
+        onAnimationEnd={() => setPulse(false)}
+        className={cn(
+          "relative inline-flex items-center gap-1.5 rounded-2xl border-2 px-5 py-2.5 text-base font-semibold shadow-sm transition-shadow select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+          "min-h-[48px] min-w-[48px]",
+          "max-sm:px-3.5 max-sm:py-2 max-sm:text-sm",
+          voted
+            ? "border-transparent bg-primary text-primary-foreground shadow-md"
+            : "border-primary/25 bg-white text-primary hover:border-primary/50 hover:shadow-md",
+        )}
+      >
+        {pending ? (
+          <Loader2 size={18} className="animate-spin" />
+        ) : voted ? (
+          <Check size={18} className="shrink-0" />
+        ) : (
+          <ChevronUp size={18} className="shrink-0" />
+        )}
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={voted ? "voted" : "not-voted"}
+            initial={{opacity: 0, y: -6}}
+            animate={{opacity: 1, y: 0}}
+            exit={{opacity: 0, y: 6}}
+            transition={{duration: 0.15}}
+          >
+            {voted ? t("voteLabelVoted") : t("voteLabel")}
+          </motion.span>
+        </AnimatePresence>
+        {votes > 0 ? (
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={`count-${votes}`}
+              initial={pulse ? {scale: 1.3} : false}
+              animate={{scale: 1}}
+              transition={{type: "spring", stiffness: 400, damping: 15}}
+            >
+              {votes}
+            </motion.span>
+          </AnimatePresence>
+        ) : null}
+      </motion.button>
+
+      {!hideDetails ? (
+        <>
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={`pct-${supportPercentage}`}
+              initial={{opacity: 0, x: -4}}
+              animate={{opacity: 1, x: 0}}
+              transition={{duration: 0.2}}
+              className="text-sm text-muted-foreground tabular-nums"
+            >
+              {t("supportPercent", {percent: supportPercentage})}
+            </motion.span>
+          </AnimatePresence>
+
+          <motion.span
+            key={currentBadge}
+            initial={{opacity: 0, scale: 0.85}}
+            animate={{opacity: 1, scale: 1}}
+            transition={{duration: 0.2}}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium",
+              badgeConfig[currentBadge].bg,
+              badgeConfig[currentBadge].text,
+            )}
+          >
+            <BadgeIcon size={14} className={badgeConfig[currentBadge].iconClass} />
+            {t(badgeConfig[currentBadge].translationKey)}
+          </motion.span>
+        </>
+      ) : null}
+    </div>
+  );
+}

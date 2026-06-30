@@ -31,6 +31,7 @@ import {useTheme} from "next-themes";
 import {useUnreadConversationsCount} from "@/lib/hooks/use-conversation-unread";
 import {Link, localeLabels, routing, usePathname, useRouter} from "@/lib/i18n/routing";
 import {cn} from "@/lib/utils/cn";
+import {usePluginNavItems} from "@/core/plugins/context";
 
 interface MobileNavProps {
   activeCampaignsCount?: number;
@@ -171,9 +172,11 @@ export function MobileNav({
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const locales = routing.locales;
-  const enabledKeys = enabledNavigationKeys ? new Set(enabledNavigationKeys) : null;
-  const visibleBottomItems = enabledKeys ? bottomItems.filter((item) => enabledKeys.has(item.key)) : bottomItems;
-  const visibleMoreItems = enabledKeys ? moreItems.filter((item) => enabledKeys.has(item.key)) : moreItems;
+  const pluginNavItems = usePluginNavItems?.() ?? [];
+  const pluginKeys = new Set(pluginNavItems.map((item) => item.key));
+  const enabledKeys = enabledNavigationKeys ? new Set(enabledNavigationKeys) : pluginKeys;
+  const visibleBottomItems = bottomItems.filter((item) => enabledKeys.has(item.key));
+  const visibleMoreItems = moreItems.filter((item) => enabledKeys.has(item.key));
 
   const moreActive = moreOpen || visibleMoreItems.some((item) => isActivePath(pathname, item.href));
 

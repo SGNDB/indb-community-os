@@ -13,8 +13,8 @@ import {useLocale, useTranslations} from "next-intl";
 import {useMemo, useState} from "react";
 import {toast} from "sonner";
 
-import {openIdeaProjectRoomAction, updateIdeaOwnerProgressAction, voteIdeaAction} from "@/app/[locale]/server-actions";
-import {IdeaMediaGallery} from "@/components/ideas/idea-media-gallery";
+import {openIdeaProjectRoomAction, updateIdeaOwnerProgressAction, voteIdeaAction} from "@/modules/ideas/actions";
+import {IdeaMediaGallery} from "@/modules/ideas/components/idea-media-gallery";
 import {OnlineAvatar} from "@/components/presence";
 import {Link, useRouter} from "@/lib/i18n/routing";
 

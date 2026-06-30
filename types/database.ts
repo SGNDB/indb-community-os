@@ -7,12 +7,12 @@ export type ProjectStatus = "planning" | "in_progress" | "recruiting" | "complet
 export type PostStatus = "published" | "hidden" | "archived";
 export type CommentStatus = "published" | "hidden";
 export type MemoryVerificationStatus = "pending" | "approved" | "rejected" | "needs_more_info";
-export type IdeaStatus = "published" | "interested" | "discussion" | "gathering_participants" | "approved" | "in_progress" | "completed" | "archived";
-export type ContributionType = "volunteer_time" | "professional_skills" | "equipment" | "transportation" | "organization" | "other";
-export type MilestoneStatus = "pending" | "completed";
-export type ProgressImageStage = "before" | "progress" | "final";
-export type IdeaBadge = "new_idea" | "growing_support" | "popular" | "community_priority" | "top_priority";
-export type IdeaTrend = "rising" | "falling" | "stable";
+export type {IdeaStatus} from "@/modules/ideas/types";
+export type {ContributionType} from "@/modules/ideas/types";
+export type {MilestoneStatus} from "@/modules/ideas/types";
+export type {ProgressImageStage} from "@/modules/ideas/types";
+export type {IdeaBadge} from "@/modules/ideas/types";
+export type {IdeaTrend} from "@/modules/ideas/types";
 export type ReactionType = "like" | "love" | "support" | "celebrate" | "insightful" | "sad";
 export type MemoryReactionType = ReactionType;
 export type ReportTargetType = "post" | "comment" | "memory" | "idea";
@@ -217,16 +217,7 @@ export interface UserFollowRow {
   created_at: string;
 }
 
-export interface IdeaMediaRow {
-  id: string;
-  idea_id: string;
-  url: string;
-  type: "image" | "video";
-  mime_type: string;
-  storage_path: string;
-  position: number;
-  created_at: string;
-}
+export type {IdeaMediaRow} from "@/modules/ideas/types";
 
 export interface MemoryRow {
   id: string;
@@ -258,114 +249,18 @@ export interface MemoryMediaRow {
   created_at: string;
 }
 
-export interface IdeaRow {
-  id: string;
-  author_id: string | null;
-  title: string;
-  content_language: ContentLanguage | null;
-  description: string;
-  category_id: number | null;
-  status: IdeaStatus;
-  votes_count: number;
-  shares_count: number;
-  supporters_count: number;
-  participants_count: number;
-  community_impact_score: number;
-  impact_score_updated_at: string | null;
-  rank_90_day: number | null;
-  trend: IdeaTrend | null;
-  tags: string[];
-  neighborhood: string | null;
-  comments_count: number;
-  image_url: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface IdeaCommentRow {
-  id: string;
-  idea_id: string;
-  author_id: string | null;
-  content: string;
-  content_language: ContentLanguage | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface IdeaVoteRow {
-  id: string;
-  idea_id: string;
-  user_id: string;
-  created_at: string;
-}
-
-export type IdeaParticipantStatus = "pending" | "accepted" | "declined";
-
-export interface IdeaParticipantRow {
-  id: string;
-  idea_id: string;
-  user_id: string;
-  status: IdeaParticipantStatus;
-  message: string | null;
-  contribution_type: ContributionType | null;
-  contribution_description: string | null;
-  created_at: string;
-}
-
-export interface IdeaMessageRow {
-  id: string;
-  idea_id: string;
-  sender_id: string;
-  message: string;
-  created_at: string;
-}
-
-export interface IdeaSupporterRow {
-  id: string;
-  idea_id: string;
-  user_id: string;
-  created_at: string;
-}
-
-export interface IdeaUpdateRow {
-  id: string;
-  idea_id: string;
-  author_id: string;
-  content: string;
-  created_at: string;
-}
-
-export interface IdeaUpdateWithAuthor extends IdeaUpdateRow {
-  author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
-}
-
-export interface IdeaBookmarkRow {
-  id: string;
-  idea_id: string;
-  user_id: string;
-  created_at: string;
-}
-
-export interface IdeaMilestoneRow {
-  id: string;
-  idea_id: string;
-  title: string;
-  description: string | null;
-  status: MilestoneStatus;
-  sort_order: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface IdeaProgressImageRow {
-  id: string;
-  idea_id: string;
-  stage: ProgressImageStage;
-  url: string;
-  storage_path: string;
-  caption: string | null;
-  created_at: string;
-}
+export type {IdeaRow} from "@/modules/ideas/types";
+export type {IdeaCommentRow} from "@/modules/ideas/types";
+export type {IdeaVoteRow} from "@/modules/ideas/types";
+export type {IdeaParticipantStatus} from "@/modules/ideas/types";
+export type {IdeaParticipantRow} from "@/modules/ideas/types";
+export type {IdeaMessageRow} from "@/modules/ideas/types";
+export type {IdeaSupporterRow} from "@/modules/ideas/types";
+export type {IdeaUpdateRow} from "@/modules/ideas/types";
+export type {IdeaUpdateWithAuthor} from "@/modules/ideas/types";
+export type {IdeaBookmarkRow} from "@/modules/ideas/types";
+export type {IdeaMilestoneRow} from "@/modules/ideas/types";
+export type {IdeaProgressImageRow} from "@/modules/ideas/types";
 
 export interface ReportRow {
   id: string;
@@ -598,29 +493,11 @@ export interface MemoryCommentWithAuthor extends MemoryCommentRow {
   author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
 }
 
-export interface IdeaWithAuthor extends IdeaRow {
-  author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
-  category: Pick<CategoryRow, "id" | "slug" | "name_en" | "name_fr" | "name_ar" | "name_ff" | "name_snk" | "name_wo"> | null;
-  media?: IdeaMediaRow[];
-}
-
-export interface IdeaWithSupport extends IdeaWithAuthor {
-  supportPercentage: number;
-  badge: IdeaBadge;
-  rank: number | null;
-}
-
-export interface IdeaParticipantWithUser extends IdeaParticipantRow {
-  user: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
-}
-
-export interface IdeaMessageWithSender extends IdeaMessageRow {
-  sender: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
-}
-
-export interface IdeaCommentWithAuthor extends IdeaCommentRow {
-  author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
-}
+export type {IdeaWithAuthor} from "@/modules/ideas/types";
+export type {IdeaWithSupport} from "@/modules/ideas/types";
+export type {IdeaParticipantWithUser} from "@/modules/ideas/types";
+export type {IdeaMessageWithSender} from "@/modules/ideas/types";
+export type {IdeaCommentWithAuthor} from "@/modules/ideas/types";
 
 export interface CommentWithAuthor extends CommentRow {
   author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;

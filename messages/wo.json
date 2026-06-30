@@ -1,4 +1,4 @@
-{
+﻿{
   "Onboarding": {
     "title": "Nangal ci I â¤ï¸ NDB",
     "subtitle": "Sama suqal",
@@ -827,7 +827,9 @@
       "analytics": "Analytik",
       "settings": "Sagal",
       "support": "Campagnes",
-      "impact": "Impact communautaire"
+      "impact": "Impact communautaire",
+      "plugins": "Plugins",
+        "events": "Ñaataal"
     },
     "sections": {
       "overview": "Wone lÃ©pp",

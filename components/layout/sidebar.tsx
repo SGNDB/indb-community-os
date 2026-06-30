@@ -19,6 +19,7 @@ import {Logo} from "@/components/layout/Logo";
 import {Link, usePathname} from "@/lib/i18n/routing";
 import {cn} from "@/lib/utils/cn";
 import {useUnreadConversationsCount} from "@/lib/hooks/use-conversation-unread";
+import {usePluginNavItems} from "@/core/plugins/context";
 
 const navItems = [
   {href: "/", key: "home", icon: Home},
@@ -42,6 +43,7 @@ export function Sidebar({
   const locale = useLocale();
   const pathname = usePathname();
   const unreadCount = useUnreadConversationsCount();
+  const pluginNavItems = usePluginNavItems?.() ?? [];
 
   // Strip locale prefix from pathname for comparison with nav hrefs
   const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}(?:\/|$)/, "/");
@@ -49,8 +51,9 @@ export function Sidebar({
   const isRtl = ["ar", "ff", "snk"].includes(locale);
   const brandTitle = isRtl ? "مجتمع INDB" : "INDB Community";
   const brandTagline = isRtl ? "نحب نواذيبو" : locale === "fr" ? "Je t'aime NDB" : "I Love NDB";
-  const enabledKeys = enabledNavigationKeys ? new Set(enabledNavigationKeys) : null;
-  const visibleNavItems = enabledKeys ? navItems.filter((item) => enabledKeys.has(item.key)) : navItems;
+  const pluginKeys = new Set(pluginNavItems.map((item) => item.key));
+  const enabledKeys = enabledNavigationKeys ? new Set(enabledNavigationKeys) : pluginKeys;
+  const visibleNavItems = navItems.filter((item) => enabledKeys.has(item.key));
 
   return (
     <div className="sticky top-22 space-y-4">

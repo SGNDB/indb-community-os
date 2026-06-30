@@ -23,6 +23,7 @@ import {PresenceProvider} from "@/components/presence";
 import {cn} from "@/lib/utils/cn";
 import {findFeatureByPath} from "@/core/features/registry";
 import {getFeatureRuntime} from "@/core/features/server";
+import {PluginProvider} from "@/core/plugins/context";
 
 function getLanguageAlternates(pathname = "") {
   return Object.fromEntries(
@@ -107,6 +108,7 @@ export default async function LocaleLayout({
         <Suspense fallback={null}>
           <ToastHandler />
         </Suspense>
+        <PluginProvider>
         <PresenceProvider>
         <div
           data-app-shell
@@ -163,6 +165,7 @@ export default async function LocaleLayout({
           )}
         </div>
       </PresenceProvider>
+      </PluginProvider>
       </NextIntlClientProvider>
     </ThemeProvider>
   );

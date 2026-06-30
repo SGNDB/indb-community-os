@@ -1,4 +1,4 @@
-{
+﻿{
   "Onboarding": {
     "title": "Welcome to I ❤️ NDB",
     "subtitle": "Let's get you set up",
@@ -997,7 +997,9 @@
       "analytics": "Analytics",
       "payments": "Payments",
       "settings": "Settings",
-      "impact": "Community Impact"
+      "impact": "Community Impact",
+      "plugins": "Plugins",
+        "events": "Event Logs"
     },
     "kpi": {
       "totalUsers": "Total Users",

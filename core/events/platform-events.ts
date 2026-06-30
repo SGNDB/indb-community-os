@@ -1,21 +1,6 @@
-export type PlatformEventName =
-  | "idea.created"
-  | "idea.voted"
-  | "idea.completed"
-  | "memory.published"
-  | "memory.saved"
-  | "memory.reacted"
-  | "graatek.requested"
-  | "graatek.completed"
-  | "donation.created"
-  | "donation.verified"
-  | "volunteer.joined"
-  | "volunteer.completed"
-  | "message.sent"
-  | "feed.posted"
-  | "feed.commented"
-  | "recognition.awarded"
-  | "settings.updated";
+import {getPluginEventNames} from "@/core/plugins/registry";
+
+export type PlatformEventName = ReturnType<typeof getPluginEventNames>[number];
 
 export interface PlatformEventPayload {
   name: PlatformEventName;
@@ -26,12 +11,44 @@ export interface PlatformEventPayload {
   occurredAt?: string;
 }
 
-export async function publishPlatformEvent(event: PlatformEventPayload) {
-  // Phase 3 foundation: keep this side-effect free until notification,
-  // analytics, recognition, and activity-feed subscribers are added.
-  return {
-    ...event,
-    occurredAt: event.occurredAt ?? new Date().toISOString(),
+type EventHandler = (event: PlatformEventPayload) => void | Promise<void>;
+
+const _subscribers = new Map<PlatformEventName, Set<EventHandler>>();
+
+export function subscribeToPlatformEvent(
+  eventName: PlatformEventName,
+  handler: EventHandler,
+): () => void {
+  if (!_subscribers.has(eventName)) {
+    _subscribers.set(eventName, new Set());
+  }
+  _subscribers.get(eventName)!.add(handler);
+
+  return () => {
+    _subscribers.get(eventName)?.delete(handler);
   };
 }
 
+export async function publishPlatformEvent(event: PlatformEventPayload) {
+  const enriched = {
+    ...event,
+    occurredAt: event.occurredAt ?? new Date().toISOString(),
+  };
+
+  const handlers = _subscribers.get(enriched.name);
+  if (handlers) {
+    for (const handler of handlers) {
+      try {
+        await handler(enriched);
+      } catch (error) {
+        console.error(`[PlatformEvent] Subscriber failed for "${enriched.name}":`, error);
+      }
+    }
+  }
+
+  return enriched;
+}
+
+export function clearEventSubscribers(): void {
+  _subscribers.clear();
+}

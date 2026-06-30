@@ -1,4 +1,4 @@
-{
+﻿{
   "Onboarding": {
     "title": "A jaɓɓo e I ❤️ NDB",
     "subtitle": "Men yahda nde",
@@ -828,7 +828,9 @@
       "analytics": "Analytik",
       "settings": "Mbaydi",
       "support": "Campagnes",
-      "impact": "Impact communautaire"
+      "impact": "Impact communautaire",
+      "plugins": "Jokkorɗe",
+        "events": "Dogol Kewu"
     },
     "sections": {
       "overview": "Njiylawu",

@@ -36,6 +36,8 @@ export default async function AdminLayout({
     {label: t("nav.moderation"), href: `${basePath}/moderation`, iconKey: "moderation" as const},
     {label: t("nav.analytics"), href: `${basePath}/analytics`, iconKey: "analytics" as const},
     {label: t("nav.payments"), href: `${basePath}/payments`, iconKey: "payments" as const},
+    {label: t("nav.events"), href: `${basePath}/events`, iconKey: "analytics" as const},
+    {label: t("nav.plugins"), href: `${basePath}/plugins`, iconKey: "settings" as const},
     {label: t("nav.settings"), href: `${basePath}/settings`, iconKey: "settings" as const},
   ];
 

@@ -10,8 +10,8 @@ import {useRouter, useSearchParams} from "next/navigation";
 import {useTranslations} from "next-intl";
 import {useCallback} from "react";
 
-import {IdeaSearchBar} from "@/components/ideas/idea-search-bar";
-import {IdeaListCard} from "@/components/ideas/idea-list-card";
+import {IdeaSearchBar} from "@/modules/ideas/components/idea-search-bar";
+import {IdeaListCard} from "@/modules/ideas/components/idea-list-card";
 import {withLocale} from "@/lib/i18n/paths";
 
 const TABS = [

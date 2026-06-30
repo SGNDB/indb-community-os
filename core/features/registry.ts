@@ -1,33 +1,28 @@
-export type PlatformModuleId =
-  | "ideas"
-  | "memories"
-  | "graatek"
-  | "campaigns"
-  | "volunteering"
-  | "feed"
-  | "recognition"
-  | "settings";
+import {getAllPlugins, findPluginByPath as registryFindByPath} from "@/core/plugins/registry";
+import {bootstrapPlugins} from "@/core/plugins/bootstrap";
+import {registerEventSubscribers} from "@/core/events/subscribers";
+import type {PluginId, Permission, NavSlot} from "@/core/plugins/manifest";
+
+bootstrapPlugins();
+registerEventSubscribers();
+
+export type PlatformModuleId = PluginId;
 
 export type PlatformFeatureId = PlatformModuleId | "messages";
 
-export type ModulePermission =
-  | "public.read"
-  | "member.read"
-  | "member.write"
-  | "owner.manage"
-  | "admin.manage";
+export type ModulePermission = Permission;
 
-export type ModuleNavSlot = "desktop" | "mobile-bottom" | "mobile-more" | "none";
+export type ModuleNavSlot = NavSlot;
 
 export interface PlatformModuleDefinition {
-  id: PlatformModuleId;
+  id: PluginId;
   name: string;
   navKey: string | null;
   navHref: string | null;
-  navSlot: ModuleNavSlot;
+  navSlot: NavSlot;
   featureFlag?: string;
   routePrefixes: string[];
-  permissions: ModulePermission[];
+  permissions: Permission[];
   translationsNamespace: string;
   events: string[];
 }
@@ -40,7 +35,7 @@ export interface CoreFeatureDefinition {
   navSlot: "desktop" | "mobile-bottom";
   featureFlag: string;
   routePrefixes: string[];
-  permissions: ModulePermission[];
+  permissions: Permission[];
   translationsNamespace: string;
   events: string[];
 }
@@ -60,110 +55,40 @@ export const CORE_FEATURES: CoreFeatureDefinition[] = [
   },
 ];
 
-export const PLATFORM_MODULES: PlatformModuleDefinition[] = [
-  {
-    id: "ideas",
-    name: "Ideas",
-    navKey: "ideas",
-    navHref: "/ideas",
-    navSlot: "mobile-bottom",
-    featureFlag: "ideas",
-    routePrefixes: ["/ideas"],
-    permissions: ["public.read", "member.write", "owner.manage", "admin.manage"],
-    translationsNamespace: "Ideas",
-    events: ["idea.created", "idea.voted", "idea.completed"],
-  },
-  {
-    id: "memories",
-    name: "Memories",
-    navKey: "memory",
-    navHref: "/memory",
-    navSlot: "mobile-more",
-    featureFlag: "memories",
-    routePrefixes: ["/memory", "/timeline"],
-    permissions: ["public.read", "member.write", "owner.manage", "admin.manage"],
-    translationsNamespace: "Memory",
-    events: ["memory.published", "memory.saved", "memory.reacted"],
-  },
-  {
-    id: "graatek",
-    name: "Graatek",
-    navKey: "fadla",
-    navHref: "/fadla",
-    navSlot: "mobile-bottom",
-    featureFlag: "graatek",
-    routePrefixes: ["/fadla"],
-    permissions: ["public.read", "member.write", "owner.manage", "admin.manage"],
-    translationsNamespace: "Fadla",
-    events: ["graatek.requested", "graatek.completed"],
-  },
-  {
-    id: "campaigns",
-    name: "Campaigns",
-    navKey: "campaigns",
-    navHref: "/campaigns",
-    navSlot: "mobile-more",
-    featureFlag: "campaigns",
-    routePrefixes: ["/campaigns", "/support"],
-    permissions: ["public.read", "member.write", "admin.manage"],
-    translationsNamespace: "Support",
-    events: ["donation.created", "donation.verified"],
-  },
-  {
-    id: "volunteering",
-    name: "Volunteering",
-    navKey: "volunteer",
-    navHref: "/volunteer",
-    navSlot: "mobile-more",
-    featureFlag: "volunteering",
-    routePrefixes: ["/volunteer"],
-    permissions: ["public.read", "member.write", "admin.manage"],
-    translationsNamespace: "Volunteer",
-    events: ["volunteer.joined", "volunteer.completed"],
-  },
-  {
-    id: "feed",
-    name: "Feed",
-    navKey: "feed",
-    navHref: "/feed",
-    navSlot: "mobile-more",
-    featureFlag: "feed",
-    routePrefixes: ["/feed", "/post"],
-    permissions: ["member.read", "member.write", "owner.manage", "admin.manage"],
-    translationsNamespace: "Feed",
-    events: ["feed.posted", "feed.commented"],
-  },
-  {
-    id: "recognition",
-    name: "Recognition",
-    navKey: null,
-    navHref: null,
-    navSlot: "none",
-    featureFlag: "recognition",
-    routePrefixes: ["/impact"],
-    permissions: ["public.read", "member.read", "admin.manage"],
-    translationsNamespace: "CommunityRecognition",
-    events: ["recognition.awarded"],
-  },
-  {
-    id: "settings",
-    name: "Settings",
-    navKey: "settings",
-    navHref: "/settings",
-    navSlot: "mobile-more",
-    featureFlag: "settings",
-    routePrefixes: ["/settings"],
-    permissions: ["member.read", "member.write"],
-    translationsNamespace: "Settings",
-    events: ["settings.updated"],
-  },
-];
+export const PLATFORM_MODULES: PlatformModuleDefinition[] = getAllPlugins().map((entry) => ({
+  id: entry.manifest.id,
+  name: entry.manifest.name,
+  navKey: entry.manifest.nav?.key ?? null,
+  navHref: entry.manifest.nav?.href ?? null,
+  navSlot: entry.manifest.nav?.slot ?? "none",
+  featureFlag: entry.manifest.featureFlag,
+  routePrefixes: entry.manifest.routePrefixes,
+  permissions: entry.manifest.permissions,
+  translationsNamespace: entry.manifest.translationsNamespace,
+  events: entry.manifest.events.map((e) => e.name),
+}));
 
 export const PLATFORM_FEATURES = [...CORE_FEATURES, ...PLATFORM_MODULES] as const;
 
 export function findFeatureByPath(pathname: string) {
-  const normalized = pathname === "" ? "/" : pathname.replace(/\/+$/, "") || "/";
-  return PLATFORM_FEATURES.find((feature) =>
-    feature.routePrefixes.some((prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`)),
-  ) ?? null;
+  const core = CORE_FEATURES.find((f) =>
+    f.routePrefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`)),
+  );
+  if (core) return core;
+
+  const plugin = registryFindByPath(pathname);
+  if (!plugin) return null;
+
+  return {
+    id: plugin.manifest.id,
+    name: plugin.manifest.name,
+    navKey: plugin.manifest.nav?.key ?? null,
+    navHref: plugin.manifest.nav?.href ?? null,
+    navSlot: plugin.manifest.nav?.slot ?? "none",
+    featureFlag: plugin.manifest.featureFlag,
+    routePrefixes: plugin.manifest.routePrefixes,
+    permissions: plugin.manifest.permissions,
+    translationsNamespace: plugin.manifest.translationsNamespace,
+    events: plugin.manifest.events.map((e) => e.name),
+  } as PlatformModuleDefinition;
 }

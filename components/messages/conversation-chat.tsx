@@ -1305,7 +1305,7 @@ export function ConversationChat({
     if (nextImageStoragePath) formData.set("imageStoragePath", nextImageStoragePath);
 
     try {
-      const { updateIdeaGroupProfileAction } = await import("@/app/[locale]/server-actions");
+      const { updateIdeaGroupProfileAction } = await import("@/modules/ideas/actions");
       const res = await updateIdeaGroupProfileAction(formData);
       if (!res.success) {
         setError(res.error ?? "update_failed");
@@ -1346,7 +1346,7 @@ export function ConversationChat({
     formData.set("memberId", memberId);
 
     try {
-      const { removeIdeaGroupMemberAction } = await import("@/app/[locale]/server-actions");
+      const { removeIdeaGroupMemberAction } = await import("@/modules/ideas/actions");
       const res = await removeIdeaGroupMemberAction(formData);
       if (!res.success) {
         setError(res.error ?? "remove_failed");
@@ -1365,7 +1365,7 @@ export function ConversationChat({
     formData.set("conversationId", conversationId);
 
     try {
-      const { leaveIdeaGroupAction } = await import("@/app/[locale]/server-actions");
+      const { leaveIdeaGroupAction } = await import("@/modules/ideas/actions");
       const res = await leaveIdeaGroupAction(formData);
       if (!res.success) {
         setError(res.error ?? "leave_failed");
@@ -1385,7 +1385,7 @@ export function ConversationChat({
     setLocalIdeaStatus(nextStatus);
 
     try {
-      const { updateIdeaStatusAction } = await import("@/app/[locale]/server-actions");
+      const { updateIdeaStatusAction } = await import("@/modules/ideas/actions");
       const formData = new FormData();
       formData.set("ideaId", ideaId);
       formData.set("status", nextStatus);
