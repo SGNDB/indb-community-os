@@ -31,10 +31,21 @@ function stageKey(status: string | null | undefined) {
   if (status === "completed") return "completed";
   if (status === "in_progress") return "inProgress";
   if (status === "approved") return "approved";
+  if (status === "accepted") return "approved";
   if (status === "interested") return "review";
   if (status === "discussion") return "discussion";
+  if (status === "under_review") return "discussion";
   if (status === "gathering_participants") return "review";
   if (status === "archived") return "archived";
+  return "published";
+}
+
+function ownerProgressStatus(status: string | null | undefined) {
+  if (status === "completed") return "completed";
+  if (status === "in_progress") return "in_progress";
+  if (status === "approved" || status === "accepted") return "approved";
+  if (status === "interested" || status === "gathering_participants") return "interested";
+  if (status === "discussion" || status === "under_review") return "discussion";
   return "published";
 }
 
@@ -66,7 +77,7 @@ export function IdeaDetailClient({
   const [roomPending, setRoomPending] = useState(false);
   const [progressSaving, setProgressSaving] = useState(false);
   const [roomError, setRoomError] = useState<string | null>(null);
-  const [localStatus, setLocalStatus] = useState(idea.status ?? "published");
+  const [localStatus, setLocalStatus] = useState(ownerProgressStatus(idea.status));
   const [progressPercentage, setProgressPercentage] = useState<number>(idea.progress_percentage ?? 0);
   const [projectNotes, setProjectNotes] = useState(idea.project_notes ?? "");
   const [latestUpdateInput, setLatestUpdateInput] = useState("");
