@@ -3,6 +3,7 @@
 import {revalidatePath} from "next/cache";
 import {createClient} from "@/lib/supabase/server";
 import {createAdminClient} from "@/lib/supabase/admin";
+import {DEFAULT_FEATURE_FLAGS} from "@/lib/data/admin";
 
 function getAdmin() {
   const admin = createAdminClient();
@@ -45,8 +46,47 @@ export async function savePlatformSettings(settings: Record<string, unknown>) {
   await saveSetting("platform_settings", settings);
 }
 
+function parseFeatureFlagsValue(value: unknown): Record<string, boolean> {
+  let parsed = value;
+  if (typeof value === "string") {
+    try {
+      parsed = JSON.parse(value);
+    } catch {
+      return {};
+    }
+  }
+
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+
+  return Object.fromEntries(
+    Object.entries(parsed).filter((entry): entry is [string, boolean] => typeof entry[1] === "boolean"),
+  );
+}
+
 export async function saveFeatureFlags(flags: Record<string, boolean>) {
-  await saveSetting("feature_flags", flags);
+  const {profile} = await authUser();
+  const admin = getAdmin();
+  const oldRaw = await admin.from("platform_settings").select("value").eq("key", "feature_flags").maybeSingle();
+  if (oldRaw.error) throw new Error(oldRaw.error.message);
+  const oldVal = (oldRaw.data as {value: unknown} | null)?.value ?? null;
+  const oldAuditVal = typeof oldVal === "string" ? oldVal : oldVal == null ? null : JSON.stringify(oldVal);
+  const currentFlags = parseFeatureFlagsValue(oldVal);
+  const incomingFlags = parseFeatureFlagsValue(flags);
+  const mergedFlags = {
+    ...DEFAULT_FEATURE_FLAGS,
+    ...currentFlags,
+    ...incomingFlags,
+  };
+  const newVal = JSON.stringify(mergedFlags);
+  const adminName = profile.full_name ?? profile.username ?? "Unknown";
+
+  const {error} = await admin
+    .from("platform_settings")
+    .upsert({key: "feature_flags", value: newVal}, {onConflict: "key"});
+
+  if (error) throw new Error(error.message);
+  await audit(adminName, "feature_flags", oldAuditVal, newVal);
+  revalidatePath("/admin/settings");
 }
 
 export async function saveLanguages(languages: Record<string, {enabled: boolean}>) {

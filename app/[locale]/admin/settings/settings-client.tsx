@@ -185,7 +185,10 @@ export function AdminSettingsClient({data, labels: t, locale}: SettingsClientPro
       actionsList.push(() => actions.savePlatformSettings(platform as unknown as Record<string, unknown>));
     }
     if (JSON.stringify(flags) !== JSON.stringify(init.flags)) {
-      actionsList.push(() => actions.saveFeatureFlags(flags as unknown as Record<string, boolean>));
+      const changedFlags = Object.fromEntries(
+        Object.entries(flags).filter(([key, value]) => init.flags[key as keyof AdminFeatureFlags] !== value),
+      );
+      actionsList.push(() => actions.saveFeatureFlags(changedFlags as Record<string, boolean>));
     }
     if (JSON.stringify(campaigns) !== JSON.stringify(init.campaigns)) {
       actionsList.push(() => actions.saveCampaignSettings(campaigns as unknown as Record<string, unknown>));
