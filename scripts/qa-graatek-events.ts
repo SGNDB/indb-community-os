@@ -98,14 +98,14 @@ async function main() {
       user_metadata: { full_name: "QA Events A", username: `qa_ev_a_${ts}`, phone: phoneA },
     });
     assert(!errA, `Create user A failed: ${errA?.message}`);
-    userAId = userA!.user.id;
+    userAId = userA!.user!.id;
 
     const { data: userB, error: errB } = await supabase.auth.admin.createUser({
       email: emailB, password, email_confirm: true, phone_confirm: true,
       user_metadata: { full_name: "QA Events B", username: `qa_ev_b_${ts}`, phone: phoneB },
     });
     assert(!errB, `Create user B failed: ${errB?.message}`);
-    userBId = userB!.user.id;
+    userBId = userB!.user!.id;
 
     await new Promise((r) => setTimeout(r, 2000));
     await supabase.from("profiles").update({ is_test: true }).in("id", [userAId, userBId]);
