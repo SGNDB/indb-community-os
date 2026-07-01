@@ -5,7 +5,7 @@ import {redirect} from "next/navigation";
 import {getTranslations} from "next-intl/server";
 
 import {publishPlatformEvent} from "@/core/events/platform-events";
-import {assertFeatureEnabled} from "@/core/features/server";
+import {assertFeatureEnabledForMutation} from "@/core/features/server";
 import {withLocale} from "@/lib/i18n/paths";
 import {routing} from "@/lib/i18n/routing";
 import {checkRateLimit} from "@/lib/security/rate-limit";
@@ -36,7 +36,7 @@ function toPath(locale: string, pathname: string) {
 
 async function guardGraatekAction() {
   try {
-    await assertFeatureEnabled("graatek");
+    await assertFeatureEnabledForMutation("graatek");
     return null;
   } catch {
     return "module_disabled";

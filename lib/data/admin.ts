@@ -1,5 +1,6 @@
 import {createClient} from "@/lib/supabase/server";
 import {createAdminClient} from "@/lib/supabase/admin";
+import {unstable_noStore as noStore} from "next/cache";
 import {
   getAdminGraatek as getAdminGraatekFromModule,
   getAdminGraatekGrowth as getAdminGraatekGrowthFromModule,
@@ -2898,15 +2899,24 @@ export const DEFAULT_PAYMENT_METHODS: AdminPaymentMethodSetting[] = [
 
 const SETTINGS_TABLE = "platform_settings";
 
-async function getSettingsValue(key: string): Promise<string | null> {
+async function getSettingsValue(key: string, options?: {throwOnError?: boolean}): Promise<string | null> {
+  noStore();
   try {
     const supabase = createAdminClient() ?? await createClient();
-    const {data} = await supabase.from(SETTINGS_TABLE).select("value").eq("key", key).maybeSingle();
-    return (data as {value: string} | null)?.value ?? null;
-  } catch { return null; }
+    const {data, error} = await supabase.from(SETTINGS_TABLE).select("value").eq("key", key).maybeSingle();
+    if (error) throw error;
+    const value = (data as {value: unknown} | null)?.value;
+    if (typeof value === "string") return value;
+    if (value == null) return null;
+    return JSON.stringify(value);
+  } catch (error) {
+    if (options?.throwOnError) throw error;
+    return null;
+  }
 }
 
 async function setSettingsValue(key: string, value: string): Promise<boolean> {
+  noStore();
   try {
     const supabase = createAdminClient() ?? await createClient();
     const {error} = await supabase.from(SETTINGS_TABLE).upsert({key, value}, {onConflict: "key"});
@@ -2920,10 +2930,14 @@ export async function getAdminPlatformSettings(): Promise<AdminPlatformSettings>
   try { return {...DEFAULT_PLATFORM_SETTINGS, ...JSON.parse(raw)}; } catch { return DEFAULT_PLATFORM_SETTINGS; }
 }
 
-export async function getAdminFeatureFlags(): Promise<AdminFeatureFlags> {
-  const raw = await getSettingsValue("feature_flags");
+export async function getAdminFeatureFlags(options?: {strict?: boolean}): Promise<AdminFeatureFlags> {
+  const raw = await getSettingsValue("feature_flags", {throwOnError: options?.strict});
+  if (!raw && options?.strict) throw new Error("feature_flags_missing");
   if (!raw) return DEFAULT_FEATURE_FLAGS;
-  try { return {...DEFAULT_FEATURE_FLAGS, ...JSON.parse(raw)}; } catch { return DEFAULT_FEATURE_FLAGS; }
+  try { return {...DEFAULT_FEATURE_FLAGS, ...JSON.parse(raw)}; } catch (error) {
+    if (options?.strict) throw error;
+    return DEFAULT_FEATURE_FLAGS;
+  }
 }
 
 export async function getAdminIntegrationSettings(): Promise<AdminIntegrationSettings> {
