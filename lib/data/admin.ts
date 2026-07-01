@@ -1,4 +1,9 @@
 import {createClient} from "@/lib/supabase/server";
+import {createAdminClient} from "@/lib/supabase/admin";
+import {
+  getAdminGraatek as getAdminGraatekFromModule,
+  getAdminGraatekGrowth as getAdminGraatekGrowthFromModule,
+} from "@/modules/graatek/data/admin";
 import type {CommunityCreditRow, CommunityRole, ProfileRow} from "@/types/database";
 
 export const adminCreditPointOptions = [5, 10, 25, 50, 100] as const;
@@ -67,6 +72,9 @@ export interface AdminDashboardKPI {
   change?: number;
   href: string;
 }
+
+export const getAdminGraatek = getAdminGraatekFromModule;
+export const getAdminGraatekGrowth = getAdminGraatekGrowthFromModule;
 
 function sanitizeSearchTerm(search?: string) {
   return search?.trim().replace(/[,%]/g, "") ?? "";
@@ -268,47 +276,7 @@ export async function getAdminIdeas(search?: string) {
   }));
 }
 
-export async function getAdminGraatek(search?: string) {
-  const supabase = await createClient();
-  const safeSearch = sanitizeSearchTerm(search);
-
-  let query = supabase
-    .from("community_shares")
-    .select("id, title, description, status, created_at, owner:profiles!community_shares_owner_id_fkey(id, full_name, username, avatar_url)")
-    .order("created_at", {ascending: false})
-    .limit(50);
-
-  if (safeSearch) {
-    query = query.ilike("title", `%${safeSearch}%`);
-  }
-
-  const {data} = await query;
-  return (data ?? []).map((item) => ({
-    ...item,
-    owner: singleProfile(item.owner),
-  }));
-}
-
-export async function getAdminMemories(search?: string) {
-  const supabase = await createClient();
-  const safeSearch = sanitizeSearchTerm(search);
-
-  let query = supabase
-    .from("memories")
-    .select("id, title, description, verification_status, reactions_count, comments_count, created_at, contributor:profiles!memories_contributor_id_fkey(id, full_name, username, avatar_url)")
-    .order("created_at", {ascending: false})
-    .limit(50);
-
-  if (safeSearch) {
-    query = query.ilike("title", `%${safeSearch}%`);
-  }
-
-  const {data} = await query;
-  return (data ?? []).map((memory) => ({
-    ...memory,
-    contributor: singleProfile(memory.contributor),
-  }));
-}
+export {getAdminMemories} from "@/modules/memories/data/admin";
 
 export async function getAdminSupportCampaigns() {
   const supabase = await createClient();
@@ -1146,29 +1114,6 @@ export async function getAdminIdeaGrowth(): Promise<AdminUserGrowthPoint[]> {
     const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1).toISOString();
     const {count} = await supabase
       .from("ideas")
-      .select("*", {count: "exact", head: true})
-      .gte("created_at", start)
-      .lt("created_at", end);
-    points.push({
-      month: m.toLocaleDateString("en-US", {month: "short", year: "2-digit"}),
-      value: count ?? 0,
-    });
-  }
-
-  return points;
-}
-
-export async function getAdminGraatekGrowth(): Promise<AdminUserGrowthPoint[]> {
-  const supabase = await createClient();
-  const now = new Date();
-  const points: AdminUserGrowthPoint[] = [];
-
-  for (let i = 11; i >= 0; i--) {
-    const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const start = m.toISOString();
-    const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1).toISOString();
-    const {count} = await supabase
-      .from("community_shares")
       .select("*", {count: "exact", head: true})
       .gte("created_at", start)
       .lt("created_at", end);
@@ -2955,7 +2900,7 @@ const SETTINGS_TABLE = "platform_settings";
 
 async function getSettingsValue(key: string): Promise<string | null> {
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient() ?? await createClient();
     const {data} = await supabase.from(SETTINGS_TABLE).select("value").eq("key", key).maybeSingle();
     return (data as {value: string} | null)?.value ?? null;
   } catch { return null; }
@@ -2963,7 +2908,7 @@ async function getSettingsValue(key: string): Promise<string | null> {
 
 async function setSettingsValue(key: string, value: string): Promise<boolean> {
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient() ?? await createClient();
     const {error} = await supabase.from(SETTINGS_TABLE).upsert({key, value}, {onConflict: "key"});
     return !error;
   } catch { return false; }

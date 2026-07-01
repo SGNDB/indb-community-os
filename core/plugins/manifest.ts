@@ -8,14 +8,31 @@ export type PluginId =
   | "recognition"
   | "settings";
 
-export type Permission =
+export type CorePermission =
   | "public.read"
   | "member.read"
   | "member.write"
   | "owner.manage"
   | "admin.manage";
 
+export type Permission =
+  | CorePermission
+  | "graatek.read"
+  | "graatek.write"
+  | "graatek.request"
+  | "graatek.message"
+  | "graatek.complete"
+  | "graatek.manage"
+  | "memories.read"
+  | "memories.write"
+  | "memories.comment"
+  | "memories.react"
+  | "memories.save"
+  | "memories.manage";
+
 export type NavSlot = "desktop" | "mobile-bottom" | "mobile-more" | "none";
+
+export type PluginComponentSlot = "nav:sidebar" | "nav:mobile-bottom" | "nav:mobile-more";
 
 export interface PluginNavItem {
   key: string;
@@ -40,6 +57,8 @@ export interface PluginManifest {
   permissions: Permission[];
   translationsNamespace: string;
   events: PluginEvent[];
+  emits?: string[];
+  components?: PluginComponentSlot[];
   featureFlag?: string;
   requires?: string[];
   capabilities?: string[];

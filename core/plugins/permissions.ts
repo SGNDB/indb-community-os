@@ -1,9 +1,9 @@
-import type {Permission} from "@/core/plugins/manifest";
+import type {CorePermission, Permission} from "@/core/plugins/manifest";
 import {getPlugin} from "@/core/plugins/registry";
 import type {AppRole} from "@/lib/i18n/routing";
 import {hasMinimumRole} from "@/lib/permissions/roles";
 
-const rolePermissions: Record<Permission, AppRole> = {
+const coreRolePermissions: Record<CorePermission, AppRole> = {
   "public.read": "visitor",
   "member.read": "member",
   "member.write": "member",
@@ -11,11 +11,27 @@ const rolePermissions: Record<Permission, AppRole> = {
   "admin.manage": "moderator",
 };
 
+const moduleRolePermissions: Partial<Record<Permission, AppRole>> = {
+  "graatek.read": "visitor",
+  "graatek.write": "member",
+  "graatek.request": "member",
+  "graatek.message": "member",
+  "graatek.complete": "member",
+  "graatek.manage": "moderator",
+  "memories.read": "visitor",
+  "memories.write": "member",
+  "memories.comment": "member",
+  "memories.react": "member",
+  "memories.save": "member",
+  "memories.manage": "moderator",
+};
+
 export function hasPluginPermission(
   role: AppRole | null | undefined,
   permission: Permission,
 ): boolean {
-  const minimumRole = rolePermissions[permission];
+  const minimumRole =
+    moduleRolePermissions[permission] ?? coreRolePermissions[permission as CorePermission];
   return hasMinimumRole(role, minimumRole);
 }
 

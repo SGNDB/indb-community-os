@@ -1,31 +1,13 @@
 import {installPlugin} from "@/core/plugins/lifecycle";
 import type {PluginManifest} from "@/core/plugins/manifest";
+import {graatekManifest} from "@/modules/graatek/manifest";
 import {ideasManifest} from "@/modules/ideas/manifest";
+import {memoriesManifest} from "@/modules/memories/manifest";
 
 const manifests: PluginManifest[] = [
   ideasManifest,
-  {
-    id: "memories",
-    name: "Memories",
-    version: "1.0.0",
-    description: "Community memories and timeline",
-    nav: {key: "memory", href: "/memory", slot: "mobile-more"},
-    routePrefixes: ["/memory", "/timeline"],
-    permissions: ["public.read", "member.write", "owner.manage", "admin.manage"],
-    translationsNamespace: "Memory",
-    events: [{name: "memory.published"}, {name: "memory.saved"}, {name: "memory.reacted"}],
-  },
-  {
-    id: "graatek",
-    name: "Graatek",
-    version: "1.0.0",
-    description: "Fadla management",
-    nav: {key: "fadla", href: "/fadla", slot: "mobile-bottom"},
-    routePrefixes: ["/fadla"],
-    permissions: ["public.read", "member.write", "owner.manage", "admin.manage"],
-    translationsNamespace: "Fadla",
-    events: [{name: "graatek.requested"}, {name: "graatek.completed"}],
-  },
+  memoriesManifest,
+  graatekManifest,
   {
     id: "campaigns",
     name: "Campaigns",

@@ -6,7 +6,7 @@ export type PostType = "community" | "news" | "memory" | "event" | "idea" | "pro
 export type ProjectStatus = "planning" | "in_progress" | "recruiting" | "completed";
 export type PostStatus = "published" | "hidden" | "archived";
 export type CommentStatus = "published" | "hidden";
-export type MemoryVerificationStatus = "pending" | "approved" | "rejected" | "needs_more_info";
+export type {MemoryVerificationStatus} from "@/modules/memories/types";
 export type {IdeaStatus} from "@/modules/ideas/types";
 export type {ContributionType} from "@/modules/ideas/types";
 export type {MilestoneStatus} from "@/modules/ideas/types";
@@ -14,23 +14,34 @@ export type {ProgressImageStage} from "@/modules/ideas/types";
 export type {IdeaBadge} from "@/modules/ideas/types";
 export type {IdeaTrend} from "@/modules/ideas/types";
 export type ReactionType = "like" | "love" | "support" | "celebrate" | "insightful" | "sad";
-export type MemoryReactionType = ReactionType;
+export type {MemoryReactionType} from "@/modules/memories/types";
 export type ReportTargetType = "post" | "comment" | "memory" | "idea";
 export type ReportStatus = "pending" | "reviewed" | "resolved" | "dismissed";
-export type FadlaStatus = "published" | "requested" | "reserved" | "collected" | "completed" | "archived";
-export type FadlaRequestStatus = "pending" | "accepted" | "declined" | "cancelled";
-export type FadlaUrgency = "urgent" | "this_week" | "no_urgency";
-export type FadlaCategory = "food" | "clothes" | "books" | "school_supplies" | "furniture" | "tools" | "electronics" | "medical" | "household" | "other";
-
-export type CommunityShareStatus = "available" | "reserved" | "given";
-export type CommunityShareCategory = "food" | "clothes" | "furniture" | "electronics" | "school_supplies" | "books" | "services" | "other";
-
-export interface CommunityShareImage {
-  url: string;
-  storagePath: string;
-  type?: "image";
-  mimeType?: string;
-}
+export type {
+  CommunityShareCategory,
+  CommunityShareImage,
+  CommunityShareRequestRow,
+  CommunityShareRow,
+  CommunityShareStatus,
+  CommunityShareWithOwner,
+  CompletionConfirmation,
+  FadlaCategory,
+  FadlaImpact,
+  FadlaItemRow,
+  FadlaRequestMessageRow,
+  FadlaRequestMessageWithSender,
+  FadlaRequestRow,
+  FadlaRequestStatus,
+  FadlaRequestWithRequester,
+  FadlaStatus,
+  FadlaUrgency,
+  FadlaWithOwner,
+  GraatekCategory,
+  GraatekRequestStatus,
+  GraatekStatus,
+  GraatekUrgency,
+  RequestStatus,
+} from "@/modules/graatek/types";
 
 export interface ProfileRow {
   id: string;
@@ -219,36 +230,8 @@ export interface UserFollowRow {
 
 export type {IdeaMediaRow} from "@/modules/ideas/types";
 
-export interface MemoryRow {
-  id: string;
-  contributor_id: string | null;
-  title: string;
-  description: string | null;
-  content_language: ContentLanguage | null;
-  decade: string | null;
-  year: number | null;
-  location: string | null;
-  category: string | null;
-  media_url: string | null;
-  media_type: string;
-  verification_status: MemoryVerificationStatus;
-  tags: string[] | null;
-  shares_count: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface MemoryMediaRow {
-  id: string;
-  memory_id: string;
-  url: string;
-  type: "image" | "video";
-  mime_type: string;
-  storage_path: string;
-  position: number;
-  created_at: string;
-}
-
+export type {MemoryRow} from "@/modules/memories/types";
+export type {MemoryMediaRow} from "@/modules/memories/types";
 export type {IdeaRow} from "@/modules/ideas/types";
 export type {IdeaCommentRow} from "@/modules/ideas/types";
 export type {IdeaVoteRow} from "@/modules/ideas/types";
@@ -301,97 +284,6 @@ export interface RecommendationEventRow {
 
 export interface NotificationWithActor extends NotificationRow {
   actor: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
-}
-
-export interface CommunityShareRow {
-  id: string;
-  owner_id: string;
-  title: string;
-  description: string;
-  content_language: ContentLanguage | null;
-  category: CommunityShareCategory;
-  condition: string | null;
-  location: string | null;
-  status: CommunityShareStatus;
-  images: CommunityShareImage[];
-  shares_count: number;
-  accepted_request_id: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CommunityShareRequestRow {
-  id: string;
-  share_id: string;
-  requester_id: string;
-  created_at: string;
-}
-
-// ---- Fadla v2 types ----
-
-export interface FadlaItemRow {
-  id: string;
-  owner_id: string;
-  title: string;
-  description: string;
-  content_language: ContentLanguage | null;
-  category: FadlaCategory;
-  condition: string | null;
-  location: string | null;
-  quantity: number;
-  urgency_level: FadlaUrgency;
-  status: FadlaStatus;
-  images: CommunityShareImage[];
-  shares_count: number;
-  created_at: string;
-    updated_at: string;
-    completed_at: string | null;
-    archived_at: string | null;
-    accepted_request_id: string | null;
-    receiver_confirmed_at: string | null;
-    sender_confirmed_at: string | null;
-  }
-
-export interface FadlaRequestRow {
-  id: string;
-  share_id: string;
-  requester_id: string;
-  message: string | null;
-  status: FadlaRequestStatus;
-  collected_at: string | null;
-  handed_over_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface FadlaRequestMessageRow {
-  id: string;
-  share_id: string;
-  request_id: string;
-  sender_id: string;
-  message: string;
-  created_at: string;
-}
-
-export interface FadlaRequestMessageWithSender extends FadlaRequestMessageRow {
-  sender: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
-}
-
-export interface FadlaImpact {
-  people_helped: number;
-  items_shared: number;
-  completed_shares: number;
-}
-
-export interface FadlaWithOwner extends FadlaItemRow {
-  owner: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
-  requests?: FadlaRequestWithRequester[];
-  requested_by_current_user?: boolean;
-  requests_count?: number;
-}
-
-export interface FadlaRequestWithRequester extends FadlaRequestRow {
-  requester: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
 }
 
 export interface EventRow {
@@ -454,45 +346,11 @@ export interface PostWithAuthor extends PostRow {
   media?: PostMediaRow[];
 }
 
-export interface MemoryReactionRow {
-  id: string;
-  memory_id: string;
-  user_id: string;
-  reaction_type: MemoryReactionType;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface MemoryCommentRow {
-  id: string;
-  memory_id: string;
-  author_id: string | null;
-  content: string;
-  content_language: ContentLanguage | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface SavedMemoryRow {
-  id: string;
-  memory_id: string;
-  user_id: string;
-  created_at: string;
-}
-
-export interface MemoryWithContributor extends MemoryRow {
-  contributor: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
-  media?: MemoryMediaRow[];
-  reaction_counts?: Record<string, number>;
-  user_reaction?: MemoryReactionType | null;
-  user_saved?: boolean;
-  comments_count?: number;
-}
-
-export interface MemoryCommentWithAuthor extends MemoryCommentRow {
-  author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
-}
-
+export type {MemoryReactionRow} from "@/modules/memories/types";
+export type {MemoryCommentRow} from "@/modules/memories/types";
+export type {SavedMemoryRow} from "@/modules/memories/types";
+export type {MemoryWithContributor} from "@/modules/memories/types";
+export type {MemoryCommentWithAuthor} from "@/modules/memories/types";
 export type {IdeaWithAuthor} from "@/modules/ideas/types";
 export type {IdeaWithSupport} from "@/modules/ideas/types";
 export type {IdeaParticipantWithUser} from "@/modules/ideas/types";
@@ -501,12 +359,6 @@ export type {IdeaCommentWithAuthor} from "@/modules/ideas/types";
 
 export interface CommentWithAuthor extends CommentRow {
   author: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
-}
-
-export interface CommunityShareWithOwner extends CommunityShareRow {
-  owner: Pick<ProfileRow, "id" | "username" | "full_name" | "avatar_url"> | null;
-  requested_by_current_user?: boolean;
-  requests_count?: number;
 }
 
 export interface ProfileWithCounts extends ProfileRow {

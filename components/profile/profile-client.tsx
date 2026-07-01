@@ -15,10 +15,10 @@ import {
 import {useFormStatus} from "react-dom";
 
 import {signOutAction} from "@/app/[locale]/server-actions";
-import {FadlaCard} from "@/components/fadla/fadla-card";
+import {FadlaCard} from "@/modules/graatek/components/fadla-card";
 import {PostCard} from "@/components/feed/post-card";
 import {IdeaCard} from "@/components/ideas/idea-card";
-import {MemoryCard} from "@/components/memory/memory-card";
+import {MemoryCard} from "@/modules/memories/components/memory-card";
 import {EmptyState} from "@/components/shared/empty-state";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";

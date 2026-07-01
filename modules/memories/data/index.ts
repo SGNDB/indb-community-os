@@ -1,0 +1,363 @@
+import {createClient} from "@/lib/supabase/server";
+import type {MemoryCommentWithAuthor, MemoryMediaRow, MemoryReactionType, MemoryWithContributor} from "@/modules/memories/types";
+
+const DEFAULT_PAGE_SIZE = 20;
+
+export async function attachMemoryMedia(memories: MemoryWithContributor[]): Promise<MemoryWithContributor[]> {
+  if (memories.length === 0) return memories;
+  const supabase = await createClient();
+  const memoryIds = memories.map((m) => m.id);
+
+  const {data: mediaRows} = await supabase
+    .from("memory_media")
+    .select("*")
+    .in("memory_id", memoryIds)
+    .order("position", {ascending: true});
+
+  const mediaMap = new Map<string, MemoryMediaRow[]>();
+  for (const row of mediaRows ?? []) {
+    const list = mediaMap.get(row.memory_id) ?? [];
+    list.push(row as MemoryMediaRow);
+    mediaMap.set(row.memory_id, list);
+  }
+
+  for (const memory of memories) {
+    memory.media = mediaMap.get(memory.id) ?? [];
+  }
+
+  return memories;
+}
+
+export async function attachMemoryInteractions(memories: MemoryWithContributor[]): Promise<MemoryWithContributor[]> {
+  if (memories.length === 0) return memories;
+
+  const supabase = await createClient();
+  const memoryIds = memories.map((m) => m.id);
+  const {
+    data: {user},
+  } = await supabase.auth.getUser();
+
+  const [reactionResult, commentResult, savedResult, userReactionResult] = await Promise.all([
+    supabase
+      .from("memory_reactions")
+      .select("memory_id, reaction_type")
+      .in("memory_id", memoryIds),
+    supabase
+      .from("memory_comments")
+      .select("memory_id")
+      .in("memory_id", memoryIds),
+    user
+      ? supabase
+          .from("saved_memories")
+          .select("memory_id")
+          .eq("user_id", user.id)
+          .in("memory_id", memoryIds)
+      : Promise.resolve({data: []}),
+    user
+      ? supabase
+          .from("memory_reactions")
+          .select("memory_id, reaction_type")
+          .eq("user_id", user.id)
+          .in("memory_id", memoryIds)
+      : Promise.resolve({data: []}),
+  ]);
+
+  const reactionCounts = new Map<string, Record<string, number>>();
+  for (const row of reactionResult.data ?? []) {
+    const counts = reactionCounts.get(row.memory_id) ?? {};
+    counts[row.reaction_type] = (counts[row.reaction_type] ?? 0) + 1;
+    reactionCounts.set(row.memory_id, counts);
+  }
+
+  const commentCounts = new Map<string, number>();
+  for (const row of commentResult.data ?? []) {
+    commentCounts.set(row.memory_id, (commentCounts.get(row.memory_id) ?? 0) + 1);
+  }
+
+  const savedMemoryIds = new Set((savedResult.data ?? []).map((row) => row.memory_id));
+  const userReactions = new Map<string, MemoryReactionType>();
+  for (const row of userReactionResult.data ?? []) {
+    userReactions.set(row.memory_id, row.reaction_type as MemoryReactionType);
+  }
+
+  for (const memory of memories) {
+    memory.reaction_counts = reactionCounts.get(memory.id) ?? {};
+    memory.comments_count = commentCounts.get(memory.id) ?? 0;
+    memory.user_saved = savedMemoryIds.has(memory.id);
+    memory.user_reaction = userReactions.get(memory.id) ?? null;
+  }
+
+  return memories;
+}
+
+export async function getVisibleMemories(limit = 10): Promise<MemoryWithContributor[]> {
+  return getApprovedMemories(limit);
+}
+
+export async function getApprovedMemories(limit = 10): Promise<MemoryWithContributor[]> {
+  const page = await getApprovedMemoriesPage({pageSize: limit});
+  return page.items;
+}
+
+export async function getApprovedMemoriesPage({
+  page = 1,
+  pageSize = DEFAULT_PAGE_SIZE,
+  category,
+}: {
+  page?: number;
+  pageSize?: number;
+  category?: string;
+} = {}): Promise<{
+  items: MemoryWithContributor[];
+  page: number;
+  pageSize: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}> {
+  const supabase = await createClient();
+  const safePage = Math.max(1, page);
+  const safePageSize = Math.min(Math.max(1, pageSize), 50);
+  const from = (safePage - 1) * safePageSize;
+  const to = from + safePageSize;
+
+  let query = supabase
+    .from("memories")
+    .select(`
+      *,
+      contributor:profiles!memories_contributor_id_fkey(id, username, full_name, avatar_url)
+    `)
+    .eq("verification_status", "approved")
+    .not("contributor_id", "is", null);
+
+  if (category) {
+    query = query.eq("category", category);
+  }
+
+  const {data} = await query
+    .order("year", {ascending: false})
+    .order("created_at", {ascending: false})
+    .range(from, to);
+
+  const rows = (data ?? []) as unknown as MemoryWithContributor[];
+  const memories = rows.slice(0, safePageSize);
+  const items = await attachMemoryInteractions(await attachMemoryMedia(memories));
+  return {
+    items,
+    page: safePage,
+    pageSize: safePageSize,
+    hasNextPage: rows.length > safePageSize,
+    hasPreviousPage: safePage > 1,
+  };
+}
+
+export async function getMemoryById(id: string): Promise<MemoryWithContributor | null> {
+  const supabase = await createClient();
+
+  const {data} = await supabase
+    .from("memories")
+    .select(`
+      *,
+      contributor:profiles!memories_contributor_id_fkey(id, username, full_name, avatar_url)
+    `)
+    .eq("id", id)
+    .not("contributor_id", "is", null)
+    .single();
+
+  if (!data) return null;
+  const memories = [data] as unknown as MemoryWithContributor[];
+  await attachMemoryMedia(memories);
+  await attachMemoryInteractions(memories);
+  return memories[0] ?? null;
+}
+
+export async function getPendingMemoriesCount(): Promise<number> {
+  const supabase = await createClient();
+  const {count} = await supabase
+    .from("memories")
+    .select("*", {count: "exact", head: true})
+    .eq("verification_status", "pending");
+  return count ?? 0;
+}
+
+export async function getMemoriesCount(): Promise<number> {
+  const supabase = await createClient();
+  const {count} = await supabase
+    .from("memories")
+    .select("*", {count: "exact", head: true})
+    .eq("verification_status", "approved")
+    .not("contributor_id", "is", null);
+  return count ?? 0;
+}
+
+export async function getMemoryComments(
+  memoryId: string,
+  limit = 10,
+): Promise<MemoryCommentWithAuthor[]> {
+  const supabase = await createClient();
+
+  const {data} = await supabase
+    .from("memory_comments")
+    .select("*, author:profiles!memory_comments_author_id_fkey(id, username, full_name, avatar_url)")
+    .eq("memory_id", memoryId)
+    .not("author_id", "is", null)
+    .order("created_at", {ascending: true})
+    .limit(limit);
+
+  return (data ?? []) as unknown as MemoryCommentWithAuthor[];
+}
+
+export async function getMemoryCommentCount(memoryId: string): Promise<number> {
+  const supabase = await createClient();
+
+  const {count} = await supabase
+    .from("memory_comments")
+    .select("*", {count: "exact", head: true})
+    .eq("memory_id", memoryId);
+
+  return count ?? 0;
+}
+
+export async function getUserMemoriesCount(userId: string): Promise<number> {
+  const supabase = await createClient();
+  const {count} = await supabase
+    .from("memories")
+    .select("*", {count: "exact", head: true})
+    .eq("contributor_id", userId);
+  return count ?? 0;
+}
+
+export async function getUserMemories(
+  userId: string,
+  page = 1,
+  pageSize = 10,
+): Promise<MemoryWithContributor[]> {
+  const supabase = await createClient();
+
+  const {data} = await supabase
+    .from("memories")
+    .select(`
+      *,
+      contributor:profiles!memories_contributor_id_fkey(id, username, full_name, avatar_url)
+    `)
+    .eq("contributor_id", userId)
+    .order("created_at", {ascending: false})
+    .range((page - 1) * pageSize, page * pageSize);
+
+  const memories = (data ?? []) as unknown as MemoryWithContributor[];
+  return attachMemoryInteractions(await attachMemoryMedia(memories));
+}
+
+export async function getMemoryReactionDetails(memoryId: string, limit = 50, offset = 0) {
+  const supabase = await createClient();
+
+  const {count} = await supabase
+    .from("memory_reactions")
+    .select("id", {count: "exact", head: true})
+    .eq("memory_id", memoryId);
+
+  const {data: groupedData} = await supabase
+    .from("memory_reactions")
+    .select("reaction_type")
+    .eq("memory_id", memoryId);
+
+  const groupedCounts: Record<string, number> = {};
+  for (const row of groupedData ?? []) {
+    groupedCounts[row.reaction_type] = (groupedCounts[row.reaction_type] ?? 0) + 1;
+  }
+
+  const {data: reactingUsers} = await supabase
+    .from("memory_reactions")
+    .select(`
+      user_id,
+      reaction_type,
+      created_at,
+      profile:profiles(full_name, username, avatar_url)
+    `)
+    .eq("memory_id", memoryId)
+    .order("created_at", {ascending: false})
+    .range(offset, offset + limit - 1);
+
+  return {
+    totalCount: count ?? 0,
+    groupedCounts,
+    reactingUsers: (reactingUsers ?? []).map((ru) => ({
+      user_id: ru.user_id,
+      reaction_type: ru.reaction_type as MemoryReactionType,
+      created_at: ru.created_at,
+      profile: ru.profile as unknown as {
+        full_name: string | null;
+        username: string | null;
+        avatar_url: string | null;
+      } | null,
+    })),
+  };
+}
+
+/** comments without null-author filter */
+export async function getMemoryCommentsAll(memoryId: string): Promise<MemoryCommentWithAuthor[]> {
+  const supabase = await createClient();
+  const {data} = await supabase
+    .from("memory_comments")
+    .select("*, author:profiles!memory_comments_author_id_fkey(id, username, full_name, avatar_url)")
+    .eq("memory_id", memoryId)
+    .order("created_at", {ascending: true});
+  return (data ?? []) as unknown as MemoryCommentWithAuthor[];
+}
+
+export async function addMemoryCommentDb(
+  memoryId: string,
+  content: string,
+  authorId: string,
+): Promise<MemoryCommentWithAuthor | null> {
+  const supabase = await createClient();
+  const {data} = await supabase
+    .from("memory_comments")
+    .insert({memory_id: memoryId, author_id: authorId, content})
+    .select("*, author:profiles!memory_comments_author_id_fkey(id, username, full_name, avatar_url)")
+    .single();
+  return data as unknown as MemoryCommentWithAuthor | null;
+}
+
+export async function deleteMemoryCommentDb(commentId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const {error} = await supabase.from("memory_comments").delete().eq("id", commentId);
+  return !error;
+}
+
+export async function isMemorySaved(memoryId: string, userId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const {data} = await supabase
+    .from("saved_memories")
+    .select("id")
+    .eq("memory_id", memoryId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  return !!data;
+}
+
+export async function saveMemoryDb(memoryId: string, userId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const {error} = await supabase.from("saved_memories").insert({
+    memory_id: memoryId,
+    user_id: userId,
+  });
+  return !error;
+}
+
+export async function unsaveMemoryDb(memoryId: string, userId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const {error} = await supabase
+    .from("saved_memories")
+    .delete()
+    .eq("memory_id", memoryId)
+    .eq("user_id", userId);
+  return !error;
+}
+
+export async function toggleSaveMemoryDb(memoryId: string, userId: string): Promise<boolean> {
+  const saved = await isMemorySaved(memoryId, userId);
+  if (saved) {
+    return unsaveMemoryDb(memoryId, userId);
+  }
+  return saveMemoryDb(memoryId, userId);
+}

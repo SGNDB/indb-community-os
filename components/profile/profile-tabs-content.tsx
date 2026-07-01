@@ -5,9 +5,9 @@ import {UserRound} from "lucide-react";
 import {useTranslations} from "next-intl";
 
 import {PostCard} from "@/components/feed/post-card";
-import {FadlaCard} from "@/components/fadla/fadla-card";
+import {FadlaCard} from "@/modules/graatek/components/fadla-card";
 import {ProfileAbout} from "@/components/profile/profile-about";
-import {MemoryCard} from "@/components/memory/memory-card";
+import {MemoryCard} from "@/modules/memories/components/memory-card";
 import {IdeaCard} from "@/components/ideas/idea-card";
 import {EmptyState} from "@/components/shared/empty-state";
 import type {

@@ -179,31 +179,49 @@ export function AdminSettingsClient({data, labels: t, locale}: SettingsClientPro
 
   const saveAllSettings = useCallback(async () => {
     setSaving(true);
-    const actions_list: Promise<unknown>[] = [
-      actions.savePlatformSettings(platform as unknown as Record<string, unknown>),
-      actions.saveFeatureFlags(flags as unknown as Record<string, boolean>),
-      actions.saveCampaignSettings(campaigns as unknown as Record<string, unknown>),
-      actions.saveVolunteerSettings(volunteer as unknown as Record<string, unknown>),
-      actions.saveEmailSettings(email as unknown as Record<string, unknown>),
-      actions.saveNotificationSettings(notifSettings as unknown as Record<string, unknown>),
-      actions.saveSecuritySettings(security as unknown as Record<string, unknown>),
-      actions.saveAppearanceSettings(appearance as unknown as Record<string, unknown>),
-    ];
-    if (paymentMethods.some((m) => JSON.stringify(m) !== JSON.stringify(initialData.current.paymentMethods.find((x) => x.method === m.method)))) {
+    const init = initialData.current;
+    const actionsList: Array<() => Promise<unknown>> = [];
+    if (JSON.stringify(platform) !== JSON.stringify(init.platform)) {
+      actionsList.push(() => actions.savePlatformSettings(platform as unknown as Record<string, unknown>));
+    }
+    if (JSON.stringify(flags) !== JSON.stringify(init.flags)) {
+      actionsList.push(() => actions.saveFeatureFlags(flags as unknown as Record<string, boolean>));
+    }
+    if (JSON.stringify(campaigns) !== JSON.stringify(init.campaigns)) {
+      actionsList.push(() => actions.saveCampaignSettings(campaigns as unknown as Record<string, unknown>));
+    }
+    if (JSON.stringify(volunteer) !== JSON.stringify(init.volunteer)) {
+      actionsList.push(() => actions.saveVolunteerSettings(volunteer as unknown as Record<string, unknown>));
+    }
+    if (JSON.stringify(email) !== JSON.stringify(init.email)) {
+      actionsList.push(() => actions.saveEmailSettings(email as unknown as Record<string, unknown>));
+    }
+    if (JSON.stringify(notifSettings) !== JSON.stringify(init.notificationSettings)) {
+      actionsList.push(() => actions.saveNotificationSettings(notifSettings as unknown as Record<string, unknown>));
+    }
+    if (JSON.stringify(security) !== JSON.stringify(init.security)) {
+      actionsList.push(() => actions.saveSecuritySettings(security as unknown as Record<string, unknown>));
+    }
+    if (JSON.stringify(appearance) !== JSON.stringify(init.appearance)) {
+      actionsList.push(() => actions.saveAppearanceSettings(appearance as unknown as Record<string, unknown>));
+    }
+    if (paymentMethods.some((m) => JSON.stringify(m) !== JSON.stringify(init.paymentMethods.find((x) => x.method === m.method)))) {
       const pmRecord: Record<string, Record<string, unknown>> = {};
       paymentMethods.forEach((pm) => { pmRecord[pm.method] = pm as unknown as Record<string, unknown>; });
-      actions_list.push(actions.savePaymentMethods(pmRecord));
+      actionsList.push(() => actions.savePaymentMethods(pmRecord));
     }
-    if (languages.some((l) => l.enabled !== initialData.current.languages.find((x) => x.code === l.code)?.enabled)) {
+    if (languages.some((l) => l.enabled !== init.languages.find((x) => x.code === l.code)?.enabled)) {
       const langMap: Record<string, {enabled: boolean}> = {};
       languages.forEach((l) => { langMap[l.code] = {enabled: l.enabled}; });
-      actions_list.push(actions.saveLanguages(langMap));
+      actionsList.push(() => actions.saveLanguages(langMap));
     }
-    if (JSON.stringify(integrations) !== JSON.stringify(initialData.current.integrations)) {
-      actions_list.push(actions.saveIntegrationSettings(integrations));
+    if (JSON.stringify(integrations) !== JSON.stringify(init.integrations)) {
+      actionsList.push(() => actions.saveIntegrationSettings(integrations));
     }
     try {
-      await Promise.all(actions_list);
+      for (const saveAction of actionsList) {
+        await saveAction();
+      }
       initialData.current = {
         ...initialData.current,
         platform, flags, languages, paymentMethods, campaigns, volunteer, email,

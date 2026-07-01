@@ -4,10 +4,10 @@ import {getTranslations} from "next-intl/server";
 
 import {IdeaCard} from "@/components/ideas/idea-card";
 import {Logo} from "@/components/layout/Logo";
-import {MemoryCard} from "@/components/memory/memory-card";
+import {MemoryCard} from "@/modules/memories/components/memory-card";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {getApprovedMemories} from "@/lib/data/memories";
+import {getApprovedMemories} from "@/modules/memories/data";
 import {getIdeas} from "@/lib/data/ideas";
 import {getPosts} from "@/lib/data/posts";
 import {Link} from "@/lib/i18n/routing";
@@ -133,4 +133,3 @@ export default async function LandingPage({
     </div>
   );
 }
-

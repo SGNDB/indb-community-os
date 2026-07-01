@@ -2,7 +2,7 @@ import {History} from "lucide-react";
 import {getTranslations} from "next-intl/server";
 
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {getApprovedMemories} from "@/lib/data/memories";
+import {getApprovedMemories} from "@/modules/memories/data";
 
 export async function RightSidebar() {
   const t = await getTranslations("RightSidebar");

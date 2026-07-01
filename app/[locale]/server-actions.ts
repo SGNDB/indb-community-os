@@ -22,19 +22,13 @@ import {
   createNotification,
   upsertReactionNotification,
   createCommentNotification,
-  upsertMemoryReactionNotification,
-  createMemoryCommentNotification,
 } from '@/lib/data/notifications';
 import { toggleReaction, getPostReactionDetails } from '@/lib/data/reactions';
 import type { ConversationDetails, ConversationListItem, ConversationMessageWithSender } from '@/lib/data/conversations';
-import { getMemoryReactionDetails } from '@/lib/data/memories';
-import { getTimelineMemoriesByYear } from '@/lib/data/memory-timeline';
 import {
   commentSchema,
   createPostSchema,
-  fadlaItemSchema,
   loginSchema,
-  memorySchema,
   profileSchema,
   registerSchema,
 } from '@/lib/validations/community';
@@ -44,8 +38,6 @@ import { buildOnboardingProfileUpdate, getPostAuthRedirectPath } from '@/lib/aut
 import type {
   CommentWithAuthor,
   CommunityShareImage,
-  MemoryCommentWithAuthor,
-  MemoryReactionType,
   ReactionType,
 } from '@/types/database';
 import {
@@ -53,10 +45,63 @@ import {
   deleteMemoryMedia,
   deleteIdeaMedia,
   deletePostMediaByStoragePaths,
-  deleteMemoryMediaByStoragePaths,
   insertPostMedia,
-  insertMemoryMedia,
 } from '@/lib/data/media';
+import * as graatekActions from '@/modules/graatek/actions';
+import * as memoryActions from '@/modules/memories/actions';
+
+export async function getMemoryReactionDetailsAction(memoryId: string, limit = 50, offset = 0) {
+  return memoryActions.getMemoryReactionDetailsAction(memoryId, limit, offset);
+}
+
+export async function submitMemoryAction(formData: FormData) {
+  return memoryActions.submitMemoryAction(formData);
+}
+
+export async function reactToMemoryAction(formData: FormData) {
+  return memoryActions.reactToMemoryAction(formData);
+}
+
+export async function addMemoryCommentAction(formData: FormData) {
+  return memoryActions.addMemoryCommentAction(formData);
+}
+
+export async function deleteMemoryCommentAction(formData: FormData) {
+  return memoryActions.deleteMemoryCommentAction(formData);
+}
+
+export async function updateMemoryCommentAction(formData: FormData) {
+  return memoryActions.updateMemoryCommentAction(formData);
+}
+
+export async function saveMemoryAction(formData: FormData) {
+  return memoryActions.saveMemoryAction(formData);
+}
+
+export async function unsaveMemoryAction(formData: FormData) {
+  return memoryActions.unsaveMemoryAction(formData);
+}
+
+export async function deleteMemoryAction(formData: FormData) {
+  return memoryActions.deleteMemoryAction(formData);
+}
+
+export async function updateMemoryAction(formData: FormData) {
+  return memoryActions.updateMemoryAction(formData);
+}
+
+export async function shareMemoryAction(formData: FormData) {
+  return memoryActions.shareMemoryAction(formData);
+}
+
+export async function loadMoreTimelineMemoriesAction(params: {
+  year: number;
+  category?: string;
+  sort?: string;
+  page?: number;
+}) {
+  return memoryActions.loadMoreTimelineMemoriesAction(params);
+}
 
 function normalizeLocale(value: FormDataEntryValue | null) {
   const locale = typeof value === 'string' ? value : routing.defaultLocale;
@@ -1048,10 +1093,6 @@ export async function getPostReactionDetailsAction(postId: string, limit = 50, o
   return getPostReactionDetails(postId, limit, offset);
 }
 
-export async function getMemoryReactionDetailsAction(memoryId: string, limit = 50, offset = 0) {
-  return getMemoryReactionDetails(memoryId, limit, offset);
-}
-
 export async function toggleSaveAction(formData: FormData) {
   const postId = formData.get('postId');
   const supabase = await createClient();
@@ -1300,130 +1341,6 @@ function getValidationError(
   return t(fallback);
 }
 
-export async function submitMemoryAction(
-  formData: FormData,
-): Promise<{ success: false; error: string } | { success: true; memoryId?: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
-  const errorsT = await getTranslations({ locale, namespace: 'Errors' });
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { success: false, error: 'unauthorized' };
-  }
-
-  const parsed = memorySchema.safeParse({
-    title: formData.get('title'),
-    description: formData.get('description'),
-    decade: formData.get('decade'),
-    year: formData.get('year'),
-    location: formData.get('location'),
-    category: formData.get('category'),
-    tags: formData.get('tags'),
-  });
-
-  if (!parsed.success) {
-    const errorMsg = getValidationError(parsed, errorsT, 'invalidMemory');
-    return { success: false, error: errorMsg };
-  }
-
-  // Read pre-uploaded media metadata
-  const mediaDataStr = formData.get('mediaData');
-  const uploadedMedia: Array<{
-    url: string;
-    storagePath: string;
-    type: 'image' | 'video';
-    mime_type?: string;
-    position: number;
-  }> =
-    typeof mediaDataStr === 'string' && mediaDataStr
-      ? JSON.parse(mediaDataStr).map(
-          (
-            m: { url: string; storagePath: string; type: 'image' | 'video'; mime_type?: string },
-            i: number,
-          ) => ({ ...m, position: i }),
-        )
-      : [];
-
-  // Keep backward compatible media_url
-  let media_url: string | null = null;
-  let media_type: string | null = null;
-  const firstImage = uploadedMedia.find((m) => m.type === 'image');
-  if (firstImage) {
-    media_url = firstImage.url;
-    media_type = 'image';
-  } else if (uploadedMedia.length > 0) {
-    media_url = uploadedMedia[0].url;
-    media_type = uploadedMedia[0].type;
-  }
-
-  const tags = parsed.data.tags
-    ? parsed.data.tags
-        .split(',')
-        .map((t: string) => t.trim())
-        .filter(Boolean)
-    : [];
-
-  let memory: { id: string } | null = null;
-  try {
-    const result = await supabase
-      .from('memories')
-      .insert({
-        contributor_id: user.id,
-        title: parsed.data.title,
-        description: parsed.data.description,
-        decade: parsed.data.decade || null,
-        year: parsed.data.year ? Number(parsed.data.year) : null,
-        location: parsed.data.location || null,
-        category: parsed.data.category || null,
-        media_url,
-        media_type: media_type ?? 'image',
-        verification_status: 'approved',
-        tags: tags.length > 0 ? tags : null,
-      })
-      .select('id')
-      .single();
-    memory = result.data;
-    if (result.error || !memory) {
-      return { success: false, error: result.error?.message ?? errorsT('submitFailed') };
-    }
-  } catch {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  // Insert media records
-  if (memory && uploadedMedia.length > 0) {
-    try {
-      await insertMemoryMedia(
-        uploadedMedia.map((m) => ({
-          memory_id: memory.id,
-          url: m.url,
-          type: m.type,
-          mime_type: m.mime_type ?? '',
-          storage_path: m.storagePath,
-          position: m.position,
-        })),
-      );
-    } catch {
-      return { success: false, error: errorsT('submitFailed') };
-    }
-  }
-
-  await publishPlatformEvent({
-    name: 'memory.published',
-    actorId: user.id,
-    entityType: 'memory',
-    entityId: memory.id,
-  });
-
-  revalidatePath(toPath(locale, '/memory'));
-
-  return { success: true, memoryId: memory.id };
-}
-
 export async function deletePostAction(formData: FormData) {
   const locale = normalizeLocale(formData.get('locale'));
   const returnPath = getReturnPath(formData, '/feed');
@@ -1641,583 +1558,6 @@ export async function sharePostAction(
   }
 
   return { success: true, sharesCount };
-}
-
-export async function reactToMemoryAction(formData: FormData): Promise<{
-  success: boolean;
-  error?: string;
-  reaction?: MemoryReactionType | null;
-  reaction_counts?: Record<string, number>;
-}> {
-  const memoryId = formData.get('memoryId');
-  const reactionType = formData.get('reactionType') as MemoryReactionType | null;
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { success: false, error: 'unauthorized' };
-  }
-
-  if (await isUserRateLimited('reaction', user.id)) {
-    return { success: false, error: 'rate_limited' };
-  }
-
-  if (typeof memoryId !== 'string') {
-    return { success: false, error: 'invalid' };
-  }
-
-  const { data: existing } = await supabase
-    .from('memory_reactions')
-    .select('id, reaction_type')
-    .eq('memory_id', memoryId)
-    .eq('user_id', user.id)
-    .maybeSingle();
-
-  if (existing) {
-    if (!reactionType || existing.reaction_type === reactionType) {
-      await supabase.from('memory_reactions').delete().eq('id', existing.id);
-    } else {
-      await supabase
-        .from('memory_reactions')
-        .update({ reaction_type: reactionType, updated_at: new Date().toISOString() })
-        .eq('id', existing.id);
-    }
-  } else if (reactionType) {
-    await supabase.from('memory_reactions').insert({
-      memory_id: memoryId,
-      user_id: user.id,
-      reaction_type: reactionType,
-    });
-  }
-
-  const { data: allReactions } = await supabase
-    .from('memory_reactions')
-    .select('reaction_type')
-    .eq('memory_id', memoryId);
-
-  const counts: Record<string, number> = {};
-  for (const row of allReactions ?? []) {
-    counts[row.reaction_type] = (counts[row.reaction_type] ?? 0) + 1;
-  }
-
-  let userReaction: MemoryReactionType | null = null;
-  if (existing) {
-    if (reactionType && existing.reaction_type !== reactionType) {
-      userReaction = reactionType;
-    }
-  } else if (reactionType) {
-    userReaction = reactionType;
-  }
-
-  const { data: memory } = await supabase
-    .from('memories')
-    .select('contributor_id')
-    .eq('id', memoryId)
-    .single();
-
-  if (memory && userReaction) {
-    await upsertMemoryReactionNotification(memory.contributor_id ?? '', user.id, memoryId);
-  }
-
-  if (userReaction) {
-    await publishPlatformEvent({
-      name: 'memory.reacted',
-      actorId: user.id,
-      entityType: 'memory',
-      entityId: memoryId,
-      metadata: { reactionType: userReaction },
-    });
-  }
-
-  return {
-    success: true,
-    reaction: userReaction,
-    reaction_counts: counts,
-  };
-}
-
-export async function addMemoryCommentAction(
-  formData: FormData,
-): Promise<{ success: boolean; error?: string; comment?: MemoryCommentWithAuthor }> {
-  const memoryId = formData.get('memoryId');
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { success: false, error: 'unauthorized' };
-  }
-
-  if (await isUserRateLimited('comment', user.id)) {
-    return { success: false, error: 'rate_limited' };
-  }
-
-  const parsed = commentSchema.safeParse({
-    content: formData.get('content'),
-  });
-
-  if (!parsed.success || typeof memoryId !== 'string') {
-    return { success: false, error: 'invalid' };
-  }
-
-  const { data: memory, error: memoryError } = await supabase
-    .from('memories')
-    .select('contributor_id')
-    .eq('id', memoryId)
-    .single();
-
-  if (memoryError || !memory) {
-    return { success: false, error: 'not_found' };
-  }
-
-  const { data: newComment, error: insertError } = await supabase
-    .from('memory_comments')
-    .insert({
-      memory_id: memoryId,
-      author_id: user.id,
-      content: parsed.data.content,
-    })
-    .select(
-      '*, author:profiles!memory_comments_author_id_fkey(id, username, full_name, avatar_url)',
-    )
-    .single();
-
-  if (insertError || !newComment) {
-    return { success: false, error: 'insert_failed' };
-  }
-
-  if (memory.contributor_id !== user.id) {
-    await createMemoryCommentNotification(
-      memory.contributor_id ?? '',
-      user.id,
-      memoryId,
-      newComment.id,
-    );
-  }
-
-  return { success: true, comment: newComment as unknown as MemoryCommentWithAuthor };
-}
-
-export async function deleteMemoryCommentAction(
-  formData: FormData,
-): Promise<{ success: boolean; error?: string }> {
-  const commentId = formData.get('commentId');
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { success: false, error: 'unauthorized' };
-  }
-
-  if (typeof commentId !== 'string') {
-    return { success: false, error: 'invalid' };
-  }
-
-  const { data: comment } = await supabase
-    .from('memory_comments')
-    .select('author_id, memory_id')
-    .eq('id', commentId)
-    .single();
-
-  if (!comment) {
-    return { success: false, error: 'not_found' };
-  }
-
-  const { data: memory } = await supabase
-    .from('memories')
-    .select('contributor_id')
-    .eq('id', comment.memory_id)
-    .single();
-
-  if (comment.author_id !== user.id && memory?.contributor_id !== user.id) {
-    return { success: false, error: 'forbidden' };
-  }
-
-  const { error: deleteError } = await supabase
-    .from('memory_comments')
-    .delete()
-    .eq('id', commentId);
-
-  if (deleteError) {
-    return { success: false, error: 'delete_failed' };
-  }
-
-  return { success: true };
-}
-
-export async function updateMemoryCommentAction(
-  formData: FormData,
-): Promise<{ success: boolean; error?: string; comment?: MemoryCommentWithAuthor }> {
-  const commentId = formData.get('commentId');
-  const parsed = commentSchema.safeParse({ content: formData.get('content') });
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { success: false, error: 'unauthorized' };
-  }
-
-  if (typeof commentId !== 'string' || !parsed.success) {
-    return { success: false, error: 'invalid' };
-  }
-
-  const { data: comment } = await supabase
-    .from('memory_comments')
-    .select('author_id')
-    .eq('id', commentId)
-    .single();
-
-  if (!comment || comment.author_id !== user.id) {
-    return { success: false, error: 'forbidden' };
-  }
-
-  const { data: updatedComment, error: updateError } = await supabase
-    .from('memory_comments')
-    .update({ content: parsed.data.content, updated_at: new Date().toISOString() })
-    .eq('id', commentId)
-    .select(
-      '*, author:profiles!memory_comments_author_id_fkey(id, username, full_name, avatar_url)',
-    )
-    .single();
-
-  if (updateError || !updatedComment) {
-    return { success: false, error: 'update_failed' };
-  }
-
-  return { success: true, comment: updatedComment as unknown as MemoryCommentWithAuthor };
-}
-
-export async function saveMemoryAction(
-  formData: FormData,
-): Promise<{ success: boolean; error?: string }> {
-  const memoryId = formData.get('memoryId');
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { success: false, error: 'unauthorized' };
-  }
-
-  if (typeof memoryId !== 'string') {
-    return { success: false, error: 'invalid' };
-  }
-
-  const { error } = await supabase.from('saved_memories').upsert(
-    {
-      memory_id: memoryId,
-      user_id: user.id,
-    },
-    { onConflict: 'memory_id,user_id', ignoreDuplicates: true },
-  );
-
-  if (error) {
-    return { success: false, error: 'save_failed' };
-  }
-
-  await publishPlatformEvent({
-    name: 'memory.saved',
-    actorId: user.id,
-    entityType: 'memory',
-    entityId: memoryId,
-  });
-
-  return { success: true };
-}
-
-export async function unsaveMemoryAction(
-  formData: FormData,
-): Promise<{ success: boolean; error?: string }> {
-  const memoryId = formData.get('memoryId');
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { success: false, error: 'unauthorized' };
-  }
-
-  if (typeof memoryId !== 'string') {
-    return { success: false, error: 'invalid' };
-  }
-
-  const { error } = await supabase
-    .from('saved_memories')
-    .delete()
-    .eq('memory_id', memoryId)
-    .eq('user_id', user.id);
-
-  if (error) {
-    return { success: false, error: 'unsave_failed' };
-  }
-
-  return { success: true };
-}
-
-export async function deleteMemoryAction(
-  formData: FormData,
-): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return { success: false, error: 'unauthorized' };
-
-  const memoryId = formData.get('memoryId');
-
-  if (typeof memoryId !== 'string') return { success: false, error: 'invalid_id' };
-
-  const { data: memory } = await supabase
-    .from('memories')
-    .select('contributor_id')
-    .eq('id', memoryId)
-    .single();
-
-  if (!memory) return { success: false, error: 'not_found' };
-  if (memory.contributor_id !== user.id) return { success: false, error: 'forbidden' };
-
-  await supabase
-    .from('notifications')
-    .delete()
-    .eq('entity_type', 'memory')
-    .eq('entity_id', memoryId);
-
-  // Clean up media
-  await deleteMemoryMedia(memoryId);
-  await supabase.from('memories').delete().eq('id', memoryId);
-
-  revalidatePath('/memory');
-
-  return { success: true };
-}
-
-export async function updateMemoryAction(
-  formData: FormData,
-): Promise<{ success: false; error: string } | { success: true; memoryId?: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
-  const errorsT = await getTranslations({ locale, namespace: 'Errors' });
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { success: false, error: 'unauthorized' };
-  }
-
-  const memoryId = formData.get('memoryId');
-  if (typeof memoryId !== 'string') {
-    return { success: false, error: errorsT('invalidMemory') };
-  }
-
-  const { data: existing, error: fetchError } = await supabase
-    .from('memories')
-    .select('contributor_id, media_url, media_type')
-    .eq('id', memoryId)
-    .single();
-
-  if (fetchError || !existing || existing.contributor_id !== user.id) {
-    return { success: false, error: errorsT('invalidMemory') };
-  }
-
-  const parsed = memorySchema.safeParse({
-    title: formData.get('title'),
-    description: formData.get('description'),
-    decade: formData.get('decade'),
-    year: formData.get('year'),
-    location: formData.get('location'),
-    category: formData.get('category'),
-    tags: formData.get('tags'),
-  });
-
-  if (!parsed.success) {
-    const errorMsg = getValidationError(parsed, errorsT, 'invalidMemory');
-    return { success: false, error: errorMsg };
-  }
-
-  // Handle removed media
-  const removedMediaStr = formData.get('removedMedia');
-  let removedStoragePaths: string[] = [];
-  if (typeof removedMediaStr === 'string' && removedMediaStr) {
-    try {
-      removedStoragePaths = JSON.parse(removedMediaStr);
-    } catch {}
-  }
-  if (removedStoragePaths.length > 0) {
-    await deleteMemoryMediaByStoragePaths(removedStoragePaths);
-  }
-
-  // Read pre-uploaded media metadata
-  const mediaDataStr = formData.get('mediaData');
-  const uploadedMedia: Array<{
-    url: string;
-    storagePath: string;
-    type: 'image' | 'video';
-    mime_type?: string;
-  }> = typeof mediaDataStr === 'string' && mediaDataStr ? JSON.parse(mediaDataStr) : [];
-
-  const { data: existingMedia } = await supabase
-    .from('memory_media')
-    .select('position')
-    .eq('memory_id', memoryId)
-    .order('position', { ascending: false })
-    .limit(1);
-
-  let nextPosition = (existingMedia?.[0]?.position ?? -1) + 1;
-  if (uploadedMedia.length > 0) {
-    await insertMemoryMedia(
-      uploadedMedia.map((m) => ({
-        memory_id: memoryId,
-        url: m.url,
-        type: m.type,
-        mime_type: m.mime_type ?? '',
-        storage_path: m.storagePath,
-        position: nextPosition++,
-      })),
-    );
-  }
-
-  // Update backward-compatible media_url
-  const { data: allMedia } = await supabase
-    .from('memory_media')
-    .select('url, type')
-    .eq('memory_id', memoryId)
-    .order('position', { ascending: true });
-  let media_url = existing.media_url;
-  let media_type = existing.media_type;
-  const firstMedia = allMedia?.[0];
-  if (firstMedia) {
-    media_url = firstMedia.url;
-    media_type = firstMedia.type;
-  } else if (removedStoragePaths.length > 0 && !allMedia?.length) {
-    media_url = null;
-    media_type = 'image';
-  }
-
-  const tags = parsed.data.tags
-    ? parsed.data.tags
-        .split(',')
-        .map((t: string) => t.trim())
-        .filter(Boolean)
-    : [];
-
-  try {
-    const { error: updateError } = await supabase
-      .from('memories')
-      .update({
-        title: parsed.data.title,
-        description: parsed.data.description,
-        decade: parsed.data.decade || null,
-        year: parsed.data.year ? Number(parsed.data.year) : null,
-        location: parsed.data.location || null,
-        category: parsed.data.category || null,
-        media_url,
-        media_type,
-        tags: tags.length > 0 ? tags : null,
-      })
-      .eq('id', memoryId);
-
-    if (updateError) {
-      return { success: false, error: updateError.message };
-    }
-  } catch {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  revalidatePath(toPath(locale, '/memory'));
-
-  return { success: true, memoryId };
-}
-
-export async function shareMemoryAction(
-  formData: FormData,
-): Promise<{ success: boolean; error?: string; sharesCount?: number }> {
-  const memoryId = formData.get('memoryId');
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { success: false, error: 'unauthorized' };
-  }
-
-  if (typeof memoryId !== 'string') {
-    return { success: false, error: 'invalid' };
-  }
-
-  const { data: memory } = await supabase
-    .from('memories')
-    .select('contributor_id')
-    .eq('id', memoryId)
-    .single();
-
-  if (!memory) {
-    return { success: false, error: 'not_found' };
-  }
-
-  const { data: sharesCount, error: shareCountError } = await supabase.rpc(
-    'increment_share_count',
-    {
-      p_entity_type: 'memory',
-      p_entity_id: memoryId,
-    },
-  );
-
-  if (shareCountError || typeof sharesCount !== 'number') {
-    console.error('shareMemoryAction increment_share_count error:', shareCountError);
-    return { success: false, error: 'share_count_failed' };
-  }
-
-  if (memory.contributor_id && memory.contributor_id !== user.id) {
-    await createNotification({
-      userId: memory.contributor_id,
-      actorId: user.id,
-      type: 'share',
-      entityType: 'memory',
-      entityId: memoryId,
-      title: 'Shared your memory',
-    });
-  }
-
-  return { success: true, sharesCount };
-}
-
-export async function loadMoreTimelineMemoriesAction({
-  year,
-  category,
-  sort,
-  page = 1,
-}: {
-  year: number;
-  category?: string;
-  sort?: string;
-  page?: number;
-}) {
-  const result = await getTimelineMemoriesByYear({ year, category, sort, page });
-  return {
-    memories: result.memories,
-    hasNextPage: result.hasNextPage,
-  };
 }
 
 async function getStrictAdminUserId() {
@@ -2602,732 +1942,61 @@ export async function deleteAdminContentAction(formData: FormData) {
   redirectAdmin(locale, 'contentDeleted', '/admin/content');
 }
 
-function parseShareImages(formData: FormData): CommunityShareImage[] {
-  const mediaDataStr = formData.get('mediaData');
-  if (typeof mediaDataStr !== 'string' || !mediaDataStr) return [];
-
-  try {
-    const parsed = JSON.parse(mediaDataStr) as Array<{
-      url?: string;
-      storagePath?: string;
-      type?: 'image' | 'video';
-      mime_type?: string;
-      mimeType?: string;
-    }>;
-
-    return parsed
-      .filter((item) => item.type !== 'video' && item.url && item.storagePath)
-      .map((item) => ({
-        url: item.url as string,
-        storagePath: item.storagePath as string,
-        type: 'image' as const,
-        mimeType: item.mimeType ?? item.mime_type ?? '',
-      }));
-  } catch {
-    return [];
-  }
+export async function submitFadlaItemAction(formData: FormData) {
+  return graatekActions.submitFadlaItemAction(formData);
 }
 
-function parseRemovedShareMedia(formData: FormData): string[] {
-  const removedMediaStr = formData.get('removedMedia');
-  if (typeof removedMediaStr !== 'string' || !removedMediaStr) return [];
-
-  try {
-    const parsed = JSON.parse(removedMediaStr);
-    return Array.isArray(parsed)
-      ? parsed.filter((item): item is string => typeof item === 'string')
-      : [];
-  } catch {
-    return [];
-  }
-}
-
-async function removeFadlaMedia(paths: string[]) {
-  if (paths.length === 0) return;
-  const supabase = await createClient();
-  await supabase.storage.from('fadla-media').remove(paths);
-}
-
-export async function submitFadlaItemAction(
-  formData: FormData,
-): Promise<{ success: true; id: string } | { success: false; error: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
-  const errorsT = await getTranslations({ locale, namespace: 'Errors' });
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return { success: false, error: errorsT('submitFailed') };
-
-  const parsed = fadlaItemSchema.safeParse({
-    title: formData.get('title'),
-    description: formData.get('description'),
-    category: formData.get('category'),
-    condition: formData.get('condition'),
-    location: formData.get('location'),
-    quantity: formData.get('quantity'),
-    urgency_level: formData.get('urgency_level'),
-  });
-
-  if (!parsed.success) return { success: false, error: errorsT('invalidInput') };
-
-  const { data, error } = await supabase
-    .from('community_shares')
-    .insert({
-      owner_id: user.id,
-      title: parsed.data.title,
-      description: parsed.data.description,
-      category: parsed.data.category,
-      condition: parsed.data.condition || null,
-      location: parsed.data.location || null,
-      quantity: parsed.data.quantity ? Number(parsed.data.quantity) : 1,
-      urgency_level: parsed.data.urgency_level || 'no_urgency',
-      images: parseShareImages(formData),
-      status: 'published',
-    })
-    .select('id')
-    .single();
-
-  if (error || !data) return { success: false, error: errorsT('submitFailed') };
-
-  revalidatePath(toPath(locale, '/fadla'));
-  revalidatePath(toPath(locale, '/profile'));
-  return { success: true, id: data.id };
-}
-
-export async function updateFadlaItemAction(
-  formData: FormData,
-): Promise<{ success: true } | { success: false; error: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
-  const errorsT = await getTranslations({ locale, namespace: 'Errors' });
-  const itemId = formData.get('shareId');
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user || typeof itemId !== 'string')
-    return { success: false, error: errorsT('submitFailed') };
-
-  const { data: existing } = await supabase
-    .from('community_shares')
-    .select('owner_id, images, status')
-    .eq('id', itemId)
-    .single();
-
-  if (!existing || existing.owner_id !== user.id)
-    return { success: false, error: errorsT('submitFailed') };
-  if (existing.status !== 'published') return { success: false, error: errorsT('submitFailed') };
-
-  const parsed = fadlaItemSchema.safeParse({
-    title: formData.get('title'),
-    description: formData.get('description'),
-    category: formData.get('category'),
-    condition: formData.get('condition'),
-    location: formData.get('location'),
-    quantity: formData.get('quantity'),
-    urgency_level: formData.get('urgency_level'),
-  });
-
-  if (!parsed.success) return { success: false, error: errorsT('invalidInput') };
-
-  const removedPaths = parseRemovedShareMedia(formData);
-  if (removedPaths.length > 0) await removeFadlaMedia(removedPaths);
-
-  const existingImages = Array.isArray(existing.images)
-    ? (existing.images as CommunityShareImage[]).filter(
-        (image) => !removedPaths.includes(image.storagePath),
-      )
-    : [];
-  const images = [...existingImages, ...parseShareImages(formData)];
-
-  const { error } = await supabase
-    .from('community_shares')
-    .update({
-      title: parsed.data.title,
-      description: parsed.data.description,
-      category: parsed.data.category,
-      condition: parsed.data.condition || null,
-      location: parsed.data.location || null,
-      quantity: parsed.data.quantity ? Number(parsed.data.quantity) : 1,
-      urgency_level: parsed.data.urgency_level || 'no_urgency',
-      images,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', itemId);
-
-  if (error) return { success: false, error: errorsT('submitFailed') };
-
-  revalidatePath(toPath(locale, '/fadla'));
-  revalidatePath(toPath(locale, '/profile'));
-  return { success: true };
+export async function updateFadlaItemAction(formData: FormData) {
+  return graatekActions.updateFadlaItemAction(formData);
 }
 
 export async function deleteFadlaItemAction(formData: FormData) {
-  const locale = normalizeLocale(formData.get('locale'));
-  const itemId = formData.get('itemId') || formData.get('shareId');
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user || typeof itemId !== 'string') {
-    redirect(toPath(locale, '/fadla?shareError=1'));
-  }
-
-  const { data: existing } = await supabase
-    .from('community_shares')
-    .select('owner_id, images')
-    .eq('id', itemId)
-    .single();
-
-  if (!existing || existing.owner_id !== user.id) {
-    redirect(toPath(locale, '/fadla?shareError=1'));
-  }
-
-  const images = Array.isArray(existing.images) ? (existing.images as CommunityShareImage[]) : [];
-  await removeFadlaMedia(images.map((image) => image.storagePath).filter(Boolean));
-  await supabase.from('community_shares').delete().eq('id', itemId);
-
-  revalidatePath(toPath(locale, '/fadla'));
-  revalidatePath(toPath(locale, '/profile'));
-  redirect(toPath(locale, '/fadla?shareDeleted=1'));
+  return graatekActions.deleteFadlaItemAction(formData);
 }
 
-export async function requestFadlaItemAction(
-  formData: FormData,
-): Promise<{ success: true; requestId: string; shareStatus: string } | { success: false; error: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
-  const errorsT = await getTranslations({ locale, namespace: 'Errors' });
-  const fadlaT = await getTranslations({ locale, namespace: 'Fadla' });
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return { success: false, error: errorsT('submitFailed') };
-
-  const itemId = formData.get('shareId') || formData.get('itemId');
-  if (typeof itemId !== 'string') return { success: false, error: errorsT('invalidInput') };
-
-  const { data: item } = await supabase
-    .from('community_shares')
-    .select('owner_id, status')
-    .eq('id', itemId)
-    .single();
-
-  if (!item) return { success: false, error: fadlaT('errors.notFound') };
-  if (item.owner_id === user.id) return { success: false, error: fadlaT('errors.ownItem') };
-  if (item.status !== 'published' && item.status !== 'requested') {
-    return { success: false, error: fadlaT('errors.notAvailable') };
-  }
-
-  // Check for existing pending request (duplicate protection)
-  const { data: existing } = await supabase
-    .from('community_share_requests')
-    .select('id')
-    .eq('share_id', itemId)
-    .eq('requester_id', user.id)
-    .eq('status', 'pending')
-    .maybeSingle();
-
-  if (existing) return { success: false, error: fadlaT('errors.alreadyRequested') };
-
-  const requestId = crypto.randomUUID();
-
-  const { error: insertError } = await supabase.from('community_share_requests').insert({
-    id: requestId,
-    share_id: itemId,
-    requester_id: user.id,
-  });
-
-  if (insertError) {
-    if (insertError.code === '23505')
-      return { success: false, error: fadlaT('errors.alreadyRequested') };
-    if (insertError.code === '42501') {
-      return { success: false, error: fadlaT('errors.notAvailable') };
-    }
-    return { success: false, error: fadlaT('errors.saveFailed') };
-  }
-
-  // Update status to 'requested' if it was 'published'
-  if (item.status === 'published') {
-    const adminClient = createAdminClient();
-    const statusClient = adminClient ?? supabase;
-    const { error: statusError } = await statusClient
-      .from('community_shares')
-      .update({ status: 'requested', updated_at: new Date().toISOString() })
-      .eq('id', itemId);
-
-    if (statusError) {
-      await supabase.from('community_share_requests').delete().eq('id', requestId);
-      return { success: false, error: fadlaT('errors.saveFailed') };
-    }
-  }
-
-  await createNotification({
-    userId: item.owner_id,
-    actorId: user.id,
-    type: 'fadla_request',
-    entityType: 'community_share',
-    entityId: itemId,
-    title: 'New Graatek request',
-    metadata: {
-      shareId: itemId,
-      requestId,
-      requesterId: user.id,
-    },
-  });
-
-  await publishPlatformEvent({
-    name: 'graatek.requested',
-    actorId: user.id,
-    entityType: 'community_share',
-    entityId: itemId,
-    metadata: { requestId },
-  });
-
-  revalidatePath(toPath(locale, '/fadla'));
-  return { success: true, requestId, shareStatus: item.status === 'published' ? 'requested' : item.status };
+export async function requestFadlaItemAction(formData: FormData) {
+  return graatekActions.requestFadlaItemAction(formData);
 }
 
-export async function acceptFadlaRequestAction(
-  formData: FormData,
-): Promise<{ success: true; requestId: string; shareId: string; shareStatus: string; acceptedRequestId: string; conversationId: string } | { success: false; error: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
-  const requestId = formData.get('requestId');
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const errorsT = await getTranslations({ locale, namespace: 'Errors' });
-  const fadlaT = await getTranslations({ locale, namespace: 'Fadla' });
-
-  if (!user || typeof requestId !== 'string') {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  const { data: result, error: rpcError } = await supabase.rpc('accept_fadla_request', {
-    p_request_id: requestId,
-    p_owner_id: user.id,
-  });
-
-  if (rpcError || !result?.success) {
-    console.error('accept_fadla_request RPC error:', rpcError, result);
-    return { success: false, error: fadlaT('errors.actionFailed') };
-  }
-
-  // create or find conversation
-  let conversationId = '';
-  try {
-    const { ensureConversationExists } = await import('@/lib/data/conversations');
-    const convId = await ensureConversationExists('graatek', result.shareId as string);
-    if (convId) conversationId = convId;
-  } catch (e) {
-    console.error('acceptFadlaRequestAction conv create error:', e);
-  }
-
-  // Fetch the requester_id for the notification
-  const { data: req } = await supabase
-    .from('community_share_requests')
-    .select('requester_id')
-    .eq('id', requestId)
-    .single();
-
-  if (req) {
-    await createNotification({
-      userId: req.requester_id,
-      actorId: user.id,
-      type: 'fadla_request_accepted',
-      entityType: 'community_share',
-      entityId: result.shareId as string,
-      title: conversationId ? 'requestAcceptedMessage' : 'Your request was accepted',
-      metadata: conversationId ? { conversationId } : undefined,
-    });
-  }
-
-  revalidatePath(toPath(locale, '/fadla'));
-  revalidatePath(toPath(locale, '/profile'));
-  return { success: true, requestId, shareId: result.shareId as string, shareStatus: 'reserved', acceptedRequestId: requestId, conversationId };
+export async function acceptFadlaRequestAction(formData: FormData) {
+  return graatekActions.acceptFadlaRequestAction(formData);
 }
 
-export async function confirmFadlaReceivedAction(
-  formData: FormData,
-): Promise<{ success: true; shareId: string; receiverConfirmedAt: string; senderConfirmedAt: string | null; shareStatus: string } | { success: false; error: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
-  const shareId = formData.get('shareId');
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const errorsT = await getTranslations({ locale, namespace: 'Errors' });
-  const fadlaT = await getTranslations({ locale, namespace: 'Fadla' });
-
-  if (!user || typeof shareId !== 'string') {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  const { data: result, error: rpcError } = await supabase.rpc('confirm_fadla_action', {
-    p_share_id: shareId,
-    p_user_id: user.id,
-    p_confirmation_type: 'received',
-  });
-
-  if (rpcError || !result?.success) {
-    console.error('confirm_fadla_action RPC error:', rpcError, result);
-    return { success: false, error: fadlaT('errors.actionFailed') };
-  }
-
-  const bothConfirmed = result.bothConfirmed as boolean;
-
-  await createNotification({
-    userId: result.ownerId as string,
-    actorId: user.id,
-    type: bothConfirmed ? 'fadla_both_completed' : 'fadla_receiver_confirmed',
-    entityType: 'community_share',
-    entityId: shareId,
-    title: bothConfirmed ? fadlaT('notifications.bothCompleted') : fadlaT('notifications.receiverConfirmed'),
-  });
-
-  if (bothConfirmed) {
-    try {
-      const { data: conv } = await supabase.from('conversations').select('id').eq('graatek_id', shareId).maybeSingle();
-      if (conv) {
-        await supabase.rpc('archive_conversation', { p_conv_id: conv.id });
-      }
-    } catch (e) {
-      console.error('confirmFadlaReceivedAction archive error:', e);
-    }
-  }
-
-  if (bothConfirmed) {
-    await publishPlatformEvent({
-      name: 'graatek.completed',
-      actorId: user.id,
-      entityType: 'community_share',
-      entityId: shareId,
-    });
-  }
-
-  return {
-    success: true,
-    shareId,
-    receiverConfirmedAt: result.receiverConfirmedAt as string,
-    senderConfirmedAt: result.senderConfirmedAt as string | null,
-    shareStatus: result.shareStatus as string,
-  };
+export async function confirmFadlaReceivedAction(formData: FormData) {
+  return graatekActions.confirmFadlaReceivedAction(formData);
 }
 
-export async function confirmFadlaHandedOverAction(
-  formData: FormData,
-): Promise<{ success: true; shareId: string; senderConfirmedAt: string; receiverConfirmedAt: string | null; shareStatus: string } | { success: false; error: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
-  const shareId = formData.get('shareId');
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const errorsT = await getTranslations({ locale, namespace: 'Errors' });
-  const fadlaT = await getTranslations({ locale, namespace: 'Fadla' });
-
-  if (!user || typeof shareId !== 'string') {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  const { data: result, error: rpcError } = await supabase.rpc('confirm_fadla_action', {
-    p_share_id: shareId,
-    p_user_id: user.id,
-    p_confirmation_type: 'handed_over',
-  });
-
-  if (rpcError || !result?.success) {
-    console.error('confirm_fadla_action RPC error:', rpcError, result);
-    return { success: false, error: fadlaT('errors.actionFailed') };
-  }
-
-  const bothConfirmed = result.bothConfirmed as boolean;
-
-  // Fetch requester_id for notification target (only needed for owner action)
-  const { data: share } = await supabase
-    .from('community_shares')
-    .select('accepted_request_id, owner_id')
-    .eq('id', shareId)
-    .single();
-
-  if (share?.accepted_request_id) {
-    const { data: req } = await supabase
-      .from('community_share_requests')
-      .select('requester_id')
-      .eq('id', share.accepted_request_id)
-      .single();
-
-    if (req) {
-      await createNotification({
-        userId: req.requester_id,
-        actorId: user.id,
-        type: bothConfirmed ? 'fadla_both_completed' : 'fadla_sender_confirmed',
-        entityType: 'community_share',
-        entityId: shareId,
-        title: bothConfirmed ? fadlaT('notifications.bothCompleted') : fadlaT('notifications.senderConfirmed'),
-      });
-    }
-  }
-
-  if (bothConfirmed) {
-    try {
-      const { data: conv } = await supabase.from('conversations').select('id').eq('graatek_id', shareId).maybeSingle();
-      if (conv) {
-        await supabase.rpc('archive_conversation', { p_conv_id: conv.id });
-      }
-    } catch (e) {
-      console.error('confirmFadlaHandedOverAction archive error:', e);
-    }
-  }
-
-  if (bothConfirmed) {
-    await publishPlatformEvent({
-      name: 'graatek.completed',
-      actorId: user.id,
-      entityType: 'community_share',
-      entityId: shareId,
-    });
-  }
-
-  return {
-    success: true,
-    shareId,
-    senderConfirmedAt: result.senderConfirmedAt as string,
-    receiverConfirmedAt: result.receiverConfirmedAt as string | null,
-    shareStatus: result.shareStatus as string,
-  };
+export async function confirmFadlaHandedOverAction(formData: FormData) {
+  return graatekActions.confirmFadlaHandedOverAction(formData);
 }
 
-export async function declineFadlaRequestAction(
-  formData: FormData,
-): Promise<{ success: true; requestId: string; shareId: string; shareStatus: string } | { success: false; error: string }> {
-  const locale = normalizeLocale(formData.get('locale'));
-  const requestId = formData.get('requestId');
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const errorsT = await getTranslations({ locale, namespace: 'Errors' });
-  const fadlaT = await getTranslations({ locale, namespace: 'Fadla' });
-
-  if (!user || typeof requestId !== 'string') {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  const { data: req } = await supabase
-    .from('community_share_requests')
-    .select('id, share_id, requester_id, status')
-    .eq('id', requestId)
-    .single();
-
-  if (!req || req.status !== 'pending') {
-    return { success: false, error: fadlaT('errors.notFound') };
-  }
-
-  const { data: item } = await supabase
-    .from('community_shares')
-    .select('owner_id')
-    .eq('id', req.share_id)
-    .single();
-
-  if (!item || item.owner_id !== user.id) {
-    return { success: false, error: errorsT('submitFailed') };
-  }
-
-  const now = new Date().toISOString();
-
-  await supabase
-    .from('community_share_requests')
-    .update({ status: 'declined', updated_at: now })
-    .eq('id', requestId);
-
-  // Notify the requester that their request was declined
-  await createNotification({
-    userId: req.requester_id,
-    actorId: user.id,
-    type: 'fadla_request_declined',
-    entityType: 'community_share',
-    entityId: req.share_id,
-    title: 'Your Graatek request was declined',
-  });
-
-  // Check if there are any other pending requests for this item
-  const { count: remaining } = await supabase
-    .from('community_share_requests')
-    .select('*', { count: 'exact', head: true })
-    .eq('share_id', req.share_id)
-    .eq('status', 'pending');
-
-  // If no other pending requests remain, return item to published
-  if (!remaining || remaining === 0) {
-    await supabase
-      .from('community_shares')
-      .update({ status: 'published', updated_at: now })
-      .eq('id', req.share_id);
-  }
-
-  revalidatePath(toPath(locale, '/fadla'));
-  revalidatePath(toPath(locale, '/profile'));
-  return { success: true, requestId, shareId: req.share_id, shareStatus: (!remaining || remaining === 0) ? 'published' : 'requested' };
+export async function declineFadlaRequestAction(formData: FormData) {
+  return graatekActions.declineFadlaRequestAction(formData);
 }
 
-export async function sendFadlaMessageAction(
-  formData: FormData,
-): Promise<{success: true; message: {id: string; created_at: string}} | {success: false; error: string}> {
-  const localeRaw = formData.get('locale');
-  const shareId = formData.get('shareId');
-  const requestId = formData.get('requestId');
-  const message = formData.get('message');
-  const supabase = await createClient();
-  const {data: {user}} = await supabase.auth.getUser();
-
-  if (!user || typeof localeRaw !== 'string' || typeof shareId !== 'string' || typeof requestId !== 'string' || typeof message !== 'string') {
-    return {success: false, error: 'submitFailed'};
-  }
-
-  const locale = localeRaw;
-
-  const trimmed = message.trim();
-  if (!trimmed || trimmed.length > 500) {
-    return {success: false, error: 'submitFailed'};
-  }
-
-  const {allowed} = await checkRateLimit('fadla_message', user.id);
-  if (!allowed) {
-    return {success: false, error: 'rate_limited'};
-  }
-
-  const item = await supabase
-    .from('community_shares')
-    .select('owner_id, title, accepted_request_id, status')
-    .eq('id', shareId)
-    .single()
-    .then(r => r.data);
-
-  if (!item || item.accepted_request_id !== requestId) {
-    return {success: false, error: 'submitFailed'};
-  }
-
-  if (item.status === 'completed') {
-    return {success: false, error: 'submitFailed'};
-  }
-
-  const requestRow = await supabase
-    .from('community_share_requests')
-    .select('requester_id, status')
-    .eq('id', requestId)
-    .single()
-    .then(r => r.data);
-
-  if (!requestRow || requestRow.status !== 'accepted') {
-    return {success: false, error: 'submitFailed'};
-  }
-
-  const isOwner = item.owner_id === user.id;
-  const isRequester = requestRow.requester_id === user.id;
-  if (!isOwner && !isRequester) {
-    return {success: false, error: 'submitFailed'};
-  }
-
-  const {data: newMessage, error} = await supabase
-    .from('fadla_request_messages')
-    .insert({share_id: shareId, request_id: requestId, sender_id: user.id, message: trimmed})
-    .select('id, created_at')
-    .single();
-
-  if (error || !newMessage) {
-    console.error('sendFadlaMessageAction error:', error);
-    return {success: false, error: 'submitFailed'};
-  }
-
-  // also write to conversation_messages for unified inbox
-  try {
-    const { ensureConversationExists, sendConversationMessage } = await import('@/lib/data/conversations');
-    const convId = await ensureConversationExists('graatek', shareId);
-    if (convId) {
-      await sendConversationMessage(convId, user.id, trimmed);
-    }
-  } catch (e) {
-    console.error('sendFadlaMessageAction conv sync error:', e);
-  }
-
-  const otherUserId = isOwner ? requestRow.requester_id : item.owner_id;
-  await createNotification({
-    userId: otherUserId,
-    actorId: user.id,
-    type: 'fadla_message',
-    entityType: 'community_share',
-    entityId: shareId,
-    title: 'sent you a message about Graatek',
-    metadata: {requestId, message: trimmed.slice(0, 100), senderId: user.id},
-  });
-
-  revalidatePath(toPath(locale, '/fadla'));
-  return {success: true, message: {id: newMessage.id, created_at: newMessage.created_at}};
+export async function sendFadlaMessageAction(formData: FormData) {
+  return graatekActions.sendFadlaMessageAction(formData);
 }
 
-// backward-compatible aliases
-export const submitCommunityShareAction = submitFadlaItemAction;
-export const updateCommunityShareAction = updateFadlaItemAction;
-export const deleteCommunityShareAction = deleteFadlaItemAction;
-export const requestCommunityShareAction = requestFadlaItemAction;
-
-export async function shareCommunityShareAction(
-  formData: FormData,
-): Promise<{ success: boolean; error?: string; sharesCount?: number }> {
-  const shareId = formData.get('shareId');
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { success: false, error: 'unauthorized' };
-  }
-
-  if (typeof shareId !== 'string') {
-    return { success: false, error: 'invalid' };
-  }
-
-  const { data: share } = await supabase
-    .from('community_shares')
-    .select('owner_id')
-    .eq('id', shareId)
-    .single();
-
-  if (!share) {
-    return { success: false, error: 'not_found' };
-  }
-
-  const { data: sharesCount, error: shareCountError } = await supabase.rpc(
-    'increment_share_count',
-    {
-      p_entity_type: 'community_share',
-      p_entity_id: shareId,
-    },
-  );
-
-  if (shareCountError || typeof sharesCount !== 'number') {
-    console.error('shareCommunityShareAction increment_share_count error:', shareCountError);
-    return { success: false, error: 'share_count_failed' };
-  }
-
-  if (share.owner_id !== user.id) {
-    await createNotification({
-      userId: share.owner_id,
-      actorId: user.id,
-      type: 'share',
-      entityType: 'community_share',
-      entityId: shareId,
-      title: 'Shared your item',
-    });
-  }
-
-  return { success: true, sharesCount };
+export async function shareCommunityShareAction(formData: FormData) {
+  return graatekActions.shareCommunityShareAction(formData);
 }
 
+export async function submitCommunityShareAction(formData: FormData) {
+  return graatekActions.submitCommunityShareAction(formData);
+}
+
+export async function updateCommunityShareAction(formData: FormData) {
+  return graatekActions.updateCommunityShareAction(formData);
+}
+
+export async function deleteCommunityShareAction(formData: FormData) {
+  return graatekActions.deleteCommunityShareAction(formData);
+}
+
+export async function requestCommunityShareAction(formData: FormData) {
+  return graatekActions.requestCommunityShareAction(formData);
+}
 export async function completeOnboardingAction(
   userId: string,
 ): Promise<{ success: boolean; error?: string }> {
