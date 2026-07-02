@@ -3,6 +3,7 @@
 import {revalidatePath} from "next/cache";
 import {createClient} from "@/lib/supabase/server";
 import {assertFeatureEnabledForMutation} from "@/core/features/server";
+import {withLocale} from "@/lib/i18n/paths";
 
 export async function submitDonation(prev: unknown, formData: FormData) {
   try {
@@ -40,7 +41,7 @@ export async function submitDonation(prev: unknown, formData: FormData) {
     return {error: "server-error"};
   }
 
-  revalidatePath("/campaigns");
-  revalidatePath(`/campaigns/${campaignSlug}`);
+  revalidatePath(withLocale("/campaigns", locale));
+  revalidatePath(withLocale(`/campaigns/${campaignSlug}`, locale));
   return {success: true};
 }

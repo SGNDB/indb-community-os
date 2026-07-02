@@ -190,10 +190,10 @@ export async function recordSupportContributionAction(formData: FormData) {
     });
   }
 
-  revalidatePath("/campaigns");
-  revalidatePath(`/campaigns/${campaignSlug}`);
+  revalidatePath(withLocale("/campaigns", locale));
+  revalidatePath(withLocale(`/campaigns/${campaignSlug}`, locale));
   if (typeof returnPath === "string" && returnPath.startsWith("/") && !returnPath.startsWith("//")) {
-    revalidatePath(returnPath);
+    revalidatePath(withLocale(returnPath, locale));
     redirect(withLocale(`${returnPath}?status=contribution-sent`, locale));
   }
   redirect(withLocale(`/campaigns/${campaignSlug}?status=contribution-sent`, locale));
@@ -269,9 +269,9 @@ export async function adminSetSupportContributionStatusAction(formData: FormData
     });
   }
 
-  revalidatePath("/campaigns");
-  revalidatePath("/admin/support");
-  revalidatePath("/admin/volunteer");
+  revalidatePath(withLocale("/campaigns", locale));
+  revalidatePath(withLocale("/admin/support", locale));
+  revalidatePath(withLocale("/admin/volunteer", locale));
   if (
     typeof returnPath === "string" &&
     returnPath.startsWith("/admin/volunteer") &&
@@ -317,8 +317,8 @@ export async function adminUpdateSupportCampaignAction(formData: FormData) {
     finalReport: typeof finalReport === "string" && finalReport.trim() ? finalReport.trim().slice(0, 2000) : null,
   });
 
-  revalidatePath("/campaigns");
-  revalidatePath("/admin/support");
+  revalidatePath(withLocale("/campaigns", locale));
+  revalidatePath(withLocale("/admin/support", locale));
   redirect(withLocale("/admin/support?status=saved", locale));
 }
 
@@ -378,8 +378,9 @@ export async function adminCreateSupportCampaignAction(formData: FormData) {
     redirect(withLocale("/admin/support?status=create-failed", locale));
   }
 
-  revalidatePath("/campaigns");
-  revalidatePath("/admin/support");
+  revalidatePath(withLocale("/campaigns", locale));
+  revalidatePath(withLocale("/admin/support", locale));
+  revalidatePath(withLocale("/admin/campaigns", locale));
   redirect(withLocale("/admin/support?status=created", locale));
 }
 
@@ -408,8 +409,8 @@ export async function adminCreateSupportUpdateAction(formData: FormData) {
     body: body.trim().slice(0, 1000),
   });
 
-  revalidatePath("/campaigns");
-  revalidatePath("/admin/support");
+  revalidatePath(withLocale("/campaigns", locale));
+  revalidatePath(withLocale("/admin/support", locale));
   redirect(withLocale("/admin/support?status=update-published", locale));
 }
 
@@ -442,6 +443,6 @@ export async function adminSetDonationStatusAction(formData: FormData) {
     rejectedReason: null,
   });
 
-  revalidatePath("/admin/donations");
+  revalidatePath(withLocale("/admin/donations", locale));
   redirect(withLocale(`/admin/donations?status=donation-${nextStatus}`, locale));
 }
