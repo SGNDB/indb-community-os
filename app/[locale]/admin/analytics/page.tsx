@@ -1,28 +1,11 @@
 import {getTranslations} from "next-intl/server";
-import {
-  getAdminAnalyticsDashboard,
-  getAdminAnalyticsKPIs,
-  getAdminEngagementByFeature,
-  getAdminTopContent,
-  getAdminLanguageData,
-  getAdminRetentionMetrics,
-  getAdminFunnelData,
-  getAdminImpactMetrics,
-  getAdminPerformanceMetrics,
-  getAdminRecommendationHealth,
-  getAdminUserGrowth,
-  getAdminCommunityActivity,
-  getAdminHourlyActivity,
-  getAdminDonationTrend,
-  getAdminConversationTrend,
-  getAdminVolunteerActivity,
-  getAdminIdeaGrowth,
-  getAdminGraatekGrowth,
-} from "@/lib/data/admin";
+import {AdminPageLayout} from "@/components/admin/ui/admin-page-layout";
+import {getAdminAnalyticsDashboard} from "@/lib/data/admin";
 import {AdminAnalyticsClient} from "./analytics-client";
 
 export default async function AdminAnalyticsPage({params}: {params: Promise<{locale: string}>}) {
   const {locale} = await params;
+  const adminT = await getTranslations({locale, namespace: "Admin"});
   const t = await getTranslations({locale, namespace: "Admin.analyticsPage"});
 
   const allData = await getAdminAnalyticsDashboard();
@@ -185,12 +168,19 @@ export default async function AdminAnalyticsPage({params}: {params: Promise<{loc
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-6 xl:p-8">
+    <AdminPageLayout
+      title={t("title")}
+      subtitle={t("description")}
+      breadcrumbs={[
+        {label: adminT("nav.dashboard"), href: `/${locale}/admin`},
+        {label: adminT("nav.analytics"), href: `/${locale}/admin/analytics`},
+      ]}
+    >
       <AdminAnalyticsClient
         data={allData}
         labels={labels}
         locale={locale}
       />
-    </div>
+    </AdminPageLayout>
   );
 }

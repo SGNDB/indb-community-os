@@ -1,5 +1,5 @@
-import {Settings} from "lucide-react";
 import {getTranslations} from "next-intl/server";
+import {AdminPageLayout} from "@/components/admin/ui/admin-page-layout";
 import {getAdminSettingsDashboard} from "@/lib/data/admin";
 import {AdminSettingsClient} from "./settings-client";
 
@@ -9,6 +9,7 @@ export default async function AdminSettingsPage({
   params: Promise<{locale: string}>;
 }) {
   const {locale} = await params;
+  const adminT = await getTranslations({locale, namespace: "Admin"});
   const t = await getTranslations({locale, namespace: "Admin.settingsPage"});
   const data = await getAdminSettingsDashboard();
 
@@ -67,18 +68,15 @@ export default async function AdminSettingsPage({
   for (const key of keys) { labels[key] = t(key); }
 
   return (
-    <div className="space-y-6 p-2 md:p-4 xl:p-6">
-      <div className="flex items-start gap-3">
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-          <Settings size={22} />
-        </span>
-        <div>
-          <p className="text-sm font-bold text-primary">{t("eyebrow")}</p>
-          <h1 className="text-2xl font-black">{t("title")}</h1>
-          <p className="mt-1 max-w-xl text-sm text-muted-foreground">{t("description")}</p>
-        </div>
-      </div>
+    <AdminPageLayout
+      title={t("title")}
+      subtitle={t("description")}
+      breadcrumbs={[
+        {label: adminT("nav.dashboard"), href: `/${locale}/admin`},
+        {label: adminT("nav.settings"), href: `/${locale}/admin/settings`},
+      ]}
+    >
       <AdminSettingsClient data={data} labels={labels} locale={locale} />
-    </div>
+    </AdminPageLayout>
   );
 }

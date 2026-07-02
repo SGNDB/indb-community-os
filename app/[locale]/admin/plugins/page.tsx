@@ -1,4 +1,5 @@
 import {getTranslations} from "next-intl/server";
+import {AdminPageLayout} from "@/components/admin/ui/admin-page-layout";
 import {getAllPlugins} from "@/core/plugins/registry";
 import {AdminPluginsClient} from "./admin-plugins-client";
 import {getPluginStates} from "./actions";
@@ -14,7 +15,8 @@ export default async function AdminPluginsPage({
 
   const plugins = getAllPlugins().map((entry) => {
     const dbState = dbStates[entry.manifest.id];
-    const effectiveState = dbState === "disabled" ? "disabled" : entry.state;
+    const effectiveState: "enabled" | "disabled" =
+      dbState === "disabled" ? "disabled" : entry.state === "enabled" ? "enabled" : "disabled";
     const itemKey = `plugins.items.${entry.manifest.id}`;
     return {
       id: entry.manifest.id,
@@ -28,14 +30,15 @@ export default async function AdminPluginsPage({
   });
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">{t("nav.plugins")}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("plugins.subtitle")}
-        </p>
-      </div>
+    <AdminPageLayout
+      title={t("nav.plugins")}
+      subtitle={t("plugins.subtitle")}
+      breadcrumbs={[
+        {label: t("nav.dashboard"), href: `/${locale}/admin`},
+        {label: t("nav.plugins"), href: `/${locale}/admin/plugins`},
+      ]}
+    >
       <AdminPluginsClient plugins={plugins} />
-    </div>
+    </AdminPageLayout>
   );
 }

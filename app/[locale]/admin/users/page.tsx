@@ -1,4 +1,5 @@
 import {getTranslations} from "next-intl/server";
+import {AdminPageLayout} from "@/components/admin/ui/admin-page-layout";
 import {getAdminUsersWithStats, getAdminUsersKPISummary, getAdminTopContributors} from "@/lib/data/admin";
 import {AdminUsersClient} from "./users-client";
 
@@ -141,7 +142,14 @@ export default async function AdminUsersPage({
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-6 xl:p-8">
+    <AdminPageLayout
+      title={t("usersPage.title")}
+      subtitle={t("usersPage.description")}
+      breadcrumbs={[
+        {label: t("nav.dashboard"), href: `/${locale}/admin`},
+        {label: t("nav.users"), href: `/${locale}/admin/users`},
+      ]}
+    >
       <AdminUsersClient
         initialKpi={safeKpi}
         initialUsers={users}
@@ -152,6 +160,6 @@ export default async function AdminUsersPage({
         locale={locale}
         initialSearch={sp.userSearch ?? ""}
       />
-    </div>
+    </AdminPageLayout>
   );
 }

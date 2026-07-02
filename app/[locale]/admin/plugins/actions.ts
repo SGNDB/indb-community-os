@@ -59,6 +59,14 @@ export async function togglePlugin(pluginId: string, enabled: boolean) {
   revalidatePath("/admin/plugins");
 }
 
+export async function togglePluginState(
+  pluginId: string,
+  newState: "enabled" | "disabled",
+) {
+  await togglePlugin(pluginId, newState === "enabled");
+  return {success: true};
+}
+
 export async function getPluginStates(): Promise<Record<string, string>> {
   const supabase = createAdminClient();
   if (!supabase) return {};

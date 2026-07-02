@@ -3,6 +3,7 @@ import {getTranslations} from "next-intl/server";
 import {notFound} from "next/navigation";
 
 import {assertFeatureEnabled} from "@/core/features/server";
+import {AdminPageLayout} from "@/components/admin/ui/admin-page-layout";
 import {AdminGraatekClient, type GraatekAdminItem, type GraatekRequest} from "@/modules/graatek/components/pages/admin-graatek-client";
 
 type ProfileSummary = {id: string; full_name: string | null; username: string | null; avatar_url: string | null};
@@ -216,8 +217,15 @@ export default async function AdminGraatekPage({params}: {params: Promise<{local
   });
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
+    <AdminPageLayout
+      title={labels.title}
+      subtitle={labels.description}
+      breadcrumbs={[
+        {label: t("nav.dashboard"), href: `/${locale}/admin`},
+        {label: t("nav.graatek"), href: `/${locale}/admin/graatek`},
+      ]}
+    >
       <AdminGraatekClient initialItems={graatekItems} labels={labels} locale={locale} />
-    </div>
+    </AdminPageLayout>
   );
 }

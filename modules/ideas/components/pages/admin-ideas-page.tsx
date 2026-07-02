@@ -1,4 +1,5 @@
 import {getTranslations} from "next-intl/server";
+import {AdminPageLayout} from "@/components/admin/ui/admin-page-layout";
 import {getAdminIdeasKPISummary, getAdminIdeasWithStats, getAdminTopIdeas} from "@/lib/data/admin";
 import {IdeasClient} from "@/modules/ideas/components/pages/admin-ideas-client";
 
@@ -134,7 +135,14 @@ export default async function AdminIdeasPage({
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-6 xl:p-8">
+    <AdminPageLayout
+      title={t("ideasPage.title")}
+      subtitle={t("ideasPage.description")}
+      breadcrumbs={[
+        {label: t("nav.dashboard"), href: `/${locale}/admin`},
+        {label: t("nav.ideas"), href: `/${locale}/admin/ideas`},
+      ]}
+    >
       <IdeasClient
         initialKpi={safeKpi}
         initialIdeas={ideas}
@@ -145,6 +153,6 @@ export default async function AdminIdeasPage({
         locale={locale}
         initialSearch={sp.search ?? ""}
       />
-    </div>
+    </AdminPageLayout>
   );
 }

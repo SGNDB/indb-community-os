@@ -29,6 +29,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Image from "next/image";
+import NextLink from "next/link";
+import {useRouter as useNextRouter} from "next/navigation";
 import {useTheme} from "next-themes";
 import {useLocale} from "next-intl";
 
@@ -96,6 +98,7 @@ export function AdminSidebar({
   const [searchFocused, setSearchFocused] = useState(false);
   const pathname = usePathname();
   const searchRef = useRef<HTMLInputElement>(null);
+  const nextRouter = useNextRouter();
 
   useEffect(() => {
     const saved = window.localStorage.getItem("indb-admin-sidebar-collapsed");
@@ -199,12 +202,15 @@ export function AdminSidebar({
             pathname === itemPath ||
             (itemPath !== "/admin" && pathname.startsWith(`${itemPath}/`));
           return (
-            <a
+            <NextLink
               key={item.href}
               href={item.href}
+              prefetch={true}
+              onMouseEnter={() => nextRouter.prefetch(item.href)}
+              onFocus={() => nextRouter.prefetch(item.href)}
               onClick={() => setMobileOpen(false)}
               className={cn(
-                "admin-sidebar-item flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm font-medium text-muted-foreground transition-all duration-200",
+                "admin-sidebar-item relative flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm font-medium text-muted-foreground transition-all duration-200",
                 isActive
                   ? "bg-primary text-primary-foreground font-semibold shadow-[0_2px_8px_rgba(237,33,36,0.2)]"
                   : "hover:bg-muted/60 hover:text-foreground",
@@ -225,7 +231,7 @@ export function AdminSidebar({
                   {item.badge > 99 ? "99+" : item.badge}
                 </span>
               )}
-            </a>
+            </NextLink>
           );
         })}
       </nav>

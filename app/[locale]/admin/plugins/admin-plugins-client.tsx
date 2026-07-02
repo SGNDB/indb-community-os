@@ -1,92 +1,128 @@
 "use client";
 
-import {useTransition} from "react";
+import {useState} from "react";
 import {useTranslations} from "next-intl";
-import {togglePlugin} from "./actions";
 
-interface PluginRow {
+import {GlassCard, StatusBadge} from "@/components/admin/admin-shared";
+import * as actions from "./actions";
+
+interface Plugin {
   id: string;
   name: string;
-  version: string;
   description: string;
-  state: string;
+  version: string;
+  state: "enabled" | "disabled";
   navKey: string | null;
   routePrefixes: string[];
 }
 
-export function AdminPluginsClient({plugins}: {plugins: PluginRow[]}) {
-  const [isPending, startTransition] = useTransition();
+export function AdminPluginsClient({plugins}: {plugins: Plugin[]}) {
   const t = useTranslations("Admin.plugins");
+  const [loading, setLoading] = useState<string | null>(null);
+  const [pluginStates, setPluginStates] = useState<Record<string, "enabled" | "disabled">>(
+    Object.fromEntries(plugins.map((p) => [p.id, p.state])),
+  );
 
-  function handleToggle(pluginId: string, currentState: string) {
-    startTransition(async () => {
-      try {
-        await togglePlugin(pluginId, currentState === "disabled");
-      } catch (e) {
-        alert(e instanceof Error ? e.message : "Failed to toggle plugin");
-      }
-    });
+  const handleToggle = async (pluginId: string, newState: "enabled" | "disabled") => {
+    const previousState = pluginStates[pluginId] ?? "disabled";
+    setLoading(pluginId);
+    setPluginStates((prev) => ({...prev, [pluginId]: newState}));
+
+    try {
+      await actions.togglePluginState(pluginId, newState);
+    } catch (error) {
+      console.error("Failed to toggle plugin:", error);
+      setPluginStates((prev) => ({...prev, [pluginId]: previousState}));
+      alert(error instanceof Error ? error.message : "Failed to toggle plugin");
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  if (plugins.length === 0) {
+    return (
+      <GlassCard className="p-10 text-center text-sm text-muted-foreground">
+        {t("empty")}
+      </GlassCard>
+    );
   }
 
   return (
-    <div className="rounded-lg border border-border">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-border bg-muted/50">
-            <th className="px-4 py-3 text-start font-medium">{t("columns.plugin")}</th>
-            <th className="px-4 py-3 text-start font-medium">{t("columns.version")}</th>
-            <th className="px-4 py-3 text-start font-medium">{t("columns.routes")}</th>
-            <th className="px-4 py-3 text-start font-medium">{t("columns.state")}</th>
-            <th className="px-4 py-3 text-end font-medium">{t("columns.action")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {plugins.map((plugin) => (
-            <tr key={plugin.id} className="border-b border-border last:border-0">
-              <td className="px-4 py-3">
-                <div className="font-medium">{plugin.name}</div>
-                <div className="text-xs text-muted-foreground">{plugin.description}</div>
-                {plugin.navKey && (
-                  <div className="mt-0.5 text-xs text-muted-foreground/60">{t("navLabel")}: {plugin.navKey}</div>
-                )}
-              </td>
-              <td className="px-4 py-3 text-muted-foreground" dir="ltr">{plugin.version}</td>
-              <td className="px-4 py-3 text-muted-foreground font-mono text-xs" dir="ltr">
-                {plugin.routePrefixes.join(", ")}
-              </td>
-              <td className="px-4 py-3">
-                <span
-                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                    plugin.state === "enabled"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-100 text-gray-500"
-                  }`}
-                >
-                  {plugin.state === "enabled" ? t("state.enabled") : t("state.disabled")}
-                </span>
-              </td>
-              <td className="px-4 py-3 text-end">
-                <button
-                  onClick={() => handleToggle(plugin.id, plugin.state)}
-                  disabled={isPending}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-                    plugin.state === "enabled"
-                      ? "bg-red-50 text-red-600 hover:bg-red-100"
-                      : "bg-green-50 text-green-600 hover:bg-green-100"
-                  } disabled:opacity-50`}
-                >
-                  {plugin.state === "enabled" ? t("actions.disable") : t("actions.enable")}
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {plugins.length === 0 && (
-        <div className="py-12 text-center text-sm text-muted-foreground">
-          {t("empty")}
-        </div>
-      )}
+    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+      {plugins.map((plugin) => {
+        const currentState = pluginStates[plugin.id] ?? plugin.state;
+        const isLoading = loading === plugin.id;
+
+        return (
+          <GlassCard key={plugin.id} className="flex min-h-[300px] flex-col p-6">
+            <div className="flex-1">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="text-lg font-bold text-foreground">{plugin.name}</h3>
+                  {plugin.navKey && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {t("navLabel")}: <span dir="ltr">{plugin.navKey}</span>
+                    </p>
+                  )}
+                </div>
+                <StatusBadge
+                  status={currentState === "enabled" ? "healthy" : "critical"}
+                  label={currentState === "enabled" ? t("state.enabled") : t("state.disabled")}
+                />
+              </div>
+
+              <p className="mt-3 text-sm text-muted-foreground">{plugin.description}</p>
+              <p className="mt-3 text-xs text-muted-foreground" dir="ltr">
+                {t("columns.version")} {plugin.version}
+              </p>
+
+              {plugin.routePrefixes.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground">{t("columns.routes")}</p>
+                  <div className="flex flex-wrap gap-1">
+                    {plugin.routePrefixes.map((prefix) => (
+                      <code
+                        key={prefix}
+                        className="rounded bg-muted/50 px-2 py-1 text-[10px] text-muted-foreground"
+                        dir="ltr"
+                      >
+                        {prefix}
+                      </code>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => handleToggle(plugin.id, "enabled")}
+                disabled={isLoading || currentState === "enabled"}
+                className={`min-h-11 rounded-xl px-4 py-3 text-sm font-semibold transition duration-200 ${
+                  currentState === "enabled"
+                    ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
+                    : "bg-muted text-muted-foreground hover:bg-emerald-500/10 hover:text-emerald-700"
+                } disabled:cursor-not-allowed disabled:opacity-60`}
+              >
+                {isLoading ? "..." : "ON"}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleToggle(plugin.id, "disabled")}
+                disabled={isLoading || currentState === "disabled"}
+                className={`min-h-11 rounded-xl px-4 py-3 text-sm font-semibold transition duration-200 ${
+                  currentState === "disabled"
+                    ? "bg-red-500 text-white shadow-lg shadow-red-500/20"
+                    : "bg-muted text-muted-foreground hover:bg-red-500/10 hover:text-red-700"
+                } disabled:cursor-not-allowed disabled:opacity-60`}
+              >
+                {isLoading ? "..." : "OFF"}
+              </button>
+            </div>
+          </GlassCard>
+        );
+      })}
     </div>
   );
 }

@@ -16,6 +16,7 @@ import {
   getAdminHealthIndicators,
   getCurrentAdminProfile,
 } from "@/lib/data/admin";
+import {AdminPageLayout} from "@/components/admin/ui/admin-page-layout";
 import ChartsWrapper from "./charts-wrapper";
 
 export default async function AdminDashboardPage({params}: {params: Promise<{locale: string}>}) {
@@ -110,7 +111,11 @@ export default async function AdminDashboardPage({params}: {params: Promise<{loc
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-6 xl:p-8">
+    <AdminPageLayout
+      title={t("commandCenter")}
+      subtitle={t("hero.description")}
+      breadcrumbs={[{label: t("nav.dashboard"), href: `/${locale}/admin`}]}
+    >
       <ChartsWrapper
         kpis={kpis}
         userGrowth={userGrowth}
@@ -129,6 +134,6 @@ export default async function AdminDashboardPage({params}: {params: Promise<{loc
         labels={tLabels}
         locale={locale}
       />
-    </div>
+    </AdminPageLayout>
   );
 }
