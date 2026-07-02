@@ -1003,7 +1003,7 @@
         "ideas": {"name": "الأفكار", "description": "أفكار المجتمع والتصويت عليها"},
         "memories": {"name": "الذكريات", "description": "ذكريات المجتمع وخطها الزمني"},
         "graatek": {"name": "گرعتك", "description": "المشاركة المجتمعية والطلبات والمراسلة والإتمام"},
-        "campaigns": {"name": "حملات", "description": "حملات التبرع والدعم"},
+        "campaigns": {"name": "الحملات", "description": "حملات التبرع والدعم"},
         "volunteering": {"name": "التطوع", "description": "فرص التطوع"},
         "feed": {"name": "المنشورات", "description": "منشورات المجتمع وموجز الأخبار"},
         "recognition": {"name": "الأثر المجتمعي", "description": "تقدير المجتمع وأثره"},

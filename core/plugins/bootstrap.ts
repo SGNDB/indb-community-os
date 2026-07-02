@@ -1,5 +1,6 @@
 import {installPlugin} from "@/core/plugins/lifecycle";
 import type {PluginManifest} from "@/core/plugins/manifest";
+import {campaignsManifest} from "@/modules/campaigns/manifest";
 import {graatekManifest} from "@/modules/graatek/manifest";
 import {ideasManifest} from "@/modules/ideas/manifest";
 import {memoriesManifest} from "@/modules/memories/manifest";
@@ -8,17 +9,7 @@ const manifests: PluginManifest[] = [
   ideasManifest,
   memoriesManifest,
   graatekManifest,
-  {
-    id: "campaigns",
-    name: "Campaigns",
-    version: "1.0.0",
-    description: "Donation campaigns and support",
-    nav: {key: "campaigns", href: "/campaigns", slot: "mobile-more"},
-    routePrefixes: ["/campaigns", "/support"],
-    permissions: ["public.read", "member.write", "admin.manage"],
-    translationsNamespace: "Support",
-    events: [{name: "donation.created"}, {name: "donation.verified"}],
-  },
+  campaignsManifest,
   {
     id: "volunteering",
     name: "Volunteering",
