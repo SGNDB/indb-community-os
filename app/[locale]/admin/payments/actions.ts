@@ -2,6 +2,7 @@
 
 import {revalidatePath} from "next/cache";
 import {createClient} from "@/lib/supabase/server";
+import {assertFeatureEnabledForMutation} from "@/core/features/server";
 
 async function logAudit(type: string, paymentId: string, actorId: string, details: string) {
   try {
@@ -19,6 +20,7 @@ async function logAudit(type: string, paymentId: string, actorId: string, detail
 }
 
 export async function verifyPayment(paymentId: string, note?: string) {
+  await assertFeatureEnabledForMutation("campaigns");
   const supabase = await createClient();
   const {data: {user}} = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
@@ -39,6 +41,7 @@ export async function verifyPayment(paymentId: string, note?: string) {
 }
 
 export async function rejectPayment(paymentId: string, note?: string) {
+  await assertFeatureEnabledForMutation("campaigns");
   const supabase = await createClient();
   const {data: {user}} = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
@@ -59,6 +62,7 @@ export async function rejectPayment(paymentId: string, note?: string) {
 }
 
 export async function refundPayment(paymentId: string, note?: string) {
+  await assertFeatureEnabledForMutation("campaigns");
   const supabase = await createClient();
   const {data: {user}} = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
@@ -79,6 +83,7 @@ export async function refundPayment(paymentId: string, note?: string) {
 }
 
 export async function flagPayment(paymentId: string, note?: string) {
+  await assertFeatureEnabledForMutation("campaigns");
   const supabase = await createClient();
   const {data: {user}} = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");

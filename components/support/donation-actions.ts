@@ -2,8 +2,14 @@
 
 import {revalidatePath} from "next/cache";
 import {createClient} from "@/lib/supabase/server";
+import {assertFeatureEnabledForMutation} from "@/core/features/server";
 
 export async function submitDonation(prev: unknown, formData: FormData) {
+  try {
+    await assertFeatureEnabledForMutation("campaigns");
+  } catch {
+    return {error: "module_disabled"};
+  }
   const campaignId = formData.get("campaignId") as string;
   const campaignSlug = formData.get("campaignSlug") as string;
   const locale = formData.get("locale") as string;
